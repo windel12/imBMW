@@ -80,7 +80,7 @@ namespace imBMW.Features
                     // TODO send last BM screen
                     if (BordmonitorMenu.Instance.IsEnabled)
                     {
-                        BordmonitorMenu.Instance.UpdateScreen(MenuScreenUpdateReason.Refresh);
+                        BordmonitorMenu.Instance.UpdateScreen(/*MenuScreenUpdateReason.Refresh*/);
                     }
                     break;
             }

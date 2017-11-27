@@ -17,15 +17,15 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE,MF_FRAMEWORK_VERSION_V4_3</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE,MF_FRAMEWORK_VERSION_V4_3,MF_FRAMEWORK_VERSION_V4_3</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -41,11 +41,13 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="GHI.Hardware, Version=4.3.7.10, Culture=neutral, processorArchitecture=MSIL" />
-    <Reference Include="GHI.Pins, Version=4.3.7.10, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="GHI.Hardware, Version=4.3.8.1, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="GHI.Pins, Version=4.3.8.1, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.SPOT.Hardware" />
+    <Reference Include="Microsoft.SPOT.Hardware.SerialPort" />
     <Reference Include="Microsoft.SPOT.IO" />
     <Reference Include="Microsoft.SPOT.Native" />
+    <Reference Include="System" />
     <Reference Include="System.IO" />
   </ItemGroup>
   <ItemGroup>

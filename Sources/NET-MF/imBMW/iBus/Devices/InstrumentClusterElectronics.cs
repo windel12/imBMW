@@ -300,7 +300,7 @@ namespace imBMW.iBus.Devices.Real
                         break;
                     case 0x04:
                     case 0x05:
-                        if (m.Data.Length == 7)
+                        if (m.Data.Length == 13/*7*/) // e39 fix
                         {
                             float consumption = 0;
                             m.Data.ParseFloat(out consumption, 3, 4);

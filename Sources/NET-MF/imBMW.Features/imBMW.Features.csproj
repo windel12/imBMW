@@ -43,7 +43,6 @@
     <Compile Include="Menu\MenuHelpers.cs" />
     <Compile Include="Menu\MenuItem.cs" />
     <Compile Include="Menu\MenuScreen.cs" />
-    <Compile Include="Menu\RadioMenu.cs" />
     <Compile Include="Menu\Screens\BordcomputerScreen.cs" />
     <Compile Include="Menu\Screens\HomeScreen.cs" />
     <Compile Include="Menu\Screens\SettingsScreen.cs" />
@@ -59,10 +58,14 @@
     <Compile Include="Multimedia\Models\ModelHelpers.cs" />
     <Compile Include="Multimedia\Models\TrackInfo.cs" />
     <Compile Include="Multimedia\MultiplexorTDA7313.cs" />
+    <Compile Include="Multimedia\VS1003Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="GHI.Hardware, Version=4.3.8.1, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="GHI.Pins, Version=4.3.8.1, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.SPOT.Hardware" />
+    <Reference Include="Microsoft.SPOT.IO" />
     <Reference Include="Microsoft.SPOT.Native" />
     <Reference Include="System.IO" />
   </ItemGroup>
@@ -75,6 +78,9 @@
       <Project>{1809C7F6-0A9F-412B-A45E-E667996E86A3}</Project>
       <Name>imBMW</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Menu\image_navitext.gif" />
   </ItemGroup>
   <Import Condition="EXISTS('$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets')" Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <Import Condition="!EXISTS('$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets')" Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

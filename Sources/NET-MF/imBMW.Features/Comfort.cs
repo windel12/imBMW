@@ -25,7 +25,8 @@ namespace imBMW.Features
 
         static Comfort()
         {
-            commands = new QueueThreadWorker(ProcessCommand);
+            // uncomment when will use comfort
+            //commands = new QueueThreadWorker(ProcessCommand);
 
             InstrumentClusterElectronics.SpeedRPMChanged += (e) =>
             {

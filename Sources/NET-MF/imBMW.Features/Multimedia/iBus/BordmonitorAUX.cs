@@ -106,7 +106,7 @@ namespace imBMW.iBus.Devices.Emulators
 
         void CheckAuxOn()
         {
-            IsEnabled = IsAUXSelected && IsRadioActive;
+            IsEnabled = /*IsAUXSelected && */IsRadioActive;
         }
 
         protected override void OnIsEnabledChanged(bool isEnabled, bool fire = true)

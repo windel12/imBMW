@@ -95,14 +95,14 @@ namespace imBMW.Multimedia
 
             if (contactsPath != null)
             {
-                if (File.Exists(contactsPath))
-                {
-                    this.contactsPath = contactsPath;
-                }
-                else
-                {
-                    Logger.Info("No contacts file " + contactsPath);
-                }
+                //if (File.Exists(contactsPath))
+                //{
+                //    this.contactsPath = contactsPath;
+                //}
+                //else
+                //{
+                //    Logger.Info("No contacts file " + contactsPath);
+                //}
             }
 
             HomeScreen.Instance.PhoneScreen = CreatePhoneScreen();
@@ -119,69 +119,69 @@ namespace imBMW.Multimedia
             var contacts = new ArrayList();
             try
             {
-                if (contactsPath == null || !File.Exists(contactsPath))
-                {
-                    Logger.Info("No contacts file");
-                    return contacts;
-                }
+                //if (contactsPath == null || !File.Exists(contactsPath))
+                //{
+                //    Logger.Info("No contacts file");
+                //    return contacts;
+                //}
 
-                using (var sr = new StreamReader(contactsPath))
-                {
-                    uint found = 0;
-                    bool hasPhone = false;
-                    PhoneContact contact = null;
+                //using (var sr = new StreamReader(contactsPath))
+                //{
+                //    uint found = 0;
+                //    bool hasPhone = false;
+                //    PhoneContact contact = null;
 
-                    string s;
-                    while ((s = sr.ReadLine()) != null)
-                    {
-                        if (s == string.Empty)
-                        {
-                            continue;
-                        }
-                        switch (s)
-                        {
-                            case "BEGIN:VCARD":
-                                Debug.GC(true); // Logger.Info("Free memory = " + Debug.GC(true), "MEM");
-                                hasPhone = false;
-                                if (found >= offset)
-                                {
-                                    contact = new PhoneContact();
-                                }
-                                break;
-                            case "END:VCARD":
-                                if (hasPhone)
-                                {
-                                    if (contact != null)
-                                    {
-                                        contacts.Add(contact);
-                                        if (contacts.Count == count)
-                                        {
-                                            return contacts;
-                                        }
-                                    }
-                                    found++;
-                                }
-                                break;
-                            default:
-                                if (s.Substring(0, 2) == "FN")
-                                {
-                                    if (contact != null)
-                                    {
-                                        contact.Name = s.Split(':')[1];
-                                    }
-                                }
-                                else if (s.Substring(0, 3) == "TEL")
-                                {
-                                    if (contact != null)
-                                    {
-                                        contact.AddPhone(s.Split(':')[1]);
-                                    }
-                                    hasPhone = true;
-                                }
-                                break;
-                        }
-                    }
-                }
+                //    string s;
+                //    while ((s = sr.ReadLine()) != null)
+                //    {
+                //        if (s == string.Empty)
+                //        {
+                //            continue;
+                //        }
+                //        switch (s)
+                //        {
+                //            case "BEGIN:VCARD":
+                //                Debug.GC(true); // Logger.Info("Free memory = " + Debug.GC(true), "MEM");
+                //                hasPhone = false;
+                //                if (found >= offset)
+                //                {
+                //                    contact = new PhoneContact();
+                //                }
+                //                break;
+                //            case "END:VCARD":
+                //                if (hasPhone)
+                //                {
+                //                    if (contact != null)
+                //                    {
+                //                        contacts.Add(contact);
+                //                        if (contacts.Count == count)
+                //                        {
+                //                            return contacts;
+                //                        }
+                //                    }
+                //                    found++;
+                //                }
+                //                break;
+                //            default:
+                //                if (s.Substring(0, 2) == "FN")
+                //                {
+                //                    if (contact != null)
+                //                    {
+                //                        contact.Name = s.Split(':')[1];
+                //                    }
+                //                }
+                //                else if (s.Substring(0, 3) == "TEL")
+                //                {
+                //                    if (contact != null)
+                //                    {
+                //                        contact.AddPhone(s.Split(':')[1]);
+                //                    }
+                //                    hasPhone = true;
+                //                }
+                //                break;
+                //        }
+                //    }
+                //}
             }
             catch (Exception ex)
             {

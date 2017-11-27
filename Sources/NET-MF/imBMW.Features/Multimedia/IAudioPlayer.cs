@@ -59,6 +59,12 @@ namespace imBMW.Multimedia
 
         bool IsCurrentPlayer { get; set; }
 
+        byte DiskNumber { get; set; }
+
+        byte TrackNumber { get; set; }
+
+        bool IsRandom { get; set; }
+
         PlayerHostState PlayerHostState { get; set; }
 
         string Name { get; }
@@ -68,5 +74,7 @@ namespace imBMW.Multimedia
         event IsPlayingHandler IsPlayingChanged;
 
         event PlayerStatusHandler StatusChanged;
+
+        event NowPlayingHandler TrackChanged;
     }
 }

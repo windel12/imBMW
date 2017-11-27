@@ -1,7 +1,5 @@
 using System;
-using Microsoft.SPOT;
 using System.Collections;
-using Microsoft.SPOT.Hardware;
 using System.IO.Ports;
 using System.Threading;
 using imBMW.Tools;
@@ -11,8 +9,15 @@ namespace imBMW.iBus
     public static class Manager
     {
         static ISerialPort iBus;
-
         public static bool Inited { get; private set; }
+
+        static QueueThreadWorker messageWriteQueue;
+        //static QueueThreadWorker messageReadQueue;
+
+        static DateTime lastMessage = DateTime.Now;
+        static byte[] messageBuffer = new byte[Message.PacketLengthMax];
+        static int messageBufferLength = 0;
+        static object bufferSync = new object();
 
         public static void Init(ISerialPort port)
         {
@@ -27,14 +32,6 @@ namespace imBMW.iBus
 
         #region Message reading and processing
 
-        //static QueueThreadWorker messageReadQueue;
-
-        const int messageReadTimeout = 16; // 2 * 30 * Message.PacketLengthMax / 8; // tested on 8byte message, got 30ms (real, instead of theoretical 8ms), and made 2x reserve
-        static DateTime lastMessage = DateTime.Now;
-        static byte[] messageBuffer = new byte[Message.PacketLengthMax];
-        static int messageBufferLength = 0;
-        static object bufferSync = new object();
-
         static void iBus_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             ISerialPort port = (ISerialPort)sender;
@@ -46,21 +43,6 @@ namespace imBMW.iBus
             lock (bufferSync)
             {
                 byte[] data = port.ReadAvailable();
-                #if DEBUG
-                //Logger.Info(data.ToHex(' '), "<!");
-                #endif
-                /*#if DEBUG // TODO remove #if after tests
-                if (messageBufferLength > 0)
-                {
-                    Logger.Warning("WD");
-                    var elapsed = (DateTime.Now - lastMessage).GetTotalMilliseconds();
-                    if (elapsed > messageReadTimeout)
-                    {
-                        Logger.Warning("Buffer skip: timeout ("+elapsed+"ms) data: " + messageBuffer.SkipAndTake(0, messageBufferLength).ToHex(" "));
-                        messageBufferLength = 0;
-                    }
-                }
-                #endif*/
                 if (messageBufferLength + data.Length > messageBuffer.Length)
                 {
                     Logger.Info("Buffer overflow. Extending it. " + port.ToString());
@@ -174,8 +156,6 @@ namespace imBMW.iBus
 
         #region Message writing and queue
 
-        static QueueThreadWorker messageWriteQueue;
-
         static void SendMessage(object o)
         {
             if (o is byte[])
@@ -222,24 +202,8 @@ namespace imBMW.iBus
             Thread.Sleep(m.AfterSendDelay > 0 ? m.AfterSendDelay : iBus.AfterWriteDelay); // Don't flood iBus
         }
 
-        public static void EnqueueRawMessage(byte[] m)
-        {
-            messageWriteQueue.Enqueue(m);
-        }
-
         public static void EnqueueMessage(Message m)
         {
-            /*
-            if (iBus is SerialPortEcho)
-            {
-                ProcessMessage(m);
-                return;
-            }
-            if (iBus is SerialPortHub)
-            {
-                SendMessage(m);
-                return;
-            }*/
             #if DEBUG
             m.PerformanceInfo.TimeEnqueued = DateTime.Now;
             #endif
@@ -255,22 +219,6 @@ namespace imBMW.iBus
 
         public static void EnqueueMessage(params Message[] messages)
         {
-            /*if (iBus is SerialPortEcho)
-            {
-                foreach (Message m in messages)
-                {
-                    ProcessMessage(m);
-                }
-                return;
-            }
-            if (iBus is SerialPortHub)
-            {
-                foreach (Message m in messages)
-                {
-                    SendMessage(m);
-                }
-                return;
-            }*/
             #if DEBUG
             var now = DateTime.Now;
             foreach (Message m in messages)

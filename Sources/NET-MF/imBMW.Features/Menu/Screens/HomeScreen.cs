@@ -9,10 +9,10 @@ namespace imBMW.Features.Menu.Screens
         protected static HomeScreen instance;
 
         protected MenuItem itemPlayer;
+        protected MenuItem itemPhone;
         protected MenuItem itemFav;
         protected MenuItem itemBC;
         protected MenuItem itemSettings;
-        protected MenuItem itemPhone;
 
         protected HomeScreen()
         {
@@ -20,10 +20,11 @@ namespace imBMW.Features.Menu.Screens
 
             itemPlayer = new MenuItem(i => Localization.Current.Player, MenuItemType.Button, MenuItemAction.GoToScreen);
             itemPhone = new MenuItem(i => Localization.Current.Phone, MenuItemType.Button, MenuItemAction.GoToScreen);
-            itemFav = new MenuItem(i => Localization.Current.QuickAccess, MenuItemType.Button, MenuItemAction.GoToScreen)
-            {
-                GoToScreen = null // TODO fav screen
-            };
+            //itemFav = new MenuItem(i => Localization.Current.QuickAccess, MenuItemType.Button, MenuItemAction.GoToScreen)
+            //{
+            //    GoToScreen = null // TODO fav screen
+            //};
+
             itemBC = new MenuItem(i => Localization.Current.Bordcomputer, MenuItemType.Button, MenuItemAction.GoToScreen)
             {
                 GoToScreen = BordcomputerScreen.Instance

@@ -14,6 +14,10 @@ namespace imBMW.Multimedia
         TrackInfo nowPlaying;
         protected bool isPlaying;
 
+        public byte TrackNumber { get; set; }
+        public byte DiskNumber { get; set; }
+        public bool IsRandom { get; set; }
+
         public virtual void Play()
         {
             SetPlaying(true);
@@ -159,6 +163,8 @@ namespace imBMW.Multimedia
 
         public event NowPlayingHandler NowPlayingChanged;
 
+        public event NowPlayingHandler TrackChanged;
+
         protected virtual void OnIsPlayingChanged(bool isPlaying)
         {
             var e = IsPlayingChanged;
@@ -185,6 +191,15 @@ namespace imBMW.Multimedia
         protected virtual void OnNowPlayingChanged(TrackInfo nowPlaying)
         {
             var e = NowPlayingChanged;
+            if (e != null)
+            {
+                e.Invoke(this, nowPlaying);
+            }
+        }
+
+        protected virtual void OnTrackChanged()
+        {
+            var e = TrackChanged;
             if (e != null)
             {
                 e.Invoke(this, nowPlaying);

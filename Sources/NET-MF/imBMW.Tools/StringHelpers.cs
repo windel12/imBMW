@@ -328,5 +328,23 @@ namespace imBMW.Tools
             return new StringBuilder(s).Replace(oldValue, newValue).ToString();
         }
 #endif
+
+        public static bool EndsWith(this string s, string value)
+        {
+            int j = 0;
+            for(int i = s.Length - value.Length; i < s.Length; i++)
+            {
+                if(s[i] == value[j])
+                {
+                    j++;
+                    continue;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

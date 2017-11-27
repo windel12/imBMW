@@ -71,7 +71,7 @@ namespace imBMW.Tools
             catch (Exception ex)
             {
                 // don't use logger to prevent recursion
-                Debug.Print("Can't write log to sd: " + ex.Message);
+                Logger.Log(LogPriority.Info, "Can't write log to sd: " + ex.Message);
             }
         }
     }

@@ -23,41 +23,41 @@ namespace imBMW.Features.Menu
         public MenuBase(MediaEmulator mediaEmulator)
         {
             homeScreen = HomeScreen.Instance;
-            CurrentScreen = homeScreen;
+            //CurrentScreen = homeScreen;
 
             this.mediaEmulator = mediaEmulator;
             mediaEmulator.IsEnabledChanged += mediaEmulator_IsEnabledChanged;
-            mediaEmulator.PlayerIsPlayingChanged += ShowPlayerStatus;
-            mediaEmulator.PlayerStatusChanged += ShowPlayerStatus;
-            mediaEmulator.PlayerChanged += mediaEmulator_PlayerChanged;
-            mediaEmulator_PlayerChanged(mediaEmulator.Player);
+            //mediaEmulator.PlayerIsPlayingChanged += ShowPlayerStatus;
+            //mediaEmulator.PlayerStatusChanged += ShowPlayerStatus;
+            //mediaEmulator.PlayerChanged += mediaEmulator_PlayerChanged;
+            //mediaEmulator_PlayerChanged(mediaEmulator.Player);
 
-            Manager.AddMessageReceiverForSourceDevice(DeviceAddress.Radio, ProcessRadioMessage);
+            //Manager.AddMessageReceiverForSourceDevice(DeviceAddress.Radio, ProcessRadioMessage);
         }
 
         #region Radio members
 
         protected virtual void ProcessRadioMessage(Message m)
         {
-            if (!IsEnabled)
-            {
-                return;
-            }
+            //if (!IsEnabled)
+            //{
+            //    return;
+            //}
 
-            if (m.Data.Length == 3 && m.Data[0] == 0x38 && m.Data[1] == 0x0A)
-            {
-                switch (m.Data[2])
-                {
-                    case 0x00:
-                        mediaEmulator.Player.Next();
-                        m.ReceiverDescription = "Next track";
-                        break;
-                    case 0x01:
-                        mediaEmulator.Player.Prev();
-                        m.ReceiverDescription = "Prev track";
-                        break;
-                }
-            }
+            //if (m.Data.Length == 3 && m.Data[0] == 0x38 && m.Data[1] == 0x0A)
+            //{
+            //    switch (m.Data[2])
+            //    {
+            //        case 0x00:
+            //            //mediaEmulator.Player.Next();
+            //            m.ReceiverDescription = "Next track";
+            //            break;
+            //        case 0x01:
+            //            //mediaEmulator.Player.Prev();
+            //            m.ReceiverDescription = "Prev track";
+            //            break;
+            //    }
+            //}
         }
 
         #endregion
@@ -90,32 +90,32 @@ namespace imBMW.Features.Menu
 
         protected void ShowPlayerStatus(IAudioPlayer player, string status)
         {
-            if (!IsEnabled)
-            {
-                //return;
-                Logger.Warning("Why shouldn't I set player status when menu is disabled?!");
-            }
-            if (displayStatusDelayTimer != null)
-            {
-                displayStatusDelayTimer.Dispose();
-                displayStatusDelayTimer = null;
-            }
+            //if (!IsEnabled)
+            //{
+            //    //return;
+            //    Logger.Warning("Why shouldn't I set player status when menu is disabled?!");
+            //}
+            //if (displayStatusDelayTimer != null)
+            //{
+            //    displayStatusDelayTimer.Dispose();
+            //    displayStatusDelayTimer = null;
+            //}
 
-            player.Menu.Status = status;
+            //player.Menu.Status = status;
         }
 
         protected void ShowPlayerStatusWithDelay(IAudioPlayer player)
         {
-            if (displayStatusDelayTimer != null)
-            {
-                displayStatusDelayTimer.Dispose();
-                displayStatusDelayTimer = null;
-            }
+            //if (displayStatusDelayTimer != null)
+            //{
+            //    displayStatusDelayTimer.Dispose();
+            //    displayStatusDelayTimer = null;
+            //}
 
-            displayStatusDelayTimer = new Timer(delegate
-            {
-                ShowPlayerStatus(player);
-            }, null, displayStatusDelay, 0);
+            //displayStatusDelayTimer = new Timer(delegate
+            //{
+            //    ShowPlayerStatus(player);
+            //}, null, displayStatusDelay, 0);
         }
 
         protected string TextWithIcon(string icon, string text = null)
@@ -146,7 +146,7 @@ namespace imBMW.Features.Menu
 
         void mediaEmulator_PlayerChanged(IAudioPlayer player)
         {
-            HomeScreen.Instance.PlayerScreen = player.Menu;
+            //HomeScreen.Instance.PlayerScreen = player.Menu;
         }
 
         void mediaEmulator_IsEnabledChanged(MediaEmulator emulator, bool isEnabled)
@@ -158,7 +158,7 @@ namespace imBMW.Features.Menu
 
         #region Drawing members
 
-        protected virtual void DrawScreen(MenuScreenUpdateEventArgs args) { }
+        protected virtual void DrawScreen(/*MenuScreenUpdateEventArgs args*/) { }
 
         protected virtual void ScreenSuspend()
         {
@@ -170,23 +170,18 @@ namespace imBMW.Features.Menu
             ScreenNavigatedTo(CurrentScreen);
         }
 
-        public virtual void UpdateScreen(MenuScreenUpdateReason reason, object item = null)
-        {
-            UpdateScreen(new MenuScreenUpdateEventArgs(reason, item));
-        }
-
-        public virtual void UpdateScreen(MenuScreenUpdateEventArgs args)
+        public virtual void UpdateScreen(/*MenuScreenUpdateEventArgs args*/)
         {
             if (!IsEnabled)
             {
                 return;
             }
-            DrawScreen(args);
+            DrawScreen(/*args*/);
         }
 
         void currentScreen_Updated(MenuScreen screen, MenuScreenUpdateEventArgs args)
         {
-            UpdateScreen(args);
+            //UpdateScreen(/*args*/);
         }
 
         #endregion
@@ -205,12 +200,12 @@ namespace imBMW.Features.Menu
                 isEnabled = value;
                 if (value)
                 {
-                    ScreenWakeup();
-                    UpdateScreen(MenuScreenUpdateReason.Navigation);
+                    //ScreenWakeup();
+                    //UpdateScreen(MenuScreenUpdateReason.Navigation);
                 }
                 else
                 {
-                    ScreenSuspend();
+                    //ScreenSuspend();
                 }
             }
         }
@@ -270,7 +265,7 @@ namespace imBMW.Features.Menu
                 ScreenNavigatedFrom(currentScreen);
                 currentScreen = value;
                 ScreenNavigatedTo(currentScreen);
-                UpdateScreen(MenuScreenUpdateReason.Navigation);
+                //UpdateScreen(MenuScreenUpdateReason.Navigation);
             }
         }
 
@@ -312,6 +307,7 @@ namespace imBMW.Features.Menu
                     NavigateHome();
                     break;
             }
+            UpdateScreen();
         }
 
         #endregion

@@ -25,9 +25,10 @@ namespace imBMW.Features.Menu
         private BordmonitorMenu(MediaEmulator mediaEmulator)
             : base(mediaEmulator)
         {
-            mediaEmulator.IsEnabledChanged += mediaEmulator_IsEnabledChanged;
+            CurrentScreen = HomeScreen.Instance;
 
-            Radio.OnOffChanged += Radio_OnOffChanged;
+            //mediaEmulator.IsEnabledChanged += mediaEmulator_IsEnabledChanged;
+            //Radio.OnOffChanged += Radio_OnOffChanged;
             Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.Radio, ProcessToRadioMessage);
         }
 
@@ -58,44 +59,44 @@ namespace imBMW.Features.Menu
             {
                 return;
             }
-            bool showAfterWithDelay = false;
-            switch (playerEvent)
-            {
-                case PlayerEvent.Next:
-                    status = Localization.Current.Next;
-                    showAfterWithDelay = true;
-                    break;
-                case PlayerEvent.Prev:
-                    status = Localization.Current.Previous;
-                    showAfterWithDelay = true;
-                    break;
-                case PlayerEvent.Playing:
-                    status = TextWithIcon(">", status);
-                    break;
-                case PlayerEvent.Current:
-                    status = TextWithIcon("\x07", status);
-                    break;
-                case PlayerEvent.Voice:
-                    status = TextWithIcon("*", status);
-                    break;
-                case PlayerEvent.Settings:
-                    status = TextWithIcon("*", status);
-                    showAfterWithDelay = true;
-                    break;
-            }
-            ShowPlayerStatus(player, status);
-            if (showAfterWithDelay)
-            {
-                ShowPlayerStatusWithDelay(player);
-            }
+            //bool showAfterWithDelay = false;
+            //switch (playerEvent)
+            //{
+            //    case PlayerEvent.Next:
+            //        status = Localization.Current.Next;
+            //        showAfterWithDelay = true;
+            //        break;
+            //    case PlayerEvent.Prev:
+            //        status = Localization.Current.Previous;
+            //        showAfterWithDelay = true;
+            //        break;
+            //    case PlayerEvent.Playing:
+            //        status = TextWithIcon(">", status);
+            //        break;
+            //    case PlayerEvent.Current:
+            //        status = TextWithIcon("\x07", status);
+            //        break;
+            //    case PlayerEvent.Voice:
+            //        status = TextWithIcon("*", status);
+            //        break;
+            //    case PlayerEvent.Settings:
+            //        status = TextWithIcon("*", status);
+            //        showAfterWithDelay = true;
+            //        break;
+            //}
+            //ShowPlayerStatus(player, status);
+            //if (showAfterWithDelay)
+            //{
+            //    ShowPlayerStatusWithDelay(player);
+            //}
         }
 
         void mediaEmulator_IsEnabledChanged(MediaEmulator emulator, bool isEnabled)
         {
-            if (!isEnabled)
-            {
-                Bordmonitor.EnableRadioMenu();
-            }
+            //if (!isEnabled)
+            //{
+            //    Bordmonitor.EnableRadioMenu();
+            //}
         }
 
         #endregion
@@ -108,30 +109,30 @@ namespace imBMW.Features.Menu
         {
             base.ScreenWakeup();
 
-            disableRadioMenu = true;
+            //disableRadioMenu = true;
         }
 
-        public override void UpdateScreen(MenuScreenUpdateEventArgs args)
+        public override void UpdateScreen(/*MenuScreenUpdateEventArgs args*/)
         {
             if (IsScreenSwitched)
             {
                 return;
             }
 
-            base.UpdateScreen(args);
+            base.UpdateScreen(/*args*/);
         }
 
         void Radio_OnOffChanged(bool turnedOn)
         {
             if (turnedOn)
             {
-                Bordmonitor.EnableRadioMenu(); // fixes disabled radio menu to update screen
+                //Bordmonitor.EnableRadioMenu(); // fixes disabled radio menu to update screen
             }
         }
 
         protected override void ProcessRadioMessage(Message m)
         {
-            base.ProcessRadioMessage(m);
+            //base.ProcessRadioMessage(m);
 
             if (!IsEnabled)
             {
@@ -141,40 +142,40 @@ namespace imBMW.Features.Menu
             var isRefresh = m.Data.Compare(Bordmonitor.MessageRefreshScreen.Data);
             if (isRefresh)
             {
-                m.ReceiverDescription = "Screen refresh";
-                skipClearTillRefresh = false;
-                if (skipRefreshScreen)
-                {
-                    skipRefreshScreen = false;
-                    return;
-                }
+                //m.ReceiverDescription = "Screen refresh";
+                //skipClearTillRefresh = false;
+                //if (skipRefreshScreen)
+                //{
+                //    skipRefreshScreen = false;
+                //    return;
+                //}
             }
             var isClear = m.Data.Compare(Bordmonitor.MessageClearScreen.Data);
             if (isClear)
             {
-                m.ReceiverDescription = "Screen clear";
-                if (skipClearScreen || skipClearTillRefresh)
-                {
-                    skipClearScreen = false;
-                    return;
-                }
+                //m.ReceiverDescription = "Screen clear";
+                //if (skipClearScreen || skipClearTillRefresh)
+                //{
+                //    skipClearScreen = false;
+                //    return;
+                //}
             }
             if (isClear || isRefresh)
             {
-                if (IsScreenSwitched)
-                {
-                    IsScreenSwitched = false;
-                }
+                //if (IsScreenSwitched)
+                //{
+                //    IsScreenSwitched = false;
+                //}
 
-                if (disableRadioMenu || isClear)
-                {
-                    disableRadioMenu = false;
-                    Bordmonitor.DisableRadioMenu();
-                    return;
-                }
+                //if (disableRadioMenu || isClear)
+                //{
+                //    disableRadioMenu = false;
+                //    Bordmonitor.DisableRadioMenu();
+                //    return;
+                //}
 
                 // TODO test "INFO" button
-                UpdateScreen(MenuScreenUpdateReason.Refresh);
+                //UpdateScreen(MenuScreenUpdateReason.Refresh);
                 return;
             }
 
@@ -197,18 +198,18 @@ namespace imBMW.Features.Menu
                 return;
             }
 
-            /*if (m.Data.Compare(Bordmonitor.DataAUX))
-            {
-                IsScreenSwitched = false;
-                UpdateScreen(); // TODO prevent flickering
-                return;
-            }*/
+            //if (m.Data.Compare(Bordmonitor.DataAUX))
+            //{
+            //    IsScreenSwitched = false;
+            //    UpdateScreen(); // TODO prevent flickering
+            //    return;
+            //}
 
             if (m.Data.StartsWith(Bordmonitor.DataShowTitle) && (lastTitle == null || !lastTitle.Data.Compare(m.Data)))
             {
                 IsScreenSwitched = false;
-                disableRadioMenu = true;
-                UpdateScreen(MenuScreenUpdateReason.Refresh);
+                //disableRadioMenu = true;
+                //UpdateScreen(MenuScreenUpdateReason.Refresh);
                 return;
             }
         }
@@ -238,35 +239,38 @@ namespace imBMW.Features.Menu
             {
                 switch (m.Data[1])
                 {
+                    case 0x08: // phone
+                        DrawScreen();
+                        break;
                     case 0x14: // <>
                         m.ReceiverDescription = "BM button <> - navigate home";
-                        NavigateHome();
+                        //NavigateHome();
                         break;
                     case 0x07:
                         m.ReceiverDescription = "BM button Clock - navigate BC";
-                        NavigateAfterHome(BordcomputerScreen.Instance);
+                        //NavigateAfterHome(BordcomputerScreen.Instance);
                         break;
-                    case 0x20:
+                    case 0x20: // Select
                         m.ReceiverDescription = "BM button Sel"; // - navigate player";
                         // TODO fix in cdc mode
                         //NavigateAfterHome(HomeScreen.Instance.PlayerScreen);
                         break;
-                    case 0x30:
+                    case 0x30: // Mode?
                         m.ReceiverDescription = "BM button Switch Screen";
-                        /*if (screenSwitched)
-                        {
-                            UpdateScreen();
-                        }*/
+                        //if (screenSwitched)
+                        //{
+                        //    UpdateScreen();
+                        //}
                         break;
-                    case 0x23:
+                    case 0x23: // Mode?
                         m.ReceiverDescription = "BM button Mode";
-                        IsEnabled = false;
-                        Bordmonitor.EnableRadioMenu(); // TODO test [and remove]
+                        //IsEnabled = false;
+                        //Bordmonitor.EnableRadioMenu(); // TODO test [and remove]
                         break;
                     case 0x04:
                         m.ReceiverDescription = "BM button Tone";
                         // TODO fix Tone - skip clear till aux title
-                        IsEnabled = false;
+                        //IsEnabled = false;
                         //Bordmonitor.EnableRadioMenu(); // TODO test [and remove]
                         break;
                 }
@@ -277,7 +281,7 @@ namespace imBMW.Features.Menu
         bool isDrawing;
         Message lastTitle;
 
-        protected override void DrawScreen(MenuScreenUpdateEventArgs args)
+        protected override void DrawScreen(/*MenuScreenUpdateEventArgs args*/)
         {
             if (isDrawing)
             {
@@ -288,7 +292,7 @@ namespace imBMW.Features.Menu
                 isDrawing = true;
                 skipRefreshScreen = true;
                 skipClearTillRefresh = true; // TODO test no screen items lost
-                base.DrawScreen(args);
+                base.DrawScreen(/*args*/);
 
                 var messages = new Message[FastMenuDrawing ? 4 : 13];
                 var n = 0;
