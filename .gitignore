@@ -165,3 +165,7 @@ pip-log.txt
 
 /Sources/NET/imBMW.Universal.App/AppPackages
 /Sources/NET/imBMW.Universal.App/BundleArtifacts
+*.dat
+/Sources/NET-MF/imBMW/UpgradeLog.htm
+*.smd
+/Sources/NET-MF/Devices/V2/UpgradeLog.htm

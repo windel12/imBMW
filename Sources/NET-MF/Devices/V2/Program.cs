@@ -46,7 +46,7 @@ namespace imBMW.Devices.V2
                 led4 = new OutputPort(Pin.LED4, false);
 
                 //SettingsScreen.Instance.Status = version.Length > 11 ? version.Replace(" ", "") : version;
-                //Localization.SetCurrent(settings.Language);
+                Localization.SetCurrent(RussianLocalization.SystemName); //Localization.SetCurrent(settings.Language);
                 //Features.Comfort.AutoLockDoors = settings.AutoLockDoors;
                 //Features.Comfort.AutoUnlockDoors = settings.AutoUnlockDoors;
                 //Features.Comfort.AutoCloseWindows = settings.AutoCloseWindows;
@@ -70,18 +70,20 @@ namespace imBMW.Devices.V2
             Logger.Logged += Logger_Logged;
             Logger.Info("Logger inited");
 
-            ISerialPort iBusPort = new SerialPortTH3122(Serial.COM1, Pin.TH3122SENSTA);
-            Logger.Info("TH3122 serial port inited");
+            string iBusComPort = Serial.COM1;
+            if (Debugger.IsAttached)
+            {
+                iBusComPort = Serial.COM2;
+            }
 
-#if DEBUG
             // COM3 connected with COM2
             ISerialPort fakeIbus = new SerialPortTH3122(Serial.COM3, Cpu.Pin.GPIO_NONE);
-#endif
 
+            ISerialPort iBusPort = new SerialPortTH3122(iBusComPort, Pin.TH3122SENSTA);
             Manager.Init(iBusPort);
             Logger.Info("iBus manager inited");
 
-            Manager.BeforeMessageReceived += Manager_BeforeMessageReceived; ;
+            Manager.BeforeMessageReceived += Manager_BeforeMessageReceived;
             Manager.AfterMessageReceived += Manager_AfterMessageReceived;
             Manager.BeforeMessageSent += Manager_BeforeMessageSent;
             Manager.AfterMessageSent += Manager_AfterMessageSent;
@@ -121,17 +123,17 @@ namespace imBMW.Devices.V2
              }
             else
             {
-                Localization.Current = new RadioLocalization();
-                SettingsScreen.Instance.CanChangeLanguage = false;
-                MultiFunctionSteeringWheel.EmulatePhone = true;
-                Radio.HasMID = Manager.FindDevice(DeviceAddress.MultiInfoDisplay);
-                var menu = RadioMenu.Init(new CDChanger(player));
-                menu.TelephoneModeForNavigation = settings.MenuMFLControl;
-                Logger.Info("Radio menu inited" + (Radio.HasMID ? " with MID" : ""));
+                //Localization.Current = new RadioLocalization();
+                //SettingsScreen.Instance.CanChangeLanguage = false;
+                //MultiFunctionSteeringWheel.EmulatePhone = true;
+                //Radio.HasMID = Manager.FindDevice(DeviceAddress.MultiInfoDisplay);
+                //var menu = RadioMenu.Init(new CDChanger(player));
+                //menu.TelephoneModeForNavigation = settings.MenuMFLControl;
+                //Logger.Info("Radio menu inited" + (Radio.HasMID ? " with MID" : ""));
             }
 
             player.IsPlayingChanged += Player_IsPlayingChanged;
-            player.StatusChanged += Player_StatusChanged;         
+            player.StatusChanged += Player_StatusChanged;
             Logger.Info("Player events subscribed");
 
             RefreshLEDs();
@@ -247,12 +249,10 @@ if ((
 
         private static void Player_StatusChanged(IAudioPlayer player, string status, PlayerEvent playerEvent)
         {
+            if (playerEvent == PlayerEvent.IncomingCall && !player.IsEnabled)
             {
-                if (playerEvent == PlayerEvent.IncomingCall && !player.IsEnabled)
-                {
-                    InstrumentClusterElectronics.Gong1();
-                }
-            };
+                InstrumentClusterElectronics.Gong1();
+            }
         }
 
         private static void Player_IsPlayingChanged(IAudioPlayer sender, bool isPlaying)

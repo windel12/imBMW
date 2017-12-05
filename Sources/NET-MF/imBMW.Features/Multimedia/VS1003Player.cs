@@ -120,7 +120,7 @@ namespace imBMW.Features.Multimedia
                 Logger.Log(LogPriority.Info, "VS1053: Initialized MP3 Decoder.");
             }
             #endregion
-            SetVolume(Debugger.IsAttached ? (byte)230 : (byte)255);
+            SetVolume(Debugger.IsAttached ? (byte)220 : (byte)255);
 
             sd_card = new SDCard(SDCard.SDInterface.MCI);
             sd_card.Mount();
@@ -144,6 +144,20 @@ namespace imBMW.Features.Multimedia
                     }
                     Data.Add(i.ToString(), musicFiles);
                 }
+                var dataFile = File.Open(rootDirectory + "\\data.bin", FileMode.OpenOrCreate);
+                byte[] lastTrackInfo = new byte[2] { 1, 1 };
+                dataFile.Read(lastTrackInfo, 0, lastTrackInfo.Length);
+                DiskNumber = lastTrackInfo[0];
+                TrackNumber = lastTrackInfo[1];
+                dataFile.Close();
+                TrackChanged += (sender, playing) =>
+                {
+                    var dataFileWrite = File.Open(rootDirectory + "\\data.bin", FileMode.OpenOrCreate);
+                    byte[] lastTrackInfoWrite = new byte[2] { DiskNumber, TrackNumber };
+                    dataFileWrite.Write(lastTrackInfoWrite, 0, lastTrackInfo.Length);
+                    dataFileWrite.Close();
+
+                };
             }
             else
             {
@@ -252,8 +266,19 @@ namespace imBMW.Features.Multimedia
                 if (!IsPlaying)
                     Thread.CurrentThread.Suspend();
                 byte[] buffer = new byte[2048];
-                var filesOnDisk = Data[DiskNumber.ToString()] as ArrayList;
-                string fileName = (string)filesOnDisk[TrackNumber - 1];
+                ArrayList filesOnDisk = null;
+                string fileName = "";
+                try
+                {
+                    filesOnDisk = Data[DiskNumber.ToString()] as ArrayList;
+                    fileName = (string) filesOnDisk[TrackNumber - 1];
+                }
+                catch (Exception ex)
+                {
+                    DiskNumber = TrackNumber = 1;
+                    filesOnDisk = Data[DiskNumber.ToString()] as ArrayList;
+                    fileName = (string)filesOnDisk[TrackNumber - 1];
+                }
                 int size = 0;
                 FileStream stream = null;
                 try
