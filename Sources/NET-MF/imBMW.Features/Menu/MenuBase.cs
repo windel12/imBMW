@@ -195,17 +195,21 @@ namespace imBMW.Features.Menu
             {
                 if (isEnabled == value)
                 {
+                    if (value)
+                    {
+                        UpdateScreen();
+                    }
                     return;
                 }
                 isEnabled = value;
                 if (value)
                 {
-                    //ScreenWakeup();
-                    //UpdateScreen(MenuScreenUpdateReason.Navigation);
+                    ScreenWakeup();
+                    UpdateScreen(/*MenuScreenUpdateReason.Navigation*/);
                 }
                 else
                 {
-                    //ScreenSuspend();
+                    ScreenSuspend();
                 }
             }
         }

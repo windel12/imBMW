@@ -216,6 +216,27 @@ namespace imBMW.Features.Menu
 
         protected void ProcessToRadioMessage(Message m)
         {
+            if (!mediaEmulator.IsEnabled)
+            {
+                return;
+            }
+
+            // BM buttons
+            if (m.Data.Length == 2 && m.Data[0] == 0x48)
+            {
+                switch (m.Data[1])
+                {
+                    case 0x08: // phone
+                        m.ReceiverDescription = "BM button Phone - draw bordmonitor menu";
+                        IsEnabled = true;
+                        break;
+                    case 0x34: // Menu
+                        m.ReceiverDescription = "BM button Menu";
+                        IsEnabled = false;
+                        break;
+                }
+            }
+
             if (!IsEnabled)
             {
                 return;
@@ -239,9 +260,6 @@ namespace imBMW.Features.Menu
             {
                 switch (m.Data[1])
                 {
-                    case 0x08: // phone
-                        DrawScreen();
-                        break;
                     case 0x14: // <>
                         m.ReceiverDescription = "BM button <> - navigate home";
                         //NavigateHome();
@@ -273,6 +291,24 @@ namespace imBMW.Features.Menu
                         //IsEnabled = false;
                         //Bordmonitor.EnableRadioMenu(); // TODO test [and remove]
                         break;
+                }
+                return;
+            }
+
+            if (!IsEnabled)
+            {
+                return;
+            }
+
+            // item click
+            if (m.Data.Length == 4 && m.Data.StartsWith(0x31, 0x60, 0x00) && m.Data[3] <= 9)
+            {
+                var index = GetItemIndex(m.Data[3], true);
+                m.ReceiverDescription = "Screen item click #" + index;
+                var item = CurrentScreen.GetItem(index);
+                if (item != null)
+                {
+                    item.Click();
                 }
                 return;
             }

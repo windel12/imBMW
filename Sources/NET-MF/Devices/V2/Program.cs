@@ -46,7 +46,7 @@ namespace imBMW.Devices.V2
                 led4 = new OutputPort(Pin.LED4, false);
 
                 //SettingsScreen.Instance.Status = version.Length > 11 ? version.Replace(" ", "") : version;
-                Localization.SetCurrent(RussianLocalization.SystemName); //Localization.SetCurrent(settings.Language);
+                //Localization.SetCurrent(RussianLocalization.SystemName); //Localization.SetCurrent(settings.Language);
                 //Features.Comfort.AutoLockDoors = settings.AutoLockDoors;
                 //Features.Comfort.AutoUnlockDoors = settings.AutoUnlockDoors;
                 //Features.Comfort.AutoCloseWindows = settings.AutoCloseWindows;
@@ -73,7 +73,7 @@ namespace imBMW.Devices.V2
             string iBusComPort = Serial.COM1;
             if (Debugger.IsAttached)
             {
-                iBusComPort = Serial.COM2;
+                //iBusComPort = Serial.COM2;
             }
 
             // COM3 connected with COM2
