@@ -26,7 +26,7 @@ namespace imBMW.iBus.Devices.Emulators
         public bool IsEnabled
         {
             get { return isEnabled; }
-            protected set
+            /*protected*/ set
             {
                 if (isEnabled == value)
                 {

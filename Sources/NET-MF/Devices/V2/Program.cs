@@ -77,7 +77,7 @@ namespace imBMW.Devices.V2
             }
 
             // COM3 connected with COM2
-            ISerialPort fakeIbus = new SerialPortTH3122(Serial.COM3, Cpu.Pin.GPIO_NONE);
+            //ISerialPort fakeIbus = new SerialPortTH3122(Serial.COM3, Cpu.Pin.GPIO_NONE);
 
             ISerialPort iBusPort = new SerialPortTH3122(iBusComPort, Pin.TH3122SENSTA);
             Manager.Init(iBusPort);
@@ -138,22 +138,17 @@ namespace imBMW.Devices.V2
 
             RefreshLEDs();
 
-            var message = new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, CDChanger.DataPlay);
-            fakeIbus.Write(message.Packet);
-
             bool isPlayed = true;
             nextButton = new InterruptPort((Cpu.Pin)FEZPandaIII.Gpio.Ldr1, true, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeHigh);
             nextButton.OnInterrupt += (p, s, t) =>
             {
-                var message3 = new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, isPlayed ? CDChanger.DataStop : CDChanger.DataPlay);
-                isPlayed = !isPlayed;
-                fakeIbus.Write(message3.Packet);
+                if (!emulator.IsEnabled) { emulator.IsEnabled = true; }
+                else { emulator.Player.Next(); }
             };
             prevButton = new InterruptPort((Cpu.Pin)FEZPandaIII.Gpio.Ldr0, true, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeHigh);
             prevButton.OnInterrupt += (p, s, t) =>
             {
-                var message3 = new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, CDChanger.DataNext);
-                fakeIbus.Write(message3.Packet);
+                
             };
 
             /* 

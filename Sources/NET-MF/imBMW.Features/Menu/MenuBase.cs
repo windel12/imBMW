@@ -181,7 +181,7 @@ namespace imBMW.Features.Menu
 
         void currentScreen_Updated(MenuScreen screen, MenuScreenUpdateEventArgs args)
         {
-            //UpdateScreen(/*args*/);
+            UpdateScreen(/*args*/);
         }
 
         #endregion

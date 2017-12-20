@@ -89,13 +89,23 @@ namespace imBMW.iBus.Devices.Emulators
             Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.CDChanger, ProcessCDCMessage);
 
             Player.TrackChanged += (s, e) => Manager.EnqueueMessage(GetMessagePlaying(Player.DiskNumber, Player.TrackNumber));
+            InstrumentClusterElectronics.IgnitionStateChanged += args =>
+            {
+                if (args.CurrentIgnitionState == IgnitionState.Acc && args.PreviousIgnitionState == IgnitionState.Ign)
+                {
+                    if (IsEnabled)
+                    {
+                        Radio.PressOnOffToggle();
+                    }
+                }
+            };
 
             announceThread = new Thread(announce);
             announceThread.Start();
         }
 
         #region Player control
-        
+
         protected override void Play()
         {
             CancelStopDelay();

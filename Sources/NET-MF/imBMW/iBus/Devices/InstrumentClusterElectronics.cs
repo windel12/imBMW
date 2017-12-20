@@ -331,7 +331,7 @@ namespace imBMW.iBus.Devices.Real
                         }
                         break;
                     case 0x0A:
-                        if (m.Data.Length == 7)
+                        if (m.Data.Length == 12/*7*/) // e39 fix
                         {
                             float speed = 0;
                             m.Data.ParseFloat(out speed, 3, 4);
