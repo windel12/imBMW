@@ -35,11 +35,6 @@ namespace imBMW.Features.Localizations
             get { return "Speed"; }
         }
 
-        public override string KMH
-        {
-            get { return "km/h"; }
-        }
-
         public override string Revs
         {
             get { return "RPM"; }
@@ -270,6 +265,11 @@ namespace imBMW.Features.Localizations
             get { return "km"; }
         }
 
+        public override string KMH
+        {
+            get { return "km/h"; }
+        }
+
         public override string TurnOn
         {
             get { return "Turn on"; }
@@ -293,6 +293,16 @@ namespace imBMW.Features.Localizations
         public override string LimitDecrease
         {
             get { return "Decrease"; }
+        }
+
+        public override string Average
+        {
+            get { return "Average"; }
+        }
+
+        public override string AuxilaryHeater
+        {
+            get { return "Aux. heater"; }
         }
     }
 }

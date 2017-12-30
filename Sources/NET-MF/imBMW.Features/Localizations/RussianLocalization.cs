@@ -35,11 +35,6 @@ namespace imBMW.Features.Localizations
             get { return "Скорость"; }
         }
 
-        public override string KMH
-        {
-            get { return "км/ч"; }
-        }
-
         public override string Revs
         {
             get { return "Обороты"; }
@@ -270,6 +265,11 @@ namespace imBMW.Features.Localizations
             get { return "км"; }
         }
 
+        public override string KMH
+        {
+            get { return "км/ч"; }
+        }
+
         public override string TurnOn
         {
             get { return "Включить"; }
@@ -293,6 +293,16 @@ namespace imBMW.Features.Localizations
         public override string LimitDecrease
         {
             get { return "Уменьшить"; }
+        }
+
+        public override string Average
+        {
+            get { return "Средняя скорость"; }
+        }
+
+        public override string AuxilaryHeater
+        {
+            get { return "Доп. отопитель"; }
         }
     }
 }

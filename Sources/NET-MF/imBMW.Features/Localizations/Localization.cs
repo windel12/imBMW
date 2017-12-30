@@ -47,8 +47,6 @@ namespace imBMW.Features.Localizations
         public abstract string BordcomputerShort { get; }
 
         public abstract string Speed { get; }
-
-        public abstract string KMH { get; }
         
         public abstract string Revs { get; }
 
@@ -144,6 +142,8 @@ namespace imBMW.Features.Localizations
 
         public abstract string KM { get; }
 
+        public abstract string KMH { get; }
+
         public abstract string TurnOn { get; }
 
         public abstract string TurnOff { get; }
@@ -153,6 +153,10 @@ namespace imBMW.Features.Localizations
         public abstract string LimitIncrease { get; }
 
         public abstract string LimitDecrease { get; }
+
+        public abstract string Average { get; }
+
+        public abstract string AuxilaryHeater { get; }
 
         /*
         

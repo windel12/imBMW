@@ -45,6 +45,7 @@
     <Compile Include="Menu\MenuScreen.cs" />
     <Compile Include="Menu\Screens\BordcomputerScreen.cs" />
     <Compile Include="Menu\Screens\HomeScreen.cs" />
+    <Compile Include="Menu\Screens\AuxilaryHeaterScreen.cs" />
     <Compile Include="Menu\Screens\SettingsScreen.cs" />
     <Compile Include="Menu\Screens\SpeedLimitScreen.cs" />
     <Compile Include="Multimedia\AudioPlayerBase.cs" />

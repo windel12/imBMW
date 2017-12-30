@@ -13,6 +13,7 @@ namespace imBMW.Features.Menu.Screens
         protected MenuItem itemFav;
         protected MenuItem itemBC;
         protected MenuItem itemSettings;
+        protected MenuItem auxilaryHeaterItem;
 
         protected HomeScreen()
         {
@@ -33,6 +34,10 @@ namespace imBMW.Features.Menu.Screens
             {
                 GoToScreen = SettingsScreen.Instance
             };
+            auxilaryHeaterItem = new MenuItem(i => Localization.Current.AuxilaryHeater, MenuItemType.Button, MenuItemAction.GoToScreen)
+            {
+                GoToScreen = AuxilaryHeaterScreen.Instance
+            };
             SetItems();
         }
 
@@ -50,6 +55,7 @@ namespace imBMW.Features.Menu.Screens
             //AddItem(itemFav);
             AddItem(itemBC);
             AddItem(itemSettings);
+            AddItem(auxilaryHeaterItem);
         }
 
         public MenuScreen PlayerScreen
