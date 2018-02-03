@@ -17,7 +17,7 @@ namespace imBMW.Features.Menu.Screens
 
         protected HomeScreen()
         {
-            Title = "B3mch1k";
+            Title = "imBMW";
 
             itemPlayer = new MenuItem(i => Localization.Current.Player, MenuItemType.Button, MenuItemAction.GoToScreen);
             itemPhone = new MenuItem(i => Localization.Current.Phone, MenuItemType.Button, MenuItemAction.GoToScreen);

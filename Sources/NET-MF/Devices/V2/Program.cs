@@ -107,7 +107,7 @@ namespace imBMW.Devices.V2
                         SettingsScreen.Instance.CanChangeLanguage = false;
                     }
                     Bordmonitor.NaviVersion = settings.NaviVersion;
-                    BordmonitorMenu.FastMenuDrawing = settings.NaviVersion == NaviVersion.MK4;
+                    //BordmonitorMenu.FastMenuDrawing = settings.NaviVersion == NaviVersion.MK4;
                     BordmonitorMenu.Init(emulator);
                 }
                 else
@@ -148,7 +148,7 @@ namespace imBMW.Devices.V2
             prevButton = new InterruptPort((Cpu.Pin)FEZPandaIII.Gpio.Ldr0, true, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeHigh);
             prevButton.OnInterrupt += (p, s, t) =>
             {
-                
+                emulator.IsEnabled = false;
             };
 
             /* 
@@ -175,6 +175,13 @@ namespace imBMW.Devices.V2
         {
             LED.Write(Busy(false, 1));
 
+			if(e.Message.Data.Compare(MessageRegistry.DataAnnounce)
+                || e.Message.Data.Compare(MessageRegistry.DataPollRequest)
+                || e.Message.Data.Compare(MessageRegistry.DataPollResponse))
+            {
+                return;
+            }
+
             // Show only messages which are described
             if (e.Message.Describe() == null) { return; }
             if (!restrictOutput)
@@ -188,14 +195,6 @@ namespace imBMW.Devices.V2
                 {
                     Logger.Info(e.Message, logIco);
                 }
-                return;
-            }
-
-            if(e.Message.SourceDevice == DeviceAddress.Telephone || e.Message.DestinationDevice == DeviceAddress.Telephone
-                || e.Message.Data.Compare(MessageRegistry.DataAnnounce)
-                || e.Message.Data.Compare(MessageRegistry.DataPollRequest)
-                || e.Message.Data.Compare(MessageRegistry.DataPollResponse))
-            {
                 return;
             }
 

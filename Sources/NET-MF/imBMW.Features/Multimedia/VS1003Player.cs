@@ -78,7 +78,16 @@ namespace imBMW.Features.Multimedia
 
         public bool IsRandom { get; set; } = true;
 
-        public override bool IsPlaying { get; protected set; }
+        private bool isPlaying;
+        public override bool IsPlaying
+        {
+            get { return isPlaying; }
+            protected set
+            {
+                isPlaying = value;
+                OnIsPlayingChanged(isPlaying);
+            }
+        }
 
         private bool ChangeTrack { get; set; }
 
@@ -89,6 +98,7 @@ namespace imBMW.Features.Multimedia
 
         public byte DiskNumber { get; set; } = 1;
         public byte TrackNumber { get; set; } = 1;
+        public int CurrentPosition { get; set; } = 0;
 
         public VS1003Player(Cpu.Pin MP3_DREQ, Cpu.Pin MP3_CS, Cpu.Pin MP3_DCS, Cpu.Pin MP3_RST)
         {         
@@ -144,20 +154,37 @@ namespace imBMW.Features.Multimedia
                     }
                     Data.Add(i.ToString(), musicFiles);
                 }
-                var dataFile = File.Open(rootDirectory + "\\data.bin", FileMode.OpenOrCreate);
-                byte[] lastTrackInfo = new byte[2] { 1, 1 };
-                dataFile.Read(lastTrackInfo, 0, lastTrackInfo.Length);
-                DiskNumber = lastTrackInfo[0];
-                TrackNumber = lastTrackInfo[1];
-                dataFile.Close();
-                TrackChanged += (sender, playing) =>
+                FileStream dataFile = null;
+                byte[] lastTrackInfo = new byte[6] { 1, 1, 0, 0, 0, 0 };
+                try
                 {
-                    var dataFileWrite = File.Open(rootDirectory + "\\data.bin", FileMode.OpenOrCreate);
-                    byte[] lastTrackInfoWrite = new byte[2] { DiskNumber, TrackNumber };
-                    dataFileWrite.Write(lastTrackInfoWrite, 0, lastTrackInfo.Length);
-                    dataFileWrite.Close();
-
+                    dataFile = File.Open(rootDirectory + "\\data.bin", FileMode.OpenOrCreate);
+                    dataFile.Read(lastTrackInfo, 0, lastTrackInfo.Length);
+                    DiskNumber = lastTrackInfo[0];
+                    TrackNumber = lastTrackInfo[1];
+                    CurrentPosition = BitConverter.ToInt32(lastTrackInfo, 2);
+                }
+                finally
+                {
+                    if (dataFile != null) { dataFile.Close(); }
+                }
+                Action saveHistory = () =>
+                {
+                    FileStream dataFileWrite = null;
+                    try
+                    {
+                        dataFileWrite = File.Open(rootDirectory + "\\data.bin", FileMode.OpenOrCreate);
+                        var cp = BitConverter.GetBytes(CurrentPosition);
+                        byte[] lastTrackInfoWrite = new byte[6] {DiskNumber, TrackNumber, cp[0], cp[1], cp[2], cp[3]};
+                        dataFileWrite.Write(lastTrackInfoWrite, 0, lastTrackInfo.Length);
+                    }
+                    finally
+                    {
+                        if(dataFileWrite != null) { dataFileWrite.Close();}
+                    }
                 };
+                TrackChanged += (sender, trackInfo) => { saveHistory(); };
+                IsPlayingChanged += (sender, isPlaying) => { if(!isPlaying) { saveHistory();} };
             }
             else
             {
@@ -191,11 +218,6 @@ namespace imBMW.Features.Multimedia
             base.Pause();
         }
 
-        public virtual void Stop()
-        {
-            SetPlaying(false);
-        }
-
         public override void Next()
         {
             diskChangingHistory.Push(DiskNumber);
@@ -221,6 +243,7 @@ namespace imBMW.Features.Multimedia
                 } while (filesOnDisk.Count == 0);
                 TrackNumber = (byte)(TrackNumber == filesOnDisk.Count ? 0 : ++TrackNumber);
             }
+            CurrentPosition = 0;
 
             ChangeTrack = true;
             OnTrackChanged();
@@ -231,7 +254,8 @@ namespace imBMW.Features.Multimedia
             if (trackChangingHistory.Count > 0 && diskChangingHistory.Count > 0)
             {
                 TrackNumber = (byte)trackChangingHistory.Pop();
-                DiskNumber = (byte)diskChangingHistory.Pop(); ;
+                DiskNumber = (byte)diskChangingHistory.Pop();
+                CurrentPosition = 0;
                 ChangeTrack = true;
                 OnTrackChanged();
             }
@@ -284,9 +308,11 @@ namespace imBMW.Features.Multimedia
                 try
                 {
                     stream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+                    stream.Seek(CurrentPosition, SeekOrigin.Begin);
                     do
                     {
                         size = stream.Read(buffer, 0, buffer.Length);
+                        CurrentPosition += size;
                         SendData(buffer);
                         if (ChangeTrack)
                         {

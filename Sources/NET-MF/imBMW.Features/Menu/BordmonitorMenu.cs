@@ -103,7 +103,10 @@ namespace imBMW.Features.Menu
 
         #region Screen items
 
-        public static bool FastMenuDrawing { get; set; }
+        public bool FastMenuDrawing
+        {
+            get { return CurrentScreen.FastMenuDrawing; }
+        }
 
         protected override void ScreenWakeup()
         {

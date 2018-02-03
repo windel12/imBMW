@@ -42,6 +42,8 @@ namespace imBMW.Features.Menu
         bool updateSuspended;
         MenuBase parentMenu;
 
+        public bool FastMenuDrawing { get; set; }
+
         public MenuScreen(string title = null)
             : this()
         {
