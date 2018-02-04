@@ -2,6 +2,7 @@
 using imBMW.iBus.Devices.Real;
 using imBMW.Tools;
 using imBMW.Features.Localizations;
+using imBMW.iBus.Devices;
 
 namespace imBMW.Features.Menu.Screens
 {
@@ -17,7 +18,7 @@ namespace imBMW.Features.Menu.Screens
         protected DateTime lastUpdated;
         protected bool needUpdateVoltage;
 
-        const int updateLimitSeconds = 3;
+        protected int updateLimitSeconds = 1;
 
         protected BordcomputerScreen()
         {
@@ -30,7 +31,7 @@ namespace imBMW.Features.Menu.Screens
         {
             if (base.OnNavigatedTo(menu))
             {
-                BodyModule.BatteryVoltageChanged += BodyModule_BatteryVoltageChanged;
+                NavigationModule.BatteryVoltageChanged += BodyModule_BatteryVoltageChanged;
                 InstrumentClusterElectronics.SpeedRPMChanged += InstrumentClusterElectronics_SpeedRPMChanged;
                 InstrumentClusterElectronics.TemperatureChanged += InstrumentClusterElectronics_TemperatureChanged;
                 InstrumentClusterElectronics.AverageSpeedChanged += InstrumentClusterElectronics_AverageSpeedChanged;
@@ -49,7 +50,7 @@ namespace imBMW.Features.Menu.Screens
         {
             if (base.OnNavigatedFrom(menu))
             {
-                BodyModule.BatteryVoltageChanged -= BodyModule_BatteryVoltageChanged;
+                NavigationModule.BatteryVoltageChanged -= BodyModule_BatteryVoltageChanged;
                 InstrumentClusterElectronics.SpeedRPMChanged -= InstrumentClusterElectronics_SpeedRPMChanged;
                 InstrumentClusterElectronics.TemperatureChanged -= InstrumentClusterElectronics_TemperatureChanged;
                 InstrumentClusterElectronics.AverageSpeedChanged -= InstrumentClusterElectronics_AverageSpeedChanged;
@@ -148,9 +149,9 @@ namespace imBMW.Features.Menu.Screens
             /*, i => InstrumentClusterElectronics.ResetConsumption2()*/)
             );
             //AddItem(new MenuItem(i => Localization.Current.Range + ": " + (InstrumentClusterElectronics.Range == 0 ? "-" : InstrumentClusterElectronics.Range + Localization.Current.KM)));
-            AddItem(new MenuItem(i => "Average" + ": " + (InstrumentClusterElectronics.AverageSpeed == 0 ? "-" : InstrumentClusterElectronics.AverageSpeed.ToString("F1") + "km/h")));
+            AddItem(new MenuItem(i => Localization.Current.Average + ": " + (InstrumentClusterElectronics.AverageSpeed == 0 ? "-" : InstrumentClusterElectronics.AverageSpeed.ToString("F1") + Localization.Current.KMH)));
 
-            AddItem(new MenuItem(i => Localization.Current.Voltage + ": " + (BodyModule.BatteryVoltage > 0 ? BodyModule.BatteryVoltage.ToString("F2") : "-") + " " + Localization.Current.VoltageShort, i => UpdateVoltage()));
+            AddItem(new MenuItem(i => Localization.Current.Voltage + ": " + (NavigationModule.BatteryVoltage > 0 ? NavigationModule.BatteryVoltage.ToString("F2") : "-") + " " + Localization.Current.VoltageShort, i => UpdateVoltage()));
             AddItem(new MenuItem(i =>
             {
                 var coolant = InstrumentClusterElectronics.TemperatureCoolant == sbyte.MinValue ? "-" : InstrumentClusterElectronics.TemperatureCoolant.ToString();
@@ -172,7 +173,7 @@ namespace imBMW.Features.Menu.Screens
         protected void UpdateVoltage()
         {
             needUpdateVoltage = false;
-            BodyModule.UpdateBatteryVoltage();
+            NavigationModule.UpdateBatteryVoltage();
         }
 
         public static BordcomputerScreen Instance

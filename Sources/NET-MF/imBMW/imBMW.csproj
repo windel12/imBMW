@@ -42,6 +42,7 @@
     <Compile Include="iBus\Devices\InstrumentClusterElectronics.cs" />
     <Compile Include="iBus\Devices\LightControlModule.cs" />
     <Compile Include="iBus\Devices\MultiFunctionSteeringWheel.cs" />
+    <Compile Include="iBus\Devices\NavigationModule.cs" />
     <Compile Include="iBus\Devices\Radio.cs" />
     <Compile Include="iBus\InternalMessage.cs" />
     <Compile Include="iBus\ManagerTools.cs" />
@@ -89,5 +90,8 @@
       <Project>{76B622B3-B9D7-41DF-8A7C-627F32AABEB3}</Project>
       <Name>imBMW.Tools</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="iBusMessages.txt" />
   </ItemGroup>
 </Project>
