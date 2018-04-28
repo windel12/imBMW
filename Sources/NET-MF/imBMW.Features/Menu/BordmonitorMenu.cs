@@ -27,6 +27,26 @@ namespace imBMW.Features.Menu
         {
             CurrentScreen = HomeScreen.Instance;
 
+            //mediaEmulator.Player.TrackChanged += (s, e) =>
+            //{
+            //    ShowPlayerStatusWithDelay(mediaEmulator.Player);
+            //};
+            mediaEmulator.Player.IsPlayingChanged += (s, e) =>
+            {
+                if (s.IsPlaying)
+                {
+                    int startIndex = 6; // remove path to SD card TODO: refactor this later.Length)
+                    BordcomputerScreen.Instance.TitleCallback = x =>
+                    {
+                        string trimmedFileName = "";
+                        if (startIndex + 11 >= mediaEmulator.Player.FileName.Length - 3)
+                        {
+                            startIndex = 6;
+                        }
+                        return mediaEmulator.Player.FileName.Substring(startIndex++, 11);
+                    };
+                }
+            };
             //mediaEmulator.IsEnabledChanged += mediaEmulator_IsEnabledChanged;
             //Radio.OnOffChanged += Radio_OnOffChanged;
             Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.Radio, ProcessToRadioMessage);
@@ -47,18 +67,18 @@ namespace imBMW.Features.Menu
 
         protected override int StatusTextMaxlen { get { return 11; } }
 
-        protected override void ShowPlayerStatus(IAudioPlayer player, bool isPlaying)
-        {
-            string s = isPlaying ? Localization.Current.Playing : Localization.Current.Paused;
-            ShowPlayerStatus(player, s);
-        }
+        //protected override void ShowPlayerStatus(IAudioPlayer player, bool isPlaying)
+        //{
+        //    string s = isPlaying ? Localization.Current.Playing : Localization.Current.Paused;
+        //    ShowPlayerStatus(player, s);
+        //}
 
-        protected override void ShowPlayerStatus(IAudioPlayer player, string status, PlayerEvent playerEvent)
-        {
-            if (!IsEnabled)
-            {
-                return;
-            }
+        //protected override void ShowPlayerStatus(IAudioPlayer player, string status, PlayerEvent playerEvent)
+        //{
+        //    if (!IsEnabled)
+        //    {
+        //        return;
+        //    }
             //bool showAfterWithDelay = false;
             //switch (playerEvent)
             //{
@@ -89,7 +109,7 @@ namespace imBMW.Features.Menu
             //{
             //    ShowPlayerStatusWithDelay(player);
             //}
-        }
+        //}
 
         void mediaEmulator_IsEnabledChanged(MediaEmulator emulator, bool isEnabled)
         {

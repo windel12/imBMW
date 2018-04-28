@@ -23,7 +23,7 @@ namespace imBMW.Features.Menu.Screens
         protected BordcomputerScreen()
         {
             FastMenuDrawing = true;
-            TitleCallback = s => Localization.Current.BordcomputerShort;
+            //TitleCallback = x => Localization.Current.BordcomputerShort;
             SetItems();
         }
 

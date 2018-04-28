@@ -69,6 +69,8 @@ namespace imBMW.Multimedia
 
         string Name { get; }
 
+        string FileName { get; }
+
         MenuScreen Menu { get; }
 
         event IsPlayingHandler IsPlayingChanged;

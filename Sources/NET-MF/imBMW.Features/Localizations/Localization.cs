@@ -13,7 +13,7 @@ namespace imBMW.Features.Localizations
             {
                 if (current == null)
                 {
-                    current = new EnglishLocalization();
+                    current = new RussianLocalization();
                 } 
                 return current;
             }

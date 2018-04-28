@@ -17,17 +17,9 @@ namespace imBMW.iBus.Devices.Real
         /// </summary>
         Status,
         /// <summary>
-        /// Top right, 3 chars
-        /// </summary>
-        Program,
-        /// <summary>
         /// One of 10 items, 23 chars
         /// </summary>
         Item,
-        /// <summary>
-        /// One of 5 lines, ?? items
-        /// </summary>
-        Line
     }
 
     public class BordmonitorText
@@ -180,9 +172,13 @@ namespace imBMW.iBus.Devices.Real
         public static Message MessageDisableRadioMenu = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.Radio, "Disable radio menu", 0x45, 0x02); // Thanks to RichardP (Intravee) for these two messages
         public static Message MessageEnableRadioMenu = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.Radio, "Enable radio menu", 0x45, 0x00);
 
-        public static byte[] DataShowTitle = new byte[] { 0x23, 0x62, 0x10 }; // <68 Length 3B> 23 62 30 <Text in ASCII Hex> <XOR>
-        public static byte[] DataShowStatus = new byte[] { 0xA5, 0x62, 0x01, 0x06 }; // <68 Length 3B> A5 62 01 <Index of the text field> <Text in ASCII Hex> <XOR>
-        public static byte[] DataUpdateScreen = new byte[] { 0xA5, 0x62, 0x01 };
+        public static byte[] DataShowTitle = new byte[] { 0x23, 0x62, 0x10 /*30?*/ }; // <68 Length 3B> 23 62 30 <Text in ASCII Hex> <XOR>
+        public static byte[] DataShowStatus = new byte[] { 0xA5, 0x62, 0x01, /*In*/0x06/*dex*/ }; // <68 Length 3B> A5 62 01 <Index of the text field> <Text in ASCII Hex> <XOR>
+
+        public static byte[] DataDrawIndexMk2 = { 0xA5, 0x62, 0x00 };
+        public static byte[] DataDrawIndexMk34 = { 0x21, 0x60, 0x00 };
+
+        public static byte[] DataUpdateScreen = new byte[] { 0xA5, 0x62, 0x01 }; 
         public static byte[] DataAUX = new byte[] { 0x23, 0x62, 0x10, 0x41, 0x55, 0x58, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20 };
 
         /// <summary>
@@ -219,7 +215,7 @@ namespace imBMW.iBus.Devices.Real
 
         static void ProcessNavGraphicsMessage(Message m)
         {
-            var ae = ScreenCleared;
+            var ae = ScreenCleared; // This is the only usage?
             if (ae != null && m.Data.Compare(MessageClearScreen.Data))
             {
                 ae();
@@ -227,7 +223,7 @@ namespace imBMW.iBus.Devices.Real
                 return;
             }
 
-            ae = ScreenRefreshed;
+            ae = ScreenRefreshed; // This is the only usage?
             if (ae != null && m.Data.Compare(MessageRefreshScreen.Data))
             {
                 ae();
@@ -236,10 +232,10 @@ namespace imBMW.iBus.Devices.Real
                 return;
             }
 
-            var e = TextReceived;
+            var e = TextReceived; // This is the only usage?
             if (e != null || ReplyToScreenUpdates)
             {
-                if (m.Data.StartsWith(0xA5, 0x62, 0x00) || m.Data.StartsWith(0x21, 0x60, 0x00))
+                if (m.Data.StartsWith(DataDrawIndexMk2) || m.Data.StartsWith(DataDrawIndexMk34))
                 {
                     var a = new BordmonitorText(BordmonitorFields.Item, m.Data);
                     if (e != null)
@@ -384,13 +380,13 @@ namespace imBMW.iBus.Devices.Real
                     //<68 Length 3B> A5 62 00 <Index of the text field> <Text in ASCII Hex> <XOR>
                     if (NaviVersion == Tools.NaviVersion.MK2)
                     {
-                        data = new byte[] { 0xA5, 0x62, 0x00, (byte)index };
+                        data = DataDrawIndexMk2.Combine(index);
                     }
                     //Format of the message for index fields I-0 to I-5 ( MK3 and MK4 navigation system with split screen software)
                     //<68 Length 3B> 21 60 00 <Index of the text field> <Text in ASCII Hex> <XOR>
                     else
                     {
-                        data = new byte[] { 0x21, 0x60, 0x00, (byte)index };
+                        data = DataDrawIndexMk34.Combine(index);
                     }
                     break;
                 default:

@@ -8,6 +8,7 @@ using imBMW.Multimedia;
 using imBMW.Features.Localizations;
 using System.Threading;
 using imBMW.iBus;
+using imBMW.iBus.Devices.Real;
 
 namespace imBMW.Features.Menu
 {
@@ -64,32 +65,32 @@ namespace imBMW.Features.Menu
 
         #region MediaEmulator members
 
-        Timer displayStatusDelayTimer;
+        protected Timer displayStatusDelayTimer;
         protected const int displayStatusDelay = 900; // TODO make abstract
 
         protected abstract int StatusTextMaxlen { get; }
 
-        protected abstract void ShowPlayerStatus(IAudioPlayer player, string status, PlayerEvent playerEvent);
+        //protected abstract void ShowPlayerStatus(IAudioPlayer player, string status, PlayerEvent playerEvent);
 
-        protected abstract void ShowPlayerStatus(IAudioPlayer player, bool isPlaying);
+        //protected abstract void ShowPlayerStatus(IAudioPlayer player, bool isPlaying);
 
-        protected void ShowPlayerStatus(IAudioPlayer player)
-        {
-            // TODO move to player interface
-            #if !MF_FRAMEWORK_VERSION_V4_1
-            if (player is BluetoothWT32 && !((BluetoothWT32)player).IsConnected)
-            {
-                ShowPlayerStatus(player, Localization.Current.Disconnected, PlayerEvent.Wireless);
-            }
-            else
-            #endif
-            {
-                ShowPlayerStatus(player, player.IsPlaying);
-            }
-        }
+        //protected void ShowPlayerStatus(IAudioPlayer player)
+        //{
+        //    // TODO move to player interface
+        //    #if !MF_FRAMEWORK_VERSION_V4_1
+        //    if (player is BluetoothWT32 && !((BluetoothWT32)player).IsConnected)
+        //    {
+        //        ShowPlayerStatus(player, Localization.Current.Disconnected, PlayerEvent.Wireless);
+        //    }
+        //    else
+        //    #endif
+        //    {
+        //        ShowPlayerStatus(player, player.IsPlaying);
+        //    }
+        //}
 
-        protected void ShowPlayerStatus(IAudioPlayer player, string status)
-        {
+        //protected void ShowPlayerStatus(IAudioPlayer player, string status)
+        //{
             //if (!IsEnabled)
             //{
             //    //return;
@@ -102,20 +103,31 @@ namespace imBMW.Features.Menu
             //}
 
             //player.Menu.Status = status;
-        }
+        //}
 
         protected void ShowPlayerStatusWithDelay(IAudioPlayer player)
         {
-            //if (displayStatusDelayTimer != null)
-            //{
-            //    displayStatusDelayTimer.Dispose();
-            //    displayStatusDelayTimer = null;
-            //}
+            if (displayStatusDelayTimer != null)
+            {
+                displayStatusDelayTimer.Dispose();
+                displayStatusDelayTimer = null;
+            }
 
-            //displayStatusDelayTimer = new Timer(delegate
-            //{
-            //    ShowPlayerStatus(player);
-            //}, null, displayStatusDelay, 0);
+            int startIndex = 6; // remove path to SD card TODO: refactor this later.Length)
+            displayStatusDelayTimer = new Timer(delegate
+            {
+                //if (displayStatusDelayTimer == null)
+                //{
+                //    return;
+                //}
+                //string trimmedFileName = "";
+                //if (startIndex + 11 >= player.FileName.Length - 3)
+                //{
+                //    startIndex = 6;
+                //}
+                //trimmedFileName = player.FileName.Substring(startIndex++, 11);
+                //Bordmonitor.ShowText(trimmedFileName, BordmonitorFields.Title);
+            }, null, 400, displayStatusDelay);
         }
 
         protected string TextWithIcon(string icon, string text = null)

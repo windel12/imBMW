@@ -87,6 +87,7 @@ namespace imBMW.iBus.Devices.Emulators
             : base(player)
         {
             Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.CDChanger, ProcessCDCMessage);
+            Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.Radio, ProcessToRadioMessage);
 
             Player.TrackChanged += (s, e) => Manager.EnqueueMessage(GetMessagePlaying(Player.DiskNumber, Player.TrackNumber));
             InstrumentClusterElectronics.IgnitionStateChanged += args =>
@@ -177,12 +178,27 @@ namespace imBMW.iBus.Devices.Emulators
             }
         }
 
+        void ProcessToRadioMessage(Message m)
+        {
+            if (!IsEnabled)
+            {
+                return;
+            }
+
+            // BM buttons
+            if (m.Data.Length == 2 && m.Data[0] == 0x48)
+            {
+                
+            }
+        }
+
         void ProcessCDCMessage(Message m)
         {
-            if(m.Data.Length == 3 && m.Data.StartsWith(0x38, 0x06))
+            if(m.Data.Length == 3 && m.Data.StartsWith(0x38, 0x06)) // select disk
             {
                 Player.DiskNumber = m.Data[2];
                 Player.TrackNumber = 1;
+                Player.IsRandom = false;
                 if (Player.IsPlaying)
                 {
                     Manager.EnqueueMessage(GetMessagePlaying(Player.DiskNumber, Player.TrackNumber));
@@ -191,6 +207,12 @@ namespace imBMW.iBus.Devices.Emulators
                 {
                     Manager.EnqueueMessage(GetMessageStopped(Player.DiskNumber, Player.TrackNumber));
                 }
+            }
+            else if (m.Data.Compare(DataRandomPlay))
+            {
+                RandomToggle();
+                Manager.EnqueueMessage(GetMessagePlaying(Player.DiskNumber, Player.TrackNumber));
+                m.ReceiverDescription = "Random toggle";
             }
             if (m.Data.Compare(DataCurrentDiskTrackRequest))
             {
@@ -252,12 +274,6 @@ namespace imBMW.iBus.Devices.Emulators
                 //{
                 //    Manager.EnqueueMessage(MessagePausedDisk1Track1);
                 //}
-            }
-            else if (m.Data.Compare(DataRandomPlay))
-            {
-                RandomToggle();
-                Manager.EnqueueMessage(GetMessagePlaying(Player.DiskNumber, Player.TrackNumber));
-                m.ReceiverDescription = "Random toggle";
             }
             /*else if (m.Data[0] == 0x38)
             {

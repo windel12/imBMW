@@ -297,7 +297,7 @@ namespace imBMW.Features.Localizations
 
         public override string Average
         {
-            get { return "Средняя скорость"; }
+            get { return "Ср. скорость"; }
         }
 
         public override string AuxilaryHeater

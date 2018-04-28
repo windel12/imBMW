@@ -56,6 +56,8 @@ namespace imBMW.Multimedia
 
         public string Name { get; protected set; }
 
+        public string FileName { get; protected set; }
+
         public abstract bool IsPlaying
         {
             get;

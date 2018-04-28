@@ -71,6 +71,10 @@
     <Reference Include="System.IO" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\imBMW.Diagnostics\imBMW.Diagnostics.csproj">
+      <Project>{CDF5C231-E043-40CF-960B-10AC26355B96}</Project>
+      <Name>imBMW.Diagnostics</Name>
+    </ProjectReference>
     <ProjectReference Include="..\imBMW.Tools\imBMW.Tools.csproj">
       <Project>{76B622B3-B9D7-41DF-8A7C-627F32AABEB3}</Project>
       <Name>imBMW.Tools</Name>

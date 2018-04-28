@@ -36,6 +36,9 @@ namespace imBMW.Devices.V2
         static InterruptPort nextButton;
         static InterruptPort prevButton;
 
+        public static SDCard sd_card;
+        private static string rootDirectory;
+
         public static void Main()
         {
             try
@@ -51,6 +54,10 @@ namespace imBMW.Devices.V2
                 //Features.Comfort.AutoUnlockDoors = settings.AutoUnlockDoors;
                 //Features.Comfort.AutoCloseWindows = settings.AutoCloseWindows;
                 //Features.Comfort.AutoCloseSunroof = settings.AutoCloseSunroof;
+
+                sd_card = new SDCard(SDCard.SDInterface.MCI);
+                sd_card.Mount();
+                rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
 
                 Init();
 
@@ -74,6 +81,7 @@ namespace imBMW.Devices.V2
             if (Debugger.IsAttached)
             {
                 //iBusComPort = Serial.COM2;
+                //Logger.Error(new ApplicationException(), "fuck", "!!!");
             }
 
             // COM3 connected with COM2
@@ -148,6 +156,10 @@ namespace imBMW.Devices.V2
             prevButton = new InterruptPort((Cpu.Pin)FEZPandaIII.Gpio.Ldr0, true, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeHigh);
             prevButton.OnInterrupt += (p, s, t) =>
             {
+                //emulator.Player.Prev();
+                //Manager.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, CDChanger.DataSelectDisk6));
+                //emulator.Player.IsRandom = false;
+                //emulator.Player.DiskNumber = 6;
                 emulator.IsEnabled = false;
             };
 
@@ -266,6 +278,10 @@ if ((
                 error = true;
                 led4.Write(true);
                 RefreshLEDs();
+                
+                var errorFile = File.Open(rootDirectory + "\\errorLog.txt", FileMode.OpenOrCreate);
+                errorFile.WriteString(args.LogString);
+                errorFile.Close();
             }
             if (Debugger.IsAttached)
             {
@@ -288,7 +304,7 @@ if ((
             {
                 //b = b.AddBit(2);
             }
-            if (player != null && player.IsPlaying)
+            if (player != null/* && player.IsPlaying*/)
             {
                 b = b.AddBit(4);
             }
