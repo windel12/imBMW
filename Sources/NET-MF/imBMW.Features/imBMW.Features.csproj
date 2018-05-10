@@ -44,6 +44,7 @@
     <Compile Include="Menu\MenuItem.cs" />
     <Compile Include="Menu\MenuScreen.cs" />
     <Compile Include="Menu\Screens\BordcomputerScreen.cs" />
+    <Compile Include="Menu\Screens\DDEScreen.cs" />
     <Compile Include="Menu\Screens\HomeScreen.cs" />
     <Compile Include="Menu\Screens\AuxilaryHeaterScreen.cs" />
     <Compile Include="Menu\Screens\SettingsScreen.cs" />

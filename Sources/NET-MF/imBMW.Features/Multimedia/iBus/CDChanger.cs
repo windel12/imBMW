@@ -194,7 +194,28 @@ namespace imBMW.iBus.Devices.Emulators
 
         void ProcessCDCMessage(Message m)
         {
-            if(m.Data.Length == 3 && m.Data.StartsWith(0x38, 0x06)) // select disk
+            if (m.Data.Compare(DataPlay))
+            {
+                IsEnabled = true;
+                Manager.EnqueueMessage(GetMessagePlaying(Player.DiskNumber, Player.TrackNumber));
+                m.ReceiverDescription = "Start playing";
+            }
+            else if (m.Data.Compare(DataStop))
+            {
+                IsEnabled = false;
+                Manager.EnqueueMessage(GetMessagePaused(Player.DiskNumber, Player.TrackNumber));
+                m.ReceiverDescription = "Stop playing";
+            }
+            else if (m.Data.Compare(DataPause))
+            {
+                //IsEnabled = false;
+                Pause();
+                Manager.EnqueueMessage(GetMessagePaused(Player.DiskNumber, Player.TrackNumber));
+                // TODO show "splash" only with bmw business (not with BM)
+                //Radio.DisplayText("imBMW", TextAlign.Center);
+                m.ReceiverDescription = "Pause";
+            }            
+            else if(m.Data.Length == 3 && m.Data.StartsWith(0x38, 0x06)) // select disk
             {
                 Player.DiskNumber = m.Data[2];
                 Player.TrackNumber = 1;
@@ -233,27 +254,6 @@ namespace imBMW.iBus.Devices.Emulators
                 {
                     Manager.EnqueueMessage(GetMessagePlaylistLoaded(Player.DiskNumber, Player.TrackNumber));
                 }
-            }
-            else if (m.Data.Compare(DataStop))
-            {
-                IsEnabled = false;
-                Manager.EnqueueMessage(GetMessagePaused(Player.DiskNumber, Player.TrackNumber));
-                m.ReceiverDescription = "Stop playing";
-            }
-            else if (m.Data.Compare(DataPause))
-            {
-                //IsEnabled = false;
-                Pause();
-                Manager.EnqueueMessage(GetMessagePaused(Player.DiskNumber, Player.TrackNumber));
-                // TODO show "splash" only with bmw business (not with BM)
-                //Radio.DisplayText("imBMW", TextAlign.Center);
-                m.ReceiverDescription = "Pause";
-            }
-            else if (m.Data.Compare(DataPlay))
-            {
-                IsEnabled = true;
-                Manager.EnqueueMessage(GetMessagePlaying(Player.DiskNumber, Player.TrackNumber));
-                m.ReceiverDescription = "Start playing";
             }
             else if(m.Data.Compare(DataNext))
             {

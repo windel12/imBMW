@@ -67,6 +67,7 @@ namespace imBMW.Features.Menu
 
         protected Timer displayStatusDelayTimer;
         protected const int displayStatusDelay = 900; // TODO make abstract
+        protected Timer delayTimeout;
 
         protected abstract int StatusTextMaxlen { get; }
 
@@ -191,6 +192,19 @@ namespace imBMW.Features.Menu
             DrawScreen(/*args*/);
         }
 
+        public virtual void UpdateScreenWitDelay(int delayTime = 1000)
+        {
+            delayTimeout = new Timer(delegate
+            {
+                UpdateScreen();
+                if (delayTimeout != null)
+                {
+                    delayTimeout.Dispose();
+                    delayTimeout = null;
+                }
+            }, null, delayTime, 0);
+        }
+
         void currentScreen_Updated(MenuScreen screen, MenuScreenUpdateEventArgs args)
         {
             UpdateScreen(/*args*/);
@@ -217,7 +231,7 @@ namespace imBMW.Features.Menu
                 if (value)
                 {
                     ScreenWakeup();
-                    UpdateScreen(/*MenuScreenUpdateReason.Navigation*/);
+                    UpdateScreenWitDelay();
                 }
                 else
                 {

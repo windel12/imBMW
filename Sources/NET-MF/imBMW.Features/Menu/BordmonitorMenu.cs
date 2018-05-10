@@ -25,19 +25,24 @@ namespace imBMW.Features.Menu
         private BordmonitorMenu(MediaEmulator mediaEmulator)
             : base(mediaEmulator)
         {
-            CurrentScreen = HomeScreen.Instance;
+            //CurrentScreen = HomeScreen.Instance;
+            CurrentScreen = BordcomputerScreen.Instance;
 
             //mediaEmulator.Player.TrackChanged += (s, e) =>
             //{
             //    ShowPlayerStatusWithDelay(mediaEmulator.Player);
             //};
+            int startIndex = 6; // remove path to SD card TODO: refactor this later.Length)
             mediaEmulator.Player.IsPlayingChanged += (s, e) =>
             {
                 if (s.IsPlaying)
                 {
-                    int startIndex = 6; // remove path to SD card TODO: refactor this later.Length)
                     BordcomputerScreen.Instance.TitleCallback = x =>
                     {
+                        if(mediaEmulator.Player.FileName == null)
+                        {
+                            return "";
+                        }
                         string trimmedFileName = "";
                         if (startIndex + 11 >= mediaEmulator.Player.FileName.Length - 3)
                         {
@@ -46,6 +51,11 @@ namespace imBMW.Features.Menu
                         return mediaEmulator.Player.FileName.Substring(startIndex++, 11);
                     };
                 }
+            };
+            mediaEmulator.Player.TrackChanged += (s, e) =>
+            {
+                startIndex = 6;
+                UpdateScreenWitDelay(500);
             };
             //mediaEmulator.IsEnabledChanged += mediaEmulator_IsEnabledChanged;
             //Radio.OnOffChanged += Radio_OnOffChanged;
@@ -257,6 +267,14 @@ namespace imBMW.Features.Menu
                         m.ReceiverDescription = "BM button Menu";
                         IsEnabled = false;
                         break;
+                    case 0x30: // Radio menu
+                        m.ReceiverDescription = "BM button Switch Screen";
+                        IsEnabled = !IsEnabled;
+                        //if (screenSwitched)
+                        //{
+                        //    UpdateScreen();
+                        //}
+                        break;
                 }
             }
 
@@ -293,24 +311,17 @@ namespace imBMW.Features.Menu
                         break;
                     case 0x20: // Select
                         m.ReceiverDescription = "BM button Sel"; // - navigate player";
+                        IsEnabled = false;
                         // TODO fix in cdc mode
                         //NavigateAfterHome(HomeScreen.Instance.PlayerScreen);
                         break;
-                    case 0x30: // Mode?
-                        m.ReceiverDescription = "BM button Switch Screen";
-                        //if (screenSwitched)
-                        //{
-                        //    UpdateScreen();
-                        //}
-                        break;
-                    case 0x23: // Mode?
-                        m.ReceiverDescription = "BM button Mode";
-                        //IsEnabled = false;
-                        //Bordmonitor.EnableRadioMenu(); // TODO test [and remove]
-                        break;
                     case 0x04:
                         m.ReceiverDescription = "BM button Tone";
-                        // TODO fix Tone - skip clear till aux title
+                        IsEnabled = false;
+                        //Bordmonitor.EnableRadioMenu(); // TODO test [and remove]
+                        break;
+                    case 0x23: // Mode
+                        m.ReceiverDescription = "BM button Mode";
                         //IsEnabled = false;
                         //Bordmonitor.EnableRadioMenu(); // TODO test [and remove]
                         break;
@@ -324,7 +335,7 @@ namespace imBMW.Features.Menu
 
         protected override void DrawScreen(/*MenuScreenUpdateEventArgs args*/)
         {
-            if (isDrawing)
+            if (isDrawing || !mediaEmulator.IsEnabled)
             {
                 return; // TODO test
             }

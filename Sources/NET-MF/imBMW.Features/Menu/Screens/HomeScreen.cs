@@ -14,10 +14,12 @@ namespace imBMW.Features.Menu.Screens
         protected MenuItem itemBC;
         protected MenuItem itemSettings;
         protected MenuItem auxilaryHeaterItem;
+        protected MenuItem ddeItem;
 
         protected HomeScreen()
         {
             Title = "imBMW";
+            FastMenuDrawing = false;
 
             itemPlayer = new MenuItem(i => Localization.Current.Player, MenuItemType.Button, MenuItemAction.GoToScreen);
             itemPhone = new MenuItem(i => Localization.Current.Phone, MenuItemType.Button, MenuItemAction.GoToScreen);
@@ -38,6 +40,10 @@ namespace imBMW.Features.Menu.Screens
             {
                 GoToScreen = AuxilaryHeaterScreen.Instance
             };
+            ddeItem = new MenuItem(i => "DDE", MenuItemType.Button, MenuItemAction.GoToScreen)
+            {
+                GoToScreen = DDEScreen.Instance
+            };
             SetItems();
         }
 
@@ -56,6 +62,7 @@ namespace imBMW.Features.Menu.Screens
             AddItem(itemBC);
             AddItem(itemSettings);
             AddItem(auxilaryHeaterItem);
+            AddItem(ddeItem);
         }
 
         public MenuScreen PlayerScreen
