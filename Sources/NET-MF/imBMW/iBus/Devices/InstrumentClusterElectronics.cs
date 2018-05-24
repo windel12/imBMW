@@ -155,6 +155,15 @@ namespace imBMW.iBus.Devices.Real
         
         static readonly Message MessageRequestTime = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Time", 0x41, 0x01, 0x01);
         static readonly Message MessageRequestDate = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Date", 0x41, 0x02, 0x01);
+        static readonly Message MessageRequestTemperatureOutside = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Outside temp", 0x41, 0x03, 0x01);
+        static readonly Message MessageRequestConsumtion1 = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Consumtion1", 0x41, 0x04, 0x01);
+        static readonly Message MessageRequestConsumtion2 = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Consumtion2", 0x41, 0x05, 0x01);
+        static readonly Message MessageRequestRange = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Range", 0x41, 0x06, 0x01);
+        static readonly Message MessageRequestDistance = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Distance", 0x41, 0x07, 0x01);
+        static readonly Message MessageRequestArrival = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Arrival", 0x41, 0x08, 0x01);
+        static readonly Message MessageRequestSpeedLimit = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Speed Limit", 0x41, 0x09, 0x01);
+        static readonly Message MessageRequestAverageSpeed = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Average Speed", 0x41, 0x0A, 0x01);
+        static readonly Message MessageRequestTimer = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Timer", 0x41, 0x0E, 0x01);
 
         static readonly Message MessageGong1 = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Gong 1", 0x23, 0x62, 0x30, 0x37, 0x08);
         static readonly Message MessageGong2 = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Gong 2", 0x23, 0x62, 0x30, 0x37, 0x10);
@@ -192,12 +201,12 @@ namespace imBMW.iBus.Devices.Real
 
         static void ProcessIKEMessage(Message m)
         {
-            if (m.Data.Length == 3 && m.Data[0] == 0x18)
+            if (m.Data[0] == 0x18 && m.Data.Length == 3) // speed/RPM
             {
                 OnSpeedRPMChanged((ushort)(m.Data[1] * 2), (ushort)(m.Data[2] * 100));
                 m.ReceiverDescription = "Speed " + CurrentSpeed + "km/h " + CurrentRPM + "RPM";
             }
-            else if (m.Data.Length == 2 && m.Data[0] == 0x11)
+            else if (m.Data[0] == 0x11 && m.Data.Length == 2) // Ignotion status
             {
                 byte ign = m.Data[1];
                 if ((ign & 0x02) != 0)
@@ -219,26 +228,26 @@ namespace imBMW.iBus.Devices.Real
                 }
                 m.ReceiverDescription = "Ignition " + CurrentIgnitionState.ToStringValue();
             }
-            else if (m.Data[0] == 0x17 && m.Data.Length == 8)
+            else if (m.Data[0] == 0x17 && m.Data.Length == 8) // odometr
             {
                 OnOdometerChanged((uint)(m.Data[3] << 16 + m.Data[2] << 8 + m.Data[1]));
                 m.ReceiverDescription = "Odometer " + Odometer + " km";
             }
-            else if (m.Data[0] == 0x54 && m.Data.Length == 14)
+            else if (m.Data[0] == 0x54 && m.Data.Length == 14) // Vehile status data
             {
                 OnVinChanged("" + (char)m.Data[1] + (char)m.Data[2] + m.Data[3].ToHex() + m.Data[4].ToHex() + m.Data[5].ToHex()[0]);
                 m.ReceiverDescription = "VIN " + VIN;
             }
-            else if (m.Data.Length == 4 && m.Data[0] == 0x19)
+            else if (m.Data[0] == 0x19 && m.Data.Length == 4) // Temperature
             {
                 OnTemperatureChanged((sbyte)m.Data[1], (sbyte)m.Data[2]);
                 m.ReceiverDescription = "Temperature. Outside " + TemperatureOutside + "°C, Coolant " + TemperatureCoolant + "°C";
             }
-            else if (m.Data[0] == 0x24 && m.Data.Length > 2)
+            else if (m.Data[0] == 0x24 && m.Data.Length > 2) // Update Front display
             {
                 switch (m.Data[1])
                 {
-                    case 0x01:
+                    case 0x01: // 24 01 time
                         if (m.Data.Length == 10)
                         {
                             var hourStr = new string(new[] { (char)m.Data[3], (char)m.Data[4] });
@@ -262,7 +271,7 @@ namespace imBMW.iBus.Devices.Real
                             m.ReceiverDescription = "Time: " + hour + ":" + minute;
                         }
                         break;
-                    case 0x02:
+                    case 0x02: // 24 02 date
                         if (m.Data.Length == 13)
                         {
                             var dayStr = new string(new[] { (char)m.Data[3], (char)m.Data[4] });
@@ -287,7 +296,7 @@ namespace imBMW.iBus.Devices.Real
                             m.ReceiverDescription = "Date: " + day + "/" + month + "/" + year;
                         }
                         break;
-                    case 0x03:
+                    case 0x03: // 24 03 outside temperature
                         if (m.Data.Length == 8)
                         {
                             float temperature;
@@ -298,8 +307,8 @@ namespace imBMW.iBus.Devices.Real
                             }
                         }
                         break;
-                    case 0x04:
-                    case 0x05:
+                    case 0x04: // 24 04 consumption 1
+                    case 0x05: // 24 05 consumption 2
                         if (m.Data.Length == 13/*7*/) // e39 fix
                         {
                             float consumption = 0;
@@ -308,7 +317,7 @@ namespace imBMW.iBus.Devices.Real
                             m.ReceiverDescription = "Consumption " + (m.Data[1] == 0x04 ? 1 : 2) + " = " + consumption + " l/km";
                         }
                         break;
-                    case 0x06:
+                    case 0x06: // 24 06 range
                         if (m.Data.Length == 7)
                         {
                             int range;
@@ -319,7 +328,11 @@ namespace imBMW.iBus.Devices.Real
                             }
                         }
                         break;
-                    case 0x09:
+                    case 0x07: // 24 07 distance
+                        break;
+                    case 0x08: // 24 08 arrival
+                        break;
+                    case 0x09: // 24 09 speed limit
                         if (m.Data.Length == 7)
                         {
                             int speedLimit;
@@ -330,7 +343,7 @@ namespace imBMW.iBus.Devices.Real
                             }
                         }
                         break;
-                    case 0x0A:
+                    case 0x0A:// average speed
                         if (m.Data.Length == 12/*7*/) // e39 fix
                         {
                             float speed = 0;
@@ -338,6 +351,8 @@ namespace imBMW.iBus.Devices.Real
                             OnAverageSpeedChanged(speed);
                             m.ReceiverDescription = "Average speed  " + AverageSpeed + " km/h";
                         }
+                        break;
+                    case 0x0E: // stopwatch
                         break;
                 }
             }
@@ -350,6 +365,10 @@ namespace imBMW.iBus.Devices.Real
             {
                 OnSpeedLimitChanged(_lastSpeedLimit);
                 m.ReceiverDescription = "Speed limit turned on";
+            }
+            else if (m.DestinationDevice == DeviceAddress.FrontDisplay && m.Data.Compare(0x2A, 0x02, 0x00, 0x4A)) // On-board computer special indicators: Aux_Heating_LED = Off 
+            {
+                
             }
             // TODO arrive time, arrive distance, timers
         }
@@ -444,6 +463,16 @@ namespace imBMW.iBus.Devices.Real
         public static void RequestDateTime()
         {
             Manager.EnqueueMessage(MessageRequestDate, MessageRequestTime);
+        }
+
+        public static void RequestConsumption()
+        {
+            Manager.EnqueueMessage(MessageRequestConsumtion1, MessageRequestConsumtion2);
+        }
+
+        public static void RequestAverageSpeed()
+        {
+            Manager.EnqueueMessage(MessageRequestAverageSpeed);
         }
 
         public static DateTimeEventArgs GetDateTime()

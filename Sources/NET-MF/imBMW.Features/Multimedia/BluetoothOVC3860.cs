@@ -105,7 +105,7 @@ namespace imBMW.Multimedia
                 //}
             }
 
-            HomeScreen.Instance.PhoneScreen = CreatePhoneScreen();
+            //HomeScreen.Instance.PhoneScreen = CreatePhoneScreen();
 
             //SendCommand("MH"); // disable auto conn
             VolumeUp(); // TODO make loop: volume up

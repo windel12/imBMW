@@ -25,6 +25,9 @@ namespace imBMW.Features.Menu.Screens
             FastMenuDrawing = true;
             //TitleCallback = x => Localization.Current.BordcomputerShort;
             SetItems();
+
+            InstrumentClusterElectronics.RequestConsumption();
+            InstrumentClusterElectronics.RequestAverageSpeed();
         }
 
         public override bool OnNavigatedTo(MenuBase menu)
