@@ -7,7 +7,7 @@ namespace imBMW.iBus
     {
         BodyModule = 0x00,
         SunroofControl = 0x08,
-        DDE = 0xB8, // or F1
+        DDE = 0x12,
         DME = 0x12,
         CDChanger = 0x18,
         RadioControlledClock = 0x28,
@@ -46,6 +46,7 @@ namespace imBMW.iBus
         RainLightSensor = 0xE8,
         Television = 0xED,
         OnBoardMonitor = 0xF0,
+        OBD = 0xF1,
         Broadcast = 0xFF,
 
         imBMWMenu = 0xFC,

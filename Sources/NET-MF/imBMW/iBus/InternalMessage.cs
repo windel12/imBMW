@@ -44,14 +44,6 @@ namespace imBMW.iBus
             }
         }
 
-        public override DeviceAddress DestinationDevice
-        {
-            get
-            {
-                throw new Exception("No destination address in internal message.");
-            }
-        }
-
         public string DataString
         {
             get

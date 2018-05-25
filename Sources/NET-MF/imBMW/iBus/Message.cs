@@ -270,7 +270,7 @@ namespace imBMW.iBus
         }
 
 
-        public virtual DeviceAddress DestinationDevice
+        public DeviceAddress DestinationDevice
         {
             get
             {

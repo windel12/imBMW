@@ -13,43 +13,48 @@ namespace imBMW.Diagnostics
         byte[] packet;
         byte check;
         int packetLength;
+
+        public static new int PacketLengthMin { get { return 4; } }
+
         string dataString;
-
-        byte formatByte = 0xB8;
-
-        static new int PacketLengthMin { get { return 5; } }
         
-        public DBusMessage(params byte[] data)
-            : this(null, data)
+        public DBusMessage(DeviceAddress device, params byte[] data)
+            : this(device, null, data)
         { }
 
-        public DBusMessage(string description, params byte[] data)
-            : base(DeviceAddress.OBD, DeviceAddress.DDE, description, data)
+        public DBusMessage(DeviceAddress device, string description, params byte[] data)
+            : base (device, DeviceAddress.Diagnostic, description, data)
         {
-            //Type          ParameterName           HexValue    Mnemonic
-            //----------------------------------------------------------
-            //HeaderByte    FormatByte              B8          FMT
-            //HeaderByte    TargetByte              12          TGT
-            //HeaderByte    SourceByte              F1          SRC
-            //HeaderByte    LengthByte              ??          LEN         4
-            //ServiceID     ServiceID               2C          DDLI        ||D||
-            //ParameterType LocalIdentifier         10          RLI_        ||A||
-            //ParameterType PID#1 HighByte          OF                      ||T||
-            //ParameterType PID#1 LowByte           10                      ||A||
-            //Checksum      ChecksumByte            ??(7C)      CS
+            // packet = device + length + data + chksum
+            //          |     ===== length =====      |
 
+            var packetLength = data.Length + 3;
             byte check = 0x00;
-            check ^= (byte)formatByte;
-            check ^= (byte)DestinationDevice;
-            check ^= (byte)SourceDevice;
-            check ^= (byte)data.Length;
+            check ^= (byte)device;
+            check ^= (byte)packetLength;
             foreach (byte b in data)
             {
                 check ^= b;
             }
 
-            PacketLength = data.Length + 5; // 5 - FormatByte + TargetByte + SourceByte + LengthByte + CRC;
+            PacketLength = packetLength;
             CRC = check;
+        }
+
+        public DeviceAddress Device
+        {
+            get
+            {
+                return SourceDevice;
+            }
+        }
+
+        public override DeviceAddress DestinationDevice
+        {
+            get
+            {
+                return DeviceAddress.Diagnostic;
+            }
         }
 
         public string DataString
@@ -98,16 +103,19 @@ namespace imBMW.Diagnostics
                 }
 
                 byte[] packet = new byte[PacketLength];
-                packet[0] = formatByte;
-                packet[1] = (byte) DestinationDevice;
-                packet[2] = (byte) SourceDevice;
-                packet[3] = (byte) Data.Length;
-                Data.CopyTo(packet, 4);
+                packet[0] = (byte)Device;
+                packet[1] = (byte)(PacketLength);
+                Data.CopyTo(packet, 2);
                 packet[PacketLength - 1] = CRC;
 
                 this.packet = packet;
                 return packet;
             }
+        }
+
+        public bool Compare(DBusMessage message)
+        {
+            return Device == message.Device && Data.Compare(message.Data);
         }
 
         public Message ToIBusMessage()
@@ -126,7 +134,7 @@ namespace imBMW.Diagnostics
                 return null;
             }
 
-            return new DBusMessage(packet.SkipAndTake(4, ParseDataLength(packet)));
+            return new DBusMessage((DeviceAddress)packet[0], packet.SkipAndTake(2, ParseDataLength(packet)));
         }
 
         public static bool IsValid(byte[] packet)
