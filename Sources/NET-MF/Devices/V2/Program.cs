@@ -29,6 +29,7 @@ namespace imBMW.Devices.V2
         const string version = "FW1.0.12 HW2";
         static OutputPort LED;
         static OutputPort led4;
+
         static Settings settings;
         static MediaEmulator emulator;
         static IAudioPlayer player;
@@ -91,6 +92,9 @@ namespace imBMW.Devices.V2
             Manager.Init(iBusPort);
             Logger.Info("iBus manager inited");
 
+            //ISerialPort dBusPort = new SerialPortTH3122("COM4", Pin.D_BUS_TH3122SENSTA);
+            //DbusManager.Init(dBusPort);
+
             Manager.BeforeMessageReceived += Manager_BeforeMessageReceived;
             Manager.AfterMessageReceived += Manager_AfterMessageReceived;
             Manager.BeforeMessageSent += Manager_BeforeMessageSent;
@@ -146,7 +150,6 @@ namespace imBMW.Devices.V2
 
             RefreshLEDs();
 
-            bool isPlayed = true;
             nextButton = new InterruptPort((Cpu.Pin)FEZPandaIII.Gpio.Ldr1, true, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeHigh);
             nextButton.OnInterrupt += (p, s, t) =>
             {

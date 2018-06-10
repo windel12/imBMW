@@ -9,7 +9,7 @@ namespace imBMW.Diagnostics.DME
     {
         public MS43JMGAnalogValues() { }
 
-        public MS43JMGAnalogValues(Message message)
+        public MS43JMGAnalogValues(DBusMessage message)
             : base(message)
         { }
 

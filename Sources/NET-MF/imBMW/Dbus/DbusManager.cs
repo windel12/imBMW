@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.IO.Ports;
 using System.Threading;
+using imBMW.Diagnostics;
 using imBMW.Tools;
 
 namespace imBMW.iBus
@@ -15,7 +16,7 @@ namespace imBMW.iBus
         //static QueueThreadWorker messageReadQueue;
 
         static DateTime lastMessage = DateTime.Now;
-        static byte[] messageBuffer = new byte[Message.PacketLengthMax];
+        static byte[] messageBuffer = new byte[DBusMessage.PacketLengthMax];
         static int messageBufferLength = 0;
         static object bufferSync = new object();
 
@@ -30,7 +31,7 @@ namespace imBMW.iBus
             Inited = true;
         }
 
-        #region Message reading and processing
+        #region DBusMessage reading and processing
 
         static void dBus_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
@@ -59,12 +60,12 @@ namespace imBMW.iBus
                     Array.Copy(data, 0, messageBuffer, messageBufferLength, data.Length);
                     messageBufferLength += data.Length;
                 }
-                while (messageBufferLength >= Message.PacketLengthMin)
+                while (messageBufferLength >= DBusMessage.PacketLengthMin)
                 {
-                    Message m = Message.TryCreate(messageBuffer, messageBufferLength);
+                    DBusMessage m = DBusMessage.TryCreate(messageBuffer, messageBufferLength);
                     if (m == null)
                     {
-                        if (!Message.CanStartWith(messageBuffer, messageBufferLength))
+                        if (!DBusMessage.CanStartWith(messageBuffer, messageBufferLength))
                         {
                             Logger.Warning("Buffer skip: non-iBus data detected: " + messageBuffer[0].ToHex());
                             SkipBuffer(1);
@@ -92,7 +93,7 @@ namespace imBMW.iBus
             }
         }
 
-        public static void ProcessMessage(Message m)
+        public static void ProcessMessage(DBusMessage m)
         {
             #if DEBUG
             m.PerformanceInfo.TimeStartedProcessing = DateTime.Now;
@@ -154,7 +155,7 @@ namespace imBMW.iBus
 
         #endregion
 
-        #region Message writing and queue
+        #region DBusMessage writing and queue
 
         static void SendMessage(object o)
         {
@@ -165,7 +166,7 @@ namespace imBMW.iBus
                 return;
             }
 
-            Message m = (Message)o;
+            DBusMessage m = (DBusMessage)o;
 
             #if DEBUG
             m.PerformanceInfo.TimeStartedProcessing = DateTime.Now;
@@ -202,7 +203,7 @@ namespace imBMW.iBus
             Thread.Sleep(m.AfterSendDelay > 0 ? m.AfterSendDelay : dBus.AfterWriteDelay); // Don't flood dBus
         }
 
-        public static void EnqueueMessage(Message m)
+        public static void EnqueueMessage(DBusMessage m)
         {
             #if DEBUG
             m.PerformanceInfo.TimeEnqueued = DateTime.Now;
@@ -217,28 +218,28 @@ namespace imBMW.iBus
             }
         }
 
-        public static void EnqueueMessage(params Message[] messages)
+        public static void EnqueueMessage(params DBusMessage[] messages)
         {
-            #if DEBUG
+#if DEBUG
             var now = DateTime.Now;
-            foreach (Message m in messages)
+            foreach (DBusMessage m in messages)
             {
                 if (m != null)
                 {
                     m.PerformanceInfo.TimeEnqueued = now;
                 }
             }
-            #endif
+#endif
             messageWriteQueue.EnqueueArray(messages);
         }
 
         #endregion
 
-        #region Message receiver registration
+        #region DBusMessage receiver registration
 
         /// <summary>
         /// Fired before processing the message by registered receivers.
-        /// Message processing could be cancelled in this event
+        /// DBusMessage processing could be cancelled in this event
         /// </summary>
         public static event MessageEventHandler BeforeMessageReceived;
 
@@ -249,7 +250,7 @@ namespace imBMW.iBus
 
         /// <summary>
         /// Fired before sending the message.
-        /// Message processing could be cancelled in this event
+        /// DBusMessage processing could be cancelled in this event
         /// </summary>
         public static event MessageEventHandler BeforeMessageSent;
 

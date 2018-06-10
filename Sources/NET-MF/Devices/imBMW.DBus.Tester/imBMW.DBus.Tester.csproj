@@ -1,15 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
-    <AssemblyName>imBMW.Diagnostics</AssemblyName>
-    <OutputType>Library</OutputType>
-    <RootNamespace>imBMW.Diagnostics</RootNamespace>
+    <AssemblyName>imBMW.DBus.Tester</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>imBMW.DBus.Tester</RootNamespace>
     <ProjectTypeGuids>{b69e3092-b931-443c-abe7-7e7b65f2a37f};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{CDF5C231-E043-40CF-960B-10AC26355B96}</ProjectGuid>
+    <ProjectGuid>{681223EB-EABF-49E6-B4C3-81A0A7EB669C}</ProjectGuid>
     <TargetFrameworkVersion>v4.3</TargetFrameworkVersion>
     <NetMfTargetsBaseDir Condition="'$(NetMfTargetsBaseDir)'==''">$(MSBuildExtensionsPath32)\Microsoft\.NET Micro Framework\</NetMfTargetsBaseDir>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -29,24 +34,42 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="DDE\DDEAnalogValues.cs" />
-    <Compile Include="DDE\EDC15C4AnalogValues.cs" />
-    <Compile Include="DME\DMEAnalogValues.cs" />
-    <Compile Include="DME\MS43AnalogValues.cs" />
-    <Compile Include="DME\MS43JMGAnalogValues.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.SPOT.Graphics" />
+    <Reference Include="Microsoft.SPOT.Hardware" />
     <Reference Include="Microsoft.SPOT.Native" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\imBMW.Tools\imBMW.Tools.csproj">
+    <EmbeddedResource Include="Resources.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\imBMW.Diagnostics\imBMW.Diagnostics.csproj">
+      <Project>{CDF5C231-E043-40CF-960B-10AC26355B96}</Project>
+      <Name>imBMW.Diagnostics</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\imBMW.Tools\imBMW.Tools.csproj">
       <Project>{76B622B3-B9D7-41DF-8A7C-627F32AABEB3}</Project>
       <Name>imBMW.Tools</Name>
     </ProjectReference>
-    <ProjectReference Include="..\imBMW\imBMW.csproj">
+    <ProjectReference Include="..\..\imBMW\imBMW.csproj">
       <Project>{1809C7F6-0A9F-412B-A45E-E667996E86A3}</Project>
       <Name>imBMW</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\V2\imBMW.Devices.V2.csproj">
+      <Project>{D12C2EC9-1FC7-4E16-A072-EA344F1BABE6}</Project>
+      <Name>imBMW.Devices.V2</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Condition="EXISTS('$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets')" Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />

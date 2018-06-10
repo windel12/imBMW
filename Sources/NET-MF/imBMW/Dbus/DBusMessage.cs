@@ -115,7 +115,7 @@ namespace imBMW.Diagnostics
             return new Message(SourceDevice, DestinationDevice, ReceiverDescription, Data);
         }
 
-        public static new Message TryCreate(byte[] packet, int length = -1)
+        public static new DBusMessage TryCreate(byte[] packet, int length = -1)
         {
             if (length < 0)
             {

@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "imBMW.Diagnostics", "..\..\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SongsNameConverter", "..\..\SongsNameConverter\SongsNameConverter.csproj", "{6915C25D-4D09-423B-8980-823324E5CE51}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "imBMW.DBus.Tester", "..\imBMW.DBus.Tester\imBMW.DBus.Tester.csproj", "{681223EB-EABF-49E6-B4C3-81A0A7EB669C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,12 @@ Global
 		{6915C25D-4D09-423B-8980-823324E5CE51}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6915C25D-4D09-423B-8980-823324E5CE51}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6915C25D-4D09-423B-8980-823324E5CE51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{681223EB-EABF-49E6-B4C3-81A0A7EB669C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{681223EB-EABF-49E6-B4C3-81A0A7EB669C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{681223EB-EABF-49E6-B4C3-81A0A7EB669C}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{681223EB-EABF-49E6-B4C3-81A0A7EB669C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{681223EB-EABF-49E6-B4C3-81A0A7EB669C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{681223EB-EABF-49E6-B4C3-81A0A7EB669C}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
