@@ -10,6 +10,7 @@ using imBMW.Features.Localizations;
 using imBMW.Features.Menu;
 using imBMW.Multimedia.Models;
 using System.Threading;
+using imBMW.Features.Multimedia.Models;
 using imBMW.iBus;
 
 namespace imBMW.Multimedia
@@ -583,18 +584,18 @@ namespace imBMW.Multimedia
                             case "GENRE":
                                 n.Genre = value;
                                 break;
-                            case "TRACK_NUMBER":
-                                try { n.TrackNumber = int.Parse(value); }
-                                catch { }
-                                break;
-                            case "TOTAL_TRACK_NUMBER":
-                                try { n.TotalTracks = int.Parse(value); }
-                                catch { }
-                                break;
-                            case "PLAYING_TIME":
-                                try { n.TrackLength = int.Parse(value); }
-                                catch { }
-                                break;
+                            //case "TRACK_NUMBER":
+                            //    try { n.TrackNumber = int.Parse(value); }
+                            //    catch { }
+                            //    break;
+                            //case "TOTAL_TRACK_NUMBER":
+                            //    try { n.TotalTracks = int.Parse(value); }
+                            //    catch { }
+                            //    break;
+                            //case "PLAYING_TIME":
+                            //    try { n.TrackLength = int.Parse(value); }
+                            //    catch { }
+                            //    break;
                         }
                     }
                     if (isTag)
@@ -760,7 +761,7 @@ namespace imBMW.Multimedia
         {
             nowPlayingScreen.IsUpdateSuspended = true;
 
-            nowPlayingScreen.Status = nowPlaying.GetTrackPlaylistPosition();
+            //nowPlayingScreen.Status = nowPlaying.GetTrackPlaylistPosition();
 
             nowPlayingScreen.ClearItems();
             if (NowPlayingTagsSeparatedRows)
@@ -774,16 +775,16 @@ namespace imBMW.Multimedia
                     nowPlayingScreen.AddItem(new MenuItem(i => CharIcons.BordmonitorBull + " " + Localization.Current.Artist + ":"));
                     nowPlayingScreen.AddItem(new MenuItem(i => nowPlaying.Artist));
                 }
-                if (!StringHelpers.IsNullOrEmpty(nowPlaying.Album))
-                {
-                    nowPlayingScreen.AddItem(new MenuItem(i => CharIcons.BordmonitorBull + " " + Localization.Current.Album + ":"));
-                    nowPlayingScreen.AddItem(new MenuItem(i => nowPlaying.Album));
-                }
-                if (!StringHelpers.IsNullOrEmpty(nowPlaying.Genre))
-                {
-                    nowPlayingScreen.AddItem(new MenuItem(i => CharIcons.BordmonitorBull + " " + Localization.Current.Genre + ":"));
-                    nowPlayingScreen.AddItem(new MenuItem(i => nowPlaying.Genre));
-                }
+                //if (!StringHelpers.IsNullOrEmpty(nowPlaying.Album))
+                //{
+                //    nowPlayingScreen.AddItem(new MenuItem(i => CharIcons.BordmonitorBull + " " + Localization.Current.Album + ":"));
+                //    nowPlayingScreen.AddItem(new MenuItem(i => nowPlaying.Album));
+                //}
+                //if (!StringHelpers.IsNullOrEmpty(nowPlaying.Genre))
+                //{
+                //    nowPlayingScreen.AddItem(new MenuItem(i => CharIcons.BordmonitorBull + " " + Localization.Current.Genre + ":"));
+                //    nowPlayingScreen.AddItem(new MenuItem(i => nowPlaying.Genre));
+                //}
             }
             else
             {

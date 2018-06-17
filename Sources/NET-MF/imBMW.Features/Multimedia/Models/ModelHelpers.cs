@@ -3,16 +3,12 @@ using System;
 using Microsoft.SPOT;
 using imBMW.Tools;
 using imBMW.Features.Localizations;
+using imBMW.Features.Multimedia.Models;
 
 namespace imBMW.Multimedia.Models
 {
     public static class ModelHelpers
     {
-        public static string GetTrackPlaylistPosition(this TrackInfo n)
-        {
-            return n.TrackNumber + " / " + n.TotalTracks;
-        }
-
         public static string GetTitleWithLabel(this TrackInfo n)
         {
             if (StringHelpers.IsNullOrEmpty(n.Title))

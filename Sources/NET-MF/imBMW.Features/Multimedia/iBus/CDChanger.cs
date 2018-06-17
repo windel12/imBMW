@@ -58,9 +58,13 @@ namespace imBMW.iBus.Devices.Emulators
             return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Playlist loaded" + disk + "T" + track, 0x39, 0x09, 0x09, 0x00, 0x3F, 0x00, disk, track);
         }
 
+        /// <summary>0x38, 0x00, 0x00 </summary>
         public static byte[] DataCurrentDiskTrackRequest = new byte[] { 0x38, 0x00, 0x00 };
+        /// <summary>0x38, 0x01, 0x00 </summary>
         public static byte[] DataStop  = new byte[] { 0x38, 0x01, 0x00 };
+        /// <summary>0x38, 0x02, 0x00 </summary>
         public static byte[] DataPause = new byte[] { 0x38, 0x02, 0x00 };
+        /// <summary>0x38, 0x03, 0x00 </summary>
         public static byte[] DataPlay = new byte[] { 0x38, 0x03, 0x00 };
 
         //public static byte[] DataNextDisk = new byte[] { 0x38, 0x05, 0x00 };
@@ -76,6 +80,7 @@ namespace imBMW.iBus.Devices.Emulators
         public static byte[] DataScanPlaylistOff = new byte[] { 0x38, 0x07, 0x00 };
         public static byte[] DataScanPlaylistOn = new byte[] { 0x38, 0x07, 0x01 };
 
+        /// <summary>0x38, 0x08, 0x01 </summary>
         public static byte[] DataRandomPlay = new byte[] { 0x38, 0x08, 0x01 };
 
         public static byte[] DataNext = new byte[] { 0x38, 0x0A, 0x00 };
@@ -217,9 +222,16 @@ namespace imBMW.iBus.Devices.Emulators
             }            
             else if(m.Data.Length == 3 && m.Data.StartsWith(0x38, 0x06)) // select disk
             {
-                Player.DiskNumber = m.Data[2];
-                Player.TrackNumber = 1;
-                Player.IsRandom = false;
+                var newDiskNumber = m.Data[2];
+                if (newDiskNumber != Player.DiskNumber)
+                {
+                    Player.DiskNumber = newDiskNumber;
+                    Player.TrackNumber = 1;
+                }
+                else
+                {
+                    RandomToggle();
+                }
                 if (Player.IsPlaying)
                 {
                     Manager.EnqueueMessage(GetMessagePlaying(Player.DiskNumber, Player.TrackNumber));

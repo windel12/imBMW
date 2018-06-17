@@ -72,6 +72,7 @@ namespace imBMW.Features.Menu
         public static int MaxItemsCount { get; set; } // TODO refactor
 
         public MenuScreenGetTextHandler TitleCallback { get; set; }
+        public MenuScreenGetTextHandler StatusCallback { get; set; }
 
         public string Title
         {
@@ -98,6 +99,10 @@ namespace imBMW.Features.Menu
         {
             get
             {
+                if (StatusCallback != null)
+                {
+                    status = StatusCallback(this);
+                }
                 return status;
             }
             set

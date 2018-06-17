@@ -165,6 +165,12 @@ namespace imBMW.iBus.Devices.Real
         static readonly Message MessageRequestAverageSpeed = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Average Speed", 0x41, 0x0A, 0x01);
         static readonly Message MessageRequestTimer = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Timer", 0x41, 0x0E, 0x01);
 
+
+        static readonly Message MessageNormalDisplay = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Normal Display", 0x23, 0x62, 0x30, 0x35, 0x01);
+        static readonly Message MessageTextBetweenTwoRedTriangles = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Text Between Two Red Triangles", 0x23, 0x62, 0x30, 0x37, 0x01);
+        static readonly Message MessageTextBetweenTwoRedFlashingTriangles = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Text Between Two Red Flashing Triangles", 0x23, 0x62, 0x30, 0x37, 0x03);
+        static readonly Message MessageTextAndGongBetweenTwoRedFlashingTriangles = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Text And Gong Between Two Red Flashing Triangles", 0x23, 0x62, 0x30, 0x37, 0x04);
+        static readonly Message MessageTextAndGong = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Text And Gong", 0x23, 0x62, 0x30, 0x37, 0x05);
         static readonly Message MessageGong1 = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Gong 1", 0x23, 0x62, 0x30, 0x37, 0x08);
         static readonly Message MessageGong2 = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Gong 2", 0x23, 0x62, 0x30, 0x37, 0x10);
 
@@ -371,6 +377,11 @@ namespace imBMW.iBus.Devices.Real
                 
             }
             // TODO arrive time, arrive distance, timers
+        }
+
+        public static void ShowNormalText(string text)
+        {
+            
         }
 
         public static void Gong1()

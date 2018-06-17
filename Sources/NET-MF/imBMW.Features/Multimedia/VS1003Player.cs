@@ -13,6 +13,7 @@ using GHI.Pins;
 using imBMW.Tools;
 using System.Diagnostics;
 using imBMW.iBus.Devices.Real;
+using imBMW.Features.Multimedia.Models;
 
 namespace imBMW.Features.Multimedia
 {
@@ -75,6 +76,7 @@ namespace imBMW.Features.Multimedia
         int changingHistoryPreviousPointer = 0;
         static IDictionary Data = new Hashtable();
 
+        public static int FileNameOffset = 6;
 
         public bool IsRandom { get; set; } = true;
 
@@ -91,10 +93,9 @@ namespace imBMW.Features.Multimedia
 
         private bool ChangeTrack { get; set; }
 
-
         public override MenuScreen Menu
         {
-            get { return new MenuScreen(FileName); }
+            get { return new MenuScreen("VS1003Player"); }
         }
 
         public byte DiskNumber { get; set; } = 1;
@@ -141,12 +142,14 @@ namespace imBMW.Features.Multimedia
                 {
                     var folder = rootDirectory + "\\" + i;
                     var files = Directory.GetFiles(folder);
-                    var musicFiles = new ArrayList();
-                    foreach (var file in files)
+                    var musicFiles = new string[files.Length];
+                    for (int j = 0; j < files.Length; j++)
                     {
-                        if (file.EndsWith(".mp3")/* || file.EndsWith(".m4a")*/)
+                        var file = files[j];
+                        if (file.EndsWith(".mp3") /* || file.EndsWith(".m4a")*/)
                         {
-                            musicFiles.Add(file);
+                            musicFiles[j] = file;
+                            //Debug.Print("Free memory:"+ Debug.GC(false) + " after creating file:" + i + " on disk:" + j);
                         }
                     }
                     Data.Add(i.ToString(), musicFiles);
@@ -161,6 +164,17 @@ namespace imBMW.Features.Multimedia
                     TrackNumber = lastTrackInfo[1];
                     IsRandom = lastTrackInfo[2] == 1;
                     CurrentPosition = BitConverter.ToInt32(lastTrackInfo, 3);
+
+                    try
+                    {
+                        var filesOnDisk = (string[])Data[DiskNumber.ToString()];
+                        CurrentTrack = new TrackInfo(filesOnDisk[TrackNumber - 1]);
+                    }
+                    catch (Exception ex)
+                    {
+                        DiskNumber = TrackNumber = 1;
+                        Logger.Error(ex);
+                    }
                 }
                 finally
                 {
@@ -231,24 +245,24 @@ namespace imBMW.Features.Multimedia
                 changingHistory.Add(new byte[2] {DiskNumber, TrackNumber});
 
                 Random r = new Random();
-                ArrayList filesOnDisk;
+                string[] filesOnDisk;
                 if (IsRandom)
                 {
                     do
                     {
                         DiskNumber = (byte) (r.Next(6) + 1);
-                        filesOnDisk = (ArrayList) Data[DiskNumber.ToString()];
-                    } while (filesOnDisk.Count == 0);
-                    TrackNumber = (byte) (r.Next(filesOnDisk.Count) + 1);
+                        filesOnDisk = (string[]) Data[DiskNumber.ToString()];
+                    } while (filesOnDisk.Length == 0);
+                    TrackNumber = (byte) (r.Next(filesOnDisk.Length) + 1);
                 }
                 else
                 {
                     do
                     {
                         //DiskNumber = (byte) (DiskNumber == 6 ? 0 : ++DiskNumber);
-                        filesOnDisk = (ArrayList) Data[DiskNumber.ToString()];
-                    } while (filesOnDisk.Count == 0);
-                    TrackNumber = (byte)(r.Next(filesOnDisk.Count) + 1);
+                        filesOnDisk = (string[]) Data[DiskNumber.ToString()];
+                    } while (filesOnDisk.Length == 0);
+                    TrackNumber = (byte)(r.Next(filesOnDisk.Length) + 1);
                 }
             }
 
@@ -277,6 +291,21 @@ namespace imBMW.Features.Multimedia
             }
         }
 
+        protected override void OnTrackChanged()
+        {
+            try
+            {
+                var filesOnDisk = (string[])Data[DiskNumber.ToString()];
+                CurrentTrack = new TrackInfo(filesOnDisk[TrackNumber - 1]);
+            }
+            catch (Exception ex)
+            {
+                DiskNumber = TrackNumber = 1;
+                Logger.Error(ex);
+            }
+            base.OnTrackChanged();
+        }
+
         public override bool RandomToggle()
         {
             IsRandom = !IsRandom;
@@ -302,12 +331,11 @@ namespace imBMW.Features.Multimedia
         private void PlayDirect(bool resetWhenFinished = false)
         {
             byte[] buffer;
-            ArrayList filesOnDisk = null;
             int size;
             FileStream stream = null;
             while (true)
             {
-                Thread.Sleep(300);
+                Thread.Sleep(50);
                 try
                 {
                     if (!IsPlaying)
@@ -320,29 +348,20 @@ namespace imBMW.Features.Multimedia
                     break;
                 }
 
-                try
-                {
-                    filesOnDisk = Data[DiskNumber.ToString()] as ArrayList;
-                    FileName = (string) filesOnDisk[TrackNumber - 1];
-                }
-                catch (Exception ex)
-                {
-                    DiskNumber = TrackNumber = 1;
-                    filesOnDisk = Data[DiskNumber.ToString()] as ArrayList;
-                    FileName = (string)filesOnDisk[TrackNumber - 1];
-                    Logger.Error(ex);
-                }
                 size = 0;
-                
                 try
                 {
-                    stream = new FileStream(FileName, FileMode.Open, FileAccess.Read);
+                    //Debug.Print("Free memory:" + Debug.GC(false) + " before open stream");
+                    stream = new FileStream(CurrentTrack.FileName, FileMode.Open, FileAccess.Read);
                     stream.Seek(CurrentPosition, SeekOrigin.Begin);
                     do
                     {
+                        //Debug.Print("Free memory:" + Debug.GC(false) + " before stream read");
                         size = stream.Read(buffer, 0, buffer.Length);
+                        //Debug.Print("Free memory:" + Debug.GC(false) + " after stream read");
                         CurrentPosition += size;
                         SendData(buffer );
+                        //Debug.Print("Free memory:" + Debug.GC(false) + " after send data");
                         if (ChangeTrack)
                         {
                             break;

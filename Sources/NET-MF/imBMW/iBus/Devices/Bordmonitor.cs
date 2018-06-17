@@ -9,7 +9,7 @@ namespace imBMW.iBus.Devices.Real
     public enum BordmonitorFields
     {
         /// <summary>
-        /// Big text, 11 chars
+        /// T6 field
         /// </summary>
         Title,
         /// <summary>
@@ -181,9 +181,6 @@ namespace imBMW.iBus.Devices.Real
         public static byte[] DataUpdateScreen = new byte[] { 0xA5, 0x62, 0x01 }; 
         public static byte[] DataAUX = new byte[] { 0x23, 0x62, 0x10, 0x41, 0x55, 0x58, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20 };
 
-        /// <summary>
-        /// Navigation version.
-        /// </summary>
         public static Tools.NaviVersion NaviVersion { get; set; }
 
         /// <summary>

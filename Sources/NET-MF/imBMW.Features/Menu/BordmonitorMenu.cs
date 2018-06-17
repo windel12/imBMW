@@ -8,6 +8,7 @@ using imBMW.Features.Menu.Screens;
 using imBMW.iBus.Devices.Emulators;
 using imBMW.Multimedia;
 using imBMW.Features.Localizations;
+using imBMW.Features.Multimedia.Models;
 
 namespace imBMW.Features.Menu
 {
@@ -28,38 +29,55 @@ namespace imBMW.Features.Menu
             //CurrentScreen = HomeScreen.Instance;
             CurrentScreen = BordcomputerScreen.Instance;
 
-            //mediaEmulator.Player.TrackChanged += (s, e) =>
-            //{
-            //    ShowPlayerStatusWithDelay(mediaEmulator.Player);
-            //};
-            int startIndex = 6; // remove path to SD card TODO: refactor this later.Length)
+            int titleStartIndex = 0;
+            int statusStartIndex = 0;
+            var trackInfo = mediaEmulator.Player.CurrentTrack;
             mediaEmulator.Player.IsPlayingChanged += (s, e) =>
             {
                 if (s.IsPlaying)
                 {
                     BordcomputerScreen.Instance.TitleCallback = x =>
                     {
-                        if(mediaEmulator.Player.FileName == null)
+                        if (trackInfo.Title != null && trackInfo.Title != "")
                         {
-                            return "";
+                            return TrimTextToLength(trackInfo.Title, ref titleStartIndex, 10);
                         }
-                        string trimmedFileName = "";
-                        if (startIndex + 11 >= mediaEmulator.Player.FileName.Length - 3)
+                        return TrimTextToLength(trackInfo.FullName, ref titleStartIndex, 10);
+                    };
+                    BordcomputerScreen.Instance.StatusCallback = x =>
+                    {
+                        if (trackInfo.Artist != null && trackInfo.Artist != "")
                         {
-                            startIndex = 6;
+                            return TrimTextToLength(trackInfo.Artist, ref statusStartIndex, 10);
                         }
-                        return mediaEmulator.Player.FileName.Substring(startIndex++, 11);
+                        return string.Empty;
                     };
                 }
             };
             mediaEmulator.Player.TrackChanged += (s, e) =>
             {
-                startIndex = 6;
+                titleStartIndex = 0;
+                statusStartIndex = 0;
+                trackInfo = mediaEmulator.Player.CurrentTrack;
                 UpdateScreenWitDelay(500);
             };
             //mediaEmulator.IsEnabledChanged += mediaEmulator_IsEnabledChanged;
             //Radio.OnOffChanged += Radio_OnOffChanged;
             Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.Radio, ProcessToRadioMessage);
+        }
+
+        private string TrimTextToLength(string text, ref int startIndex, int length)
+        {
+            if (text.Length <= length)
+            {
+                return text;
+            }
+            if (startIndex + length >= text.Length)
+            {
+                startIndex = 0;
+            }
+            string result = text.Substring(startIndex++, length);
+            return result;
         }
 
         public static BordmonitorMenu Init(MediaEmulator mediaEmulator)
@@ -310,7 +328,7 @@ namespace imBMW.Features.Menu
                         //NavigateAfterHome(BordcomputerScreen.Instance);
                         break;
                     case 0x20: // Select
-                        m.ReceiverDescription = "BM button Sel"; // - navigate player";
+                        m.ReceiverDescription = "BM button Select"; // - navigate player";
                         IsEnabled = false;
                         // TODO fix in cdc mode
                         //NavigateAfterHome(HomeScreen.Instance.PlayerScreen);

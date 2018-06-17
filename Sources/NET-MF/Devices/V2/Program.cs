@@ -106,10 +106,10 @@ namespace imBMW.Devices.V2
             player = new VS1003Player(FEZPandaIII.Gpio.D25, FEZPandaIII.Gpio.D27, FEZPandaIII.Gpio.D24, FEZPandaIII.Gpio.D26);
             if (settings.MenuMode != Tools.MenuMode.RadioCDC || Manager.FindDevice(DeviceAddress.OnBoardMonitor, 10000))
             {
-                if (player is BluetoothWT32)
-                {
-                    ((BluetoothWT32)player).NowPlayingTagsSeparatedRows = true;
-                }
+                //if (player is BluetoothWT32)
+                //{
+                //    ((BluetoothWT32)player).NowPlayingTagsSeparatedRows = true;
+                //}
                 if (settings.MenuMode == MenuMode.BordmonitorCDC)
                 {
                     emulator = new CDChanger(player);
@@ -124,7 +124,7 @@ namespace imBMW.Devices.V2
                 }
                 else
                 {
-                    emulator = new BordmonitorAUX(player);
+                    //emulator = new BordmonitorAUX(player);
                 }
 
                 //Bordmonitor.NaviVersion = settings.NaviVersion;
@@ -165,6 +165,11 @@ namespace imBMW.Devices.V2
                 //emulator.Player.DiskNumber = 6;
                 emulator.IsEnabled = false;
             };
+
+            if (Debugger.IsAttached)
+            {
+                emulator.IsEnabled = true;
+            }
 
             /* 
             var ign = new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.GlobalBroadcastAddress, "Ignition ACC", 0x11, 0x01);

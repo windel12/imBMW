@@ -2,6 +2,7 @@ using System;
 using Microsoft.SPOT;
 using imBMW.iBus.Devices.Real;
 using imBMW.Features.Menu;
+using imBMW.Features.Multimedia.Models;
 using imBMW.Multimedia.Models;
 
 namespace imBMW.Multimedia
@@ -56,7 +57,7 @@ namespace imBMW.Multimedia
 
         public string Name { get; protected set; }
 
-        public string FileName { get; protected set; }
+        public TrackInfo CurrentTrack { get; protected set; }
 
         public abstract bool IsPlaying
         {

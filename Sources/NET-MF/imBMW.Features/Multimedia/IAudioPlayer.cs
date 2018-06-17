@@ -1,6 +1,7 @@
 using System;
 using Microsoft.SPOT;
 using imBMW.Features.Menu;
+using imBMW.Features.Multimedia.Models;
 using imBMW.Multimedia.Models;
 
 namespace imBMW.Multimedia
@@ -69,7 +70,7 @@ namespace imBMW.Multimedia
 
         string Name { get; }
 
-        string FileName { get; }
+        TrackInfo CurrentTrack { get; }
 
         MenuScreen Menu { get; }
 

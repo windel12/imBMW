@@ -2,41 +2,40 @@ using System;
 using Microsoft.SPOT;
 using imBMW.Tools;
 
-namespace imBMW.Multimedia.Models
+namespace imBMW.Features.Multimedia.Models
 {
     public class TrackInfo
     {
-        #if !MF_FRAMEWORK_VERSION_V4_1
+        private string _fullName;
+        private string _title = "";
+        private string _artist;
 
         public TrackInfo()
         {
-            TrackNumber = 1;
-            TotalTracks = 1;
         }
 
-        public string Title { get; set; }
+        public TrackInfo(string fileName)
+        {
+            FileName = fileName;
+            FullName = FileName.Substring(VS1003Player.FileNameOffset, FileName.Length - VS1003Player.FileNameOffset - 4);
+            var fileInfo = FullName.Split('-');
+            if (fileInfo.Length == 2)
+            {
+                Artist = fileInfo[0].Trim();
+                Title = fileInfo[1].Trim();
+            }
+        }
 
-        public string Artist { get; set; }
+        public string FileName { get; set; } = "";
+
+        public string FullName { get; set; } = "";
+
+        public string Title { get; set; } = "";
+
+        public string Artist { get; set; } = "";
 
         public string Album { get; set; }
 
         public string Genre { get; set; }
-
-        /// <summary>
-        /// Position of current track in playlist.
-        /// </summary>
-        public int TrackNumber { get; set; }
-
-        /// <summary>
-        /// Number of tracks in playlist.
-        /// </summary>
-        public int TotalTracks { get; set; }
-
-        /// <summary>
-        /// Length in milliseconds.
-        /// </summary>
-        public int TrackLength { get; set; }
-
-        #endif
     }
 }
