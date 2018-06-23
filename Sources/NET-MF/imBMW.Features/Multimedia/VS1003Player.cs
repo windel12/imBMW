@@ -360,8 +360,10 @@ namespace imBMW.Features.Multimedia
                         size = stream.Read(buffer, 0, buffer.Length);
                         //Debug.Print("Free memory:" + Debug.GC(false) + " after stream read");
                         CurrentPosition += size;
-                        SendData(buffer );
-                        //Debug.Print("Free memory:" + Debug.GC(false) + " after send data");
+                        SendData(buffer);
+                        int decodeTime = GetDecodeTime();
+                        int byteRate = GetByteRate();
+                            //Debug.Print("Free memory:" + Debug.GC(false) + " after send data");
                         if (ChangeTrack)
                         {
                             break;
@@ -400,11 +402,11 @@ namespace imBMW.Features.Multimedia
         {
             int size = data.Length - data.Length % 32;
 
-            //if (cancelPlayback)
-            //{
-            //    Debug.Print("Wrote SM_CANCEL");
-            //    SCIWrite(SCI_MODE, SM_CANCEL);
-            //}
+            if (ChangeTrack)
+            {
+                Debug.Print("Wrote SM_CANCEL");
+                SCIWrite(SCI_MODE, SM_CANCEL);
+            }
 
             ushort CANCEL = 0;
             for (int i = 0; i < size; i += 32)
@@ -412,26 +414,49 @@ namespace imBMW.Features.Multimedia
                 Array.Copy(data, i, block, 0, 32);
                 SDIWrite(block);
                 //Debug.Print("Wrote 32 bytes of data");
-                //if (cancelPlayback)
-                //{
-                //    CANCEL = SCIRead(SCI_MODE);
-                //    Debug.Print("Checking if SM_CANCEL has cleared (" + CANCEL + ")");
-                //    if (CANCEL != SM_CANCEL)
-                //    {
-                //        Debug.Print("SM_CANCEL cleared");
-                //        StopPlayback();
-                //        break;
-                //    }
-                //    else
-                //        Debug.Print("SM_CANCEL has not cleared yet...");
-                //}
+                if (ChangeTrack)
+                {
+                    CANCEL = SCIRead(SCI_MODE);
+                    Debug.Print("Checking if SM_CANCEL has cleared (" + CANCEL + ")");
+                    if (CANCEL != SM_CANCEL)
+                    {
+                        Debug.Print("SM_CANCEL cleared");
+                        StopPlayback();
+                        break;
+                    }
+                    else
+                        Debug.Print("SM_CANCEL has not cleared yet...");
+                }
+            }   
+        }
+
+        public void StopPlayback()
+        {
+            Debug.Print("Stopping playback");
+            uint endFillByte = WRAMRead(para_endFillByte);
+            Debug.Print("Read endFillByte: " + endFillByte);
+            ushort HDAT0;
+            ushort HDAT1;
+            do
+            {
+                for (int n = 0; n < 2052; n++) SDIWrite((byte)(0xFF & endFillByte));
+                Debug.Print("Sent 2052 endFillByte, checking HDAT0 and HDAT1");
+                HDAT0 = SCIRead(SCI_HDAT0);
+                HDAT1 = SCIRead(SCI_HDAT1);
+                Debug.Print("HDAT0: " + HDAT0 + ", HDAT1: " + HDAT1);
             }
-            //if (CANCEL == SM_CANCEL)
-            //{
-            //    Reset();
-            //    cancelPlayback = false;
-            //    BlueConePlayer.CancelPlayback = false;
-            //}
+            while (HDAT0 != 0 && HDAT1 != 0);
+            //ChangeTrack = false;
+        }
+
+        public ushort GetByteRate()
+        {
+            return WRAMRead(para_byteRate);
+        }
+
+        public ushort GetDecodeTime()
+        {
+            return SCIRead(SCI_DECODE_TIME);
         }
 
         /// <summary>

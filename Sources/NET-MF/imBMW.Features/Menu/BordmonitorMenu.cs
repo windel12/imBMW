@@ -66,13 +66,13 @@ namespace imBMW.Features.Menu
             Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.Radio, ProcessToRadioMessage);
         }
 
-        private string TrimTextToLength(string text, ref int startIndex, int length)
+        public static string TrimTextToLength(string text, ref int startIndex, int length)
         {
             if (text.Length <= length)
             {
                 return text;
             }
-            if (startIndex + length >= text.Length)
+            if (startIndex + length > text.Length)
             {
                 startIndex = 0;
             }

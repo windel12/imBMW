@@ -1,109 +1,90 @@
 using System;
 using System.IO.Ports;
+using System.Threading;
+using GHI.Usb.Host;
 using imBMW.Devices.V2.Hardware;
 using imBMW.iBus;
 using imBMW.Tools;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
+using GHI.Pins;
+using imBMW.Diagnostics;
 
 namespace imBMW.DBus.Tester
 {
     public class Program
     {
-        static OutputPort LED;
-        static OutputPort led4;
+        public static UsbSerial usbSerialDevice = null;
 
-        static byte busy = 0;
+        private static OutputPort led2 = new OutputPort(FEZPandaIII.Gpio.Led2, false);
+        private static OutputPort led3 = new OutputPort(FEZPandaIII.Gpio.Led3, false);
+
 
         public static void Main()
         {
-            LED = new OutputPort(Pin.LED, false);
-            led4 = new OutputPort(Pin.LED4, false);
+            Controller.UsbSerialConnected += Controller_UsbSerialConnected;
+            Controller.UnknownDeviceConnected += Controller_UnknownDeviceConnected;
+            Controller.DeviceConnectFailed += Controller_DeviceConnectFailed;
 
-            ISerialPort dBusPort = new SerialPortTH3122("COM4", Pin.D_BUS_TH3122SENSTA);
-            DbusManager.Init(dBusPort);
+            Controller.Start();
+            Debug.Print("Controller started");
 
-            DbusManager.BeforeMessageReceived += Manager_BeforeMessageReceived;
-            DbusManager.AfterMessageReceived += Manager_AfterMessageReceived;
-            DbusManager.BeforeMessageSent += Manager_BeforeMessageSent;
-            DbusManager.AfterMessageSent += Manager_AfterMessageSent;
-        }
-
-        private static void Manager_BeforeMessageReceived(MessageEventArgs e)
-        {
-            LED.Write(Busy(true, 1));
-        }
-
-        static bool restrictOutput = true;
-        private static void Manager_AfterMessageReceived(MessageEventArgs e)
-        {
-            LED.Write(Busy(false, 1));
-
-            if (e.Message.Data.Compare(MessageRegistry.DataAnnounce)
-                || e.Message.Data.Compare(MessageRegistry.DataPollRequest)
-                || e.Message.Data.Compare(MessageRegistry.DataPollResponse))
+            while (true)
             {
-                return;
-            }
-
-            // Show only messages which are described
-            if (e.Message.Describe() == null) { return; }
-            if (!restrictOutput)
-            {
-                var logIco = "< ";
-                Logger.Info(e.Message.ToPrettyString(true, true), logIco);
-                //Logger.Info(e.Message, logIco);
-                return;
-            }
-
-            if ((
-                    e.Message.SourceDevice == DeviceAddress.Radio && e.Message.DestinationDevice == DeviceAddress.CDChanger ||
-                    e.Message.SourceDevice == DeviceAddress.CDChanger && e.Message.DestinationDevice == DeviceAddress.Radio ||
-                    e.Message.SourceDevice == DeviceAddress.GraphicsNavigationDriver || e.Message.DestinationDevice == DeviceAddress.GraphicsNavigationDriver ||
-                    e.Message.SourceDevice == DeviceAddress.OnBoardMonitor || e.Message.DestinationDevice == DeviceAddress.OnBoardMonitor ||
-                    e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics || e.Message.DestinationDevice == DeviceAddress.InstrumentClusterElectronics ||
-                    e.Message.SourceDevice == DeviceAddress.NavigationEurope || e.Message.DestinationDevice == DeviceAddress.NavigationEurope ||
-                    e.Message.SourceDevice == DeviceAddress.NavigationEurope || e.Message.DestinationDevice == DeviceAddress.NavigationEurope
-                )
-                //&& e.Message.SourceDevice != DeviceAddress.GraphicsNavigationDriver
-                //&& e.Message.DestinationDevice != DeviceAddress.GraphicsNavigationDriver
-                //&& e.Message.SourceDevice != DeviceAddress.OnBoardMonitor
-                //&& e.Message.DestinationDevice != DeviceAddress.OnBoardMonitor
-                //&& e.Message.SourceDevice != DeviceAddress.CDChanger
-                //&& e.Message.DestinationDevice != DeviceAddress.CDChanger
-                && e.Message.DestinationDevice != DeviceAddress.Broadcast
-                //&& e.Message.SourceDevice != DeviceAddress.Diagnostic
-                //&& e.Message.DestinationDevice != DeviceAddress.Diagnostic
-            )
-            {
-                var logIco = "< ";
-                Logger.Info(e.Message.ToPrettyString(true, true), logIco);
-                //Logger.Info(e.Message, logIco);
+                if (usbSerialDevice != null)
+                {
+                    DBusMessage test = new DBusMessage(0x2C, 0x10, 0x0F, 0x00);
+                    usbSerialDevice.Write(test.Packet);
+                }
+                Thread.Sleep(1000);
             }
         }
 
-        private static void Manager_BeforeMessageSent(MessageEventArgs e)
+        private static void Controller_UsbSerialConnected(object sender, UsbSerial usbSerial)
         {
-            LED.Write(Busy(true, 2));
+            Debug.Print("Detected a USB to serial adaptor of type:" + usbSerial.Type.ToString());
+
+            led2.Write(true);
+
+            // The newly connected device is a USB to serial adapter:
+            usbSerialDevice = usbSerial;
+            usbSerialDevice.BaudRate = 9600;
+            usbSerialDevice.DataBits = 8;
+
+            usbSerial.Handshake = Handshake.None;
+            usbSerialDevice.Parity = Parity.None;
+            usbSerialDevice.StopBits = StopBits.One;
+
+            usbSerialDevice.Disconnected += Controller_Disconnected;
+            usbSerialDevice.DataReceived += UsbSerialDevice_DataReceived;
         }
 
-        private static void Manager_AfterMessageSent(MessageEventArgs e)
+        static void Controller_UnknownDeviceConnected(object sender, Controller.UnknownDeviceConnectedEventArgs e)
         {
-            LED.Write(Busy(false, 2));
-            Logger.Info(e.Message, " >");
+            Debug.Print("USB raw device connected");
+            led3.Write(true);
         }
 
-        static bool Busy(bool busy, byte type)
+        static void Controller_DeviceConnectFailed(object sender, EventArgs e)
         {
-            if (busy)
-            {
-                Program.busy = Program.busy.AddBit(type);
-            }
-            else
-            {
-                Program.busy = Program.busy.RemoveBit(type);
-            }
-            return Program.busy > 0;
+            Debug.Print("USB device connect failed");
+            led3.Write(true);
+        }
+
+        static void Controller_Disconnected(BaseDevice sender, EventArgs e)
+        {
+            Debug.Print("USB device disconnected");
+            usbSerialDevice = null;
+        }
+
+        static void UsbSerialDevice_DataReceived(UsbSerial sender, UsbSerial.DataReceivedEventArgs e)
+        {
+            Debug.Print("USB data received" + e.Data.ToHex());
+
+            //for (int i = 0; i < e.Data.Length; i++)
+            //    Debug.Print(e.Data[i].ToString());
+
+            //sender.Write(e.Data);
         }
     }
 }
