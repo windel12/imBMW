@@ -5,7 +5,7 @@ namespace System.IO.Ports
 {
     public class SerialPortConfiguration
     {
-        public SerialPortConfiguration(string portName, BaudRate baudRate, Parity parity = Parity.None, int dataBits = 8, StopBits stopBits = StopBits.One, bool hardwareFlowControl = false)
+        public SerialPortConfiguration(string portName, int baudRate, Parity parity = Parity.None, int dataBits = 8, StopBits stopBits = StopBits.One, bool hardwareFlowControl = false)
         {
             PortName = portName;
             BaudRate = baudRate;
@@ -21,7 +21,7 @@ namespace System.IO.Ports
 
         public Parity Parity { get; protected set; }
 
-        public BaudRate BaudRate { get; protected set; }
+        public int BaudRate { get; protected set; }
 
         public string PortName { get; protected set; }
 

@@ -204,11 +204,11 @@ namespace imBMW.Features.Multimedia
                 Logger.Log(LogPriority.Warning, "Storage is not formatted. " + "Format on PC with FAT32/FAT16 first!");
             }
 
-            playerThread = new Thread(() =>
-            {
-                PlayDirect();
-            });
-            playerThread.Priority = ThreadPriority.Highest;
+            //playerThread = new Thread(() =>
+            //{
+            //    PlayDirect();
+            //});
+            //playerThread.Priority = ThreadPriority.Highest;
             //playerThread.Start();
         }
 
@@ -216,19 +216,23 @@ namespace imBMW.Features.Multimedia
         {
             base.Play();
 
-            if (playerThread.ThreadState == ThreadState.Unstarted)
+            if (playerThread == null || playerThread.ThreadState == ThreadState.Unstarted ||
+                playerThread.ThreadState == ThreadState.Stopped || playerThread.ThreadState == ThreadState.StopRequested ||
+                playerThread.ThreadState == ThreadState.Aborted || playerThread.ThreadState == ThreadState.AbortRequested)
             {
+                playerThread = new Thread(() =>
+                {
+                    PlayDirect();
+                });
+                playerThread.Priority = ThreadPriority.Highest;
                 playerThread.Start();
-            }
-            if (playerThread.ThreadState == ThreadState.Suspended || playerThread.ThreadState == ThreadState.SuspendRequested)
-            {
-                playerThread.Resume();
             }
         }
 
         public override void Pause()
         {
             base.Pause();
+            //playerThread.Abort();
         }
 
         public override void Next()
@@ -338,8 +342,8 @@ namespace imBMW.Features.Multimedia
                 Thread.Sleep(50);
                 try
                 {
-                    if (!IsPlaying)
-                        Thread.CurrentThread.Suspend();
+                    //if (!IsPlaying)
+                    //    Thread.CurrentThread.Suspend();
                     buffer = new byte[2048];
                 }
                 catch (Exception ex)
@@ -360,10 +364,9 @@ namespace imBMW.Features.Multimedia
                         size = stream.Read(buffer, 0, buffer.Length);
                         //Debug.Print("Free memory:" + Debug.GC(false) + " after stream read");
                         CurrentPosition += size;
+                        //int decodeTime = GetDecodeTime();
+                        //int byteRate = GetByteRate();
                         SendData(buffer);
-                        int decodeTime = GetDecodeTime();
-                        int byteRate = GetByteRate();
-                            //Debug.Print("Free memory:" + Debug.GC(false) + " after send data");
                         if (ChangeTrack)
                         {
                             break;
@@ -392,6 +395,10 @@ namespace imBMW.Features.Multimedia
                     }
                     ChangeTrack = false;
                 }
+                if (!IsPlaying)
+                {
+                    break;// close thread
+                }
             }
         }
 
@@ -404,11 +411,10 @@ namespace imBMW.Features.Multimedia
 
             if (ChangeTrack)
             {
-                Debug.Print("Wrote SM_CANCEL");
-                SCIWrite(SCI_MODE, SM_CANCEL);
+                //Logger.Log(LogPriority.Info, "Wrote SM_CANCEL");
+                //SCIWrite(SCI_MODE, SM_CANCEL);
             }
 
-            ushort CANCEL = 0;
             for (int i = 0; i < size; i += 32)
             {
                 Array.Copy(data, i, block, 0, 32);
@@ -416,34 +422,31 @@ namespace imBMW.Features.Multimedia
                 //Debug.Print("Wrote 32 bytes of data");
                 if (ChangeTrack)
                 {
-                    CANCEL = SCIRead(SCI_MODE);
-                    Debug.Print("Checking if SM_CANCEL has cleared (" + CANCEL + ")");
+                    ushort CANCEL = SCIRead(SCI_MODE);
                     if (CANCEL != SM_CANCEL)
                     {
-                        Debug.Print("SM_CANCEL cleared");
+                        Logger.Log(LogPriority.Info, "SM_CANCEL cleared");
                         StopPlayback();
                         break;
                     }
                     else
-                        Debug.Print("SM_CANCEL has not cleared yet...");
+                        Logger.Log(LogPriority.Info, "SM_CANCEL has not cleared yet...");
                 }
             }   
         }
 
         public void StopPlayback()
         {
-            Debug.Print("Stopping playback");
             uint endFillByte = WRAMRead(para_endFillByte);
-            Debug.Print("Read endFillByte: " + endFillByte);
             ushort HDAT0;
             ushort HDAT1;
             do
             {
                 for (int n = 0; n < 2052; n++) SDIWrite((byte)(0xFF & endFillByte));
-                Debug.Print("Sent 2052 endFillByte, checking HDAT0 and HDAT1");
+                Logger.Log(LogPriority.Info, "Sent 2052 endFillByte, checking HDAT0 and HDAT1");
                 HDAT0 = SCIRead(SCI_HDAT0);
                 HDAT1 = SCIRead(SCI_HDAT1);
-                Debug.Print("HDAT0: " + HDAT0 + ", HDAT1: " + HDAT1);
+                Logger.Log(LogPriority.Info, "HDAT0: " + HDAT0 + ", HDAT1: " + HDAT1);
             }
             while (HDAT0 != 0 && HDAT1 != 0);
             //ChangeTrack = false;

@@ -1,90 +1,180 @@
 using System;
 using System.IO.Ports;
 using System.Threading;
-using GHI.Usb.Host;
+using GHI.Pins;
 using imBMW.Devices.V2.Hardware;
+using imBMW.Diagnostics;
 using imBMW.iBus;
 using imBMW.Tools;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
-using GHI.Pins;
-using imBMW.Diagnostics;
 
 namespace imBMW.DBus.Tester
 {
     public class Program
     {
-        public static UsbSerial usbSerialDevice = null;
+        static OutputPort LED;
+        static OutputPort led4;
 
-        private static OutputPort led2 = new OutputPort(FEZPandaIII.Gpio.Led2, false);
-        private static OutputPort led3 = new OutputPort(FEZPandaIII.Gpio.Led3, false);
-
+        static byte busy = 0;
 
         public static void Main()
         {
-            Controller.UsbSerialConnected += Controller_UsbSerialConnected;
-            Controller.UnknownDeviceConnected += Controller_UnknownDeviceConnected;
-            Controller.DeviceConnectFailed += Controller_DeviceConnectFailed;
+            LED = new OutputPort(Pin.LED, false);
+            led4 = new OutputPort(Pin.LED4, false);
 
-            Controller.Start();
-            Debug.Print("Controller started");
+            //KWP2000Init();
+            DBusMessage motor_temperatur = new DBusMessage(0x2C, 0x10, 0x0F, 0x00);
+            //serial.Write(motor_temperatur.Packet, 0, motor_temperatur.Packet.Length);
+
+            ISerialPort dBusPort = new SerialPortTH3122("COM1", Pin.D_BUS_TH3122SENSTA, false, 9600); // d31, d33
+            DbusManager.Init(dBusPort);
+
+            DbusManager.BeforeMessageReceived += Manager_BeforeMessageReceived;
+            DbusManager.AfterMessageReceived += Manager_AfterMessageReceived;
+            DbusManager.BeforeMessageSent += Manager_BeforeMessageSent;
+            DbusManager.AfterMessageSent += Manager_AfterMessageSent;
 
             while (true)
             {
-                if (usbSerialDevice != null)
-                {
-                    DBusMessage test = new DBusMessage(0x2C, 0x10, 0x0F, 0x00);
-                    usbSerialDevice.Write(test.Packet);
-                }
-                Thread.Sleep(1000);
+                DbusManager.EnqueueMessage(motor_temperatur);
+                Thread.Sleep(10000);
             }
         }
 
-        private static void Controller_UsbSerialConnected(object sender, UsbSerial usbSerial)
+        private static void KWP2000Init()
         {
-            Debug.Print("Detected a USB to serial adaptor of type:" + usbSerial.Type.ToString());
+            byte address = 0x33;
+            var tx = new OutputPort(FEZPandaIII.Gpio.D33, false);
+            tx.Write(true);
+            Thread.Sleep(300);
+            tx.Write(false);
+            Thread.Sleep(200);
+            for (byte mask = 0x01; mask > 0; mask <<= 1) // Send byte 0x33 to the K-Line at 5 baud,
+            {
+                if ((address & mask) == 1)
+                {
+                    tx.Write(true);
+                }
+                else
+                {
+                    tx.Write(false);
+                }
+                Thread.Sleep(200);
+            }
+            tx.Write(true);
 
-            led2.Write(true);
+            var serial = new SerialPort("COM4", 10400, Parity.None, 8, StopBits.One); // Initialize UART to 10.4K baud, 8 data bits, no parity, and 1 stop.
+            serial.ReadTimeout = 0;
 
-            // The newly connected device is a USB to serial adapter:
-            usbSerialDevice = usbSerial;
-            usbSerialDevice.BaudRate = 9600;
-            usbSerialDevice.DataBits = 8;
+            int delayy = 0;
+            while (serial.BytesToRead < 1 && delayy < 2000)
+            {
+                Thread.Sleep(1);
+                delayy++;
+            }
 
-            usbSerial.Handshake = Handshake.None;
-            usbSerialDevice.Parity = Parity.None;
-            usbSerialDevice.StopBits = StopBits.One;
+            int b = serial.ReadByte();
+            if (b == 0x55) { } // Receive byte 0x55 from the vehicle.
+            //else
+            //{
+            //    Serial.begin(10400);//correct baudrate!
+            //}
+            while (serial.BytesToRead < 2) { }
+            for (int j = 0; j < 2; j++) // Receive two key bytes, which are either 08 08 or 94 94 for ISO 9141-2.
+            {
+                b = serial.ReadByte();
+            }
 
-            usbSerialDevice.Disconnected += Controller_Disconnected;
-            usbSerialDevice.DataReceived += UsbSerialDevice_DataReceived;
+            Thread.Sleep(40); // Wait for about 40 milliseonds.
+            serial.WriteByte((byte)~b); // Then, Invert key byte 2 and send to the vehicle.
+
+            Thread.Sleep(40); //Wait another 40 milliseconds.
+            b = serial.ReadByte(); // Then receive inverted address byte 0x33, which will be 0xCC.
+            int u = ~address;
+            if (b == u)
+            {
+
+            }
+
+            Thread.Sleep(65); // Before sending the first request, wait for about 65 milliseconds.
         }
 
-        static void Controller_UnknownDeviceConnected(object sender, Controller.UnknownDeviceConnectedEventArgs e)
+        private static void Manager_BeforeMessageReceived(MessageEventArgs e)
         {
-            Debug.Print("USB raw device connected");
-            led3.Write(true);
+            LED.Write(Busy(true, 1));
         }
 
-        static void Controller_DeviceConnectFailed(object sender, EventArgs e)
+        static bool restrictOutput = true;
+        private static void Manager_AfterMessageReceived(MessageEventArgs e)
         {
-            Debug.Print("USB device connect failed");
-            led3.Write(true);
+            LED.Write(Busy(false, 1));
+
+            if (e.Message.Data.Compare(MessageRegistry.DataAnnounce)
+                || e.Message.Data.Compare(MessageRegistry.DataPollRequest)
+                || e.Message.Data.Compare(MessageRegistry.DataPollResponse))
+            {
+                return;
+            }
+
+            // Show only messages which are described
+            if (e.Message.Describe() == null) { return; }
+            if (!restrictOutput)
+            {
+                var logIco = "< ";
+                Logger.Info(e.Message.ToPrettyString(true, true), logIco);
+                //Logger.Info(e.Message, logIco);
+                return;
+            }
+
+            if ((
+                    e.Message.SourceDevice == DeviceAddress.Radio && e.Message.DestinationDevice == DeviceAddress.CDChanger ||
+                    e.Message.SourceDevice == DeviceAddress.CDChanger && e.Message.DestinationDevice == DeviceAddress.Radio ||
+                    e.Message.SourceDevice == DeviceAddress.GraphicsNavigationDriver || e.Message.DestinationDevice == DeviceAddress.GraphicsNavigationDriver ||
+                    e.Message.SourceDevice == DeviceAddress.OnBoardMonitor || e.Message.DestinationDevice == DeviceAddress.OnBoardMonitor ||
+                    e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics || e.Message.DestinationDevice == DeviceAddress.InstrumentClusterElectronics ||
+                    e.Message.SourceDevice == DeviceAddress.NavigationEurope || e.Message.DestinationDevice == DeviceAddress.NavigationEurope ||
+                    e.Message.SourceDevice == DeviceAddress.NavigationEurope || e.Message.DestinationDevice == DeviceAddress.NavigationEurope
+                )
+                //&& e.Message.SourceDevice != DeviceAddress.GraphicsNavigationDriver
+                //&& e.Message.DestinationDevice != DeviceAddress.GraphicsNavigationDriver
+                //&& e.Message.SourceDevice != DeviceAddress.OnBoardMonitor
+                //&& e.Message.DestinationDevice != DeviceAddress.OnBoardMonitor
+                //&& e.Message.SourceDevice != DeviceAddress.CDChanger
+                //&& e.Message.DestinationDevice != DeviceAddress.CDChanger
+                && e.Message.DestinationDevice != DeviceAddress.Broadcast
+                //&& e.Message.SourceDevice != DeviceAddress.Diagnostic
+                //&& e.Message.DestinationDevice != DeviceAddress.Diagnostic
+            )
+            {
+                var logIco = "< ";
+                Logger.Info(e.Message.ToPrettyString(true, true), logIco);
+                //Logger.Info(e.Message, logIco);
+            }
         }
 
-        static void Controller_Disconnected(BaseDevice sender, EventArgs e)
+        private static void Manager_BeforeMessageSent(MessageEventArgs e)
         {
-            Debug.Print("USB device disconnected");
-            usbSerialDevice = null;
+            LED.Write(Busy(true, 2));
         }
 
-        static void UsbSerialDevice_DataReceived(UsbSerial sender, UsbSerial.DataReceivedEventArgs e)
+        private static void Manager_AfterMessageSent(MessageEventArgs e)
         {
-            Debug.Print("USB data received" + e.Data.ToHex());
+            LED.Write(Busy(false, 2));
+            Logger.Info(e.Message, " >");
+        }
 
-            //for (int i = 0; i < e.Data.Length; i++)
-            //    Debug.Print(e.Data[i].ToString());
-
-            //sender.Write(e.Data);
+        static bool Busy(bool busy, byte type)
+        {
+            if (busy)
+            {
+                Program.busy = Program.busy.AddBit(type);
+            }
+            else
+            {
+                Program.busy = Program.busy.RemoveBit(type);
+            }
+            return Program.busy > 0;
         }
     }
 }
