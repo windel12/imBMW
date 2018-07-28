@@ -116,6 +116,21 @@ namespace imBMW.Features.Menu
             }
         }
 
+        public virtual string T1Field
+        {
+            get;
+        }
+
+        public virtual string T3Field
+        {
+            get;
+        }
+
+        public virtual string T5Field
+        {
+            get;
+        }
+
         protected ArrayList Items { get; private set; }
 
         public int ItemsCount

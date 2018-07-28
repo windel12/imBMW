@@ -36,13 +36,13 @@ namespace imBMW.iBus.Devices.Emulators
         {
             return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Stopped D" + disk + "T" + track, 0x39, 0x00, 0x02, 0x00, 0x3F, 0x00, disk, track); // try 39 00 0C ?
         }
-        Message StatusPlayed(byte disk, byte track)
+        Message StatusPlaying(byte disk, byte track)
         {
             //return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Paused D" + disk + "T" + track, 0x39, 0x00, 0x02, 0x00, 0x3F, 0x00, disk, track);
             byte state = 0x09;// (byte)(Player.IsRandom ? (byte)PlayingType.Random : (byte)PlayingType.Normal);
             return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Paused D" + disk + "T" + track, 0x39, 0x00, state, 0x00, 0x3F, 0x00, disk, track);
         }
-        Message GetMessageStartPlaying(byte disk, byte track)
+        Message StatusStartPlaying(byte disk, byte track)
         {
             byte state = 0x09;// (byte)(Player.IsRandom ? (byte)PlayingType.Random : (byte)PlayingType.Normal);
             return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Playing D" + disk + "T" + track, 0x39, 0x02, state, 0x00, 0x3F, 0x00, disk, track);
@@ -98,7 +98,7 @@ namespace imBMW.iBus.Devices.Emulators
 
             Player.TrackChanged += (s, e) => {
                 //Manager.EnqueueMessage(StatusPlayed(Player.DiskNumber, Player.TrackNumber));
-                Manager.EnqueueMessage(GetMessageStartPlaying(Player.DiskNumber, Player.TrackNumber));
+                Manager.EnqueueMessage(StatusStartPlaying(Player.DiskNumber, Player.TrackNumber));
             };
             InstrumentClusterElectronics.IgnitionStateChanged += args =>
             {
@@ -217,7 +217,7 @@ namespace imBMW.iBus.Devices.Emulators
             if (m.Data.Compare(DataPlay))
             {
                 IsEnabled = true;
-                Manager.EnqueueMessage(GetMessageStartPlaying(Player.DiskNumber, Player.TrackNumber));
+                Manager.EnqueueMessage(StatusStartPlaying(Player.DiskNumber, Player.TrackNumber));
                 m.ReceiverDescription = "Start playing";
             }
             else if (m.Data.Compare(DataStop))
@@ -228,11 +228,8 @@ namespace imBMW.iBus.Devices.Emulators
             }
             else if (m.Data.Compare(DataPause))
             {
-                //IsEnabled = false;
                 Pause();
                 Manager.EnqueueMessage(StatusStopped(Player.DiskNumber, Player.TrackNumber));
-                // TODO show "splash" only with bmw business (not with BM)
-                //Radio.DisplayText("imBMW", TextAlign.Center);
                 m.ReceiverDescription = "Pause";
             }            
             else if(m.Data.Length == 3 && m.Data.StartsWith(0x38, 0x06)) // select disk
@@ -245,8 +242,7 @@ namespace imBMW.iBus.Devices.Emulators
                 }
                 if (Player.IsPlaying)
                 {
-                    Manager.EnqueueMessage(GetMessageStartPlaying(Player.DiskNumber, Player.TrackNumber));
-                    //Manager.EnqueueMessage(StatusPlayed(Player.DiskNumber, Player.TrackNumber));
+                    Manager.EnqueueMessage(StatusStartPlaying(Player.DiskNumber, Player.TrackNumber));
                 }
                 else
                 {
@@ -256,21 +252,19 @@ namespace imBMW.iBus.Devices.Emulators
             else if (m.Data.Compare(DataRandomPlay))
             {
                 RandomToggle();
-                Manager.EnqueueMessage(GetMessageStartPlaying(Player.DiskNumber, Player.TrackNumber));
-                //Manager.EnqueueMessage(StatusPlayed(Player.DiskNumber, Player.TrackNumber));
+                Manager.EnqueueMessage(StatusStartPlaying(Player.DiskNumber, Player.TrackNumber));
                 m.ReceiverDescription = "Random toggle";
             }
             if (m.Data.Compare(DataCurrentDiskTrackRequest))
             {
                 if (Player.IsPlaying && this.IsEnabled)
                 {
-                    //Manager.EnqueueMessage(StatusPlayed(Player.DiskNumber, Player.TrackNumber));
-                    Manager.EnqueueMessage(GetMessageStartPlaying(Player.DiskNumber, Player.TrackNumber));
+                    //Manager.EnqueueMessage(StatusPlaying(Player.DiskNumber, Player.TrackNumber));
+                    Manager.EnqueueMessage(StatusStartPlaying(Player.DiskNumber, Player.TrackNumber));
                 }
                 else
                 {
                     Manager.EnqueueMessage(StatusStopped(Player.DiskNumber, Player.TrackNumber));
-                    //Manager.EnqueueMessage(GetMessageStopped(Player.DiskNumber, Player.TrackNumber));
                 }
                 m.ReceiverDescription = "CD status request";
             }
@@ -292,14 +286,6 @@ namespace imBMW.iBus.Devices.Emulators
             else if (m.Data.Compare(MessageRegistry.DataPollRequest))
             {
                 Manager.EnqueueMessage(MessagePollResponse);
-                //if (Player.IsPlaying)
-                //{
-                //    Manager.EnqueueMessage(MessagePlayingDisk1Track1);
-                //}
-                //else
-                //{
-                //    Manager.EnqueueMessage(MessagePausedDisk1Track1);
-                //}
             }
             /*else if (m.Data[0] == 0x38)
             {

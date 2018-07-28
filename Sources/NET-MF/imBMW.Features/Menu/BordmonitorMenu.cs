@@ -27,6 +27,7 @@ namespace imBMW.Features.Menu
             : base(mediaEmulator)
         {
             //CurrentScreen = HomeScreen.Instance;
+            BordcomputerScreen.Instance.MediaEmulator = mediaEmulator;
             CurrentScreen = BordcomputerScreen.Instance;
 
             int titleStartIndex = 0;
@@ -238,10 +239,10 @@ namespace imBMW.Features.Menu
                 switch (m.Data[1])
                 {
                     case 0x01:
-                        m.ReceiverDescription = "Screen SW by nav";
+                        m.ReceiverDescription = "Screen switch by nav";
                         break;
                     case 0x02:
-                        m.ReceiverDescription = "Screen SW by rad";
+                        m.ReceiverDescription = "Screen switch by rad";
                         skipClearScreen = true; // to prevent on "clear screen" update on switch to BC/nav
                         break;
                 }
@@ -267,84 +268,79 @@ namespace imBMW.Features.Menu
 
         protected void ProcessToRadioMessage(Message m)
         {
-            if (!mediaEmulator.IsEnabled)
+            if (mediaEmulator.IsEnabled)
             {
-                return;
-            }
-
-            // BM buttons
-            if (m.Data.Length == 2 && m.Data[0] == 0x48)
-            {
-                switch (m.Data[1])
+                // BM buttons
+                if (m.Data[0] == 0x48 && m.Data.Length == 2)
                 {
-                    case 0x08: // phone
-                        m.ReceiverDescription = "BM button Phone - draw bordmonitor menu";
-                        IsEnabled = true;
-                        break;
-                    case 0x34: // Menu
-                        m.ReceiverDescription = "BM button Menu";
-                        IsEnabled = false;
-                        break;
-                    case 0x30: // Radio menu
-                        m.ReceiverDescription = "BM button Switch Screen";
-                        IsEnabled = !IsEnabled;
-                        //if (screenSwitched)
-                        //{
-                        //    UpdateScreen();
-                        //}
-                        break;
+                    switch (m.Data[1])
+                    {
+                        case 0x08: // phone
+                            m.ReceiverDescription = "BM button Phone - draw bordmonitor menu";
+                            IsEnabled = true;
+                            break;
+                        case 0x34: // Menu
+                            m.ReceiverDescription = "BM button Menu";
+                            IsEnabled = false;
+                            break;
+                        case 0x30: // Radio menu
+                            m.ReceiverDescription = "BM button Switch Screen";
+                            IsEnabled = !IsEnabled;
+                            //if (screenSwitched)
+                            //{
+                            //    UpdateScreen();
+                            //}
+                            break;
+                    }
                 }
             }
 
-            if (!IsEnabled)
+            if (IsEnabled)
             {
-                return;
-            }
-
-            // item click
-            if (m.Data.Length == 4 && m.Data.StartsWith(0x31, 0x60, 0x00) && m.Data[3] <= 9)
-            {
-                var index = GetItemIndex(m.Data[3], true);
-                m.ReceiverDescription = "Screen item click #" + index;
-                var item = CurrentScreen.GetItem(index);
-                if (item != null)
+                // item click
+                if (m.Data.Length == 4 && m.Data.StartsWith(0x31, 0x60, 0x00) && m.Data[3] <= 9)
                 {
-                    item.Click();
+                    var index = GetItemIndex(m.Data[3], true);
+                    m.ReceiverDescription = "Screen item click #" + index;
+                    var item = CurrentScreen.GetItem(index);
+                    if (item != null)
+                    {
+                        item.Click();
+                    }
+                    return;
                 }
-                return;
-            }
 
-            // BM buttons
-            if (m.Data.Length == 2 && m.Data[0] == 0x48)
-            {
-                switch (m.Data[1])
+                // BM buttons
+                if (m.Data[0] == 0x48 && m.Data.Length == 2)
                 {
-                    case 0x14: // <>
-                        m.ReceiverDescription = "BM button <> - navigate home";
-                        //NavigateHome();
-                        break;
-                    case 0x07:
-                        m.ReceiverDescription = "BM button Clock - navigate BC";
-                        //NavigateAfterHome(BordcomputerScreen.Instance);
-                        break;
-                    case 0x20: // Select
-                        m.ReceiverDescription = "BM button Select"; // - navigate player";
-                        IsEnabled = false;
-                        // TODO fix in cdc mode
-                        //NavigateAfterHome(HomeScreen.Instance.PlayerScreen);
-                        break;
-                    case 0x04:
-                        m.ReceiverDescription = "BM button Tone";
-                        IsEnabled = false;
-                        //Bordmonitor.EnableRadioMenu(); // TODO test [and remove]
-                        break;
-                    case 0x23: // Mode
-                        m.ReceiverDescription = "BM button Mode";
-                        //IsEnabled = false;
-                        //Bordmonitor.EnableRadioMenu(); // TODO test [and remove]
-                        break;
+                    switch (m.Data[1])
+                    {
+                        case 0x14: // <>
+                            m.ReceiverDescription = "BM button <> - navigate home";
+                            //NavigateHome();
+                            break;
+                        case 0x07:
+                            m.ReceiverDescription = "BM button Clock - navigate BC";
+                            //NavigateAfterHome(BordcomputerScreen.Instance);
+                            break;
+                        case 0x20: // Select
+                            m.ReceiverDescription = "BM button Select";
+                            IsEnabled = false;
+                            // TODO fix in cdc mode
+                            //NavigateAfterHome(HomeScreen.Instance.PlayerScreen);
+                            break;
+                        case 0x04:
+                            m.ReceiverDescription = "BM button Tone";
+                            IsEnabled = false;
+                            //Bordmonitor.EnableRadioMenu(); // TODO test [and remove]
+                            break;
+                        case 0x23: // Mode
+                            m.ReceiverDescription = "BM button Mode";
+                            //IsEnabled = false;
+                            //Bordmonitor.EnableRadioMenu(); // TODO test [and remove]
+                            break;
+                    }
                 }
-                return;
             }
         }
 
@@ -364,9 +360,13 @@ namespace imBMW.Features.Menu
                 skipClearTillRefresh = true; // TODO test no screen items lost
                 base.DrawScreen(/*args*/);
 
-                var messages = new Message[FastMenuDrawing ? 4 : 13];
+                var messages = new Message[FastMenuDrawing ? 4+3 : 13+3];
                 var n = 0;
                 messages[n++] = Bordmonitor.ShowText(CurrentScreen.Status ?? String.Empty, BordmonitorFields.Status, 0, false, false);
+                messages[n++] = Bordmonitor.ShowText(CurrentScreen.T1Field ?? String.Empty, BordmonitorFields.T1, 0, false, false);
+                messages[n++] = Bordmonitor.ShowText(CurrentScreen.T3Field ?? String.Empty, BordmonitorFields.T3, 0, false, false);
+                messages[n++] = Bordmonitor.ShowText(CurrentScreen.T5Field ?? String.Empty, BordmonitorFields.T5, 0, false, false);
+
                 lastTitle = Bordmonitor.ShowText(CurrentScreen.Title ?? String.Empty, BordmonitorFields.Title, 0, false, false);
                 messages[n++] = lastTitle;
                 byte[] itemsBytes = null;
@@ -395,7 +395,7 @@ namespace imBMW.Features.Menu
                     }
                     else
                     {
-                        if (item == null && n > 2)
+                        if (item == null && n > 2) // !!!!!
                         {
                             var prevMess = messages[n-1];
                             messages[n - 1] = new Message(prevMess.SourceDevice, prevMess.DestinationDevice, prevMess.ReceiverDescription, prevMess.Data.Combine(0x06));

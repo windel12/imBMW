@@ -364,7 +364,7 @@ namespace imBMW.Features.Multimedia
                         size = stream.Read(buffer, 0, buffer.Length);
                         //Debug.Print("Free memory:" + Debug.GC(false) + " after stream read");
                         CurrentPosition += size;
-                        //int decodeTime = GetDecodeTime();
+                        //CurrentTrack.Time = GetDecodeTime();
                         //int byteRate = GetByteRate();
                         SendData(buffer);
                         if (ChangeTrack)

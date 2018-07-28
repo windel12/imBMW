@@ -37,5 +37,7 @@ namespace imBMW.Features.Multimedia.Models
         public string Album { get; set; }
 
         public string Genre { get; set; }
+
+        public int Time { get; set; }
     }
 }

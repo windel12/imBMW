@@ -3,6 +3,7 @@ using imBMW.iBus.Devices.Real;
 using imBMW.Tools;
 using imBMW.Features.Localizations;
 using imBMW.iBus.Devices;
+using imBMW.iBus.Devices.Emulators;
 
 namespace imBMW.Features.Menu.Screens
 {
@@ -20,10 +21,11 @@ namespace imBMW.Features.Menu.Screens
 
         protected int updateLimitSeconds = 1;
 
+        public MediaEmulator MediaEmulator { get; set; }
+
         protected BordcomputerScreen()
         {
             FastMenuDrawing = true;
-            //TitleCallback = x => Localization.Current.BordcomputerShort;
             SetItems();
 
             InstrumentClusterElectronics.RequestConsumption();
@@ -190,5 +192,15 @@ namespace imBMW.Features.Menu.Screens
                 return instance;
             }
         }
+
+        public override string T3Field => 
+            MediaEmulator != null 
+                ? (MediaEmulator.Player.IsRandom ? "RND" : "") 
+                : "";
+
+        public override string T1Field =>
+            MediaEmulator != null
+                ? (MediaEmulator.Player.CurrentTrack.Time.ToString())
+                : "";
     }
 }

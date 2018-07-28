@@ -8,17 +8,17 @@ namespace imBMW.iBus.Devices.Real
 
     public enum BordmonitorFields
     {
-        /// <summary>
-        /// T6 field
-        /// </summary>
+        /// <summary> T0 field, 11 chars </summary>
         Title,
-        /// <summary>
-        /// Small text, 11 chars
-        /// </summary>
+        /// <summary> T6 field, 11 chars </summary>
         Status,
-        /// <summary>
-        /// One of 10 items, 23 chars
-        /// </summary>
+        /// <summary> T1 field </summary>
+        T1,
+        /// <summary> T3 field, 5 chars('<>', 'RND') </summary>
+        T3,
+        /// <summary> T5 field, 5 chars </summary>
+        T5,
+        /// <summary> One of 10 items, 23 chars </summary>
         Item,
     }
 
@@ -174,6 +174,9 @@ namespace imBMW.iBus.Devices.Real
 
         public static byte[] DataShowTitle = new byte[] { 0x23, 0x62, 0x10 /*30?*/ }; // <68 Length 3B> 23 62 30 <Text in ASCII Hex> <XOR>
         public static byte[] DataShowStatus = new byte[] { 0xA5, 0x62, 0x01, /*In*/0x06/*dex*/ }; // <68 Length 3B> A5 62 01 <Index of the text field> <Text in ASCII Hex> <XOR>
+        public static byte[] DataShowT1 = new byte[] { 0xA5, 0x62, 0x01, /*In*/0x01/*dex*/ };
+        public static byte[] DataShowT3 = new byte[] { 0xA5, 0x62, 0x01, /*In*/0x03/*dex*/ };
+        public static byte[] DataShowT5 = new byte[] { 0xA5, 0x62, 0x01, /*In*/0x05/*dex*/ };
 
         public static byte[] DataDrawIndexMk2 = { 0xA5, 0x62, 0x00 };
         public static byte[] DataDrawIndexMk34 = { 0x21, 0x60, 0x00 };
@@ -183,14 +186,10 @@ namespace imBMW.iBus.Devices.Real
 
         public static Tools.NaviVersion NaviVersion { get; set; }
 
-        /// <summary>
-        /// Emulate response from navigation to radio for screen updates.
-        /// </summary>
+        /// <summary> Emulate response from navigation to radio for screen updates. </summary>
         public static bool ReplyToScreenUpdates { get; set; }
 
-        /// <summary>
-        /// Use translit for non-latin characters
-        /// </summary>
+        /// <summary> Use translit for non-latin characters </summary>
         public static bool Translit { get; set; }
 
         public static event BordmonitorTextHandler TextReceived;
@@ -349,6 +348,18 @@ namespace imBMW.iBus.Devices.Real
                 case BordmonitorFields.Status:
                     len = 11;
                     data = DataShowStatus;
+                    break;
+                case BordmonitorFields.T1:
+                    len = 4;
+                    data = DataShowT1;
+                    break;
+                case BordmonitorFields.T3:
+                    len = 4;
+                    data = DataShowT3;
+                    break;
+                case BordmonitorFields.T5:
+                    len = 5;
+                    data = DataShowT5;
                     break;
                 case BordmonitorFields.Item:
                     if (isChecked)

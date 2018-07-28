@@ -27,7 +27,7 @@ namespace imBMW.DBus.Tester
             DBusMessage motor_temperatur = new DBusMessage(0x2C, 0x10, 0x0F, 0x00);
             //serial.Write(motor_temperatur.Packet, 0, motor_temperatur.Packet.Length);
 
-            ISerialPort dBusPort = new SerialPortTH3122("COM1", Pin.D_BUS_TH3122SENSTA, false, 9600); // d31, d33
+            ISerialPort dBusPort = new SerialPortTH3122("COM4", Pin.D_BUS_TH3122SENSTA, false, 9600); // d31, d33
             DbusManager.Init(dBusPort);
 
             DbusManager.BeforeMessageReceived += Manager_BeforeMessageReceived;
@@ -35,10 +35,12 @@ namespace imBMW.DBus.Tester
             DbusManager.BeforeMessageSent += Manager_BeforeMessageSent;
             DbusManager.AfterMessageSent += Manager_AfterMessageSent;
 
+            bool b = false;
             while (true)
             {
-                DbusManager.EnqueueMessage(motor_temperatur);
-                Thread.Sleep(10000);
+                if(b)
+                    DbusManager.EnqueueMessage(motor_temperatur);
+                Thread.Sleep(5000);
             }
         }
 
