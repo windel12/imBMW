@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using Microsoft.SPOT;
 using imBMW.iBus;
 
@@ -25,6 +26,14 @@ namespace imBMW.Tools
             }
             message = exception.Message + (message != null ? " (" + message + ")" : String.Empty) + ". Stack trace: \n" + exception.StackTrace;
             Log(priority, message, priorityTitle);
+        }
+
+        public static void FreeMemory()
+        {
+            if (Debugger.IsAttached)
+            {
+                Debug.Print("Free memory:" + Debug.GC(true));
+            }
         }
 
         public static void Info(string message, string priorityTitle = null)

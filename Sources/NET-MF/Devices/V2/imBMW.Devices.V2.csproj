@@ -17,7 +17,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE,MF_FRAMEWORK_VERSION_V4_3</DefineConstants>
+    <DefineConstants>DEBUG;TRACE,MF_FRAMEWORK_VERSION_V4_3,MF_FRAMEWORK_VERSION_V4_3,DEBUG_AT_HOME</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -33,6 +33,17 @@
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\DebugDBus\</OutputPath>
     <DefineConstants>DEBUG;TRACE,MF_FRAMEWORK_VERSION_V4_3,MF_FRAMEWORK_VERSION_V4_3</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugInCar|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\DebugInCar\</OutputPath>
+    <DefineConstants>DEBUG;TRACE,MF_FRAMEWORK_VERSION_V4_3,MF_FRAMEWORK_VERSION_V4_3,DEBUG_IN_CAR</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>

@@ -60,7 +60,7 @@ namespace imBMW.Features.Multimedia
 
         #endregion
 
-        OutputPort led2 = new OutputPort(FEZPandaIII.Gpio.Led2, false);
+        OutputPort led3 = new OutputPort(FEZPandaIII.Gpio.Led3, false);
 
         private static InputPort DREQ;
 
@@ -141,15 +141,16 @@ namespace imBMW.Features.Multimedia
                 for (int i = 1; i <= 6; i++)
                 {
                     var folder = rootDirectory + "\\" + i;
+                    Logger.FreeMemory();
                     var files = Directory.GetFiles(folder);
+                    Logger.FreeMemory();
                     var musicFiles = new string[files.Length];
+                    Logger.FreeMemory();
                     for (int j = 0; j < files.Length; j++)
                     {
-                        var file = files[j];
-                        if (file.EndsWith(".mp3") /* || file.EndsWith(".m4a")*/)
+                        if (files[j].EndsWith(".mp3") /* || file.EndsWith(".m4a")*/)
                         {
-                            musicFiles[j] = file;
-                            //Debug.Print("Free memory:"+ Debug.GC(false) + " after creating file:" + i + " on disk:" + j);
+                            musicFiles[j] = files[j];
                         }
                     }
                     Data.Add(i.ToString(), musicFiles);
@@ -344,7 +345,7 @@ namespace imBMW.Features.Multimedia
                 {
                     //if (!IsPlaying)
                     //    Thread.CurrentThread.Suspend();
-                    buffer = new byte[2048];
+                    buffer = new byte[256];
                 }
                 catch (Exception ex)
                 {
@@ -353,6 +354,7 @@ namespace imBMW.Features.Multimedia
                 }
 
                 size = 0;
+                int freeMemotyLoggerCounter = 0;
                 try
                 {
                     //Debug.Print("Free memory:" + Debug.GC(false) + " before open stream");
@@ -360,13 +362,16 @@ namespace imBMW.Features.Multimedia
                     stream.Seek(CurrentPosition, SeekOrigin.Begin);
                     do
                     {
-                        //Debug.Print("Free memory:" + Debug.GC(false) + " before stream read");
                         size = stream.Read(buffer, 0, buffer.Length);
-                        //Debug.Print("Free memory:" + Debug.GC(false) + " after stream read");
                         CurrentPosition += size;
                         //CurrentTrack.Time = GetDecodeTime();
                         //int byteRate = GetByteRate();
                         SendData(buffer);
+                        if (Debugger.IsAttached && (CurrentPosition / 100000) > freeMemotyLoggerCounter || freeMemotyLoggerCounter == 0)
+                        {
+                            freeMemotyLoggerCounter++;
+                            Logger.FreeMemory();
+                        }
                         if (ChangeTrack)
                         {
                             break;
@@ -379,7 +384,7 @@ namespace imBMW.Features.Multimedia
                 }
                 catch (Exception ex)
                 {
-                    led2.Write(true);
+                    led3.Write(true);
                     IsPlaying = false;
                     Logger.Error(ex);
                 }

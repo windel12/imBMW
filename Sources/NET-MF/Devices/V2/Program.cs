@@ -28,7 +28,9 @@ namespace imBMW.Devices.V2
     {
         const string version = "FW1.0.12 HW2";
         static OutputPort LED;
+        static OutputPort successInitLED;
         static OutputPort led4;
+        static OutputPort resetPin;
 
         static Settings settings;
         static MediaEmulator emulator;
@@ -44,10 +46,15 @@ namespace imBMW.Devices.V2
         {
             try
             {
+                Debug.Print(Debug.GC(true).ToString());
+
                 SDCard sd = null;
                 settings = Settings.Init(sd != null ? sd + @"\imBMW.ini" : null);
                 LED = new OutputPort(Pin.LED, false);
+                successInitLED = new OutputPort(FEZPandaIII.Gpio.Led2, false);
                 led4 = new OutputPort(Pin.LED4, false);
+                resetPin = new OutputPort(FEZPandaIII.Gpio.D48, true);
+
 
                 //SettingsScreen.Instance.Status = version.Length > 11 ? version.Replace(" ", "") : version;
                 //Localization.SetCurrent(RussianLocalization.SystemName); //Localization.SetCurrent(settings.Language);
@@ -79,16 +86,17 @@ namespace imBMW.Devices.V2
             Logger.Info("Logger inited");
 
             string iBusComPort = Serial.COM1;
-            if (Debugger.IsAttached)
-            {
-                //iBusComPort = Serial.COM2;
-                //Logger.Error(new ApplicationException(), "fuck", "!!!");
-            }
+            var busy = Pin.TH3122SENSTA;
+
+#if DEBUG_AT_HOME
+            iBusComPort = "COM4";
+            busy = Cpu.Pin.GPIO_NONE;
+#endif
 
             // COM3 connected with COM2
             //ISerialPort fakeIbus = new SerialPortTH3122(Serial.COM3, Cpu.Pin.GPIO_NONE);
 
-            ISerialPort iBusPort = new SerialPortTH3122(iBusComPort, Pin.TH3122SENSTA);
+            ISerialPort iBusPort = new SerialPortTH3122(iBusComPort, busy);
             Manager.Init(iBusPort);
             Logger.Info("iBus manager inited");
 
@@ -121,6 +129,7 @@ namespace imBMW.Devices.V2
                     Bordmonitor.NaviVersion = settings.NaviVersion;
                     //BordmonitorMenu.FastMenuDrawing = settings.NaviVersion == NaviVersion.MK4;
                     BordmonitorMenu.Init(emulator);
+                    BordmonitorMenu.ResetButtonPressed += () => { resetPin.Write(false); };
                 }
                 else
                 {
@@ -149,6 +158,7 @@ namespace imBMW.Devices.V2
             Logger.Info("Player events subscribed");
 
             RefreshLEDs();
+            successInitLED.Write(true);
 
             nextButton = new InterruptPort((Cpu.Pin)FEZPandaIII.Gpio.Ldr1, true, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeHigh);
             nextButton.OnInterrupt += (p, s, t) =>
@@ -165,11 +175,6 @@ namespace imBMW.Devices.V2
                 //emulator.Player.DiskNumber = 6;
                 emulator.IsEnabled = false;
             };
-
-            if (Debugger.IsAttached)
-            {
-                emulator.IsEnabled = true;
-            }
 
             /* 
             var ign = new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.GlobalBroadcastAddress, "Ignition ACC", 0x11, 0x01);

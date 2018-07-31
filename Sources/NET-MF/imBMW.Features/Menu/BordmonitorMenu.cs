@@ -283,6 +283,9 @@ namespace imBMW.Features.Menu
                             m.ReceiverDescription = "BM button Menu";
                             IsEnabled = false;
                             break;
+                        case 0x74: // Menu hold >1s
+                            OnResetButtonPressed();
+                            break;
                         case 0x30: // Radio menu
                             m.ReceiverDescription = "BM button Switch Screen";
                             IsEnabled = !IsEnabled;
@@ -467,5 +470,17 @@ namespace imBMW.Features.Menu
                 return instance;
             }
         }
+
+        static void OnResetButtonPressed()
+        {
+            var e = ResetButtonPressed;
+            if (e != null)
+            {
+                e();
+            }
+        }
+
+        public delegate void ButtonPressedHanlder();
+        public static event ButtonPressedHanlder ResetButtonPressed;
     }
 }
