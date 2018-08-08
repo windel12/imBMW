@@ -296,6 +296,12 @@ if ((
                 errorFile.WriteString(args.LogString);
                 errorFile.Close();
             }
+            if (args.Priority == LogPriority.Trace)
+            {
+                var traceFile = File.Open(rootDirectory + "\\traceLog.txt", FileMode.OpenOrCreate);
+                traceFile.WriteString(args.LogString);
+                traceFile.Close();
+            }
             if (Debugger.IsAttached)
             {
                 Debug.Print(args.LogString);

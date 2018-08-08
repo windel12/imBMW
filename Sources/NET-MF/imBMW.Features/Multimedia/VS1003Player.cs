@@ -74,7 +74,7 @@ namespace imBMW.Features.Multimedia
         Thread playerThread;
         ArrayList changingHistory = new ArrayList();
         int changingHistoryPreviousPointer = 0;
-        static IDictionary Data = new Hashtable();
+        static IDictionary StorageInfo = new Hashtable();
 
         public static int FileNameOffset = 6;
 
@@ -137,23 +137,23 @@ namespace imBMW.Features.Multimedia
             if (VolumeInfo.GetVolumes()[0].IsFormatted)
             {
                 string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
-                string[] folders = Directory.GetDirectories(rootDirectory);
-                for (int i = 1; i <= 6; i++)
+                for (byte i = 1; i <= 6; i++)
                 {
                     var folder = rootDirectory + "\\" + i;
                     Logger.FreeMemory();
-                    var files = Directory.GetFiles(folder);
+                    var files = Directory.EnumerateFiles(folder);
                     Logger.FreeMemory();
-                    var musicFiles = new string[files.Length];
-                    Logger.FreeMemory();
-                    for (int j = 0; j < files.Length; j++)
+                    byte filesCount = 0;
+                    foreach(var fileObj in files)
                     {
-                        if (files[j].EndsWith(".mp3") /* || file.EndsWith(".m4a")*/)
+                        var file = fileObj.ToString();
+                        if (file.EndsWith(".mp3") /* || file.EndsWith(".m4a")*/)
                         {
-                            musicFiles[j] = files[j];
+                            filesCount++;
                         }
                     }
-                    Data.Add(i.ToString(), musicFiles);
+                    StorageInfo[i] = filesCount;
+                    Logger.FreeMemory();
                 }
                 FileStream dataFile = null;
                 byte[] lastTrackInfo = new byte[7] { 1, 1, 1, 0, 0, 0, 0 };
@@ -168,8 +168,7 @@ namespace imBMW.Features.Multimedia
 
                     try
                     {
-                        var filesOnDisk = (string[])Data[DiskNumber.ToString()];
-                        CurrentTrack = new TrackInfo(filesOnDisk[TrackNumber - 1]);
+                        CurrentTrack = new TrackInfo(DiskNumber, TrackNumber);
                     }
                     catch (Exception ex)
                     {
@@ -204,13 +203,6 @@ namespace imBMW.Features.Multimedia
             {
                 Logger.Log(LogPriority.Warning, "Storage is not formatted. " + "Format on PC with FAT32/FAT16 first!");
             }
-
-            //playerThread = new Thread(() =>
-            //{
-            //    PlayDirect();
-            //});
-            //playerThread.Priority = ThreadPriority.Highest;
-            //playerThread.Start();
         }
 
         public override void Play()
@@ -233,7 +225,6 @@ namespace imBMW.Features.Multimedia
         public override void Pause()
         {
             base.Pause();
-            //playerThread.Abort();
         }
 
         public override void Next()
@@ -250,29 +241,28 @@ namespace imBMW.Features.Multimedia
                 changingHistory.Add(new byte[2] {DiskNumber, TrackNumber});
 
                 Random r = new Random();
-                string[] filesOnDisk;
+                byte filesOnDisk;
                 if (IsRandom)
                 {
                     do
                     {
                         DiskNumber = (byte) (r.Next(6) + 1);
-                        filesOnDisk = (string[]) Data[DiskNumber.ToString()];
-                    } while (filesOnDisk.Length == 0);
-                    TrackNumber = (byte) (r.Next(filesOnDisk.Length) + 1);
+                        filesOnDisk = (byte) StorageInfo[DiskNumber];
+                    } while (filesOnDisk == 0);
+                    TrackNumber = (byte) (r.Next(filesOnDisk) + 1);
                 }
                 else
                 {
                     do
                     {
                         //DiskNumber = (byte) (DiskNumber == 6 ? 0 : ++DiskNumber);
-                        filesOnDisk = (string[]) Data[DiskNumber.ToString()];
-                    } while (filesOnDisk.Length == 0);
-                    TrackNumber = (byte)(r.Next(filesOnDisk.Length) + 1);
+                        filesOnDisk = (byte)StorageInfo[DiskNumber];
+                    } while (filesOnDisk == 0);
+                    TrackNumber = (byte)(r.Next(filesOnDisk) + 1);
                 }
             }
 
-            CurrentPosition = 0;
-            ChangeTrack = true;
+            
             OnTrackChanged();
         }
 
@@ -290,25 +280,17 @@ namespace imBMW.Features.Multimedia
                 var history = (byte[])changingHistory[changingHistory.Count - changingHistoryPreviousPointer - 1];
                 DiskNumber = history[0];
                 TrackNumber = history[1];
-                CurrentPosition = 0;
-                ChangeTrack = true;
                 OnTrackChanged();
             }
         }
 
         protected override void OnTrackChanged()
         {
-            try
-            {
-                var filesOnDisk = (string[])Data[DiskNumber.ToString()];
-                CurrentTrack = new TrackInfo(filesOnDisk[TrackNumber - 1]);
-            }
-            catch (Exception ex)
-            {
-                DiskNumber = TrackNumber = 1;
-                Logger.Error(ex);
-            }
+            var filesOnDisk = (byte)StorageInfo[DiskNumber];
+            CurrentTrack = new TrackInfo(DiskNumber, TrackNumber);
             base.OnTrackChanged();
+            CurrentPosition = 0;
+            ChangeTrack = true;
         }
 
         public override bool RandomToggle()
@@ -357,13 +339,17 @@ namespace imBMW.Features.Multimedia
                 int freeMemotyLoggerCounter = 0;
                 try
                 {
-                    //Debug.Print("Free memory:" + Debug.GC(false) + " before open stream");
                     stream = new FileStream(CurrentTrack.FileName, FileMode.Open, FileAccess.Read);
+                    int id3v2_header_length = 10;
+                    stream.Read(buffer, 0, id3v2_header_length);
+                    int iSize = (int)buffer[6] << 21 | (int)buffer[7] << 14 | (int)buffer[8] << 7 | (int)buffer[9];
+                    Logger.Info("Skip id3 tag bytes: " + iSize);
+                    Logger.Trace("FileName:" + CurrentTrack.FileName + " FileLength:" + stream.Length + " iSize:" + iSize);
+                    CurrentPosition = CurrentPosition > iSize || iSize > stream.Length ? CurrentPosition : iSize;
                     stream.Seek(CurrentPosition, SeekOrigin.Begin);
                     do
                     {
                         size = stream.Read(buffer, 0, buffer.Length);
-                        CurrentPosition += size;
                         //CurrentTrack.Time = GetDecodeTime();
                         //int byteRate = GetByteRate();
                         SendData(buffer);
@@ -380,6 +366,7 @@ namespace imBMW.Features.Multimedia
                         {
                             break;
                         }
+                        CurrentPosition += size;
                     } while (size > 0);
                 }
                 catch (Exception ex)

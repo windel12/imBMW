@@ -36,6 +36,16 @@ namespace imBMW.Tools
             }
         }
 
+        public static void Trace(string message, string priorityTitle = null)
+        {
+            Log(LogPriority.Trace, message, priorityTitle);
+        }
+
+        public static void Trace(iBus.Message message, string priorityTitle = null)
+        {
+            Log(LogPriority.Trace, message.ToPrettyString(true), priorityTitle);
+        }
+
         public static void Info(string message, string priorityTitle = null)
         {
             Log(LogPriority.Info, message, priorityTitle);
