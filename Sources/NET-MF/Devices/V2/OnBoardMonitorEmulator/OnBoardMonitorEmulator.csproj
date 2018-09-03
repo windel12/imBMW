@@ -79,20 +79,84 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="..\..\..\imBMW.Tools\ArrayHelpers.cs">
+      <Link>imBMW.Tools\ArrayHelpers.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Tools\ASCIIEncoding.cs">
+      <Link>imBMW.Tools\ASCIIEncoding.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Tools\DateTimeHelpers.cs">
+      <Link>imBMW.Tools\DateTimeHelpers.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Tools\Enums.cs">
+      <Link>imBMW.Tools\Enums.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Tools\LoggerArgs.cs">
+      <Link>imBMW.Tools\LoggerArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Tools\NumHelpers.cs">
+      <Link>imBMW.Tools\NumHelpers.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Tools\Parse.cs">
+      <Link>imBMW.Tools\Parse.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Tools\StreamHelpers.cs">
+      <Link>imBMW.Tools\StreamHelpers.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Tools\StringHelpers.cs">
+      <Link>imBMW.Tools\StringHelpers.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\imBMW\iBus\DeviceAddress.cs">
-      <Link>DeviceAddress.cs</Link>
+      <Link>imBMW\iBus\DeviceAddress.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\iBus\Devices\BodyModule.cs">
+      <Link>imBMW\iBus\Devices\BodyModule.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\iBus\Devices\InstrumentClusterElectronics.cs">
+      <Link>imBMW\iBus\Devices\InstrumentClusterElectronics.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\iBus\Devices\MultiFunctionSteeringWheel.cs">
+      <Link>imBMW\iBus\Devices\MultiFunctionSteeringWheel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\iBus\InternalMessage.cs">
+      <Link>imBMW\iBus\InternalMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\iBus\ManagerTools.cs">
+      <Link>imBMW\iBus\ManagerTools.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\iBus\Message.cs">
+      <Link>imBMW\iBus\Message.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\iBus\MessageParser.cs">
+      <Link>imBMW\iBus\MessageParser.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\iBus\MessageRegistry.cs">
+      <Link>imBMW\iBus\MessageRegistry.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\Tools\EnumConverter.cs">
+      <Link>imBMW\Tools\EnumConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\Tools\Logger.cs">
+      <Link>imBMW\Tools\Logger.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\Tools\QueueThreadWorker.cs">
+      <Link>imBMW\Tools\QueueThreadWorker.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\Tools\Settings.cs">
+      <Link>imBMW\Tools\Settings.cs</Link>
     </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Debug.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Message.cs" />
+    <Compile Include="imBMW\iBus\Manager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -119,9 +183,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="imBMW.Tools\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

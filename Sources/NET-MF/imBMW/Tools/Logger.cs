@@ -1,7 +1,6 @@
 using System;
-using System.Diagnostics;
-using Microsoft.SPOT;
 using imBMW.iBus;
+using Microsoft.SPOT;
 
 namespace imBMW.Tools
 {
@@ -30,7 +29,7 @@ namespace imBMW.Tools
 
         public static void FreeMemory()
         {
-            if (Debugger.IsAttached)
+            if (System.Diagnostics.Debugger.IsAttached)
             {
                 Debug.Print("Free memory:" + Debug.GC(true));
             }

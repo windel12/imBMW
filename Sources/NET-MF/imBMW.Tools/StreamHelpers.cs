@@ -1,5 +1,3 @@
-using System;
-using Microsoft.SPOT;
 using System.IO;
 using System.Text;
 

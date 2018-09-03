@@ -7,6 +7,7 @@ using imBMW.iBus.Devices.Real;
 using imBMW.Multimedia;
 using GHI.Pins;
 using imBMW.Features.Multimedia;
+using imBMW.iBus;
 
 namespace imBMW.iBus.Devices.Emulators
 {
@@ -25,7 +26,7 @@ namespace imBMW.iBus.Devices.Emulators
 
         #region Messages
 
-        public static Message MessagePollResponse = new Message(DeviceAddress.CDChanger, DeviceAddress.Broadcast, 0x02, 0x00);
+        public static imBMW.iBus. Message MessagePollResponse = new Message(DeviceAddress.CDChanger, DeviceAddress.Broadcast, 0x02, 0x00);
         public static Message MessageAnnounce = new Message(DeviceAddress.CDChanger, DeviceAddress.Broadcast, 0x02, 0x01);
 
         //static Message MessageStoppedDisk1Track1 = new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Stopped D1 T1", 0x39, 0x00, 0x02, 0x00, 0x3F, 0x00, 0x01, 0x01); // try 39 00 0C ?

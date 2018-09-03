@@ -57,7 +57,7 @@ namespace OnBoardMonitorEmulator
         {
             InitializeComponent();
 
-            port = new SerialPort("COM4");
+            port = new SerialPort("COM2");
             port.BaudRate = 9600;
             port.Parity = Parity.Even;
             port.DataBits = 8;
@@ -65,7 +65,11 @@ namespace OnBoardMonitorEmulator
             port.Handshake = Handshake.None;
             port.RtsEnable = true;
 
-            port.Open();
+            Manager.Init(port);
+
+            //port.Open();
+
+            //port.DataReceived += Port_DataReceived;
         }
 
         private void WriteMessage(Message message)
