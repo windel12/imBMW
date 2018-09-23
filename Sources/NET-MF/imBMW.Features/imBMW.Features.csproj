@@ -53,6 +53,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Comfort.cs" />
+    <Compile Include="FeaturesEnumConverter.cs" />
     <Compile Include="Light.cs" />
     <Compile Include="Localizations\EnglishLocalization.cs" />
     <Compile Include="Localizations\Localization.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="Menu\MenuHelpers.cs" />
     <Compile Include="Menu\MenuItem.cs" />
     <Compile Include="Menu\MenuScreen.cs" />
+    <Compile Include="Menu\RadioMenu.cs" />
     <Compile Include="Menu\Screens\BluetoothScreen.cs" />
     <Compile Include="Menu\Screens\BordcomputerScreen.cs" />
     <Compile Include="Menu\Screens\DDEScreen.cs" />
@@ -71,11 +73,15 @@
     <Compile Include="Menu\Screens\SettingsScreen.cs" />
     <Compile Include="Menu\Screens\SpeedLimitScreen.cs" />
     <Compile Include="Multimedia\AudioPlayerBase.cs" />
+    <Compile Include="Multimedia\BluetoothOVC3860.cs" />
     <Compile Include="Multimedia\IAudioPlayer.cs" />
+    <Compile Include="Multimedia\iBus\BordmonitorAUX.cs" />
     <Compile Include="Multimedia\iBus\CDChanger.cs" />
+    <Compile Include="Multimedia\iPodViaHeadset.cs" />
     <Compile Include="Multimedia\MediaEmulator.cs" />
     <Compile Include="Multimedia\Models\ModelHelpers.cs" />
     <Compile Include="Multimedia\Models\TrackInfo.cs" />
+    <Compile Include="Multimedia\MultiplexorTDA7313.cs" />
     <Compile Include="Multimedia\VS1003Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,6 +1,6 @@
 using System;
-using imBMW.iBus;
 using Microsoft.SPOT;
+using imBMW.iBus;
 
 namespace imBMW.Tools
 {

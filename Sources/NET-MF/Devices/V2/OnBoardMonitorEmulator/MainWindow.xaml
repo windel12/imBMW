@@ -11,8 +11,8 @@
         <Button x:Name="Knob2Button" Content="Navi" HorizontalAlignment="Left" Margin="417,267,0,0" VerticalAlignment="Top" Width="90" Height="42" Click="Knob2Button_Click"/>
         <Button x:Name="ModeButton" Content="Mode" HorizontalAlignment="Left" Margin="10,242,0,0" VerticalAlignment="Top" Width="40"/>
         <Button x:Name="SwitchButton" Content="Switch" HorizontalAlignment="Left" Margin="60,242,0,0" VerticalAlignment="Top" Width="40"/>
-        <Button x:Name="PrevButton" Content="&lt;" HorizontalAlignment="Left" Margin="418,217,0,0" VerticalAlignment="Top" Width="40" Click="PrevButton_Click"/>
-        <Button x:Name="NextButton" Content="&gt;" HorizontalAlignment="Left" Margin="468,217,0,0" VerticalAlignment="Top" Width="40" Click="NextButton_Click"/>
+        <Button x:Name="PrevButton" Content="&lt;" HorizontalAlignment="Left" Margin="417,217,0,0" VerticalAlignment="Top" Width="40" Click="PrevButton_Click"/>
+        <Button x:Name="NextButton" Content="&gt;" HorizontalAlignment="Left" Margin="467,217,0,0" VerticalAlignment="Top" Width="40" Click="NextButton_Click"/>
         <Button x:Name="ThirdDiskButton" Content="3" HorizontalAlignment="Left" Margin="10,193,0,0" VerticalAlignment="Top" Width="40"/>
         <Button x:Name="SixDiskButton" Content="6" HorizontalAlignment="Left" Margin="60,193,0,0" VerticalAlignment="Top" Width="40"/>
         <Button x:Name="FourthDiskButton" Content="4" HorizontalAlignment="Left" Margin="60,143,0,0" VerticalAlignment="Top" Width="40"/>
@@ -24,7 +24,7 @@
         <Button x:Name="SelectButton" Content="Select" HorizontalAlignment="Left" Margin="467,193,0,0" VerticalAlignment="Top" Width="40"/>
         <Button x:Name="ArrowsButton" Content="&lt;&gt;" HorizontalAlignment="Left" Margin="417,168,0,0" VerticalAlignment="Top" Width="40"/>
         <Button x:Name="ClockButton" Content="Clock" HorizontalAlignment="Left" Margin="467,168,0,0" VerticalAlignment="Top" Width="40"/>
-        <Button x:Name="PhoneButton" Content="Phone" HorizontalAlignment="Left" Margin="417,143,0,0" VerticalAlignment="Top" Width="90"/>
+        <Button x:Name="PhoneButton" Content="Phone" HorizontalAlignment="Left" Margin="417,143,0,0" VerticalAlignment="Top" Width="90" Click="PhoneButton_Click"/>
         <Button x:Name="EjectButton" Content="Eject" HorizontalAlignment="Left" Margin="462,118,0,0" VerticalAlignment="Top" Width="40"/>
         <Rectangle Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="13" Margin="448,125,0,0" Stroke="Black" VerticalAlignment="Top" Width="10"/>
         <Rectangle Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="13" Margin="433,125,0,0" Stroke="Black" VerticalAlignment="Top" Width="10"/>
@@ -32,6 +32,24 @@
         <Button x:Name="FMButton" Content="FM" HorizontalAlignment="Left" Margin="10,217,0,0" VerticalAlignment="Top" Width="40"/>
         <Button x:Name="AMButton" Content="AM" HorizontalAlignment="Left" Margin="60,217,0,0" VerticalAlignment="Top" Width="40"/>
         <Button x:Name="MenuButton" Content="Menu" HorizontalAlignment="Left" Margin="417,242,0,0" VerticalAlignment="Top" Width="90" Click="MenuButton_Click"/>
+        <TextBlock x:Name="index1"  HorizontalAlignment="Left" Margin="124,180,0,0" TextWrapping="Wrap" Text="P1: CD 1" VerticalAlignment="Top" Mouse.MouseDown="index_MouseDown"/>
+        <TextBlock x:Name="index2"  HorizontalAlignment="Left" Margin="124,201,0,0" TextWrapping="Wrap" Text="P2: CD 2" VerticalAlignment="Top" Mouse.MouseDown="index_MouseDown"/>
+        <TextBlock x:Name="index3"  HorizontalAlignment="Left" Margin="124,222,0,0" TextWrapping="Wrap" Text="P3: CD 3" VerticalAlignment="Top" Mouse.MouseDown="index_MouseDown"/>
+        <TextBlock x:Name="index4"  HorizontalAlignment="Left" Margin="124,243,0,0" TextWrapping="Wrap" Text="---" VerticalAlignment="Top" Mouse.MouseDown="index_MouseDown"/>
+        <TextBlock x:Name="index5"  HorizontalAlignment="Left" Margin="124,264,0,0" TextWrapping="Wrap" Text="---" VerticalAlignment="Top" Mouse.MouseDown="index_MouseDown"/>
+        <TextBlock x:Name="index6"  HorizontalAlignment="Left" Margin="276,180,0,0" TextWrapping="Wrap" Text="P4: CD 4" VerticalAlignment="Top" Mouse.MouseDown="index_MouseDown"/>
+        <TextBlock x:Name="index7"  HorizontalAlignment="Left" Margin="276,201,0,0" TextWrapping="Wrap" Text="P5: CD 5" VerticalAlignment="Top" Mouse.MouseDown="index_MouseDown"/>
+        <TextBlock x:Name="index8"  HorizontalAlignment="Left" Margin="276,222,0,0" TextWrapping="Wrap" Text="P6: CD 6" VerticalAlignment="Top" Mouse.MouseDown="index_MouseDown"/>
+        <TextBlock x:Name="index9"  HorizontalAlignment="Left" Margin="276,244,0,0" TextWrapping="Wrap" Text="---" VerticalAlignment="Top" Mouse.MouseDown="index_MouseDown"/>
+        <TextBlock x:Name="index10" HorizontalAlignment="Left" Margin="276,265,0,0" TextWrapping="Wrap" Text="---" VerticalAlignment="Top" Mouse.MouseDown="index_MouseDown"/>
+
+        <Label x:Name="label0" Content="CD 1-01" HorizontalAlignment="Left" Margin="105,126,0,0" VerticalAlignment="Top" FontSize="20"/>
+        <Label x:Name="label3" Content="T3abc" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="221,140,0,0" Height="28"/>
+        <Label x:Name="label4" Content="T4a" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="221,125,0,0"/>
+        <Label x:Name="label6" Content="T6abcdefghijklmn" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="267,140,0,0" Height="28"/>
+        <Label x:Name="label5" Content="T5abc" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="267,125,0,0"/>
+        <Label x:Name="label1" Content="T1ab" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="371,140,0,0" Height="28"/>
+        <Label x:Name="label2" Content="T2a" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="371,125,0,0"/>
 
     </Grid>
 </Window>

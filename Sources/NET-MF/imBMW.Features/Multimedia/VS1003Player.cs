@@ -2,7 +2,6 @@ using System;
 using Microsoft.SPOT;
 using imBMW.Multimedia;
 using imBMW.Features.Menu;
-using GHI.IO.Storage;
 using System.IO;
 using Microsoft.SPOT.Hardware;
 using Microsoft.SPOT.IO;
@@ -14,6 +13,7 @@ using imBMW.Tools;
 using System.Diagnostics;
 using imBMW.iBus.Devices.Real;
 using imBMW.Features.Multimedia.Models;
+using ThreadState = System.Threading.ThreadState;
 
 namespace imBMW.Features.Multimedia
 {

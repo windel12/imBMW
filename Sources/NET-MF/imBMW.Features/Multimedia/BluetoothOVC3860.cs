@@ -90,7 +90,7 @@ namespace imBMW.Multimedia
 
             queue = new QueueThreadWorker(ProcessSendCommand);
 
-            this.port = new SerialInterruptPort(new SerialPortConfiguration(port, BaudRate.Baudrate115200), Cpu.Pin.GPIO_NONE, 0, 16, 10);
+            this.port = new SerialInterruptPort(new SerialPortConfiguration(port, (int)BaudRate.Baudrate115200), Cpu.Pin.GPIO_NONE, 0, 16, 10);
             this.port.DataReceived += port_DataReceived;
 
             if (contactsPath != null)

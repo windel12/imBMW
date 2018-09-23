@@ -79,6 +79,90 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="..\..\..\imBMW.Features\Comfort.cs">
+      <Link>imBMW.Features\Comfort.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Light.cs">
+      <Link>imBMW.Features\Light.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Localizations\EnglishLocalization.cs">
+      <Link>imBMW.Features\Localizations\EnglishLocalization.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Localizations\Localization.cs">
+      <Link>imBMW.Features\Localizations\Localization.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Localizations\RadioLocalization.cs">
+      <Link>imBMW.Features\Localizations\RadioLocalization.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Localizations\RussianLocalization.cs">
+      <Link>imBMW.Features\Localizations\RussianLocalization.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Menu\BordmonitorMenu.cs">
+      <Link>imBMW.Features\Menu\BordmonitorMenu.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Menu\MenuBase.cs">
+      <Link>imBMW.Features\Menu\MenuBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Menu\MenuHelpers.cs">
+      <Link>imBMW.Features\Menu\MenuHelpers.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Menu\MenuItem.cs">
+      <Link>imBMW.Features\Menu\MenuItem.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Menu\MenuScreen.cs">
+      <Link>imBMW.Features\Menu\MenuScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Menu\RadioMenu.cs">
+      <Link>imBMW.Features\Menu\RadioMenu.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Menu\Screens\AuxilaryHeaterScreen.cs">
+      <Link>imBMW.Features\Menu\Screens\AuxilaryHeaterScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Menu\Screens\BluetoothScreen.cs">
+      <Link>imBMW.Features\Menu\Screens\BluetoothScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Menu\Screens\BordcomputerScreen.cs">
+      <Link>imBMW.Features\Menu\Screens\BordcomputerScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Menu\Screens\DDEScreen.cs">
+      <Link>imBMW.Features\Menu\Screens\DDEScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Menu\Screens\HomeScreen.cs">
+      <Link>imBMW.Features\Menu\Screens\HomeScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Menu\Screens\SettingsScreen.cs">
+      <Link>imBMW.Features\Menu\Screens\SettingsScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Menu\Screens\SpeedLimitScreen.cs">
+      <Link>imBMW.Features\Menu\Screens\SpeedLimitScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Multimedia\AudioPlayerBase.cs">
+      <Link>imBMW.Features\Multimedia\AudioPlayerBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Multimedia\IAudioPlayer.cs">
+      <Link>imBMW.Features\Multimedia\IAudioPlayer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Multimedia\iBus\BordmonitorAUX.cs">
+      <Link>imBMW.Features\Multimedia\iBus\BordmonitorAUX.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Multimedia\iBus\CDChanger.cs">
+      <Link>imBMW.Features\Multimedia\iBus\CDChanger.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Multimedia\MediaEmulator.cs">
+      <Link>imBMW.Features\Multimedia\MediaEmulator.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Multimedia\Models\ModelHelpers.cs">
+      <Link>imBMW.Features\Multimedia\Models\ModelHelpers.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Multimedia\Models\TrackInfo.cs">
+      <Link>imBMW.Features\Multimedia\Models\TrackInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Multimedia\MultiplexorTDA7313.cs">
+      <Link>imBMW.Features\Multimedia\MultiplexorTDA7313.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Multimedia\VS1003Player.cs">
+      <Link>imBMW.Features\Multimedia\VS1003Player.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\imBMW.Tools\ArrayHelpers.cs">
       <Link>imBMW.Tools\ArrayHelpers.cs</Link>
     </Compile>
@@ -121,6 +205,9 @@
     <Compile Include="..\..\..\imBMW\iBus\InternalMessage.cs">
       <Link>imBMW\iBus\InternalMessage.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\imBMW\iBus\Manager.cs">
+      <Link>imBMW\iBus\Manager.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\imBMW\iBus\ManagerTools.cs">
       <Link>imBMW\iBus\ManagerTools.cs</Link>
     </Compile>
@@ -145,18 +232,55 @@
     <Compile Include="..\..\..\imBMW\Tools\Settings.cs">
       <Link>imBMW\Tools\Settings.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\imBMW\iBus\Devices\Bordmonitor.cs">
+      <Link>imBMW\iBus\Devices\Bordmonitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\iBus\Devices\Immobiliser.cs">
+      <Link>imBMW\iBus\Devices\Immobiliser.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\iBus\Devices\LightControlModule.cs">
+      <Link>imBMW\iBus\Devices\LightControlModule.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\iBus\Devices\NavigationModule.cs">
+      <Link>imBMW\iBus\Devices\NavigationModule.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\iBus\Devices\Radio.cs">
+      <Link>imBMW\iBus\Devices\Radio.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\IO\ISerialPort.cs">
+      <Link>imBMW\IO\ISerialPort.cs</Link>
+    </Compile>
+    <Compile Include="..\Hardware\Pin.cs">
+      <Link>imBMW.Devices.V2\Hardware\Pin.cs</Link>
+    </Compile>
+    <Compile Include="..\Launcher.cs">
+      <Link>imBMW.Devices.V2\Launcher.cs</Link>
+    </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Debug.cs" />
+    <Compile Include="GHI\IO\Storage\SDCard.cs" />
+    <Compile Include="GHI\Pins\FEZPandaIII.cs" />
+    <Compile Include="imBMW\iBus\Devices\RadioEmulator.cs" />
+    <Compile Include="imBMW\IO\Serial.cs" />
+    <Compile Include="imBMW\IO\SerialDataReceivedEventArgs.cs" />
+    <Compile Include="imBMW\IO\SerialPortTH3122.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="imBMW\iBus\Manager.cs" />
+    <Compile Include="Microsoft.SPOT\Debug.cs" />
+    <Compile Include="Microsoft.SPOT\Hardware\Cpu.cs" />
+    <Compile Include="Microsoft.SPOT\Hardware\InputPort.cs" />
+    <Compile Include="Microsoft.SPOT\Hardware\InterruptPort.cs" />
+    <Compile Include="Microsoft.SPOT\Hardware\NativeEventDispatcher.cs" />
+    <Compile Include="Microsoft.SPOT\Hardware\OutputPort.cs" />
+    <Compile Include="Microsoft.SPOT\Hardware\Port.cs" />
+    <Compile Include="Microsoft.SPOT\Hardware\SPI.cs" />
+    <Compile Include="Microsoft.SPOT\IO\VolumeInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -184,6 +308,26 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <Content Include="SDC\1\1abcdefghijklmno - 1abcdefghijklmno.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SDC\2\2saifpasjfp[ajs - 2aspiojfopiasnhfioa.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SDC\3\3kisafjhiopasjfioaifso - 3apsjfipasjifjhasiofha.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SDC\4\4abcdefghijklmno - 4abcdefghijklmno.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SDC\5\5abcdefghijklmno - 5abcdefghijklmno.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SDC\6\6abcdefghijklmno - 6abcdefghijklmno.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
