@@ -27,6 +27,12 @@ namespace imBMW.iBus
         {
         }
 
+        public Message(DeviceAddress source, DeviceAddress destination, string description, byte[] data, params byte[] additionalData)
+            : this(source, destination, description, data.Combine(additionalData))
+        {
+            
+        }
+
         public Message(DeviceAddress source, DeviceAddress destination, string description, params byte[] data)
         {
             if (source == DeviceAddress.Unset || source == DeviceAddress.Unknown)

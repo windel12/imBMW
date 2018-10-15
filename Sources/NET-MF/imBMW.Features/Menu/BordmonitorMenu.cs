@@ -164,16 +164,6 @@ namespace imBMW.Features.Menu
             //disableRadioMenu = true;
         }
 
-        public override void UpdateScreen(/*MenuScreenUpdateEventArgs args*/)
-        {
-            if (IsScreenSwitched)
-            {
-                return;
-            }
-
-            base.UpdateScreen(/*args*/);
-        }
-
         void Radio_OnOffChanged(bool turnedOn)
         {
             if (turnedOn)
@@ -301,7 +291,7 @@ namespace imBMW.Features.Menu
             if (IsEnabled)
             {
                 // item click
-                if (m.Data.Length == 4 && m.Data.StartsWith(0x31, 0x60, 0x00) && m.Data[3] <= 9)
+                if (m.Data.Length == 4 && m.Data.StartsWith(Bordmonitor.DataItemClicked) && m.Data[3] <= 9)
                 {
                     var index = GetItemIndex(m.Data[3], true);
                     m.ReceiverDescription = "Screen item click #" + index;
@@ -347,31 +337,48 @@ namespace imBMW.Features.Menu
             }
         }
 
-        bool isDrawing;
+        bool isHeaderDrawing;
+        bool isBodyDrawing;
         Message lastTitle;
 
-        protected override void DrawScreen(/*MenuScreenUpdateEventArgs args*/)
+        protected override void DrawHeader()
         {
-            if (isDrawing || !mediaEmulator.IsEnabled)
+            if (isHeaderDrawing || !mediaEmulator.IsEnabled)
             {
                 return; // TODO test
             }
             lock (drawLock)
             {
-                isDrawing = true;
-                skipRefreshScreen = true;
-                skipClearTillRefresh = true; // TODO test no screen items lost
-                base.DrawScreen(/*args*/);
+                isHeaderDrawing = true;
+                base.DrawHeader();
 
-                var messages = new Message[FastMenuDrawing ? 4+3 : 13+3];
+                var messages = new Message[5];
                 var n = 0;
+                messages[n++] = Bordmonitor.ShowText(CurrentScreen.Title ?? String.Empty, BordmonitorFields.Title, 0, false, false);
                 messages[n++] = Bordmonitor.ShowText(CurrentScreen.Status ?? String.Empty, BordmonitorFields.Status, 0, false, false);
                 messages[n++] = Bordmonitor.ShowText(CurrentScreen.T1Field ?? String.Empty, BordmonitorFields.T1, 0, false, false);
                 messages[n++] = Bordmonitor.ShowText(CurrentScreen.T3Field ?? String.Empty, BordmonitorFields.T3, 0, false, false);
                 messages[n++] = Bordmonitor.ShowText(CurrentScreen.T5Field ?? String.Empty, BordmonitorFields.T5, 0, false, false);
+                
+                Manager.EnqueueMessage(messages);
+                isHeaderDrawing = false;
+            }
+        }
 
-                lastTitle = Bordmonitor.ShowText(CurrentScreen.Title ?? String.Empty, BordmonitorFields.Title, 0, false, false);
-                messages[n++] = lastTitle;
+        protected override void DrawBody()
+        {
+            if (isBodyDrawing || !mediaEmulator.IsEnabled)
+            {
+                return; // TODO test
+            }
+            lock (drawLock)
+            {
+                isBodyDrawing = true;
+                base.DrawBody();
+
+                var messages = new Message[FastMenuDrawing ? 2 : 11];
+                var n = 0;
+
                 byte[] itemsBytes = null;
                 for (byte i = 0; i < 10; i++)
                 {
@@ -416,10 +423,9 @@ namespace imBMW.Features.Menu
                     messages[n++] = new Message(DeviceAddress.Radio, DeviceAddress.GraphicsNavigationDriver, "Fill screen items", itemsBytes);
                 }
                 messages[n++] = Bordmonitor.MessageRefreshScreen;
-                skipRefreshScreen = true;
-                skipClearTillRefresh = true;
+
                 Manager.EnqueueMessage(messages);
-                isDrawing = false;
+                isBodyDrawing = false;
             }
         }
 

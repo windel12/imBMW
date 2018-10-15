@@ -17,6 +17,7 @@ using imBMW.iBus;
 using Microsoft.SPOT.Hardware;
 using imBMW.Devices.V2;
 using imBMW.iBus.Devices.Real;
+using OnBoardMonitorEmulator.DevicesEmulation;
 
 namespace OnBoardMonitorEmulator
 {
@@ -62,12 +63,11 @@ namespace OnBoardMonitorEmulator
             InitializeComponent();
 
             //port = new SerialPortTH3122("COM1", Cpu.Pin.GPIO_NONE);
+            RadioEmulator.Init();
             Launcher.Launch(Launcher.LaunchMode.WPF);
-
             Bordmonitor.TextReceived += Bordmonitor_TextReceived;
 
-
-            //port = new SerialPort("COM4");
+            //port = new SerialPort("COM1");
             //port.BaudRate = 9600;
             //port.Parity = Parity.Even;
             //port.DataBits = 8;

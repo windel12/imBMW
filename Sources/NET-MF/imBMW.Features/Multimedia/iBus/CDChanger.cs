@@ -73,12 +73,7 @@ namespace imBMW.iBus.Devices.Emulators
         //public static byte[] DataNextDisk = new byte[] { 0x38, 0x05, 0x00 };
         //public static byte[] DataPrevDisk = new byte[] { 0x38, 0x05, 0x01 };
 
-        public static byte[] DataSelectDisk1 = new byte[] { 0x38, 0x06, 0x01 };
-        public static byte[] DataSelectDisk2 = new byte[] { 0x38, 0x06, 0x02 };
-        public static byte[] DataSelectDisk3 = new byte[] { 0x38, 0x06, 0x03 };
-        public static byte[] DataSelectDisk4 = new byte[] { 0x38, 0x06, 0x04 };
-        public static byte[] DataSelectDisk5 = new byte[] { 0x38, 0x06, 0x05 };
-        public static byte[] DataSelectDisk6 = new byte[] { 0x38, 0x06, 0x06 };
+        public static byte[] GetDataSelectDisk(byte diskNumber) => new byte[] { 0x38, 0x06, diskNumber };
 
         public static byte[] DataScanPlaylistOff = new byte[] { 0x38, 0x07, 0x00 };
         public static byte[] DataScanPlaylistOn = new byte[] { 0x38, 0x07, 0x01 };
@@ -267,7 +262,7 @@ namespace imBMW.iBus.Devices.Emulators
                 {
                     Manager.EnqueueMessage(StatusStopped(Player.DiskNumber, Player.TrackNumber));
                 }
-                m.ReceiverDescription = "CD status request";
+                //m.ReceiverDescription = "CD status request";
             }
             else if (m.Data.Compare(DataScanPlaylistOff) || m.Data.Compare(DataScanPlaylistOn))
             {

@@ -91,7 +91,7 @@ namespace imBMW.Features.Menu
                     return;
                 }
                 title = value;
-                OnUpdated(MenuScreenUpdateReason.Refresh);
+                OnUpdateHeader(MenuScreenUpdateReason.Refresh);
             }
         }
 
@@ -112,7 +112,7 @@ namespace imBMW.Features.Menu
                     return;
                 }
                 status = value;
-                OnUpdated(MenuScreenUpdateReason.StatusChanged);
+                OnUpdateHeader(MenuScreenUpdateReason.StatusChanged);
             }
         }
 
@@ -176,7 +176,7 @@ namespace imBMW.Features.Menu
             }
             menuItem.Changed += menuItem_Changed;
             menuItem.Clicked += menuItem_Clicked;
-            OnUpdated(MenuScreenUpdateReason.Refresh);
+            OnUpdateBody(MenuScreenUpdateReason.Refresh);
         }
 
         public void ClearItems()
@@ -189,7 +189,7 @@ namespace imBMW.Features.Menu
                 }
             }
             Items.Clear();
-            OnUpdated(MenuScreenUpdateReason.Refresh);
+            OnUpdateHeader(MenuScreenUpdateReason.Refresh);
         }
 
         public virtual bool OnNavigatedTo(MenuBase menu)
@@ -248,7 +248,7 @@ namespace imBMW.Features.Menu
 
         public void Refresh()
         {
-            OnUpdated(MenuScreenUpdateReason.Refresh);
+            OnUpdateBody(MenuScreenUpdateReason.Refresh);
         }
 
         /// <summary>
@@ -283,7 +283,9 @@ namespace imBMW.Features.Menu
 
         public event MenuScreenItemEventHandler ItemClicked;
 
-        public event MenuScreenUpdateEventHandler Updated;
+        public event MenuScreenUpdateEventHandler UpdateHeader;
+
+        public event MenuScreenUpdateEventHandler UpdateBody;
 
         public event MenuScreenEventHandler NavigatedTo;
 
@@ -306,16 +308,29 @@ namespace imBMW.Features.Menu
 
         protected void menuItem_Changed(MenuItem item)
         {
-            OnUpdated(MenuScreenUpdateReason.ItemChanged, item);
+            OnUpdateBody(MenuScreenUpdateReason.ItemChanged, item);
         }
 
-        protected void OnUpdated(MenuScreenUpdateReason reason, object item = null)
+        protected void OnUpdateHeader(MenuScreenUpdateReason reason, object item = null)
         {
             if (updateSuspended)
             {
                 return;
             }
-            var e = Updated;
+            var e = UpdateHeader;
+            if (e != null)
+            {
+                e(this, new MenuScreenUpdateEventArgs(reason, item));
+            }
+        }
+
+        protected void OnUpdateBody(MenuScreenUpdateReason reason, object item = null)
+        {
+            if (updateSuspended)
+            {
+                return;
+            }
+            var e = UpdateBody;
             if (e != null)
             {
                 e(this, new MenuScreenUpdateEventArgs(reason, item));

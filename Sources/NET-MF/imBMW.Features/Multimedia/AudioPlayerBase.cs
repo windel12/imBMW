@@ -15,9 +15,9 @@ namespace imBMW.Multimedia
         TrackInfo nowPlaying;
         protected bool isPlaying;
 
-        public byte TrackNumber { get; set; }
-        public byte DiskNumber { get; set; }
-        public bool IsRandom { get; set; }
+        public byte TrackNumber { get; set; } = 1;
+        public byte DiskNumber { get; set; } = 1;
+        public bool IsRandom { get; set; } = true;
 
         public virtual void Play()
         {

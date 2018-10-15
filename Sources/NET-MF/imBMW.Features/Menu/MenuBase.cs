@@ -171,7 +171,15 @@ namespace imBMW.Features.Menu
 
         #region Drawing members
 
-        protected virtual void DrawScreen(/*MenuScreenUpdateEventArgs args*/) { }
+        protected virtual void DrawScreen( /*MenuScreenUpdateEventArgs args*/)
+        {
+            DrawHeader();
+            DrawBody();
+        }
+
+        protected virtual void DrawHeader() { }
+
+        protected virtual void DrawBody() { }
 
         protected virtual void ScreenSuspend()
         {
@@ -183,20 +191,30 @@ namespace imBMW.Features.Menu
             ScreenNavigatedTo(CurrentScreen);
         }
 
-        public virtual void UpdateScreen(/*MenuScreenUpdateEventArgs args*/)
+        public virtual void UpdateHeader(/*MenuScreenUpdateEventArgs args*/)
         {
             if (!IsEnabled)
             {
                 return;
             }
-            DrawScreen(/*args*/);
+            DrawHeader(/*args*/);
+        }
+
+        public virtual void UpdateBody(/*MenuScreenUpdateEventArgs args*/)
+        {
+            if (!IsEnabled)
+            {
+                return;
+            }
+            DrawBody(/*args*/);
         }
 
         public virtual void UpdateScreenWitDelay(int delayTime = 1000)
         {
             delayTimeout = new Timer(delegate
             {
-                UpdateScreen();
+                UpdateHeader();
+                UpdateBody();
                 if (delayTimeout != null)
                 {
                     delayTimeout.Dispose();
@@ -205,9 +223,14 @@ namespace imBMW.Features.Menu
             }, null, delayTime, 0);
         }
 
-        void currentScreen_Updated(MenuScreen screen, MenuScreenUpdateEventArgs args)
+        void currentScreen_UpdateHeader(MenuScreen screen, MenuScreenUpdateEventArgs args)
         {
-            UpdateScreen(/*args*/);
+            UpdateHeader();
+        }
+
+        void currentScreen_UpdateBody(MenuScreen screen, MenuScreenUpdateEventArgs args)
+        {
+            UpdateBody();
         }
 
         #endregion
@@ -223,7 +246,8 @@ namespace imBMW.Features.Menu
                 {
                     if (value)
                     {
-                        UpdateScreen();
+                        UpdateHeader();
+                        UpdateBody();
                     }
                     return;
                 }
@@ -295,7 +319,8 @@ namespace imBMW.Features.Menu
                 ScreenNavigatedFrom(currentScreen);
                 currentScreen = value;
                 ScreenNavigatedTo(currentScreen);
-                //UpdateScreen(MenuScreenUpdateReason.Navigation);
+                UpdateHeader();
+                UpdateBody(/*MenuScreenUpdateReason.Navigation*/);
             }
         }
 
@@ -307,7 +332,8 @@ namespace imBMW.Features.Menu
             }
 
             screen.ItemClicked += currentScreen_ItemClicked;
-            screen.Updated += currentScreen_Updated;
+            screen.UpdateHeader += currentScreen_UpdateHeader;
+            screen.UpdateBody += currentScreen_UpdateBody;
         }
 
         protected virtual void ScreenNavigatedFrom(MenuScreen screen)
@@ -320,7 +346,8 @@ namespace imBMW.Features.Menu
             screen.OnNavigatedFrom(this);
 
             screen.ItemClicked -= currentScreen_ItemClicked;
-            screen.Updated -= currentScreen_Updated;
+            screen.UpdateHeader -= currentScreen_UpdateHeader;
+            screen.UpdateBody -= currentScreen_UpdateBody;
         }
 
         void currentScreen_ItemClicked(MenuScreen screen, MenuItem item)
@@ -336,8 +363,11 @@ namespace imBMW.Features.Menu
                 case MenuItemAction.GoHomeScreen:
                     NavigateHome();
                     break;
+                case MenuItemAction.Refresh:
+                    UpdateHeader();
+                    UpdateBody();
+                    break;
             }
-            UpdateScreen();
         }
 
         #endregion

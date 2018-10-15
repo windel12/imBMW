@@ -12,13 +12,19 @@ namespace SongsNameConverter
     {
         static void Main(string[] args)
         {
+            string path = "";
+            //args = new string[1] {"D:\\Music\\Разное"};
             if (args.Length == 0)
             {
-                Console.WriteLine("Please, define path where you songs stored. Press any key to exit.");
-                Console.ReadLine();
-                return;
+                //Console.WriteLine("Please, define path where you songs stored. Press any key to exit.");
+                //Console.ReadLine();
+                //return;
+                path = Environment.CurrentDirectory;
             }
-            var path = args[0];
+            else
+            {
+                path = args[0];
+            }
             int errorsCount = 0;
             int exceptionCount = 0;
             var mp3files = Directory.EnumerateFiles(path, "*.mp3", SearchOption.AllDirectories);

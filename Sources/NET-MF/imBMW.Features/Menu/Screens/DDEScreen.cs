@@ -45,7 +45,8 @@ namespace imBMW.Features.Menu.Screens
                 refreshRate = 1000;
                 refreshTimer = new Timer(delegate
                 {
-                    OnUpdated(MenuScreenUpdateReason.Refresh);
+                    OnUpdateHeader(MenuScreenUpdateReason.Refresh);
+                    OnUpdateBody(MenuScreenUpdateReason.Refresh);
                 }, null, 500, refreshRate);
                 return true;
             }
@@ -75,7 +76,7 @@ namespace imBMW.Features.Menu.Screens
             }
             refreshTimer = new Timer(delegate
             {
-                OnUpdated(MenuScreenUpdateReason.Refresh);
+                OnUpdateBody(MenuScreenUpdateReason.Refresh);
             }, null, 0, refreshRate);
         }
 

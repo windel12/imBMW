@@ -78,9 +78,6 @@ namespace imBMW.Features.Multimedia
 
         public static int FileNameOffset = 6;
 
-        public bool IsRandom { get; set; } = true;
-
-        private bool isPlaying;
         public override bool IsPlaying
         {
             get { return isPlaying; }
@@ -98,8 +95,6 @@ namespace imBMW.Features.Multimedia
             get { return new MenuScreen("VS1003Player"); }
         }
 
-        public byte DiskNumber { get; set; } = 1;
-        public byte TrackNumber { get; set; } = 1;
         public int CurrentPosition { get; set; } = 0;
 
         public VS1003Player(Cpu.Pin MP3_DREQ, Cpu.Pin MP3_CS, Cpu.Pin MP3_DCS, Cpu.Pin MP3_RST)

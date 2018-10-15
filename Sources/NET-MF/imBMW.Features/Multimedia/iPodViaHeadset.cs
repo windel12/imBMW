@@ -272,7 +272,7 @@ namespace imBMW.Multimedia
                     menu.AddItem(new MenuItem(i => Localization.Current.PrevTrack, i => Prev()));
                     menu.AddItem(new MenuItem(i => Localization.Current.Settings, MenuItemType.Button, MenuItemAction.GoToScreen) { GoToScreen = settingsScreen });
                     menu.AddBackButton();
-                    menu.Updated += (m, a) => { if (a.Reason == MenuScreenUpdateReason.StatusChanged) { settingsScreen.Status = m.Status; } };
+                    menu.UpdateHeader += (m, a) => { if (a.Reason == MenuScreenUpdateReason.StatusChanged) { settingsScreen.Status = m.Status; } };
                 }
                 return menu;
             }

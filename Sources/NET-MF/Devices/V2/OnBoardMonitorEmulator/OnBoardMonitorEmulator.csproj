@@ -262,7 +262,7 @@
     </Compile>
     <Compile Include="GHI\IO\Storage\SDCard.cs" />
     <Compile Include="GHI\Pins\FEZPandaIII.cs" />
-    <Compile Include="imBMW\iBus\Devices\RadioEmulator.cs" />
+    <Compile Include="DevicesEmulation\RadioEmulator.cs" />
     <Compile Include="imBMW\IO\Serial.cs" />
     <Compile Include="imBMW\IO\SerialDataReceivedEventArgs.cs" />
     <Compile Include="imBMW\IO\SerialPortTH3122.cs" />

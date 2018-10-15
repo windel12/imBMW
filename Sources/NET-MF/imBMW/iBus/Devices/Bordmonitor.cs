@@ -184,6 +184,9 @@ namespace imBMW.iBus.Devices.Real
         public static byte[] DataUpdateScreen = new byte[] { 0xA5, 0x62, 0x01 }; 
         public static byte[] DataAUX = new byte[] { 0x23, 0x62, 0x10, 0x41, 0x55, 0x58, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20 };
 
+        /// <summary>0x31, 0x60, 0x00</summary>
+        public static byte[] DataItemClicked = {0x31, 0x60, 0x00};
+
         public static Tools.NaviVersion NaviVersion { get; set; }
 
         /// <summary> Emulate response from navigation to radio for screen updates. </summary>
@@ -215,7 +218,7 @@ namespace imBMW.iBus.Devices.Real
             if (ae != null && m.Data.Compare(MessageClearScreen.Data))
             {
                 ae();
-                m.ReceiverDescription = "Clear screen";
+                //m.ReceiverDescription = "Clear screen";
                 return;
             }
 
@@ -223,7 +226,7 @@ namespace imBMW.iBus.Devices.Real
             if (ae != null && m.Data.Compare(MessageRefreshScreen.Data))
             {
                 ae();
-                m.ReceiverDescription = "Refresh screen";
+                //m.ReceiverDescription = "Refresh screen";
                 OnScreenUpdated();
                 return;
             }
@@ -238,17 +241,17 @@ namespace imBMW.iBus.Devices.Real
                     {
                         e(a);
                     }
-                    #if NETMF
-                    m.ReceiverDescription = "BM fill items";
-                    #else
-                    var s = "BM fill items";
-                    var items = a.ParseItems();
-                    foreach (var i in items)
-                    {
-                        s += " | " + i.Index.ToHex() + "." + i.Text;
-                    }
-                    m.ReceiverDescription = s;
-                    #endif
+                    //#if NETMF
+                    //m.ReceiverDescription = "BM fill items";
+                    //#else
+                    //var s = "BM fill items";
+                    //var items = a.ParseItems();
+                    //foreach (var i in items)
+                    //{
+                    //    s += " | " + i.Index.ToHex() + "." + i.Text;
+                    //}
+                    //m.ReceiverDescription = s;
+                    //#endif
                     OnScreenUpdated(true);
                 }
                 else if (m.Data.StartsWith(DataUpdateScreen))
@@ -260,11 +263,11 @@ namespace imBMW.iBus.Devices.Real
                         {
                             e(a);
                         }
-                        #if NETMF
-                        m.ReceiverDescription = "BM show status";
-                        #else
-                        m.ReceiverDescription = "BM show status: " + a.Text;
-                        #endif
+                        //#if NETMF
+                        //m.ReceiverDescription = "BM show status";
+                        //#else
+                        //m.ReceiverDescription = "BM show status: " + a.Text;
+                        //#endif
                     }
                     OnScreenUpdated(false);
                 }
@@ -275,11 +278,11 @@ namespace imBMW.iBus.Devices.Real
                     {
                         e(a);
                     }
-                    #if NETMF
-                    m.ReceiverDescription = "BM show title";
-                    #else
-                    m.ReceiverDescription = "BM show title: " + a.Text;
-                    #endif
+                    //#if NETMF
+                    //m.ReceiverDescription = "BM show title";
+                    //#else
+                    //m.ReceiverDescription = "BM show title: " + a.Text;
+                    //#endif
                     OnScreenUpdated();
                 }
             }
@@ -422,9 +425,9 @@ namespace imBMW.iBus.Devices.Real
         public static void PressItem(byte index)
         {
             index &= 0x0F;
-            Manager.EnqueueMessage(new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.Radio, "Press Screen item #" + index, 0x31, 0x60, 0x00, index));
+            Manager.EnqueueMessage(new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.Radio, "Press Screen item #" + index, DataItemClicked, index));
             index += 0x40;
-            Manager.EnqueueMessage(new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.Radio, "Release Screen item #" + index, 0x31, 0x60, 0x00, index));
+            Manager.EnqueueMessage(new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.Radio, "Release Screen item #" + index, DataItemClicked, index));
         }
 
         public static void RefreshScreen()

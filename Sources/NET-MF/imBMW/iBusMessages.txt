@@ -68,6 +68,6 @@ const unsigned char RCL = 0xD4; /*RDS channel list*/
 const unsigned char DD = 0xA0;/*"DIAG data"*/
 const unsigned char CPAT = 0xA2;/*"Current position and time*/
 const unsigned char CL = 0xA4;/*Current location, always 23 bytes, data has 2 byte order number and then ascii: 00 01 4F 55 4C 55 00 == 1st packet, OULU\0*/
-const unsigned char ST = 0xa5; /*Screen text*/
+const unsigned char ST = 0xA5; /*Screen text*/
 const unsigned char TMCSREQ = 0xA7;/*"TMC status request"*/
 const unsigned char NC = 0xAA;/*"Navigation Control"*/

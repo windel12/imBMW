@@ -125,7 +125,7 @@ namespace imBMW.Features.Menu.Screens
                 return false;
             }
             lastUpdated = now;
-            OnUpdated(MenuScreenUpdateReason.Refresh);
+            OnUpdateBody(MenuScreenUpdateReason.Refresh);
             needUpdateVoltage = true;
             return true;
         }
