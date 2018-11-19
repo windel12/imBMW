@@ -54,6 +54,14 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugOnRealDeviceOverFTDI|AnyCPU'">
+    <OutputPath>bin\DebugOnRealDeviceOverFTDI\</OutputPath>
+    <DefineConstants>TRACE;DebugOnRealDeviceOverFTDI;OnBoardMonitorEmulator</DefineConstants>
+    <Prefer32Bit>true</Prefer32Bit>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -115,6 +123,9 @@
     <Compile Include="..\..\..\imBMW.Features\Menu\RadioMenu.cs">
       <Link>imBMW.Features\Menu\RadioMenu.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Menu\Screens\ActivateScreen.cs">
+      <Link>imBMW.Features\Menu\Screens\ActivateScreen.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\imBMW.Features\Menu\Screens\AuxilaryHeaterScreen.cs">
       <Link>imBMW.Features\Menu\Screens\AuxilaryHeaterScreen.cs</Link>
     </Compile>
@@ -172,6 +183,9 @@
     <Compile Include="..\..\..\imBMW.Tools\DateTimeHelpers.cs">
       <Link>imBMW.Tools\DateTimeHelpers.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\imBMW.Tools\Delegates.cs">
+      <Link>imBMW.Tools\Delegates.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\imBMW.Tools\Enums.cs">
       <Link>imBMW.Tools\Enums.cs</Link>
     </Compile>
@@ -189,6 +203,18 @@
     </Compile>
     <Compile Include="..\..\..\imBMW.Tools\StringHelpers.cs">
       <Link>imBMW.Tools\StringHelpers.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\Dbus\DbusManager.cs">
+      <Link>imBMW\DBus\DbusManager.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\Dbus\DBusMessage.cs">
+      <Link>imBMW\DBus\DBusMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\Dbus\DBusMessageParser.cs">
+      <Link>imBMW\DBus\DBusMessageParser.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\Dbus\DS2Message.cs">
+      <Link>imBMW\DBus\DS2Message.cs</Link>
     </Compile>
     <Compile Include="..\..\..\imBMW\iBus\DeviceAddress.cs">
       <Link>imBMW\iBus\DeviceAddress.cs</Link>
@@ -220,6 +246,18 @@
     <Compile Include="..\..\..\imBMW\iBus\MessageRegistry.cs">
       <Link>imBMW\iBus\MessageRegistry.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\imBMW\IO\SerialInterruptPort.cs">
+      <Link>imBMW\IO\SerialInterruptPort.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\IO\SerialInterruptPortBase.cs">
+      <Link>imBMW\IO\SerialInterruptPortBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\IO\SerialPortBase.cs">
+      <Link>imBMW\IO\SerialPortBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\IO\SerialPortConfiguration.cs">
+      <Link>imBMW\IO\SerialPortConfiguration.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\imBMW\Tools\EnumConverter.cs">
       <Link>imBMW\Tools\EnumConverter.cs</Link>
     </Compile>
@@ -250,6 +288,9 @@
     <Compile Include="..\..\..\imBMW\IO\ISerialPort.cs">
       <Link>imBMW\IO\ISerialPort.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\imBMW\Tools\SpinWaitTimer.cs">
+      <Link>imBMW\Tools\SpinWaitTimer.cs</Link>
+    </Compile>
     <Compile Include="..\Hardware\Pin.cs">
       <Link>imBMW.Devices.V2\Hardware\Pin.cs</Link>
     </Compile>
@@ -260,9 +301,13 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DevicesEmulation\InstrumentClusterElectronicsEmulator.cs" />
+    <Compile Include="DevicesEmulation\NavigationModuleEmulator.cs" />
+    <Compile Include="DevicesEmulation\DDEEmulator.cs" />
     <Compile Include="GHI\IO\Storage\SDCard.cs" />
     <Compile Include="GHI\Pins\FEZPandaIII.cs" />
     <Compile Include="DevicesEmulation\RadioEmulator.cs" />
+    <Compile Include="imBMW\IO\BaudRate.cs" />
     <Compile Include="imBMW\IO\Serial.cs" />
     <Compile Include="imBMW\IO\SerialDataReceivedEventArgs.cs" />
     <Compile Include="imBMW\IO\SerialPortTH3122.cs" />
@@ -307,24 +352,53 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Content Include="SDC\1\1abcdefghijklmno - 1abcdefghijklmno.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SDC\2\2saifpasjfp[ajs - 2aspiojfopiasnhfioa.mp3">
+    <Content Include="SDC\2\2apsq3hfqwh09 - 1asfj980sghadgioa.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SDC\3\3kisafjhiopasjfioaifso - 3apsjfipasjifjhasiofha.mp3">
+    <Content Include="SDC\2\2asp[kpoagjipasip - 3asjfoasijfsa.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SDC\4\4abcdefghijklmno - 4abcdefghijklmno.mp3">
+    <Content Include="SDC\2\2ashfiafsahaofissifou - 2hiasfhiahifsafshi.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SDC\5\5abcdefghijklmno - 5abcdefghijklmno.mp3">
+    <Content Include="SDC\3\3poiasfipasfipfsahiafshioasfhi - 2ipasfhipasiphfiahfoai.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SDC\6\6abcdefghijklmno - 6abcdefghijklmno.mp3">
+    <Content Include="SDC\3\3asfhioihsafhiofsafhios- 1aspfjpasifjiasfiap.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SDC\3\3sa3fh98h98asy89sfash8yf8fas8ahsf89hafsh.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SDC\4\4aspfgioq180hq - 3qasfj098ahspf.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SDC\4\4asjf90auf809ah8fs9a - 2a0osfj90aqsf90auf.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SDC\4\4a1sfih0s8afh8as0y8afs8ysaf8as0fafasfasasfsaff0dgi.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SDC\5\584a4b648gf54j6c - 1as89df74a+9s74.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SDC\5\5sau9f0fsau98uf0sa88afsu0sfu80 - 3sa8asd885464684.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SDC\5\5s2ss9ha0h[safoaeffhehwe894e8fwq.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SDC\6\6%27%3bplp%27pkp[k[ - 1,0923uir-f[29fgu.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SDC\6\6afhs8y89hsfa8h9ysf8h9saf8saf9 - 3fasiu99uas0fu980fsuasf09.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SDC\6\62hsfd8h89afs89asf89safsa8fafsh89.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

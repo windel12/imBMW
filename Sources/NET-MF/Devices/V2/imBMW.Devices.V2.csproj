@@ -17,7 +17,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE,MF_FRAMEWORK_VERSION_V4_3,DEBUG_AT_HOME</DefineConstants>
+    <DefineConstants>DEBUG;NETMF,TRACE,MF_FRAMEWORK_VERSION_V4_3</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -50,6 +50,13 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugOnRealDeviceOverFTDI|AnyCPU'">
+    <OutputPath>bin\DebugOnRealDeviceOverFTDI\</OutputPath>
+    <DefineConstants>NETMF;DebugOnRealDeviceOverFTDI,MF_FRAMEWORK_VERSION_V4_3</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>

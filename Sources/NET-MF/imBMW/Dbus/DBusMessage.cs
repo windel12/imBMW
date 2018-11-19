@@ -12,31 +12,39 @@ namespace imBMW.Diagnostics
     {
         byte[] packet;
         byte check;
-        int packetLength;
         string dataString;
 
-        byte formatByte = 0xB8;
+        /// <summary>0xB8</summary>
+        public static byte formatByte = 0xB8;
 
-        static new int PacketLengthMin { get { return 5; } }
-        
-        public DBusMessage(params byte[] data)
-            : this(null, data)
-        { }
+        public static int DBusPacketLengthMin { get { return 5; } }
 
-        public DBusMessage(string description, params byte[] data)
-            : base(DeviceAddress.OBD, DeviceAddress.DDE, description, data)
+        public DBusMessage(DeviceAddress source, DeviceAddress destination, params byte[] data)
+            : base(source, destination, data)
         {
-            //Type          ParameterName           HexValue    Mnemonic
-            //----------------------------------------------------------
-            //HeaderByte    FormatByte              B8          FMT
-            //HeaderByte    TargetByte              12          TGT
-            //HeaderByte    SourceByte              F1          SRC
-            //HeaderByte    LengthByte              ??          LEN         4
-            //ServiceID     ServiceID               2C          DDLI        ||D||
-            //ParameterType LocalIdentifier         10          RLI_        ||A||
-            //ParameterType PID#1 HighByte          OF                      ||T||
-            //ParameterType PID#1 LowByte           10                      ||A||
-            //Checksum      ChecksumByte            ??(7C)      CS
+            //Type          ParameterName                       HexValue    Mnemonic
+            //-------------------------------------------------------------------------------
+            //HeaderByte    FormatByte                          B8          FMT
+            //HeaderByte    TargetByte                          12          TGT
+            //HeaderByte    SourceByte                          F1          SRC
+            //HeaderByte    LengthByte                          ??          LEN         4
+            //ServiceID     dynamicallyDefinedLocalIdentifier   2C          DDLI        ||D||
+            //ParameterType recordLocalIdentifier               10          RLI_        ||A||
+            //ParameterType PID#1 HighByte                      OF                      ||T||
+            //ParameterType PID#1 LowByte                       10                      ||A||
+            //Checksum      ChecksumByte                        ??(7C)      CS
+
+            //Type          ParameterName                       HexValue    Mnemonic
+            //-------------------------------------------------------------------------------
+            //HeaderByte    FormatByte                          B8          FMT
+            //HeaderByte    TargetByte                          F1          TGT
+            //HeaderByte    SourceByte                          12          SRC
+            //HeaderByte    LengthByte                          ??          LEN         4
+            //ServiceID     Positive response message           6C          DDLI        ||D||
+            //ParameterType recordLocalIdentifier               10          RLI_        ||A||
+            //ParameterType PID#1 HighByte                      OF                      ||T||
+            //ParameterType PID#1 LowByte                       10                      ||A||
+            //Checksum      ChecksumByte                        ??(7C)      CS
 
             byte check = 0x00;
             check ^= (byte)formatByte;
@@ -64,31 +72,7 @@ namespace imBMW.Diagnostics
             }
         }
 
-        public new byte CRC
-        {
-            get
-            {
-                return check;
-            }
-            private set
-            {
-                check = value;
-            }
-        }
-
-        public new int PacketLength
-        {
-            get
-            {
-                return packetLength;
-            }
-            private set
-            {
-                packetLength = value;
-            }
-        }
-
-        public new byte[] Packet
+        public override byte[] Packet
         {
             get
             {
@@ -115,65 +99,69 @@ namespace imBMW.Diagnostics
             return new Message(SourceDevice, DestinationDevice, ReceiverDescription, Data);
         }
 
-        public static new DBusMessage TryCreate(byte[] packet, int length = -1)
+        public new static DBusMessage TryCreate(byte[] packet, int length = -1)
         {
             if (length < 0)
             {
                 length = packet.Length;
             }
-            if (!IsValid(packet))
+            if (!IsValid(packet, length))
             {
                 return null;
             }
 
-            return new DBusMessage(packet.SkipAndTake(4, ParseDataLength(packet)));
+            return new DBusMessage((DeviceAddress)packet[2], (DeviceAddress)packet[1], packet.SkipAndTake(4, DBusMessage.ParseDataLength(packet)));
         }
 
-        public static bool IsValid(byte[] packet)
+        protected new static bool IsValid(byte[] packet, int length = -1)
         {
-            return IsValid(packet, (byte)packet.Length);
+            return IsValid(packet, ParsePacketLength, length);
         }
 
-        public static new bool IsValid(byte[] packet, int length)
+        protected new static bool IsValid(byte[] packet, IntFromByteArray packetLengthCallback, int length = -1)
         {
+            if (length < 0)
+            {
+                length = packet.Length;
+            }
             if (length < PacketLengthMin)
             {
                 return false;
             }
 
-            byte packetLength = (byte)ParsePacketLength(packet);
+            int packetLength = packetLengthCallback(packet);
             if (length < packetLength || packetLength < PacketLengthMin)
             {
                 return false;
             }
 
             byte check = 0x00;
-            for (byte i = 0; i < packetLength - 1; i++)
+            for (int i = 0; i < packetLength; i++)
             {
                 check ^= packet[i];
             }
-            return check == packet[packetLength - 1];
+            return check == packet[packetLength];
         }
 
-        public static new bool CanStartWith(byte[] packet, int length = -1)
+        public new static bool CanStartWith(byte[] packet, int length = -1)
         {
             return CanStartWith(packet, ParsePacketLength, length);
         }
 
-        protected static new bool CanStartWith(byte[] packet, IntFromByteArray packetLengthCallback, int length = -1)
+        protected new static bool CanStartWith(byte[] packet, IntFromByteArray packetLengthCallback, int length = -1)
         {
             if (length < 0)
             {
                 length = packet.Length;
             }
 
-            if (length < PacketLengthMin)
+            if (length < DBusPacketLengthMin)
             {
                 return true;
             }
 
             byte packetLength = (byte)(packet[1] + 2);
-            if (packetLength < PacketLengthMin)
+            if (packetLength < DBusPacketLengthMin)
             {
                 return false;
             }
@@ -186,22 +174,22 @@ namespace imBMW.Diagnostics
             return true;
         }
 
-        protected static new int ParsePacketLength(byte[] packet)
+        protected new static int ParsePacketLength(byte[] packet)
         {
-            if (packet.Length < PacketLengthMin)
+            if (packet.Length < DBusPacketLengthMin)
             {
                 return 0;
             }
-            return packet[1];
+            return packet[3] + 4;
         }
 
-        protected static new int ParseDataLength(byte[] packet)
+        protected new static int ParseDataLength(byte[] packet)
         {
-            if (packet.Length < PacketLengthMin)
+            if (packet.Length < DBusPacketLengthMin)
             {
                 return 0;
             }
-            return ParsePacketLength(packet) - 3;
+            return ParsePacketLength(packet) - 4;
         }
     }
 }

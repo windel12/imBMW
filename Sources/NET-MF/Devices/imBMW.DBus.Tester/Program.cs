@@ -2,7 +2,6 @@ using System;
 using System.IO.Ports;
 using System.Threading;
 using GHI.Pins;
-using imBMW.Devices.V2.Hardware;
 using imBMW.Diagnostics;
 using imBMW.iBus;
 using imBMW.Tools;
@@ -20,14 +19,15 @@ namespace imBMW.DBus.Tester
 
         public static void Main()
         {
-            LED = new OutputPort(Pin.LED, false);
-            led4 = new OutputPort(Pin.LED4, false);
+            LED = new OutputPort((Cpu.Pin)78, false);
+            led4 = new OutputPort((Cpu.Pin)73, false);
 
             //KWP2000Init();
-            DBusMessage motor_temperatur = new DBusMessage(0x2C, 0x10, 0x0F, 0x00);
+            DBusMessage motor_temperatur = new DBusMessage(DeviceAddress.OBD, DeviceAddress.DDE, 0x2C, 0x10, 0x0F, 0x00);
             //serial.Write(motor_temperatur.Packet, 0, motor_temperatur.Packet.Length);
 
-            ISerialPort dBusPort = new SerialPortTH3122("COM4", Pin.D_BUS_TH3122SENSTA, false, 9600); // d31, d33
+            ISerialPort dBusPort = new SerialInterruptPort(new SerialPortConfiguration("COM4", 9600, Parity.Even, 8, StopBits.One), Cpu.Pin.GPIO_NONE, 1, 258); // d31, d33
+            dBusPort.AfterWriteDelay = 4;
             DbusManager.Init(dBusPort);
 
             DbusManager.BeforeMessageReceived += Manager_BeforeMessageReceived;
@@ -35,12 +35,12 @@ namespace imBMW.DBus.Tester
             DbusManager.BeforeMessageSent += Manager_BeforeMessageSent;
             DbusManager.AfterMessageSent += Manager_AfterMessageSent;
 
-            bool b = false;
+            bool b = true;
             while (true)
             {
                 if(b)
                     DbusManager.EnqueueMessage(motor_temperatur);
-                Thread.Sleep(5000);
+                Thread.Sleep(500);
             }
         }
 

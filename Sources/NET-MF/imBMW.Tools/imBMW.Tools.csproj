@@ -51,6 +51,12 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugOnRealDeviceOverFTDI|AnyCPU'">
+    <OutputPath>bin\DebugOnRealDeviceOverFTDI\</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="ArrayHelpers.cs" />
     <Compile Include="ASCIIEncoding.cs" />

@@ -157,12 +157,18 @@ namespace imBMW.iBus.Devices.Real
         static readonly Message MessageRequestDate = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Date", 0x41, 0x02, 0x01);
         static readonly Message MessageRequestTemperatureOutside = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Outside temp", 0x41, 0x03, 0x01);
         static readonly Message MessageRequestConsumtion1 = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Consumtion1", 0x41, 0x04, 0x01);
+        static readonly Message MessageResetConsumption1 = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Reset Consumption 1", 0x41, 0x04, 0x10);
         static readonly Message MessageRequestConsumtion2 = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Consumtion2", 0x41, 0x05, 0x01);
+        static readonly Message MessageResetConsumption2 = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Reset Consumption 2", 0x41, 0x05, 0x10);
         static readonly Message MessageRequestRange = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Range", 0x41, 0x06, 0x01);
         static readonly Message MessageRequestDistance = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Distance", 0x41, 0x07, 0x01);
         static readonly Message MessageRequestArrival = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Arrival", 0x41, 0x08, 0x01);
         static readonly Message MessageRequestSpeedLimit = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Speed Limit", 0x41, 0x09, 0x01);
+        static readonly Message MessageSpeedLimitCurrentSpeed = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Speed Limit to Current Speed", 0x41, 0x09, 0x20);
+        static readonly Message MessageSpeedLimitOff = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Speed Limit OFF", 0x41, 0x09, 0x08);
+        static readonly Message MessageSpeedLimitOn = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Speed Limit ON", 0x41, 0x09, 0x04);
         static readonly Message MessageRequestAverageSpeed = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Average Speed", 0x41, 0x0A, 0x01);
+        static readonly Message MessageResetAverageSpeed = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Reset Avgerage Speed", 0x41, 0x0A, 0x10);
         static readonly Message MessageRequestTimer = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Timer", 0x41, 0x0E, 0x01);
 
 
@@ -173,14 +179,6 @@ namespace imBMW.iBus.Devices.Real
         static readonly Message MessageTextAndGong = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Text And Gong", 0x23, 0x62, 0x30, 0x37, 0x05);
         static readonly Message MessageGong1 = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Gong 1", 0x23, 0x62, 0x30, 0x37, 0x08);
         static readonly Message MessageGong2 = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Gong 2", 0x23, 0x62, 0x30, 0x37, 0x10);
-
-        static readonly Message MessageResetConsumption1 = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Reset Consumption 1", 0x41, 0x04, 0x10);
-        static readonly Message MessageResetConsumption2 = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Reset Consumption 2", 0x41, 0x05, 0x10);
-        static readonly Message MessageResetAverageSpeed = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Reset Avgerage Speed", 0x41, 0x0A, 0x10);
-
-        static readonly Message MessageSpeedLimitCurrentSpeed = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Speed Limit to Current Speed", 0x41, 0x09, 0x20);
-        static readonly Message MessageSpeedLimitOff = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Speed Limit OFF", 0x41, 0x09, 0x08);
-        static readonly Message MessageSpeedLimitOn = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Speed Limit ON", 0x41, 0x09, 0x04);
 
         private const int _getDateTimeTimeout = 1000;
 

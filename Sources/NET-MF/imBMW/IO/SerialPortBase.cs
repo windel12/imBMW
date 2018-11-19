@@ -3,6 +3,7 @@ using Microsoft.SPOT;
 using System.Text;
 using System.Threading;
 using System.Runtime.CompilerServices;
+using imBMW.Tools;
 using Microsoft.SPOT.Hardware;
 
 namespace System.IO.Ports
@@ -36,25 +37,40 @@ namespace System.IO.Ports
         protected Thread _writeThread;                // Thread which is sending data out. This is usually a calling thread.
         protected int _writeBufferSize;               // Size of the output buffer, which can be used to insert pauses between some amount of data.
 
+        public int WriteBufferSize
+        {
+            get { return _writeBufferSize; }
+            set { _writeBufferSize = value; }
+        }
+
         protected Thread _readThread;                 // Thread which is reading the data when DataReceived event is being requested. We create and dispose this thread inside the class.
         protected int _readBufferSize;                // Size of the input buffer. The DataReceived event won't fire until this amount of bytes comes in.
 
         protected AutoResetEvent _readToEvent;        // Handles the thread synchronization when both DataReceived event is being requested and user calls ReadTo().
+
+        public static SpinWaitTimer SPIN_WAIT_TIMER;
 
         public SerialPortBase() : this(0, 1) { }
 
         public SerialPortBase(int writeBufferSize, int readBufferSize)
         {
             // some initial parameter checks.
-            if (writeBufferSize < 0) throw new ArgumentOutOfRangeException("writeBufferSize");
-            if (readBufferSize < 1) throw new ArgumentOutOfRangeException("readBuferSize");
+            if (writeBufferSize < 0) throw new ArgumentOutOfRangeException(nameof(writeBufferSize));
+            if (readBufferSize < 1) throw new ArgumentOutOfRangeException(nameof(readBufferSize));
 
             _writeBufferSize = writeBufferSize;
             _readBufferSize = readBufferSize;
 
             _bufferSync = new object();                 // initializing the sync root object
             _incomingBuffer = new byte[_readBufferSize]; // allocating memory for incoming data
+
+            SPIN_WAIT_TIMER = new SpinWaitTimer();
+            SPIN_WAIT_TIMER.Calibrate();
         }
+
+        public abstract bool IsOpen { get; }
+
+        public abstract void Open();
 
         #region Writing
 
@@ -100,13 +116,17 @@ namespace System.IO.Ports
             for (int i = offset; i < offset + length; i += _writeBufferSize)    // and this cycle would not execute.)
             {
                 WriteDirect(data, i, _writeBufferSize);                         // send it out
-                if (AfterWriteDelay > 0) Thread.Sleep(AfterWriteDelay);         // and include pause after chunk
+                if (AfterWriteDelay > 0)
+                    SPIN_WAIT_TIMER.WaitMilliseconds(AfterWriteDelay);
+                //Thread.Sleep(AfterWriteDelay);         // and include pause after chunk
             }
 
             if (modulus > 0)                                                    // If any data left which do not fill whole _writeBuferSize chunk,
             {
                 WriteDirect(data, offset + length, modulus);                    // send it out as well
-                if (AfterWriteDelay > 0) Thread.Sleep(AfterWriteDelay);         // and pause for case consecutive calls to any write method.
+                if (AfterWriteDelay > 0)
+                    SPIN_WAIT_TIMER.WaitMilliseconds(AfterWriteDelay);
+                //Thread.Sleep(AfterWriteDelay);         // and pause for case consecutive calls to any write method.
             }
 
             _writeThread = null;                                                // release current thread so that the _busy signal does not affect external code execution

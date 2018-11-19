@@ -304,5 +304,10 @@ namespace imBMW.Features.Localizations
         {
             get { return "Доп. отопитель"; }
         }
+
+        public override string Activate
+        {
+            get { return "Активировать"; }
+        }
     }
 }

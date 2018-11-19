@@ -21,7 +21,13 @@ namespace System.IO.Ports
 
         int AfterWriteDelay { get; set; }
 
+        int WriteBufferSize { get; set; }
+
         int ReadTimeout { get; set; }
+
+        bool IsOpen { get; }
+
+        void Open();
 
         byte[] ReadAvailable();
 

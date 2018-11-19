@@ -14,7 +14,7 @@ namespace imBMW.iBus
         byte[] data;
         byte check;
 
-        byte[] packet;
+        protected byte[] packet;
         int packetLength;
         string packetDump;
         string dataDump;
@@ -106,7 +106,7 @@ namespace imBMW.iBus
 
         protected delegate int IntFromByteArray(byte[] packet);
 
-        public static bool IsValid(byte[] packet, int length = -1)
+        protected static bool IsValid(byte[] packet, int length = -1)
         {
             return IsValid(packet, ParsePacketLength, length);
         }
@@ -182,7 +182,7 @@ namespace imBMW.iBus
             {
                 return check;
             }
-            private set
+            protected set
             {
                 check = value;
             }
@@ -194,13 +194,13 @@ namespace imBMW.iBus
             {
                 return packetLength;
             }
-            private set
+            protected set
             {
                 packetLength = value;
             }
         }
 
-        public byte[] Packet
+        public virtual byte[] Packet
         {
             get
             {

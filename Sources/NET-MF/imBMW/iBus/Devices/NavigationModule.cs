@@ -5,7 +5,7 @@ namespace imBMW.iBus.Devices
 {
     public static class NavigationModule
     {
-        static Message MessageGetAnalogValues = new Message(DeviceAddress.Diagnostic, DeviceAddress.NavigationEurope, "Get voltage", 0x0B, 0x70);
+        static Message MessageGetAnalogValues = new Message(DeviceAddress.Diagnostic, DeviceAddress.NavigationEurope, "Get voltage", 0x0B);
 
         static double batteryVoltage;
 
@@ -16,8 +16,8 @@ namespace imBMW.iBus.Devices
 
         static void ProcessNaviMessage(Message m)
         {
-            // 7F 21 A0 00 00 00 00 00 00 09 87 00 13 63 00 _35 5B_ 00 04 E3 00 00
-            if (m.Data.Length >= 21 && m.Data[0] == 0xA0) // 0xA0 - DIAG data
+            // 7F 0x15(21) A0 00 00 00 00 00 00 09 87 00 13 63 00 _35 5B_ 00 04 E3 00 00
+            if (m.Data.Length >= 20 && m.Data[0] == 0xA0) // 0xA0 - DIAG data
             {
                 var voltageValue = BitConverter.ToInt16(new byte[2] {m.Data[14], m.Data[13]}, 0);
                 var voltage = Math.Round((float)voltageValue / 10) / 100;

@@ -212,9 +212,9 @@ namespace imBMW.iBus.Devices.Real
         /// </summary>
         public static void Init() { }
 
-        static void ProcessNavGraphicsMessage(Message m)
+        static void ProcessNavGraphicsMessage(Message m) // used for emulator
         {
-            var ae = ScreenCleared; // This is the only usage?
+            var ae = ScreenCleared; // This is the only usage? - no, for emulator
             if (ae != null && m.Data.Compare(MessageClearScreen.Data))
             {
                 ae();
@@ -222,7 +222,7 @@ namespace imBMW.iBus.Devices.Real
                 return;
             }
 
-            ae = ScreenRefreshed; // This is the only usage?
+            ae = ScreenRefreshed; // This is the only usage? - no, for emulator
             if (ae != null && m.Data.Compare(MessageRefreshScreen.Data))
             {
                 ae();
@@ -231,7 +231,7 @@ namespace imBMW.iBus.Devices.Real
                 return;
             }
 
-            var e = TextReceived; // This is the only usage?
+            var e = TextReceived; // This is the only usage? - no, for emulator
             if (e != null || ReplyToScreenUpdates)
             {
                 if (m.Data.StartsWith(DataDrawIndexMk2) || m.Data.StartsWith(DataDrawIndexMk34))

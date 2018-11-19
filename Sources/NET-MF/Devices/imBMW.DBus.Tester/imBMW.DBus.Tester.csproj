@@ -55,6 +55,12 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugOnRealDeviceOverFTDI|AnyCPU'">
+    <OutputPath>bin\DebugOnRealDeviceOverFTDI\</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -81,10 +87,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\imBMW.Diagnostics\imBMW.Diagnostics.csproj">
-      <Project>{CDF5C231-E043-40CF-960B-10AC26355B96}</Project>
-      <Name>imBMW.Diagnostics</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\imBMW.Tools\imBMW.Tools.csproj">
       <Project>{76B622B3-B9D7-41DF-8A7C-627F32AABEB3}</Project>
       <Name>imBMW.Tools</Name>
@@ -92,10 +94,6 @@
     <ProjectReference Include="..\..\imBMW\imBMW.csproj">
       <Project>{1809C7F6-0A9F-412B-A45E-E667996E86A3}</Project>
       <Name>imBMW</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\V2\imBMW.Devices.V2.csproj">
-      <Project>{D12C2EC9-1FC7-4E16-A072-EA344F1BABE6}</Project>
-      <Name>imBMW.Devices.V2</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

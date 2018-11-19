@@ -60,9 +60,11 @@ namespace imBMW.iBus
                     Array.Copy(data, 0, messageBuffer, messageBufferLength, data.Length);
                     messageBufferLength += data.Length;
                 }
-                while (messageBufferLength >= DBusMessage.PacketLengthMin)
+                while (messageBufferLength >= DBusMessage.DBusPacketLengthMin || messageBufferLength >= DS2Message.PacketLengthMin)
                 {
-                    DBusMessage m = DBusMessage.TryCreate(messageBuffer, messageBufferLength);
+                    Message dBusMessage = DBusMessage.TryCreate(messageBuffer, messageBufferLength);
+                    Message ds2Message = DS2Message.TryCreate(messageBuffer, messageBufferLength);
+                    Message m = ds2Message ?? dBusMessage;
                     if (m == null)
                     {
                         if (!DBusMessage.CanStartWith(messageBuffer, messageBufferLength))
@@ -93,7 +95,7 @@ namespace imBMW.iBus
             }
         }
 
-        public static void ProcessMessage(DBusMessage m)
+        public static void ProcessMessage(Message m)
         {
             #if DEBUG
             m.PerformanceInfo.TimeStartedProcessing = DateTime.Now;
@@ -166,7 +168,7 @@ namespace imBMW.iBus
                 return;
             }
 
-            DBusMessage m = (DBusMessage)o;
+            Message m = (Message)o;
 
             #if DEBUG
             m.PerformanceInfo.TimeStartedProcessing = DateTime.Now;
@@ -185,10 +187,14 @@ namespace imBMW.iBus
             }
 
             dBus.Write(m.Packet);
+            if (dBus.IsOpen)
+            {
+                dBus.Flush();
+            }
 
-            #if DEBUG
+#if DEBUG
             m.PerformanceInfo.TimeEndedProcessing = DateTime.Now;
-            #endif
+#endif
 
             e = AfterMessageSent;
             if (e != null)
@@ -203,7 +209,7 @@ namespace imBMW.iBus
             Thread.Sleep(m.AfterSendDelay > 0 ? m.AfterSendDelay : dBus.AfterWriteDelay); // Don't flood dBus
         }
 
-        public static void EnqueueMessage(DBusMessage m)
+        public static void EnqueueMessage(Message m)
         {
             #if DEBUG
             m.PerformanceInfo.TimeEnqueued = DateTime.Now;
@@ -218,7 +224,7 @@ namespace imBMW.iBus
             }
         }
 
-        public static void EnqueueMessage(params DBusMessage[] messages)
+        public static void EnqueueMessage(params Message[] messages)
         {
 #if DEBUG
             var now = DateTime.Now;

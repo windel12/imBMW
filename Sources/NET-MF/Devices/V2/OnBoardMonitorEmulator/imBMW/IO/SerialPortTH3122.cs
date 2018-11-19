@@ -1,72 +1,69 @@
-﻿
+﻿using System;
+using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
-using System.IO.Ports;
 
 namespace System.IO.Ports
 {
-    public class SerialPortTH3122 : ISerialPort
+    public class SerialPortTH3122 : SerialInterruptPort
     {
-        public SerialPortTH3122(String port, Cpu.Pin busy)
-        {   
-        }
-
         private byte[] data;
+        private object _lock = new object();
 
-        public void Write(params byte[] data)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="port"></param>
+        /// <param name="busy"></param>
+        /// <param name="fixParity">Set true if the data is corrupted because of parity bit issue in Cerberus software.</param>
+        public SerialPortTH3122(String port, Cpu.Pin busy, bool fixParity = false, int baudRate = (int)BaudRate.Baudrate9600, int writeBufferSize = 0) :
+            base(new SerialPortConfiguration(port, baudRate, Parity.Even, 8 + (fixParity ? 1 : 0), StopBits.One), busy, writeBufferSize, imBMW.iBus.Message.PacketLengthMax, 50)
         {
-            this.data = data;
+            AfterWriteDelay = 4;
+            data = new byte[0];
+        }
 
-            if (DataReceived != null)
+        public override void Flush()
+        {
+            _port.DiscardOutBuffer();
+        }
+
+        protected override int WriteDirect(byte[] data, int offset, int length)
+        {
+            if (!_port.IsOpen) 
             {
-                DataReceived(this, new SerialDataReceivedEventArgs());
+                //this.data = data;
+                lock (_lock)
+                {
+                    this.data = new byte[length];
+                    Array.Copy(data, offset, this.data, 0, length);
+                    return this.data.Length;
+                }
             }
+            return base.WriteDirect(data, offset, length);
         }
 
-        public void Write(byte[] data, int offset, int length)
+        protected override int ReadDirect(byte[] data, int offset, int length)
         {
-            Write(data);
+            if (!_port.IsOpen)
+            {
+                return this.data.Length;
+            }
+            return _port.Read(data, 0, _port.BytesToRead);
         }
 
-        public void Write(string text)
+        public override byte[] ReadAvailable(int maxCount)
         {
-            
+            if (!_port.IsOpen)
+            {
+                lock (_lock)
+                {
+                    var temp = new byte[this.data.Length];
+                    Array.Copy(this.data, temp, this.data.Length);
+                    this.data = new byte[0];
+                    return temp;
+                }
+            }
+            return base.ReadAvailable(maxCount);
         }
-
-        public void WriteLine(string text)
-        {
-            
-        }
-
-        public int AvailableBytes => data.Length;
-
-        public int AfterWriteDelay { get; set; }
-
-        public int ReadTimeout { get; set; }
-
-        public byte[] ReadAvailable() => data;
-
-        public byte[] ReadAvailable(int maxCount)
-        {
-            return ReadAvailable();
-        }
-
-        public int Read(byte[] buffer, int offset, int count)
-        {
-            return data.Length;
-        }
-
-        public string ReadLine()
-        {
-            return "";
-        }
-
-        public void Flush()
-        {
-            
-        }
-
-        public event SerialDataReceivedEventHandler DataReceived;
-
-        public event BusyChangedEventHandler BusyChanged;
     }
 }

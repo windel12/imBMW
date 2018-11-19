@@ -16,6 +16,8 @@ using System.Windows.Shapes;
 using imBMW.iBus;
 using Microsoft.SPOT.Hardware;
 using imBMW.Devices.V2;
+using imBMW.Features.Menu;
+using imBMW.Features.Menu.Screens;
 using imBMW.iBus.Devices.Real;
 using OnBoardMonitorEmulator.DevicesEmulation;
 
@@ -62,20 +64,16 @@ namespace OnBoardMonitorEmulator
         {
             InitializeComponent();
 
-            //port = new SerialPortTH3122("COM1", Cpu.Pin.GPIO_NONE);
+            InstrumentClusterElectronicsEmulator.Init();
+            NavigationModuleEmulator.Init();
             RadioEmulator.Init();
+            DDEEmulator.Init();
+
             Launcher.Launch(Launcher.LaunchMode.WPF);
             Bordmonitor.TextReceived += Bordmonitor_TextReceived;
 
-            //port = new SerialPort("COM1");
-            //port.BaudRate = 9600;
-            //port.Parity = Parity.Even;
-            //port.DataBits = 8;
-            //port.StopBits = StopBits.One;
-            //port.Handshake = Handshake.None;
-            //port.RtsEnable = true;
-
-            //port.Open();
+            BordmonitorMenu.Instance.CurrentScreen = ActivateScreen.Instance;
+            Launcher.emulator.IsEnabled = true;
         }
 
         private void Bordmonitor_TextReceived(BordmonitorText args)
@@ -111,12 +109,6 @@ namespace OnBoardMonitorEmulator
 
         private void WriteMessage(Message message)
         {
-            //if (!port.IsOpen)
-            //    port.Open();
-
-            //port.Write(message.Packet, 0, message.Packet.Length);
-            //port.Close();
-
             Manager.EnqueueMessage(message);
         }
 
@@ -148,6 +140,10 @@ namespace OnBoardMonitorEmulator
         }
 
         private void MenuButton_Click(object sender, RoutedEventArgs e)
+        {    
+        }
+
+        private void MenuButton_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Broadcast, MenuButonHold);
             WriteMessage(message);

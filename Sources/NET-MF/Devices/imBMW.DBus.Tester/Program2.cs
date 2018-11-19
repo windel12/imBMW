@@ -2,8 +2,6 @@ using System;
 using System.IO.Ports;
 using System.Threading;
 using GHI.Usb.Host;
-using imBMW.Devices.V2.Hardware;
-using imBMW.iBus;
 using imBMW.Tools;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
@@ -32,7 +30,7 @@ namespace imBMW.DBus.Tester
             {
                 if (usbSerialDevice != null)
                 {
-                    DBusMessage test = new DBusMessage(0x2C, 0x10, 0x0F, 0x00);
+                    DBusMessage test = new DBusMessage(iBus.DeviceAddress.OBD, iBus.DeviceAddress.DDE, 0x2C, 0x10, 0x0F, 0x00);
                     usbSerialDevice.Write(test.Packet);
                 }
                 Thread.Sleep(1000);

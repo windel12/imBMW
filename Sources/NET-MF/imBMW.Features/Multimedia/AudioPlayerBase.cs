@@ -17,6 +17,7 @@ namespace imBMW.Multimedia
 
         public byte TrackNumber { get; set; } = 1;
         public byte DiskNumber { get; set; } = 1;
+        public string FileName { get; set; } = "";
         public bool IsRandom { get; set; } = true;
 
         public virtual void Play()

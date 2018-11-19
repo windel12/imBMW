@@ -17,7 +17,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE,NETMF,MF_FRAMEWORK_VERSION_V4_3</DefineConstants>
+    <DefineConstants>DEBUG;NETMF,TRACE,MF_FRAMEWORK_VERSION_V4_3</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -25,7 +25,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE,NETMF,MF_FRAMEWORK_VERSION_V4_3</DefineConstants>
+    <DefineConstants>RELEASE,TRACE,NETMF,MF_FRAMEWORK_VERSION_V4_3</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -54,11 +54,19 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugOnRealDeviceOverFTDI|AnyCPU'">
+    <OutputPath>bin\DebugOnRealDeviceOverFTDI\</OutputPath>
+    <DefineConstants>TRACE,NETMF,MF_FRAMEWORK_VERSION_V4_3,DebugOnRealDeviceOverFTDI</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
     <Compile Include="Dbus\DbusManager.cs" />
     <Compile Include="Dbus\DBusMessage.cs" />
     <Compile Include="Dbus\DBusMessageParser.cs" />
+    <Compile Include="Dbus\DS2Message.cs" />
     <Compile Include="DebuggerBrowsableState.cs" />
     <Compile Include="iBus\DeviceAddress.cs" />
     <Compile Include="iBus\Devices\BodyModule.cs" />
@@ -86,7 +94,6 @@
     <Compile Include="Shields\ShieldBase.cs" />
     <Compile Include="Shields\ShieldManager.cs" />
     <Compile Include="Shields\ShieldPort.cs" />
-    <Compile Include="Shields\Vs1053B.cs" />
     <Compile Include="Tools\FileLogger.cs" />
     <Compile Include="Tools\EnumConverter.cs" />
     <Compile Include="iBus\Manager.cs" />
@@ -97,6 +104,7 @@
     <Compile Include="Tools\Logger.cs" />
     <Compile Include="Tools\QueueThreadWorker.cs" />
     <Compile Include="Tools\Settings.cs" />
+    <Compile Include="Tools\SpinWaitTimer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

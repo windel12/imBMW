@@ -15,7 +15,7 @@ namespace System.IO.Ports
         /// <summary>
         /// The value of input pin when pauding the data output is requested. Default is true, that is, the input is of active high type.
         /// </summary>
-        public bool BusyValue = true;
+        public bool BusyValue;
 
         protected InterruptPort _busy;              // An input port which can be used to pause the sending of data.
 
@@ -30,6 +30,8 @@ namespace System.IO.Ports
         public SerialInterruptPort(SerialPortConfiguration config, Cpu.Pin busySignal, int writeBufferSize, int readBufferSize, int readTimeout = Timeout.Infinite)
             : base(config, writeBufferSize, readBufferSize, readTimeout)
         {
+            BusyValue = true;
+
             if (busySignal == Cpu.Pin.GPIO_NONE)        // user does not want to use the output hardware flow control
                 _busy = null;
             else

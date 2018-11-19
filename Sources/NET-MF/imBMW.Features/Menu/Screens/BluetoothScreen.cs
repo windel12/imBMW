@@ -29,8 +29,6 @@ namespace imBMW.Features.Menu.Screens
             groundAudioRelay = new OutputPort(FEZPandaIII.Gpio.D10, true); // K3 relay
             rightAudioChannelRelay = new OutputPort(FEZPandaIII.Gpio.D11, true); // K4 relay
 
-            FastMenuDrawing = false;
-
             ClearItems();
 
             AddItem(new MenuItem(i => "Источник: " + AudioSource.ToString(), i =>

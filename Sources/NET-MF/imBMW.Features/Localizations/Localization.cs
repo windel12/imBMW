@@ -158,6 +158,8 @@ namespace imBMW.Features.Localizations
 
         public abstract string AuxilaryHeater { get; }
 
+        public abstract string Activate { get; }
+
         /*
         
         public abstract string  { get; }

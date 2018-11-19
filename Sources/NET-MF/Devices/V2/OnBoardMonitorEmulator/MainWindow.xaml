@@ -31,7 +31,7 @@
         <Rectangle Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="13" Margin="418,125,0,0" Stroke="Black" VerticalAlignment="Top" Width="10"/>
         <Button x:Name="FMButton" Content="FM" HorizontalAlignment="Left" Margin="10,217,0,0" VerticalAlignment="Top" Width="40"/>
         <Button x:Name="AMButton" Content="AM" HorizontalAlignment="Left" Margin="60,217,0,0" VerticalAlignment="Top" Width="40"/>
-        <Button x:Name="MenuButton" Content="Menu" HorizontalAlignment="Left" Margin="417,242,0,0" VerticalAlignment="Top" Width="90" Click="MenuButton_Click"/>
+        <Button x:Name="MenuButton" Content="Menu" HorizontalAlignment="Left" Margin="417,242,0,0" VerticalAlignment="Top" Width="90" Click="MenuButton_Click" MouseDoubleClick="MenuButton_MouseDoubleClick"></Button>
         <TextBlock x:Name="index1"  HorizontalAlignment="Left" Margin="124,180,0,0" TextWrapping="Wrap" Text="P1: CD 1" VerticalAlignment="Top" Mouse.MouseDown="index_MouseDown"/>
         <TextBlock x:Name="index2"  HorizontalAlignment="Left" Margin="124,201,0,0" TextWrapping="Wrap" Text="P2: CD 2" VerticalAlignment="Top" Mouse.MouseDown="index_MouseDown"/>
         <TextBlock x:Name="index3"  HorizontalAlignment="Left" Margin="124,222,0,0" TextWrapping="Wrap" Text="P3: CD 3" VerticalAlignment="Top" Mouse.MouseDown="index_MouseDown"/>

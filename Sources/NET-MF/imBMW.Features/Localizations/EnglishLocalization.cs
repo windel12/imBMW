@@ -304,5 +304,10 @@ namespace imBMW.Features.Localizations
         {
             get { return "Aux. heater"; }
         }
+
+        public override string Activate
+        {
+            get { return "Activate"; }
+        }
     }
 }

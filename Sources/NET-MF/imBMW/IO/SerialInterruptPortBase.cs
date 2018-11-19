@@ -25,8 +25,12 @@ namespace System.IO.Ports
             
             AfterWriteDelay = 33;
             ReadTimeout = readTimeout;
-            
-            _port.Open();
+
+#if NETMF
+            Open();
+#else
+            // in this case, need to open port manually in code(e.g. ActiveScreen.cs as link in OnBoardMonitorEmulator)
+#endif
         }
 
         /// <summary>
@@ -66,7 +70,19 @@ namespace System.IO.Ports
         /// </summary>
         public override void Flush()
         {
+#if NETMF
             _port.Flush();
+#endif
+        }
+
+        public override void Open()
+        {
+            _port.Open();
+        }
+
+        public override bool IsOpen
+        {
+            get { return _port.IsOpen; }
         }
 
         public override int ReadTimeout

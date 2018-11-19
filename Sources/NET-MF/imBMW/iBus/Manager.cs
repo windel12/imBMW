@@ -118,7 +118,7 @@ namespace imBMW.iBus
                 return;
             }
 
-            foreach (MessageReceiverRegistration receiver in MessageReceiverList)
+            foreach (MessageReceiverRegistration receiver in MessageReceiverList.ToArray())
             {
                 try
                 {

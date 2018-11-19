@@ -24,6 +24,7 @@ namespace imBMW.iBus
         ParkDistanceControl = 0x60,
         Radio = 0x68,
         DigitalSignalProcessingAudioAmplifier = 0x6A,
+        AuxilaryHeater = 0x6B,
         SeatMemory = 0x72,
         SiriusRadio = 0x73,
         CDChangerDINsize = 0x76,

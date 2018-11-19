@@ -33,6 +33,11 @@ namespace imBMW.Devices.V2.Hardware
         public static Cpu.Pin D_BUS_TH3122SENSTA = FEZPandaIII.Gpio.D32; //Generic.GetPin('C', 2);
 
         /// <summary>
+        /// 
+        /// </summary>
+        public static Cpu.Pin ResetPin = FEZPandaIII.Gpio.D39; //Generic.GetPin('C', 2);
+
+        /// <summary>
         /// Digital I/O.
         /// COM2 RX.
         /// </summary>

@@ -34,7 +34,7 @@ namespace imBMW.Diagnostics.DME
             data[30] = ToByte((av.WideBandLambda - 0.5) * 255); // TODO why not? TBD with JMG
             data[31] = ToByte(av.IntakePressure / 10);
             //return new DBusMessage(DeviceAddress.DME, message.ReceiverDescription, data);
-            return new DBusMessage(message.ReceiverDescription, data);
+            return new DBusMessage(DeviceAddress.OBD, DeviceAddress.DME,/* message.ReceiverDescription,*/ data);
         }
 
         static byte ToByte(double d)

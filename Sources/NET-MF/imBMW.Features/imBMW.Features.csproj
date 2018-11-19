@@ -17,7 +17,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>DEBUG;NETMF,TRACE,MF_FRAMEWORK_VERSION_V4_3</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -51,6 +51,12 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugOnRealDeviceOverFTDI|AnyCPU'">
+    <OutputPath>bin\DebugOnRealDeviceOverFTDI\</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="Comfort.cs" />
     <Compile Include="FeaturesEnumConverter.cs" />
@@ -65,6 +71,7 @@
     <Compile Include="Menu\MenuItem.cs" />
     <Compile Include="Menu\MenuScreen.cs" />
     <Compile Include="Menu\RadioMenu.cs" />
+    <Compile Include="Menu\Screens\ActivateScreen.cs" />
     <Compile Include="Menu\Screens\BluetoothScreen.cs" />
     <Compile Include="Menu\Screens\BordcomputerScreen.cs" />
     <Compile Include="Menu\Screens\DDEScreen.cs" />

@@ -13,11 +13,11 @@ namespace imBMW.Features.Menu.Screens
         protected MenuItem auxilaryHeaterItem;
         protected MenuItem ddeItem;
         protected MenuItem bluetoothItem;
+        protected MenuItem activateItem;
 
         protected HomeScreen()
         {
             Title = "imBMW";
-            FastMenuDrawing = false;
 
             itemBC = new MenuItem(i => Localization.Current.Bordcomputer, MenuItemType.Button, MenuItemAction.GoToScreen)
             {
@@ -39,6 +39,10 @@ namespace imBMW.Features.Menu.Screens
             {
                 GoToScreen = BluetoothScreen.Instance
             };
+            activateItem = new MenuItem(i => Localization.Current.Activate, MenuItemType.Button, MenuItemAction.GoToScreen)
+            {
+                GoToScreen = ActivateScreen.Instance
+            };
 
             SetItems();
         }
@@ -52,6 +56,7 @@ namespace imBMW.Features.Menu.Screens
             AddItem(auxilaryHeaterItem);
             AddItem(ddeItem);
             AddItem(bluetoothItem);
+            AddItem(activateItem);
         }
 
         public static HomeScreen Instance

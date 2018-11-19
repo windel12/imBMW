@@ -21,6 +21,7 @@ using System.IO;
 using System.IO.Ports;
 using System.Text;
 using System.Threading;
+using imBMW.Diagnostics;
 using Debug = Microsoft.SPOT.Debug;
 
 namespace imBMW.Devices.V2
@@ -53,14 +54,17 @@ namespace imBMW.Devices.V2
         {
             try
             {
-                Debug.Print(Debug.GC(true).ToString());
+                Thread.Sleep(400);
+
+                //if(Debugger.IsAttached)
+                //    Debug.Print(Debug.GC(true).ToString());
 
                 SDCard sd = null;
                 settings = Settings.Init(sd != null ? sd + @"\imBMW.ini" : null);
                 LED = new OutputPort(Pin.LED, false);
                 successInitLED = new OutputPort(FEZPandaIII.Gpio.Led2, false);
                 led4 = new OutputPort(Pin.LED4, false);
-                resetPin = new OutputPort(FEZPandaIII.Gpio.D48, true);
+                resetPin = new OutputPort(Pin.ResetPin, true);
 
 
                 //SettingsScreen.Instance.Status = version.Length > 11 ? version.Replace(" ", "") : version;
@@ -96,20 +100,19 @@ namespace imBMW.Devices.V2
             string iBusComPort = Serial.COM1;
             var busy = Pin.TH3122SENSTA;
 
-#if DEBUG_AT_HOME
-            iBusComPort = "COM4";
+#if DEBUG || DebugOnRealDeviceOverFTDI
             busy = Cpu.Pin.GPIO_NONE;
 #endif
-
-            // COM3 connected with COM2
-            //ISerialPort fakeIbus = new SerialPortTH3122(Serial.COM3, Cpu.Pin.GPIO_NONE);
 
             ISerialPort iBusPort = new SerialPortTH3122(iBusComPort, busy);
             Manager.Init(iBusPort);
             Logger.Info("iBus manager inited");
+            RefreshLEDs(LedType.OrangeBlinking);
+#if !NETMF && DebugOnRealDeviceOverFTDI
+            if(!ibusPort.IsOpen)
+                iBusPort.Open();
+#endif
 
-            //ISerialPort dBusPort = new SerialPortTH3122("COM4", Pin.D_BUS_TH3122SENSTA);
-            //DbusManager.Init(dBusPort);
 
             Manager.BeforeMessageReceived += Manager_BeforeMessageReceived;
             Manager.AfterMessageReceived += Manager_AfterMessageReceived;
@@ -120,6 +123,7 @@ namespace imBMW.Devices.V2
             //player = new iPodViaHeadset(Cpu.Pin.GPIO_NONE);
             //player = new BluetoothOVC3860(Serial.COM2/*, sd != null ? sd + @"\contacts.vcf" : null*/);
             player = new VS1003Player(FEZPandaIII.Gpio.D25, FEZPandaIII.Gpio.D27, FEZPandaIII.Gpio.D24, FEZPandaIII.Gpio.D26);
+            RefreshLEDs(LedType.Orange);
             if (settings.MenuMode != Tools.MenuMode.RadioCDC || Manager.FindDevice(DeviceAddress.OnBoardMonitor, 10000))
             {
                 //if (player is BluetoothWT32)
@@ -137,7 +141,13 @@ namespace imBMW.Devices.V2
                     Bordmonitor.NaviVersion = settings.NaviVersion;
                     //BordmonitorMenu.FastMenuDrawing = settings.NaviVersion == NaviVersion.MK4;
                     BordmonitorMenu.Init(emulator);
-                    BordmonitorMenu.ResetButtonPressed += () => { resetPin.Write(false); };
+                    BordmonitorMenu.ResetButtonPressed += () =>
+                    {
+                        RefreshLEDs(LedType.Empty);
+                        Radio.PressOnOffToggle();
+                        Thread.Sleep(100);
+                        resetPin.Write(false);
+                    };
                 }
                 else
                 {
@@ -165,7 +175,7 @@ namespace imBMW.Devices.V2
             player.StatusChanged += Player_StatusChanged;
             Logger.Info("Player events subscribed");
 
-            RefreshLEDs();
+            RefreshLEDs(LedType.Green);
             successInitLED.Write(true);
 
             nextButton = new InterruptPort((Cpu.Pin)FEZPandaIII.Gpio.Ldr1, true, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeHigh);
@@ -284,7 +294,7 @@ namespace imBMW.Devices.V2
 
         private static void Player_IsPlayingChanged(IAudioPlayer sender, bool isPlaying)
         {
-            RefreshLEDs();
+            //RefreshLEDs();
         }
 
 
@@ -298,7 +308,7 @@ namespace imBMW.Devices.V2
             {
                 error = true;
                 led4.Write(true);
-                RefreshLEDs();
+                RefreshLEDs(LedType.Red);
 
                 var errorFile = File.Open(rootDirectory + "\\errorLog.txt", FileMode.OpenOrCreate);
                 errorFile.WriteString(args.LogString);
@@ -316,27 +326,39 @@ namespace imBMW.Devices.V2
             }
         }
 
-        static void RefreshLEDs()
+        public enum LedType : byte
+        {
+            Red = 1,
+            RedBlinking = 2,
+            Orange = 4,
+            OrangeBlinking = 8,
+            Green = 16,
+            GreenBlinking = 32,
+            Empty = 64
+        }
+
+        static void RefreshLEDs(LedType ledType)
         {
             if (!Manager.Inited)
             {
                 return;
             }
-            byte b = 0;
-            if (error)
-            {
-                b = b.AddBit(0);
-            }
-            if (blinkerOn)
-            {
-                //b = b.AddBit(2);
-            }
-            if (player != null/* && player.IsPlaying*/)
-            {
-                b = b.AddBit(4);
-            }
-            Manager.EnqueueMessage(new Message(DeviceAddress.Telephone, DeviceAddress.FrontDisplay, "Set LEDs", 0x2B, b));
+            //byte b = 0;
+            //if (error)
+            //{
+            //    b = b.AddBit(0);
+            //}
+            //if (blinkerOn)
+            //{
+            //    //b = b.AddBit(2);
+            //}
+            //if (player != null/* && player.IsPlaying*/)
+            //{
+            //    b = b.AddBit(4);
+            //}
+            Manager.EnqueueMessage(new Message(DeviceAddress.Telephone, DeviceAddress.FrontDisplay, "Set LEDs", 0x2B, (byte)ledType));
         }
+
 
         static bool Busy(bool busy, byte type)
         {

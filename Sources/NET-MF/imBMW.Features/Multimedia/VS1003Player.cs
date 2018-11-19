@@ -1,5 +1,4 @@
 using System;
-using Microsoft.SPOT;
 using imBMW.Multimedia;
 using imBMW.Features.Menu;
 using System.IO;
@@ -11,7 +10,6 @@ using System.Runtime.CompilerServices;
 using GHI.Pins;
 using imBMW.Tools;
 using System.Diagnostics;
-using imBMW.iBus.Devices.Real;
 using imBMW.Features.Multimedia.Models;
 using ThreadState = System.Threading.ThreadState;
 
@@ -60,6 +58,28 @@ namespace imBMW.Features.Multimedia
 
         #endregion
 
+        private class DiskAndTrack
+        {
+            public DiskAndTrack()
+            { 
+            }
+
+            public DiskAndTrack(byte diskNumber, byte trackNumber, string fileName = "")
+            {
+                this.diskNumber = diskNumber;
+                this.trackNumber = trackNumber;
+                this.fileName = fileName;
+            }
+            public byte diskNumber;
+            public byte trackNumber;
+            public string fileName;
+
+            public override string ToString()
+            {
+                return diskNumber.ToString() + ',' + trackNumber.ToString();
+            }
+        }
+
         OutputPort led3 = new OutputPort(FEZPandaIII.Gpio.Led3, false);
 
         private static InputPort DREQ;
@@ -74,7 +94,12 @@ namespace imBMW.Features.Multimedia
         Thread playerThread;
         ArrayList changingHistory = new ArrayList();
         int changingHistoryPreviousPointer = 0;
+
+        private Stack backChangingHistory = new Stack();
+        private Stack nextChangingHistory = new Stack();
+
         static IDictionary StorageInfo = new Hashtable();
+        private static Queue NextTracksQueue = new Queue();
 
         public static int FileNameOffset = 6;
 
@@ -126,7 +151,7 @@ namespace imBMW.Features.Multimedia
                 Logger.Log(LogPriority.Info, "VS1053: Initialized MP3 Decoder.");
             }
             #endregion
-            SetVolume(Debugger.IsAttached ? (byte)220 : (byte)255);
+            SetVolume((byte)255);
 
             Logger.Log(LogPriority.Info, "Getting files and folders:");
             if (VolumeInfo.GetVolumes()[0].IsFormatted)
@@ -135,9 +160,7 @@ namespace imBMW.Features.Multimedia
                 for (byte i = 1; i <= 6; i++)
                 {
                     var folder = rootDirectory + "\\" + i;
-                    Logger.FreeMemory();
                     var files = Directory.EnumerateFiles(folder);
-                    Logger.FreeMemory();
                     byte filesCount = 0;
                     foreach(var fileObj in files)
                     {
@@ -148,8 +171,8 @@ namespace imBMW.Features.Multimedia
                         }
                     }
                     StorageInfo[i] = filesCount;
-                    Logger.FreeMemory();
                 }
+
                 FileStream dataFile = null;
                 byte[] lastTrackInfo = new byte[7] { 1, 1, 1, 0, 0, 0, 0 };
                 try
@@ -160,21 +183,38 @@ namespace imBMW.Features.Multimedia
                     TrackNumber = lastTrackInfo[1];
                     IsRandom = lastTrackInfo[2] == 1;
                     CurrentPosition = BitConverter.ToInt32(lastTrackInfo, 3);
-
-                    try
-                    {
-                        CurrentTrack = new TrackInfo(DiskNumber, TrackNumber);
-                    }
-                    catch (Exception ex)
-                    {
-                        DiskNumber = TrackNumber = 1;
-                        Logger.Error(ex);
-                    }
+#if DEBUG
+                    // BOOM-BOOM-BOOM
+                    //DiskNumber = 6;
+                    //TrackNumber = 0x33;
+                    //CurrentPosition = 0;
+#endif
                 }
                 finally
                 {
                     if (dataFile != null) { dataFile.Close(); }
                 }
+
+                try
+                {
+                    var diskAndTrack = GenerateConcreteDiskAndTrack(DiskNumber, TrackNumber);
+                    FileName = diskAndTrack.fileName;
+                    CurrentTrack = new TrackInfo(diskAndTrack.fileName);
+                }
+                catch (Exception ex)
+                {
+                    DiskNumber = TrackNumber = 1;
+                    Logger.Error(ex);
+                }
+
+                // generate prepared next random tracks
+                for (byte i = 0; i < 2; i++)
+                {
+                    var randomDiskAndTrack = GenerateRandomDiskAndTrack();
+                    NextTracksQueue.Enqueue(randomDiskAndTrack);
+                    Thread.Sleep(15); // for random working
+                }
+
                 Action saveHistory = () =>
                 {
                     FileStream dataFileWrite = null;
@@ -222,67 +262,115 @@ namespace imBMW.Features.Multimedia
             base.Pause();
         }
 
-        public override void Next()
+        private DiskAndTrack GenerateRandomDiskAndTrackNumbers()
         {
-            if (changingHistoryPreviousPointer > 0)
+            var diskAndTrack = new DiskAndTrack();
+            Random r = new Random();
+            byte filesOnDisk;
+            if (IsRandom)
             {
-                changingHistoryPreviousPointer--;
-                var history = (byte[])changingHistory[changingHistory.Count - changingHistoryPreviousPointer - 1];
-                DiskNumber = history[0];
-                TrackNumber = history[1];
+                do
+                {
+                    diskAndTrack.diskNumber = (byte)(r.Next(6) + 1);
+                    filesOnDisk = (byte)StorageInfo[diskAndTrack.diskNumber];
+                } while (filesOnDisk == 0);
+                diskAndTrack.trackNumber = (byte)(r.Next(filesOnDisk) + 1);
             }
             else
             {
-                changingHistory.Add(new byte[2] {DiskNumber, TrackNumber});
+                do
+                {
+                    diskAndTrack.diskNumber = DiskNumber;
+                    filesOnDisk = (byte)StorageInfo[diskAndTrack.diskNumber];
+                } while (filesOnDisk == 0);
+                diskAndTrack.trackNumber = (byte)(r.Next(filesOnDisk) + 1);
+            }
+            return diskAndTrack;
+        }
 
-                Random r = new Random();
-                byte filesOnDisk;
-                if (IsRandom)
+        private DiskAndTrack GenerateRandomDiskAndTrack()
+        {
+            var newRandomDiskAndTrack = GenerateRandomDiskAndTrackNumbers();
+            return GenerateConcreteDiskAndTrack(newRandomDiskAndTrack.diskNumber, newRandomDiskAndTrack.trackNumber);
+        }
+
+        private DiskAndTrack GenerateConcreteDiskAndTrack(byte diskNumber, byte trackNumber)
+        {
+            DiskAndTrack result = null;
+
+            if (VolumeInfo.GetVolumes()[0].IsFormatted)
+            {
+                string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
+                var folder = rootDirectory + "\\" + diskNumber;
+                var files = Directory.EnumerateFiles(folder);
+
+                byte trackIndex = 1;
+                foreach (var fileObj in files)
                 {
-                    do
+                    string file = fileObj.ToString();
+                    if (file.EndsWith(".mp3") /* || file.EndsWith(".m4a")*/)
                     {
-                        DiskNumber = (byte) (r.Next(6) + 1);
-                        filesOnDisk = (byte) StorageInfo[DiskNumber];
-                    } while (filesOnDisk == 0);
-                    TrackNumber = (byte) (r.Next(filesOnDisk) + 1);
-                }
-                else
-                {
-                    do
-                    {
-                        //DiskNumber = (byte) (DiskNumber == 6 ? 0 : ++DiskNumber);
-                        filesOnDisk = (byte)StorageInfo[DiskNumber];
-                    } while (filesOnDisk == 0);
-                    TrackNumber = (byte)(r.Next(filesOnDisk) + 1);
+                        if (trackIndex == trackNumber)
+                        {
+                            result = new DiskAndTrack(diskNumber, trackIndex, file);
+                            break;
+                        }
+                        trackIndex++;
+                    }
                 }
             }
+            else
+            {
+                Logger.Warning("Storage is not formatted. " + "Format on PC with FAT32/FAT16 first!");
+            }
 
-            
-            OnTrackChanged();
+            return result;
+        }
+
+        public override void Next()
+        {
+            backChangingHistory.Push(new DiskAndTrack(DiskNumber, TrackNumber, FileName));
+
+            if (nextChangingHistory.Count > 0)
+            {
+                var history = (DiskAndTrack)nextChangingHistory.Pop();
+                DiskNumber = history.diskNumber;
+                TrackNumber = history.trackNumber;
+                FileName = history.fileName;
+
+                OnTrackChanged();
+            }
+            else
+            {
+                var preparedItem = (DiskAndTrack)NextTracksQueue.Dequeue();
+                DiskNumber = preparedItem.diskNumber;
+                TrackNumber = preparedItem.trackNumber;
+                FileName = preparedItem.fileName;
+
+                OnTrackChanged();
+                var newRandomTrackItem = GenerateRandomDiskAndTrack();
+                NextTracksQueue.Enqueue(newRandomTrackItem);
+            }
         }
 
         public override void Prev()
         {
-            if (changingHistory.Count > 0 && changingHistory.Count - 1 > changingHistoryPreviousPointer)
+            if (backChangingHistory.Count > 0)
             {
-                // save current track just for first time
-                if (changingHistoryPreviousPointer == 0)
-                {
-                    changingHistory.Add(new byte[2] {DiskNumber, TrackNumber});
-                }
+                nextChangingHistory.Push(new DiskAndTrack(DiskNumber, TrackNumber, FileName));
 
-                changingHistoryPreviousPointer++;
-                var history = (byte[])changingHistory[changingHistory.Count - changingHistoryPreviousPointer - 1];
-                DiskNumber = history[0];
-                TrackNumber = history[1];
+                var history = (DiskAndTrack)backChangingHistory.Pop();
+                DiskNumber = history.diskNumber;
+                TrackNumber = history.trackNumber;
+                FileName = history.fileName;
                 OnTrackChanged();
+
             }
         }
 
         protected override void OnTrackChanged()
         {
-            var filesOnDisk = (byte)StorageInfo[DiskNumber];
-            CurrentTrack = new TrackInfo(DiskNumber, TrackNumber);
+            CurrentTrack = new TrackInfo(FileName);
             base.OnTrackChanged();
             CurrentPosition = 0;
             ChangeTrack = true;
