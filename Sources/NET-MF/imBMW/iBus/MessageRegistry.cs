@@ -171,8 +171,8 @@ namespace imBMW.iBus
             "", // "0x9D",
             "", // "0x9E",
             "", // "0x9F",
-            "DIAG data",
-            "", // "0xA1",
+            "DIAG OKAY", // "0xA0"
+            "DIAG BUSY", // "0xA1",
             "Current position and time",
             "", // "0xA3",
             "Current location",
@@ -187,9 +187,9 @@ namespace imBMW.iBus
             "", // "0xAD",
             "", // "0xAE",
             "", // "0xAF",
-            "", // "0xB0",
-            "", // "0xB1",
-            "", // "0xB2",
+            "ERROR_ECU_PARAMETER", // "0xB0",
+            "ERROR_ECU_FUNCTION", // "0xB1",
+            "ERROR_ECU_NUMBER", // "0xB2",
             "", // "0xB3",
             "", // "0xB4",
             "", // "0xB5",
@@ -266,7 +266,7 @@ namespace imBMW.iBus
             "", // "0xFC",
             "", // "0xFD",
             "", // "0xFE",
-            "", // "0xFF"
+            "ERROR_ECU_NACK", // "0xFF"
             #endif
         };
 

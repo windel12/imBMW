@@ -1,11 +1,9 @@
 using System;
 using System.IO.Ports;
-using System.Text;
 using imBMW.Diagnostics;
-using Microsoft.SPOT;
 using imBMW.Features.Localizations;
 using imBMW.iBus;
-using imBMW.iBus.Devices;
+using imBMW.iBus.Devices.Real;
 using Microsoft.SPOT.Hardware;
 
 namespace imBMW.Features.Menu.Screens
@@ -15,18 +13,21 @@ namespace imBMW.Features.Menu.Screens
         protected static ActivateScreen instance;
 
         private string MotorTemperatur = "MotorTemperatur";
-        private string SteuernZuheizer = "SteuernZuheizer";
-        private string NaviStatusLesen = "NaviStausLessen";
+        private string SteuernZuheizerOn = "SteuernZuheizerOn";
+        private string SteuernZuheizerOff = "SteuernZuheizerOff";
 
         protected ActivateScreen()
         {
             TitleCallback = s => Localization.Current.Activate;
+            StatusCallback = s => AuxilaryHeater.Status.ToString();
 
             DbusManager.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.DDE, DeviceAddress.OBD, ProcessFromDDEMessage);
 
-            ISerialPort dBusPort = new SerialPortTH3122("COM4", Cpu.Pin.GPIO_NONE, writeBufferSize: 1); // d31, d33
-            dBusPort.AfterWriteDelay = 3;
+            ISerialPort dBusPort = new SerialPortTH3122("COM4", Cpu.Pin.GPIO_NONE, writeBufferSize: 0); // d31, d33
+            dBusPort.AfterWriteDelay = 4;
             DbusManager.Init(dBusPort);
+
+            AuxilaryHeater.Init();
 #if !NETMF
             if (!dBusPort.IsOpen)
             {
@@ -34,18 +35,17 @@ namespace imBMW.Features.Menu.Screens
             }
 #endif
 
-            bool firstHalf = true;
             DBusMessage motor_temperatur = new DBusMessage(DeviceAddress.OBD, DeviceAddress.DDE, 0x2C, 0x10, 0x0F, 0x00);
 
-            AddItem(new MenuItem(i => "Increase delay: " + dBusPort.AfterWriteDelay, x =>
-            {
-                dBusPort.AfterWriteDelay += 1;
-            }, MenuItemType.Button, MenuItemAction.Refresh));
-            AddItem(new MenuItem(i => "Decrease delay: " + dBusPort.AfterWriteDelay, x =>
-            {
-                if (dBusPort.AfterWriteDelay > 0)
-                    dBusPort.AfterWriteDelay -= 1;
-            }, MenuItemType.Button, MenuItemAction.Refresh));
+            //AddItem(new MenuItem(i => "Increase delay: " + dBusPort.AfterWriteDelay, x =>
+            //{
+            //    dBusPort.AfterWriteDelay += 1;
+            //}, MenuItemType.Button, MenuItemAction.Refresh));
+            //AddItem(new MenuItem(i => "Decrease delay: " + dBusPort.AfterWriteDelay, x =>
+            //{
+            //    if (dBusPort.AfterWriteDelay > 0)
+            //        dBusPort.AfterWriteDelay -= 1;
+            //}, MenuItemType.Button, MenuItemAction.Refresh));
 
             AddItem(new MenuItem(i => MotorTemperatur, i =>
             {
@@ -54,23 +54,19 @@ namespace imBMW.Features.Menu.Screens
                 DbusManager.EnqueueMessage(motor_temperatur);
             }, MenuItemType.Button, MenuItemAction.Refresh));
 
-            AddItem(new MenuItem(i => SteuernZuheizer, x =>
+            AddItem(new MenuItem(i => SteuernZuheizerOn, i =>
             {
                 dBusPort.WriteBufferSize = 0;
 
-                DS2Message steuern_suheizer = null;
-                if (x.IsChecked)
-                {
-                    var steuern_suheizer_on = new DS2Message(DeviceAddress.AuxilaryHeater, 0x9E);
-                    steuern_suheizer = steuern_suheizer_on;
-                }
-                else
-                {
-                    var steuern_suheizer_off = new DS2Message(DeviceAddress.AuxilaryHeater, 0x0C, 0x00);
-                    steuern_suheizer = steuern_suheizer_off;
-                }
-                DbusManager.EnqueueMessage(steuern_suheizer);
-            }, MenuItemType.Checkbox, MenuItemAction.Refresh));
+                AuxilaryHeater.StartAuxilaryHeater();
+            }, MenuItemType.Button, MenuItemAction.None));
+
+            AddItem(new MenuItem(i => SteuernZuheizerOff, i =>
+            {
+                dBusPort.WriteBufferSize = 0;
+
+                AuxilaryHeater.StopAuxilaryHeater();
+            }, MenuItemType.Button, MenuItemAction.None));
 
             AddItem(new MenuItem(i => Localization.Current.Voltage + ": " + (NavigationModule.BatteryVoltage > 0 ? NavigationModule.BatteryVoltage.ToString("F2") : "-") + " " + Localization.Current.VoltageShort, x =>
             {
@@ -81,7 +77,8 @@ namespace imBMW.Features.Menu.Screens
 
             this.AddBackButton();
 
-            NavigationModule.BatteryVoltageChanged += (voltage) => Refresh();
+            NavigationModule.BatteryVoltageChanged += (voltage) => OnUpdateBody(MenuScreenUpdateReason.Refresh);
+            AuxilaryHeater.AuxilaryHeaterStatusChanged += (status) => OnUpdateHeader(MenuScreenUpdateReason.Refresh);
         }
 
         public static ActivateScreen Instance

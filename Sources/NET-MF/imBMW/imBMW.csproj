@@ -69,6 +69,7 @@
     <Compile Include="Dbus\DS2Message.cs" />
     <Compile Include="DebuggerBrowsableState.cs" />
     <Compile Include="iBus\DeviceAddress.cs" />
+    <Compile Include="iBus\Devices\AuxilaryHeater.cs" />
     <Compile Include="iBus\Devices\BodyModule.cs" />
     <Compile Include="iBus\Devices\Bordmonitor.cs" />
     <Compile Include="iBus\Devices\Immobiliser.cs" />

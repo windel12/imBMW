@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using imBMW.Diagnostics;
+using System.Threading;
 using imBMW.iBus;
-using imBMW.Tools;
 
 namespace OnBoardMonitorEmulator.DevicesEmulation
 {
@@ -15,22 +10,31 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
 
         static InstrumentClusterElectronicsEmulator()
         {
-            DbusManager.AddMessageReceiverForDestinationDevice(DeviceAddress.NavigationEurope, ProcessDiagnosticMessageToNavigationModule);
-            //Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.Diagnostic, ProcessDiagnosticMessage);
+            DbusManager.AddMessageReceiverForSourceDevice(DeviceAddress.OBD, ProcessDS2MessageAndForwardToIBus);
+            Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.Diagnostic, ProcessDiagnosticMessageFromIBusAndForwardToDBus);
         }
 
-        static void ProcessDiagnosticMessageToNavigationModule(Message m)
+        static void ProcessDS2MessageAndForwardToIBus(Message m)
         {
-            var message = new Message(DeviceAddress.Diagnostic, DeviceAddress.NavigationEurope, m.Data);
+            // do not forward responses from modules
+            if (m.Data[0] == 0xA0)
+            {
+                return;
+            }
+
+            Thread.Sleep(100);
+            var message = new Message(DeviceAddress.Diagnostic, m.DestinationDevice, m.Data);
             Manager.EnqueueMessage(message);
         }
 
-        //static void ProcessDiagnosticMessage(Message m)
-        //{
-        //    if (m.Data[3] == 0x0A) // 0xA0 - DIAG data
-        //    {
-        //        var message = new DS2Message(m.SourceDevice, m.Data);
-        //    }
-        //}
+        static void ProcessDiagnosticMessageFromIBusAndForwardToDBus(Message m)
+        {
+            if (m.Data[0] == 0xA0) // 0xA0 - DIAG OKAY
+            {
+                Thread.Sleep(100);
+                var message = new DS2Message(m.SourceDevice, m.Data);
+                DbusManager.EnqueueMessage(message);
+            }
+        }
     }
 }

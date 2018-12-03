@@ -398,7 +398,7 @@ namespace imBMW.Features.Multimedia
         {
         }
 
-        private void PlayDirect(bool resetWhenFinished = false)
+        public void PlayDirect(bool resetWhenFinished = false)
         {
             byte[] buffer;
             int size;
@@ -425,10 +425,22 @@ namespace imBMW.Features.Multimedia
                     stream = new FileStream(CurrentTrack.FileName, FileMode.Open, FileAccess.Read);
                     int id3v2_header_length = 10;
                     stream.Read(buffer, 0, id3v2_header_length);
-                    int iSize = (int)buffer[6] << 21 | (int)buffer[7] << 14 | (int)buffer[8] << 7 | (int)buffer[9];
-                    Logger.Info("Skip id3 tag bytes: " + iSize);
-                    Logger.Trace("FileName:" + CurrentTrack.FileName + " FileLength:" + stream.Length + " iSize:" + iSize);
-                    CurrentPosition = CurrentPosition > iSize || iSize > stream.Length ? CurrentPosition : iSize;
+                    // http://id3.org/id3v2.4.0-structure#line-39
+                    int startPositionOfAudioStream = (int)buffer[6] << 21 | (int)buffer[7] << 14 | (int)buffer[8] << 7 | (int)buffer[9];
+                    Logger.Info("Skip id3 tag bytes: " + startPositionOfAudioStream);
+                    Logger.Trace("FileName:" + CurrentTrack.FileName + " FileLength:" + stream.Length + " startPositionOfAudioStream:" + startPositionOfAudioStream);
+                    if (CurrentPosition >= stream.Length)
+                    {
+                        CurrentPosition = 0;
+                    }
+                    if (startPositionOfAudioStream >= stream.Length)
+                    {
+                        startPositionOfAudioStream = 0;
+                    }
+                    if (CurrentPosition <= startPositionOfAudioStream)
+                    {
+                        CurrentPosition = startPositionOfAudioStream;
+                    }
                     stream.Seek(CurrentPosition, SeekOrigin.Begin);
                     do
                     {
@@ -436,11 +448,6 @@ namespace imBMW.Features.Multimedia
                         //CurrentTrack.Time = GetDecodeTime();
                         //int byteRate = GetByteRate();
                         SendData(buffer);
-                        if (Debugger.IsAttached && (CurrentPosition / 100000) > freeMemotyLoggerCounter || freeMemotyLoggerCounter == 0)
-                        {
-                            freeMemotyLoggerCounter++;
-                            Logger.FreeMemory();
-                        }
                         if (ChangeTrack)
                         {
                             break;

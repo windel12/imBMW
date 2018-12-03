@@ -1,7 +1,6 @@
 using System;
-using imBMW.iBus.Devices.Real;
 
-namespace imBMW.iBus.Devices
+namespace imBMW.iBus.Devices.Real
 {
     public static class NavigationModule
     {

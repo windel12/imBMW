@@ -66,6 +66,7 @@ namespace OnBoardMonitorEmulator
 
             InstrumentClusterElectronicsEmulator.Init();
             NavigationModuleEmulator.Init();
+            AuxilaryHeaterEmulator.Init();
             RadioEmulator.Init();
             DDEEmulator.Init();
 

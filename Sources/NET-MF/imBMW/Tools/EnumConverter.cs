@@ -69,6 +69,7 @@ namespace imBMW.Tools
                 case DeviceAddress.ParkDistanceControl: return "ParkDistanceControl";
                 case DeviceAddress.Radio: return "Radio";
                 case DeviceAddress.DigitalSignalProcessingAudioAmplifier: return "DigitalSignalProcessingAudioAmplifier";
+                case DeviceAddress.AuxilaryHeater: return "AuxilaryHeater";
                 case DeviceAddress.SeatMemory: return "SeatMemory";
                 case DeviceAddress.SiriusRadio: return "SiriusRadio";
                 case DeviceAddress.CDChangerDINsize: return "CDChangerDINsize";

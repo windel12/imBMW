@@ -21,6 +21,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "imBMW.UnitTests", "..\imBMW
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnBoardMonitorEmulator", "OnBoardMonitorEmulator\OnBoardMonitorEmulator.csproj", "{36BDE5D2-D0B8-4F6D-8E6B-D4B5B72F23AF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnBoardMonitorEmulatorTests", "..\OnBoardMonitorEmulatorTests\OnBoardMonitorEmulatorTests.csproj", "{BA9CA8A1-38F5-488F-A695-CB132E957FAD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuxilaryHeaterEmulator", "..\AuxilaryHeaterEmulator\AuxilaryHeaterEmulator.csproj", "{97976018-DA84-4523-ADFE-675A0E3CEEAB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -142,6 +146,26 @@ Global
 		{36BDE5D2-D0B8-4F6D-8E6B-D4B5B72F23AF}.DebugOnRealDeviceOverFTDI|Any CPU.Build.0 = DebugOnRealDeviceOverFTDI|Any CPU
 		{36BDE5D2-D0B8-4F6D-8E6B-D4B5B72F23AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{36BDE5D2-D0B8-4F6D-8E6B-D4B5B72F23AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA9CA8A1-38F5-488F-A695-CB132E957FAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA9CA8A1-38F5-488F-A695-CB132E957FAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA9CA8A1-38F5-488F-A695-CB132E957FAD}.DebugDBus|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA9CA8A1-38F5-488F-A695-CB132E957FAD}.DebugDBus|Any CPU.Build.0 = Debug|Any CPU
+		{BA9CA8A1-38F5-488F-A695-CB132E957FAD}.DebugInCar|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA9CA8A1-38F5-488F-A695-CB132E957FAD}.DebugInCar|Any CPU.Build.0 = Debug|Any CPU
+		{BA9CA8A1-38F5-488F-A695-CB132E957FAD}.DebugOnRealDeviceOverFTDI|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA9CA8A1-38F5-488F-A695-CB132E957FAD}.DebugOnRealDeviceOverFTDI|Any CPU.Build.0 = Debug|Any CPU
+		{BA9CA8A1-38F5-488F-A695-CB132E957FAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA9CA8A1-38F5-488F-A695-CB132E957FAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97976018-DA84-4523-ADFE-675A0E3CEEAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97976018-DA84-4523-ADFE-675A0E3CEEAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97976018-DA84-4523-ADFE-675A0E3CEEAB}.DebugDBus|Any CPU.ActiveCfg = Debug|Any CPU
+		{97976018-DA84-4523-ADFE-675A0E3CEEAB}.DebugDBus|Any CPU.Build.0 = Debug|Any CPU
+		{97976018-DA84-4523-ADFE-675A0E3CEEAB}.DebugInCar|Any CPU.ActiveCfg = Debug|Any CPU
+		{97976018-DA84-4523-ADFE-675A0E3CEEAB}.DebugInCar|Any CPU.Build.0 = Debug|Any CPU
+		{97976018-DA84-4523-ADFE-675A0E3CEEAB}.DebugOnRealDeviceOverFTDI|Any CPU.ActiveCfg = Debug|Any CPU
+		{97976018-DA84-4523-ADFE-675A0E3CEEAB}.DebugOnRealDeviceOverFTDI|Any CPU.Build.0 = Debug|Any CPU
+		{97976018-DA84-4523-ADFE-675A0E3CEEAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97976018-DA84-4523-ADFE-675A0E3CEEAB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

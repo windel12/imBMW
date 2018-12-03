@@ -219,6 +219,9 @@
     <Compile Include="..\..\..\imBMW\iBus\DeviceAddress.cs">
       <Link>imBMW\iBus\DeviceAddress.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\imBMW\iBus\Devices\AuxilaryHeater.cs">
+      <Link>imBMW\iBus\Devices\AuxilaryHeater.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\imBMW\iBus\Devices\BodyModule.cs">
       <Link>imBMW\iBus\Devices\BodyModule.cs</Link>
     </Compile>
@@ -301,6 +304,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DevicesEmulation\AuxilaryHeaterEmulator.cs" />
     <Compile Include="DevicesEmulation\InstrumentClusterElectronicsEmulator.cs" />
     <Compile Include="DevicesEmulation\NavigationModuleEmulator.cs" />
     <Compile Include="DevicesEmulation\DDEEmulator.cs" />
@@ -309,7 +313,6 @@
     <Compile Include="DevicesEmulation\RadioEmulator.cs" />
     <Compile Include="imBMW\IO\BaudRate.cs" />
     <Compile Include="imBMW\IO\Serial.cs" />
-    <Compile Include="imBMW\IO\SerialDataReceivedEventArgs.cs" />
     <Compile Include="imBMW\IO\SerialPortTH3122.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

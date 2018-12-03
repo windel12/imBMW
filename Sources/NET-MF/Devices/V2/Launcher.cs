@@ -310,15 +310,15 @@ namespace imBMW.Devices.V2
                 led4.Write(true);
                 RefreshLEDs(LedType.Red);
 
-                var errorFile = File.Open(rootDirectory + "\\errorLog.txt", FileMode.OpenOrCreate);
-                errorFile.WriteString(args.LogString);
+                StreamWriter errorFile = new StreamWriter(rootDirectory + "\\errorLog.txt", append: true);
+                errorFile.WriteLine(args.LogString);
                 errorFile.Close();
             }
             if (args.Priority == LogPriority.Trace)
             {
-                var traceFile = File.Open(rootDirectory + "\\traceLog.txt", FileMode.OpenOrCreate);
-                traceFile.WriteString(args.LogString);
-                traceFile.Close();
+                StreamWriter traceFile = new StreamWriter(rootDirectory + "\\traceLog.txt", append: true);
+                traceFile.WriteLine(args.LogString);
+                traceFile.Dispose();
             }
             if (Debugger.IsAttached)
             {
