@@ -16,7 +16,10 @@ namespace GHI.IO.Storage
         {
         }
 
-        public void Mount() { }
+        public void Mount()
+        {
+            //throw new Exception("test");
+        }
 
         public void Dispose() { }
 

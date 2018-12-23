@@ -153,23 +153,40 @@ namespace imBMW.iBus.Devices.Real
         public static sbyte TemperatureOutside { get; private set; }
         public static sbyte TemperatureCoolant { get; private set; }
         
-        static readonly Message MessageRequestTime = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Time", 0x41, 0x01, 0x01);
-        static readonly Message MessageRequestDate = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Date", 0x41, 0x02, 0x01);
-        static readonly Message MessageRequestTemperatureOutside = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Outside temp", 0x41, 0x03, 0x01);
-        static readonly Message MessageRequestConsumtion1 = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Consumtion1", 0x41, 0x04, 0x01);
-        static readonly Message MessageResetConsumption1 = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Reset Consumption 1", 0x41, 0x04, 0x10);
-        static readonly Message MessageRequestConsumtion2 = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Consumtion2", 0x41, 0x05, 0x01);
-        static readonly Message MessageResetConsumption2 = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Reset Consumption 2", 0x41, 0x05, 0x10);
-        static readonly Message MessageRequestRange = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Range", 0x41, 0x06, 0x01);
-        static readonly Message MessageRequestDistance = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Distance", 0x41, 0x07, 0x01);
-        static readonly Message MessageRequestArrival = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Arrival", 0x41, 0x08, 0x01);
-        static readonly Message MessageRequestSpeedLimit = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Speed Limit", 0x41, 0x09, 0x01);
-        static readonly Message MessageSpeedLimitCurrentSpeed = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Speed Limit to Current Speed", 0x41, 0x09, 0x20);
-        static readonly Message MessageSpeedLimitOff = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Speed Limit OFF", 0x41, 0x09, 0x08);
-        static readonly Message MessageSpeedLimitOn = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Speed Limit ON", 0x41, 0x09, 0x04);
-        static readonly Message MessageRequestAverageSpeed = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Average Speed", 0x41, 0x0A, 0x01);
-        static readonly Message MessageResetAverageSpeed = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Reset Avgerage Speed", 0x41, 0x0A, 0x10);
-        static readonly Message MessageRequestTimer = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Timer", 0x41, 0x0E, 0x01);
+        /// <summary> 41 01 01 </summary>
+        internal static readonly Message MessageRequestTime = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Time", 0x41, 0x01, 0x01);
+        /// <summary> 41 02 01</summary>
+        internal static readonly Message MessageRequestDate = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Date", 0x41, 0x02, 0x01);
+        /// <summary> 41 03 01 </summary>
+        internal static readonly Message MessageRequestTemperatureOutside = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Outside temp", 0x41, 0x03, 0x01);
+        /// <summary> 41 04 01 </summary>
+        internal static readonly Message MessageRequestConsumtion1 = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Consumtion1", 0x41, 0x04, 0x01);
+        /// <summary> 41 04 10 </summary>
+        internal static readonly Message MessageResetConsumption1 = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Reset Consumption 1", 0x41, 0x04, 0x10);
+        /// <summary> 41 05 01 </summary>
+        internal static readonly Message MessageRequestConsumtion2 = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Consumtion2", 0x41, 0x05, 0x01);
+        /// <summary> 41 05 10 </summary>
+        internal static readonly Message MessageResetConsumption2 = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Reset Consumption 2", 0x41, 0x05, 0x10);
+        /// <summary> 41 06 01 </summary>
+        internal static readonly Message MessageRequestRange = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Range", 0x41, 0x06, 0x01);
+        /// <summary> 41 07 01 </summary>
+        internal static readonly Message MessageRequestDistance = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Distance", 0x41, 0x07, 0x01);
+        /// <summary> 41 08 01 </summary>
+        internal static readonly Message MessageRequestArrival = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Arrival", 0x41, 0x08, 0x01);
+        /// <summary> 41 09 01 </summary>
+        internal static readonly Message MessageRequestSpeedLimit = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Speed Limit", 0x41, 0x09, 0x01);
+        /// <summary> 41 09 20 </summary>
+        internal static readonly Message MessageSpeedLimitCurrentSpeed = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Speed Limit to Current Speed", 0x41, 0x09, 0x20);
+        /// <summary> 41 09 08 </summary>
+        internal static readonly Message MessageSpeedLimitOff = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Speed Limit OFF", 0x41, 0x09, 0x08);
+        /// <summary> 41 09 04 </summary>
+        internal static readonly Message MessageSpeedLimitOn = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Speed Limit ON", 0x41, 0x09, 0x04);
+        /// <summary> 41 0A 01 </summary>
+        internal static readonly Message MessageRequestAverageSpeed = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Average Speed", 0x41, 0x0A, 0x01);
+        /// <summary> 41 0A 10 </summary>
+        internal static readonly Message MessageResetAverageSpeed = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Reset Average Speed", 0x41, 0x0A, 0x10);
+        /// <summary> 41 0E 01 </summary>
+        internal static readonly Message MessageRequestTimer = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Timer", 0x41, 0x0E, 0x01);
 
 
         static readonly Message MessageNormalDisplay = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Normal Display", 0x23, 0x62, 0x30, 0x35, 0x01);
@@ -232,7 +249,7 @@ namespace imBMW.iBus.Devices.Real
                 }
                 m.ReceiverDescription = "Ignition " + CurrentIgnitionState.ToStringValue();
             }
-            else if (m.Data[0] == 0x17 && m.Data.Length == 8) // odometr
+            else if (m.Data[0] == 0x17 && m.Data.Length == 8) // odometer
             {
                 OnOdometerChanged((uint)(m.Data[3] << 16 + m.Data[2] << 8 + m.Data[1]));
                 m.ReceiverDescription = "Odometer " + Odometer + " km";

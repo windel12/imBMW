@@ -90,6 +90,9 @@
     <Compile Include="..\..\..\imBMW.Features\Comfort.cs">
       <Link>imBMW.Features\Comfort.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\imBMW.Features\FeaturesEnumConverter.cs">
+      <Link>imBMW.Features\FeaturesEnumConverter.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\imBMW.Features\Light.cs">
       <Link>imBMW.Features\Light.cs</Link>
     </Compile>
@@ -159,6 +162,9 @@
     <Compile Include="..\..\..\imBMW.Features\Multimedia\iBus\CDChanger.cs">
       <Link>imBMW.Features\Multimedia\iBus\CDChanger.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Multimedia\iPodViaHeadset.cs">
+      <Link>imBMW.Features\Multimedia\iPodViaHeadset.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\imBMW.Features\Multimedia\MediaEmulator.cs">
       <Link>imBMW.Features\Multimedia\MediaEmulator.cs</Link>
     </Compile>
@@ -204,16 +210,16 @@
     <Compile Include="..\..\..\imBMW.Tools\StringHelpers.cs">
       <Link>imBMW.Tools\StringHelpers.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\Dbus\DbusManager.cs">
+    <Compile Include="..\..\..\imBMW\DBus\DbusManager.cs">
       <Link>imBMW\DBus\DbusManager.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\Dbus\DBusMessage.cs">
+    <Compile Include="..\..\..\imBMW\DBus\DBusMessage.cs">
       <Link>imBMW\DBus\DBusMessage.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\Dbus\DBusMessageParser.cs">
+    <Compile Include="..\..\..\imBMW\DBus\DBusMessageParser.cs">
       <Link>imBMW\DBus\DBusMessageParser.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\Dbus\DS2Message.cs">
+    <Compile Include="..\..\..\imBMW\DBus\DS2Message.cs">
       <Link>imBMW\DBus\DS2Message.cs</Link>
     </Compile>
     <Compile Include="..\..\..\imBMW\iBus\DeviceAddress.cs">
@@ -228,11 +234,17 @@
     <Compile Include="..\..\..\imBMW\iBus\Devices\InstrumentClusterElectronics.cs">
       <Link>imBMW\iBus\Devices\InstrumentClusterElectronics.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\imBMW\iBus\Devices\IntegratedHeatingAndAirConditioning.cs">
+      <Link>imBMW\iBus\Devices\IntegratedHeatingAndAirConditioning.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\imBMW\iBus\Devices\MultiFunctionSteeringWheel.cs">
       <Link>imBMW\iBus\Devices\MultiFunctionSteeringWheel.cs</Link>
     </Compile>
     <Compile Include="..\..\..\imBMW\iBus\InternalMessage.cs">
       <Link>imBMW\iBus\InternalMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW\iBus\KBusManager.cs">
+      <Link>imBMW\iBus\KBusManager.cs</Link>
     </Compile>
     <Compile Include="..\..\..\imBMW\iBus\Manager.cs">
       <Link>imBMW\iBus\Manager.cs</Link>
@@ -328,6 +340,7 @@
     <Compile Include="Microsoft.SPOT\Hardware\OutputPort.cs" />
     <Compile Include="Microsoft.SPOT\Hardware\Port.cs" />
     <Compile Include="Microsoft.SPOT\Hardware\SPI.cs" />
+    <Compile Include="Microsoft.SPOT\Hardware\Utility.cs" />
     <Compile Include="Microsoft.SPOT\IO\VolumeInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

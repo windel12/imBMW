@@ -2,6 +2,7 @@ using System;
 using Microsoft.SPOT;
 using System.Collections;
 using imBMW.Tools;
+using imBMW.iBus.Devices.Real;
 
 namespace imBMW.Features.Menu
 {
@@ -116,19 +117,25 @@ namespace imBMW.Features.Menu
             }
         }
 
+        /// <summary> Bottom right corner - 4 symbols field.  </summary>
         public virtual string T1Field
         {
             get;
         }
 
+        /// <summary> Bottom left corner - 5 symbols field.  </summary>
         public virtual string T3Field
         {
             get;
         }
 
+        /// <summary> Top center - 5 symbols field.  </summary>
         public virtual string T5Field
         {
-            get;
+            get
+            {
+                return "ihka" + IntegratedHeatingAndAirConditioning.AuxilaryHeaterWorkingRequestsCounter;
+            }
         }
 
         protected ArrayList Items { get; private set; }

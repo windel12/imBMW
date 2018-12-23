@@ -10,14 +10,18 @@ namespace imBMW.iBus.Devices.Real
     {
         /// <summary> T0 field, 11 chars </summary>
         Title,
-        /// <summary> T6 field, 11 chars </summary>
-        Status,
-        /// <summary> T1 field </summary>
+        /// <summary> T1 field, 4 chars </summary>
         T1,
+        /// <summary> T2 field, 3 chars </summary>
+        T2,
         /// <summary> T3 field, 5 chars('<>', 'RND') </summary>
         T3,
+        /// <summary> T4 field, 3 chars </summary>
+        T4,
         /// <summary> T5 field, 5 chars </summary>
         T5,
+        /// <summary> T6 field, 11 chars </summary>
+        Status,
         /// <summary> One of 10 items, 23 chars </summary>
         Item,
     }
@@ -172,11 +176,12 @@ namespace imBMW.iBus.Devices.Real
         public static Message MessageDisableRadioMenu = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.Radio, "Disable radio menu", 0x45, 0x02); // Thanks to RichardP (Intravee) for these two messages
         public static Message MessageEnableRadioMenu = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.Radio, "Enable radio menu", 0x45, 0x00);
 
-        public static byte[] DataShowTitle = new byte[] { 0x23, 0x62, 0x10 /*30?*/ }; // <68 Length 3B> 23 62 30 <Text in ASCII Hex> <XOR>
-        public static byte[] DataShowStatus = new byte[] { 0xA5, 0x62, 0x01, /*In*/0x06/*dex*/ }; // <68 Length 3B> A5 62 01 <Index of the text field> <Text in ASCII Hex> <XOR>
-        public static byte[] DataShowT1 = new byte[] { 0xA5, 0x62, 0x01, /*In*/0x01/*dex*/ };
-        public static byte[] DataShowT3 = new byte[] { 0xA5, 0x62, 0x01, /*In*/0x03/*dex*/ };
-        public static byte[] DataShowT5 = new byte[] { 0xA5, 0x62, 0x01, /*In*/0x05/*dex*/ };
+        public static byte[] DataShowTitle =    new byte[] { 0x23, 0x62, 0x10 /*30?*/ }; // <68 Length 3B> 23 62 30 <Text in ASCII Hex> <XOR>
+        public static byte[] DataShowHeader =   new byte[] { 0xA5, 0x62, 0x01 };
+        public static byte[] DataShowStatus =   new byte[] { 0xA5, 0x62, 0x01, /*In*/0x06/*dex*/ }; // <68 Length 3B> A5 62 01 <Index of the text field> <Text in ASCII Hex> <XOR>
+        public static byte[] DataShowT1 =       new byte[] { 0xA5, 0x62, 0x01, /*In*/0x01/*dex*/ };
+        public static byte[] DataShowT3 =       new byte[] { 0xA5, 0x62, 0x01, /*In*/0x03/*dex*/ };
+        public static byte[] DataShowT5 =       new byte[] { 0xA5, 0x62, 0x01, /*In*/0x05/*dex*/ };
 
         public static byte[] DataDrawIndexMk2 = { 0xA5, 0x62, 0x00 };
         public static byte[] DataDrawIndexMk34 = { 0x21, 0x60, 0x00 };
@@ -256,9 +261,11 @@ namespace imBMW.iBus.Devices.Real
                 }
                 else if (m.Data.StartsWith(DataUpdateScreen))
                 {
-                    if (m.Data.StartsWith(DataShowStatus))
+                    if (m.Data.StartsWith(DataShowHeader))
                     {
-                        var a = new BordmonitorText(BordmonitorFields.Status, m.Data);
+                        var headerIndex = m.Data[DataShowHeader.Length];
+                        var field = EnumConverter.GetBordmonitorFieldFromIndex(headerIndex);
+                        var a = new BordmonitorText(field, m.Data);
                         if (e != null)
                         {
                             e(a);
@@ -348,10 +355,6 @@ namespace imBMW.iBus.Devices.Real
                     len = 11;
                     data = DataShowTitle;
                     break;
-                case BordmonitorFields.Status:
-                    len = 11;
-                    data = DataShowStatus;
-                    break;
                 case BordmonitorFields.T1:
                     len = 4;
                     data = DataShowT1;
@@ -363,6 +366,10 @@ namespace imBMW.iBus.Devices.Real
                 case BordmonitorFields.T5:
                     len = 5;
                     data = DataShowT5;
+                    break;
+                case BordmonitorFields.Status:
+                    len = 11;
+                    data = DataShowStatus;
                     break;
                 case BordmonitorFields.Item:
                     if (isChecked)

@@ -1,9 +1,12 @@
 using System.Threading;
+using imBMW.Tools;
 
 namespace imBMW.iBus.Devices.Real
 {
     public enum AuxilaryHeaterStatus
     {
+        Unknown,
+        Present,
         Stopped,
         StopPending,
         StartPending,
@@ -14,20 +17,27 @@ namespace imBMW.iBus.Devices.Real
     public static class AuxilaryHeater
     {
         /// <summary> 6B 04 9E F1 </summary>
-        internal static DS2Message SteuernZuheizerOn1 = new DS2Message(DeviceAddress.AuxilaryHeater, 0x9E);
+        internal static DS2Message DiagnoseStart = new DS2Message(DeviceAddress.AuxilaryHeater, 0x9E);
         /// <summary> 6B 05 0C E0 82 </summary>
-        internal static DS2Message SteuernZuheizerOn2 = new DS2Message(DeviceAddress.AuxilaryHeater, 0x0C, 0xE0);
+        internal static DS2Message SteuernZuheizerOn = new DS2Message(DeviceAddress.AuxilaryHeater, 0x0C, 0xE0);
         /// <summary> 6B 05 0C 00 62 </summary>
         public static DS2Message SteuernZuheizerOff = new DS2Message(DeviceAddress.AuxilaryHeater, 0x0C, 0x00);
         /// <summary> 6B 04 A0 CF </summary>
-        public static DS2Message ZuheizerStatusOk = new DS2Message(DeviceAddress.AuxilaryHeater, 0xA0);
+        public static DS2Message DiagnoseOk = new DS2Message(DeviceAddress.AuxilaryHeater, 0xA0);
         /// <summary> 6B 03 3F A0 F7 </summary>
-        public static Message ZuheizerStatusOk_KBus = new Message(DeviceAddress.AuxilaryHeater, DeviceAddress.Diagnostic, 0xA0);
+        public static Message DiagnoseOk_KBus = new Message(DeviceAddress.AuxilaryHeater, DeviceAddress.Diagnostic, 0xA0);
+
+
+        /// <summary> 6B 05 5B 93 00 22 ?? </summary>
+        public static Message AdditionalHeaterWorkingResponse = new Message(DeviceAddress.AuxilaryHeater, DeviceAddress.IntegratedHeatingAndAirConditioning, 0x93, 0x00, 0x22);
+        /// <summary> 6B 05 5B 93 00 21 ?? </summary>
+        public static Message AdditionalHeaterStopped1 = new Message(DeviceAddress.AuxilaryHeater, DeviceAddress.IntegratedHeatingAndAirConditioning, 0x93, 0x00, 0x21);
+        /// <summary> 6B 05 5B 93 00 11 ?? </summary>
+        public static Message AdditionalHeaterStopped2 = new Message(DeviceAddress.AuxilaryHeater, DeviceAddress.IntegratedHeatingAndAirConditioning, 0x93, 0x00, 0x11);
 
         public static byte[] DataZuheizerStatusRequest = new byte[] { 0x00 };
 
         private static AuxilaryHeaterStatus status;
-
         public static AuxilaryHeaterStatus Status
         {
             get { return status; }
@@ -45,7 +55,7 @@ namespace imBMW.iBus.Devices.Real
 
         static AuxilaryHeater()
         {
-            DbusManager.AddMessageReceiverForDestinationDevice(DeviceAddress.AuxilaryHeater, ProcessAuxilaryHeaterMessageFromDBUS);
+            DBusManager.Instance.AddMessageReceiverForDestinationDevice(DeviceAddress.AuxilaryHeater, ProcessAuxilaryHeaterMessageFromDBUS);
         }
 
         public static void ProcessAuxilaryHeaterMessageFromDBUS(Message m)
@@ -56,7 +66,7 @@ namespace imBMW.iBus.Devices.Real
                 if (Status == AuxilaryHeaterStatus.StartPending)
                 {
                     Status = AuxilaryHeaterStatus.Starting;
-                    DbusManager.EnqueueMessage(SteuernZuheizerOn2);
+                    DBusManager.Instance.EnqueueMessage(SteuernZuheizerOn);
                     return;
                 }
                 if (Status == AuxilaryHeaterStatus.Starting)
@@ -72,15 +82,15 @@ namespace imBMW.iBus.Devices.Real
             }
         }
 
-        public static void StartAuxilaryHeater()
+        public static void StartAuxilaryHeaterOverDBus()
         {
-            DbusManager.EnqueueMessage(SteuernZuheizerOn1);
+            DBusManager.Instance.EnqueueMessage(DiagnoseStart);
             Status = AuxilaryHeaterStatus.StartPending;
         }
 
-        public static void StopAuxilaryHeater()
+        public static void StopAuxilaryHeaterOverDBus()
         {
-            DbusManager.EnqueueMessage(SteuernZuheizerOff);
+            DBusManager.Instance.EnqueueMessage(SteuernZuheizerOff);
             Status = AuxilaryHeaterStatus.StopPending;
         }
 

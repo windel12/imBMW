@@ -48,7 +48,7 @@ namespace imBMW.Multimedia
 
         void VoiceButtonLongPress();
 
-        bool RandomToggle();
+        bool RandomToggle(byte diskNumber);
 
         void VolumeUp();
 

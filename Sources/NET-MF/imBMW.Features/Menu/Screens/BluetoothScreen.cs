@@ -31,7 +31,7 @@ namespace imBMW.Features.Menu.Screens
 
             ClearItems();
 
-            AddItem(new MenuItem(i => "Источник: " + AudioSource.ToString(), i =>
+            AddItem(new MenuItem(i => "Источник: " + AudioSource.ToStringValue(), i =>
             {
                 AudioSource = AudioSource == AudioSource.SDCard ? AudioSource.Bluetooth : AudioSource.SDCard;
             }, MenuItemType.Button, MenuItemAction.Refresh));

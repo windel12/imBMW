@@ -8,31 +8,111 @@ namespace imBMW.iBus
 {
     public static class Manager
     {
-        static ISerialPort iBus;
-        public static bool Inited { get; private set; }
-
-        static QueueThreadWorker messageWriteQueue;
-        //static QueueThreadWorker messageReadQueue;
-
-        static DateTime lastMessage = DateTime.Now;
-        static byte[] messageBuffer = new byte[Message.PacketLengthMax];
-        static int messageBufferLength = 0;
-        static object bufferSync = new object();
+        private static ManagerImpl _instance;
+        private static ManagerImpl Instance
+        {
+            get
+            {
+                if (_instance == null/* || !_instance.Inited*/)
+                {
+                    //throw new Exception(nameof(Manager) + " should be firstly be inited.");
+                    _instance = new ManagerImpl();
+                }
+                return _instance;
+            }
+        }
 
         public static void Init(ISerialPort port)
         {
-            messageWriteQueue = new QueueThreadWorker(SendMessage);
+            if (!Instance.Inited)
+            {
+                Instance.InitPort(port, "iBus");
+            }
+            else
+            {
+                throw new Exception(nameof(Manager) + " already inited.");
+            }
+        }
+
+        public static bool Inited => Instance.Inited;
+
+        public static void ProcessMessage(Message m) => Instance.ProcessMessage(m);
+
+        public static void EnqueueMessage(Message m) => Instance.EnqueueMessage(m);
+
+        public static void EnqueueMessage(params Message[] messages) => Instance.EnqueueMessage(messages);
+
+        public static event MessageEventHandler BeforeMessageReceived
+        {
+            add { Instance.BeforeMessageReceived += value; }
+            remove { Instance.BeforeMessageReceived -= value; }
+        }
+
+        public static event MessageEventHandler AfterMessageReceived
+        {
+            add { Instance.AfterMessageReceived += value; }
+            remove { Instance.AfterMessageReceived -= value; }
+        }
+
+        public static event MessageEventHandler BeforeMessageSent
+        {
+            add { Instance.BeforeMessageSent += value; }
+            remove { Instance.BeforeMessageSent -= value; }
+        }
+
+        public static event MessageEventHandler AfterMessageSent
+        {
+            add { Instance.AfterMessageSent += value; }
+            remove { Instance.AfterMessageSent -= value; }
+        }
+
+        public static void AddMessageReceiverForSourceDevice(DeviceAddress source, MessageReceiver callback) => 
+            Instance.AddMessageReceiverForSourceDevice(source, callback);
+
+        public static void AddMessageReceiverForDestinationDevice(DeviceAddress destination, MessageReceiver callback) => 
+            Instance.AddMessageReceiverForDestinationDevice(destination, callback);
+
+        public static void AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress source, DeviceAddress destination, MessageReceiver callback) => 
+            Instance.AddMessageReceiverForSourceAndDestinationDevice(source, destination, callback);
+
+        public static void AddMessageReceiverForSourceOrDestinationDevice(DeviceAddress source, DeviceAddress destination, MessageReceiver callback) => 
+            Instance.AddMessageReceiverForSourceOrDestinationDevice(source, destination, callback);
+
+        public static bool FindDevice(DeviceAddress device) => Instance.FindDevice(device);
+        public static bool FindDevice(DeviceAddress device, int timeout) => Instance.FindDevice(device, timeout);
+    }
+
+    public class ManagerImpl
+    {
+        protected internal ISerialPort _port;
+        public bool Inited { get; private set; }
+
+        QueueThreadWorker messageWriteQueue;
+        //QueueThreadWorker messageReadQueue;
+
+        protected DateTime lastMessage = DateTime.Now;
+        protected byte[] messageBuffer = new byte[Message.PacketLengthMax];
+        protected int messageBufferLength = 0;
+        protected object bufferSync = new object();
+
+        internal ManagerImpl()
+        {
+        }
+
+        public void InitPort(ISerialPort port, string queueThreadWorkerName = "")
+        {
+            messageWriteQueue = new QueueThreadWorker(SendMessage, queueThreadWorkerName);
             //messageReadQueue = new QueueThreadWorker(ProcessMessage);
 
-            iBus = port;
-            iBus.DataReceived += new SerialDataReceivedEventHandler(iBus_DataReceived);
+            _port = port;
+            _port.DataReceived += new SerialDataReceivedEventHandler(bus_DataReceived);
 
             Inited = true;
         }
 
         #region Message reading and processing
 
-        static void iBus_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        protected virtual void bus_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             ISerialPort port = (ISerialPort)sender;
             if (port.AvailableBytes == 0)
@@ -83,7 +163,7 @@ namespace imBMW.iBus
             }
         }
 
-        static void SkipBuffer(int count)
+        protected void SkipBuffer(int count)
         {
             messageBufferLength -= count;
             if (messageBufferLength > 0)
@@ -92,7 +172,7 @@ namespace imBMW.iBus
             }
         }
 
-        public static void ProcessMessage(Message m)
+        public void ProcessMessage(Message m)
         {
             #if DEBUG
             m.PerformanceInfo.TimeStartedProcessing = DateTime.Now;
@@ -156,12 +236,12 @@ namespace imBMW.iBus
 
         #region Message writing and queue
 
-        static void SendMessage(object o)
+        void SendMessage(object o)
         {
             if (o is byte[])
             {
-                iBus.Write((byte[])o);
-                Thread.Sleep(iBus.AfterWriteDelay);
+                _port.Write((byte[])o);
+                Thread.Sleep(_port.AfterWriteDelay);
                 return;
             }
 
@@ -183,7 +263,7 @@ namespace imBMW.iBus
                 }
             }
 
-            iBus.Write(m.Packet);
+            _port.Write(m.Packet);
 
             #if DEBUG
             m.PerformanceInfo.TimeEndedProcessing = DateTime.Now;
@@ -199,10 +279,10 @@ namespace imBMW.iBus
                 e(args);
             }
 
-            Thread.Sleep(m.AfterSendDelay > 0 ? m.AfterSendDelay : iBus.AfterWriteDelay); // Don't flood iBus
+            Thread.Sleep(m.AfterSendDelay > 0 ? m.AfterSendDelay : _port.AfterWriteDelay); // Don't flood iBus
         }
 
-        public static void EnqueueMessage(Message m)
+        public void EnqueueMessage(Message m)
         {
             #if DEBUG
             m.PerformanceInfo.TimeEnqueued = DateTime.Now;
@@ -217,7 +297,7 @@ namespace imBMW.iBus
             }
         }
 
-        public static void EnqueueMessage(params Message[] messages)
+        public void EnqueueMessage(params Message[] messages)
         {
             #if DEBUG
             var now = DateTime.Now;
@@ -240,27 +320,27 @@ namespace imBMW.iBus
         /// Fired before processing the message by registered receivers.
         /// Message processing could be cancelled in this event
         /// </summary>
-        public static event MessageEventHandler BeforeMessageReceived;
+        public event MessageEventHandler BeforeMessageReceived;
 
         /// <summary>
         /// Fired after processing the message by registered receivers
         /// </summary>
-        public static event MessageEventHandler AfterMessageReceived;
+        public event MessageEventHandler AfterMessageReceived;
 
         /// <summary>
         /// Fired before sending the message.
         /// Message processing could be cancelled in this event
         /// </summary>
-        public static event MessageEventHandler BeforeMessageSent;
+        public event MessageEventHandler BeforeMessageSent;
 
         /// <summary>
         /// Fired after sending the message
         /// </summary>
-        public static event MessageEventHandler AfterMessageSent;
+        public event MessageEventHandler AfterMessageSent;
 
-        static ArrayList messageReceiverList;
+        ArrayList messageReceiverList;
 
-        static ArrayList MessageReceiverList
+        protected ArrayList MessageReceiverList
         {
             get
             {
@@ -270,24 +350,25 @@ namespace imBMW.iBus
                 }
                 return messageReceiverList;
             }
+            private set { messageReceiverList = value; }
         }
 
-        public static void AddMessageReceiverForSourceDevice(DeviceAddress source, MessageReceiver callback)
+        public void AddMessageReceiverForSourceDevice(DeviceAddress source, MessageReceiver callback)
         {
             MessageReceiverList.Add(new MessageReceiverRegistration(source, DeviceAddress.Unset, callback, MessageReceiverRegistration.MatchType.Source));
         }
 
-        public static void AddMessageReceiverForDestinationDevice(DeviceAddress destination, MessageReceiver callback)
+        public void AddMessageReceiverForDestinationDevice(DeviceAddress destination, MessageReceiver callback)
         {
             MessageReceiverList.Add(new MessageReceiverRegistration(DeviceAddress.Unset, destination, callback, MessageReceiverRegistration.MatchType.Destination));
         }
 
-        public static void AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress source, DeviceAddress destination, MessageReceiver callback)
+        public void AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress source, DeviceAddress destination, MessageReceiver callback)
         {
             MessageReceiverList.Add(new MessageReceiverRegistration(source, destination, callback, MessageReceiverRegistration.MatchType.SourceAndDestination));
         }
 
-        public static void AddMessageReceiverForSourceOrDestinationDevice(DeviceAddress source, DeviceAddress destination, MessageReceiver callback)
+        public void AddMessageReceiverForSourceOrDestinationDevice(DeviceAddress source, DeviceAddress destination, MessageReceiver callback)
         {
             MessageReceiverList.Add(new MessageReceiverRegistration(source, destination, callback, MessageReceiverRegistration.MatchType.SourceOrDestination));
         }
@@ -298,16 +379,16 @@ namespace imBMW.iBus
 
         const int findDeviceTimeout = 2000;
 
-        static DeviceAddress findDevice;
-        static ManualResetEvent findDeviceSync = new ManualResetEvent(false);
-        static ArrayList foundDevices = new ArrayList();
+        DeviceAddress findDevice;
+        ManualResetEvent findDeviceSync = new ManualResetEvent(false);
+        ArrayList foundDevices = new ArrayList();
 
-        public static bool FindDevice(DeviceAddress device)
+        public bool FindDevice(DeviceAddress device)
         {
             return FindDevice(device, findDeviceTimeout);
         }
 
-        public static bool FindDevice(DeviceAddress device, int timeout)
+        public bool FindDevice(DeviceAddress device, int timeout)
         {
             if (foundDevices.Contains(device))
             {
@@ -325,7 +406,7 @@ namespace imBMW.iBus
             }
         }
 
-        static void SaveFoundDevice(MessageEventArgs e)
+        void SaveFoundDevice(MessageEventArgs e)
         {
             if (!foundDevices.Contains(e.Message.SourceDevice))
             {

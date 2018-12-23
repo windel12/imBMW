@@ -197,25 +197,19 @@ namespace imBMW.iBus.Devices.Emulators
 
                 Action1 randomToggle = (newDiskNumber) => 
                 {
-                    RandomToggle();
-
-                    if (newDiskNumber != Player.DiskNumber)
-                    {
-                        Player.DiskNumber = newDiskNumber;
-                        Player.TrackNumber = 1;
-                    }
+                    RandomToggle(newDiskNumber);
                 };
-                if (m.Data[1] == 0x11 && IsEnabled) // 1
+                if (m.Data[1] == 0x91 && IsEnabled) // 1
                     randomToggle(1);
-                if (m.Data[1] == 0x01 && IsEnabled) // 2
+                if (m.Data[1] == 0x81 && IsEnabled) // 2
                     randomToggle(2);
-                if (m.Data[1] == 0x12 && IsEnabled) // 3
+                if (m.Data[1] == 0x92 && IsEnabled) // 3
                     randomToggle(3);
-                if (m.Data[1] == 0x02 && IsEnabled) // 4
+                if (m.Data[1] == 0x82 && IsEnabled) // 4
                     randomToggle(4);
-                if (m.Data[1] == 0x13 && IsEnabled) // 5
+                if (m.Data[1] == 0x93 && IsEnabled) // 5
                     randomToggle(5);
-                if (m.Data[1] == 0x03 && IsEnabled) // 6
+                if (m.Data[1] == 0x83 && IsEnabled) // 6
                     randomToggle(6);
             }
         }
@@ -253,7 +247,7 @@ namespace imBMW.iBus.Devices.Emulators
             }
             else if (m.Data.Compare(DataRandomPlay))
             {
-                RandomToggle();
+                RandomToggle(Player.DiskNumber);
                 Manager.EnqueueMessage(StatusStartPlaying(Player.DiskNumber, Player.TrackNumber));
                 m.ReceiverDescription = "Random toggle";
             }

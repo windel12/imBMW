@@ -13,7 +13,8 @@ namespace imBMW.Tools
             var e = Logged;
             if (e != null)
             {
-                e(new LoggerArgs(priority, message, priorityTitle));
+                var args = new LoggerArgs(priority, message, priorityTitle);
+                e(args);
             }
         }
 

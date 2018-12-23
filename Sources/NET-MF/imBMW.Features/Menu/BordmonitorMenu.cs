@@ -284,6 +284,12 @@ namespace imBMW.Features.Menu
                             //    UpdateScreen();
                             //}
                             break;
+                        case 0x87: // 'AuxilaryHeater/Clock' button release
+                            IntegratedHeatingAndAirConditioning.StartAuxilaryHeater();
+                            break;
+                        case 0x94: // '<>' button release
+                            IntegratedHeatingAndAirConditioning.StopAuxilaryHeater();
+                            break;
                     }
                 }
             }
@@ -355,11 +361,11 @@ namespace imBMW.Features.Menu
                 var messages = new Message[5];
                 var n = 0;
                 messages[n++] = Bordmonitor.ShowText(CurrentScreen.Title ?? String.Empty, BordmonitorFields.Title, 0, false, false);
-                messages[n++] = Bordmonitor.ShowText(CurrentScreen.Status ?? String.Empty, BordmonitorFields.Status, 0, false, false);
                 messages[n++] = Bordmonitor.ShowText(CurrentScreen.T1Field ?? String.Empty, BordmonitorFields.T1, 0, false, false);
                 messages[n++] = Bordmonitor.ShowText(CurrentScreen.T3Field ?? String.Empty, BordmonitorFields.T3, 0, false, false);
                 messages[n++] = Bordmonitor.ShowText(CurrentScreen.T5Field ?? String.Empty, BordmonitorFields.T5, 0, false, false);
-                
+                messages[n++] = Bordmonitor.ShowText(CurrentScreen.Status ?? String.Empty, BordmonitorFields.Status, 0, false, false);
+
                 Manager.EnqueueMessage(messages);
                 isHeaderDrawing = false;
             }

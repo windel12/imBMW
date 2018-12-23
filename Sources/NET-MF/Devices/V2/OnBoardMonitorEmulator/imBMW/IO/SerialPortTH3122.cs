@@ -65,5 +65,10 @@ namespace System.IO.Ports
             }
             return base.ReadAvailable(maxCount);
         }
+
+        public override string ToString()
+        {
+            return _port.PortName;
+        }
     }
 }

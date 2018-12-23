@@ -1,4 +1,6 @@
 using System;
+using imBMW.Features.Menu.Screens;
+using imBMW.iBus.Devices.Real;
 using Microsoft.SPOT;
 using imBMW.Multimedia;
 
@@ -28,5 +30,29 @@ namespace imBMW
             return "NotSpecified(" + e.ToString() + ")";
         }
 
+        public static string ToStringValue(this AuxilaryHeaterStatus e)
+        {
+            switch (e)
+            {
+                case AuxilaryHeaterStatus.Unknown: return "Unknown";
+                case AuxilaryHeaterStatus.Present: return "Present";
+                case AuxilaryHeaterStatus.Stopped: return "Stopped";
+                case AuxilaryHeaterStatus.StopPending: return "StopPending";
+                case AuxilaryHeaterStatus.StartPending: return "StartPending";
+                case AuxilaryHeaterStatus.Starting: return "Starting";
+                case AuxilaryHeaterStatus.Started: return "Started";
+            }
+            return "NotSpecified(" + e.ToString() + ")";
+        }
+
+        public static string ToStringValue(this AudioSource e)
+        {
+            switch (e)
+            {
+                case AudioSource.SDCard: return "SDCard";
+                case AudioSource.Bluetooth: return "Bluetooth";
+            }
+            return "NotSpecified(" + e.ToString() + ")";
+        }
     }
 }

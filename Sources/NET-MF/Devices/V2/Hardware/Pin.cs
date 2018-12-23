@@ -30,12 +30,17 @@ namespace imBMW.Devices.V2.Hardware
         /// <summary>
         /// Interrupt port for TH3122 SEN/STA (busy) output.
         /// </summary>
-        public static Cpu.Pin D_BUS_TH3122SENSTA = FEZPandaIII.Gpio.D32; //Generic.GetPin('C', 2);
+        public static Cpu.Pin D_BUS_TH3122SENSTA = FEZPandaIII.Gpio.D32; 
+
+        /// <summary>
+        /// Interrupt port for TH3122 SEN/STA (busy) output.
+        /// </summary>
+        public static Cpu.Pin K_BUS_TH3122SENSTA = FEZPandaIII.Gpio.D41; 
 
         /// <summary>
         /// 
         /// </summary>
-        public static Cpu.Pin ResetPin = FEZPandaIII.Gpio.D39; //Generic.GetPin('C', 2);
+        public static Cpu.Pin ResetPin = FEZPandaIII.Gpio.D40; //Generic.GetPin('C', 2);
 
         /// <summary>
         /// Digital I/O.

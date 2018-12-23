@@ -12,7 +12,7 @@ namespace imBMW.Tools
         ProcessItem processItem;
         object lockObj = new object();
 
-        public QueueThreadWorker(ProcessItem processItem)
+        public QueueThreadWorker(ProcessItem processItem, string threadName = "")
         {
             if (processItem == null)
             {
@@ -21,6 +21,9 @@ namespace imBMW.Tools
             this.processItem = processItem;
             queueThread = new Thread(queueWorker);
             queueThread.Priority = ThreadPriority.AboveNormal;
+#if !NETMF
+            queueThread.Name = threadName;
+#endif
             queueThread.Start();
         }
 
@@ -42,7 +45,8 @@ namespace imBMW.Tools
                 }
                 if (m == null)
                 {
-                    Thread.CurrentThread.Suspend();
+                    queueThread.Suspend();
+                    //Thread.CurrentThread.Suspend();
                     continue;
                 }
                 try

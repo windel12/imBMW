@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading;
 using imBMW.iBus;
+using imBMW.iBus.Devices.Real;
+using imBMW.Tools;
 
 namespace OnBoardMonitorEmulator.DevicesEmulation
 {
@@ -10,8 +12,24 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
 
         static InstrumentClusterElectronicsEmulator()
         {
-            DbusManager.AddMessageReceiverForSourceDevice(DeviceAddress.OBD, ProcessDS2MessageAndForwardToIBus);
+            Manager.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, ProcessMessageFromGraphicNavigationDriver);
+
+            DBusManager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.OBD, ProcessDS2MessageAndForwardToIBus);
             Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.Diagnostic, ProcessDiagnosticMessageFromIBusAndForwardToDBus);
+        }
+
+        static void ProcessMessageFromGraphicNavigationDriver(Message m)
+        {
+            if (m.Data.Compare(InstrumentClusterElectronics.MessageRequestTime.Data))
+            {
+                // 16:58
+                Manager.EnqueueMessage(new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.FrontDisplay, 0x24, 0x01, 0x00, 0x31, 0x36, 0x3A, 0x34, 0x38, 0x20, 0x20));
+            }
+            if (m.Data.Compare(InstrumentClusterElectronics.MessageRequestDate.Data))
+            {
+                // 06/26/2016"
+                Manager.EnqueueMessage(new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.FrontDisplay, 0x24, 0x02, 0x00, 0x30, 0x36, 0x2F, 0x32, 0x36, 0x2F, 0x32, 0x30, 0x31, 0x36));
+            }
         }
 
         static void ProcessDS2MessageAndForwardToIBus(Message m)
@@ -33,7 +51,7 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
             {
                 Thread.Sleep(100);
                 var message = new DS2Message(m.SourceDevice, m.Data);
-                DbusManager.EnqueueMessage(message);
+                DBusManager.Instance.EnqueueMessage(message);
             }
         }
     }

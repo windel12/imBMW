@@ -71,9 +71,12 @@ namespace OnBoardMonitorEmulator
             DDEEmulator.Init();
 
             Launcher.Launch(Launcher.LaunchMode.WPF);
+
+            
+
             Bordmonitor.TextReceived += Bordmonitor_TextReceived;
 
-            BordmonitorMenu.Instance.CurrentScreen = ActivateScreen.Instance;
+            BordmonitorMenu.Instance.CurrentScreen = HomeScreen.Instance;
             Launcher.emulator.IsEnabled = true;
         }
 
@@ -161,6 +164,36 @@ namespace OnBoardMonitorEmulator
             var textBlock = sender as TextBlock;
             var index = (byte)(int.Parse(new String(textBlock.Name.Skip(5).ToArray())) -1);
             Bordmonitor.PressItem(index);
+        }
+
+        private void DiskButton_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var button = sender as Button;
+            var index = int.Parse(button.Content.ToString());
+            byte secondByte = 0x00;
+            switch (index)
+            {
+                case 1: secondByte = 0x91; break;
+                case 2: secondByte = 0x81; break;
+                case 3: secondByte = 0x92; break;
+                case 4: secondByte = 0x82; break;
+                case 5: secondByte = 0x93; break;
+                case 6: secondByte = 0x83; break;
+            }
+            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, 0x48, secondByte);
+            WriteMessage(message);
+        }
+
+        private void ClockButton_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Broadcast, 0x48, 0x87);
+            WriteMessage(message);
+        }
+
+        private void ArrowsButton_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, 0x48, 0x94);
+            WriteMessage(message);
         }
     }
 }

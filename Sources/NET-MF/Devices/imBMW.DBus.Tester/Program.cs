@@ -28,18 +28,18 @@ namespace imBMW.DBus.Tester
 
             ISerialPort dBusPort = new SerialInterruptPort(new SerialPortConfiguration("COM4", 9600, Parity.Even, 8, StopBits.One), Cpu.Pin.GPIO_NONE, 1, 258); // d31, d33
             dBusPort.AfterWriteDelay = 4;
-            DbusManager.Init(dBusPort);
+            DBusManager.Init(dBusPort);
 
-            DbusManager.BeforeMessageReceived += Manager_BeforeMessageReceived;
-            DbusManager.AfterMessageReceived += Manager_AfterMessageReceived;
-            DbusManager.BeforeMessageSent += Manager_BeforeMessageSent;
-            DbusManager.AfterMessageSent += Manager_AfterMessageSent;
+            DBusManager.Instance.BeforeMessageReceived += Manager_BeforeMessageReceived;
+            DBusManager.Instance.AfterMessageReceived += Manager_AfterMessageReceived;
+            DBusManager.Instance.BeforeMessageSent += Manager_BeforeMessageSent;
+            DBusManager.Instance.AfterMessageSent += Manager_AfterMessageSent;
 
             bool b = true;
             while (true)
             {
                 if(b)
-                    DbusManager.EnqueueMessage(motor_temperatur);
+                    DBusManager.Instance.EnqueueMessage(motor_temperatur);
                 Thread.Sleep(500);
             }
         }

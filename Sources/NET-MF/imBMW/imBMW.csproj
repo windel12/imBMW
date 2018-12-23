@@ -63,10 +63,10 @@
   </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
-    <Compile Include="Dbus\DbusManager.cs" />
-    <Compile Include="Dbus\DBusMessage.cs" />
-    <Compile Include="Dbus\DBusMessageParser.cs" />
-    <Compile Include="Dbus\DS2Message.cs" />
+    <Compile Include="DBus\DBusManager.cs" />
+    <Compile Include="DBus\DBusMessage.cs" />
+    <Compile Include="DBus\DBusMessageParser.cs" />
+    <Compile Include="DBus\DS2Message.cs" />
     <Compile Include="DebuggerBrowsableState.cs" />
     <Compile Include="iBus\DeviceAddress.cs" />
     <Compile Include="iBus\Devices\AuxilaryHeater.cs" />
@@ -74,11 +74,13 @@
     <Compile Include="iBus\Devices\Bordmonitor.cs" />
     <Compile Include="iBus\Devices\Immobiliser.cs" />
     <Compile Include="iBus\Devices\InstrumentClusterElectronics.cs" />
+    <Compile Include="iBus\Devices\IntegratedHeatingAndAirConditioning.cs" />
     <Compile Include="iBus\Devices\LightControlModule.cs" />
     <Compile Include="iBus\Devices\MultiFunctionSteeringWheel.cs" />
     <Compile Include="iBus\Devices\NavigationModule.cs" />
     <Compile Include="iBus\Devices\Radio.cs" />
     <Compile Include="iBus\InternalMessage.cs" />
+    <Compile Include="iBus\KBusManager.cs" />
     <Compile Include="iBus\ManagerTools.cs" />
     <Compile Include="iBus\MessageParser.cs" />
     <Compile Include="IO\ISerialPort.cs" />

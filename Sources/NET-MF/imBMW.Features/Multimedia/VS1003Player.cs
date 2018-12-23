@@ -183,12 +183,6 @@ namespace imBMW.Features.Multimedia
                     TrackNumber = lastTrackInfo[1];
                     IsRandom = lastTrackInfo[2] == 1;
                     CurrentPosition = BitConverter.ToInt32(lastTrackInfo, 3);
-#if DEBUG
-                    // BOOM-BOOM-BOOM
-                    //DiskNumber = 6;
-                    //TrackNumber = 0x33;
-                    //CurrentPosition = 0;
-#endif
                 }
                 finally
                 {
@@ -208,12 +202,7 @@ namespace imBMW.Features.Multimedia
                 }
 
                 // generate prepared next random tracks
-                for (byte i = 0; i < 2; i++)
-                {
-                    var randomDiskAndTrack = GenerateRandomDiskAndTrack();
-                    NextTracksQueue.Enqueue(randomDiskAndTrack);
-                    Thread.Sleep(15); // for random working
-                }
+                GeneratePreparedNextTracks(DiskNumber);
 
                 Action saveHistory = () =>
                 {
@@ -231,12 +220,23 @@ namespace imBMW.Features.Multimedia
                         if(dataFileWrite != null) { dataFileWrite.Close();}
                     }
                 };
-                TrackChanged += (sender, trackInfo) => { saveHistory(); };
+                //TrackChanged += (sender, trackInfo) => { saveHistory(); };
                 IsPlayingChanged += (sender, isPlaying) => { if(!isPlaying) { saveHistory();} };
             }
             else
             {
                 Logger.Log(LogPriority.Warning, "Storage is not formatted. " + "Format on PC with FAT32/FAT16 first!");
+            }
+        }
+
+        private void GeneratePreparedNextTracks(byte diskNumber)
+        {
+            NextTracksQueue.Clear();
+            for (byte i = 0; i < 2; i++)
+            {
+                var randomDiskAndTrack = GenerateRandomDiskAndTrack(diskNumber);
+                NextTracksQueue.Enqueue(randomDiskAndTrack);
+                Thread.Sleep(15); // for random working
             }
         }
 
@@ -262,7 +262,7 @@ namespace imBMW.Features.Multimedia
             base.Pause();
         }
 
-        private DiskAndTrack GenerateRandomDiskAndTrackNumbers()
+        private DiskAndTrack GenerateRandomDiskAndTrackNumbers(byte diskNumber)
         {
             var diskAndTrack = new DiskAndTrack();
             Random r = new Random();
@@ -280,7 +280,7 @@ namespace imBMW.Features.Multimedia
             {
                 do
                 {
-                    diskAndTrack.diskNumber = DiskNumber;
+                    diskAndTrack.diskNumber = diskNumber;
                     filesOnDisk = (byte)StorageInfo[diskAndTrack.diskNumber];
                 } while (filesOnDisk == 0);
                 diskAndTrack.trackNumber = (byte)(r.Next(filesOnDisk) + 1);
@@ -288,9 +288,9 @@ namespace imBMW.Features.Multimedia
             return diskAndTrack;
         }
 
-        private DiskAndTrack GenerateRandomDiskAndTrack()
+        private DiskAndTrack GenerateRandomDiskAndTrack(byte diskNumber)
         {
-            var newRandomDiskAndTrack = GenerateRandomDiskAndTrackNumbers();
+            var newRandomDiskAndTrack = GenerateRandomDiskAndTrackNumbers(diskNumber);
             return GenerateConcreteDiskAndTrack(newRandomDiskAndTrack.diskNumber, newRandomDiskAndTrack.trackNumber);
         }
 
@@ -348,7 +348,7 @@ namespace imBMW.Features.Multimedia
                 FileName = preparedItem.fileName;
 
                 OnTrackChanged();
-                var newRandomTrackItem = GenerateRandomDiskAndTrack();
+                var newRandomTrackItem = GenerateRandomDiskAndTrack(DiskNumber);
                 NextTracksQueue.Enqueue(newRandomTrackItem);
             }
         }
@@ -376,9 +376,15 @@ namespace imBMW.Features.Multimedia
             ChangeTrack = true;
         }
 
-        public override bool RandomToggle()
+        public override bool RandomToggle(byte newDiskNumber)
         {
+            if (!IsRandom && newDiskNumber != DiskNumber)
+            {
+                GeneratePreparedNextTracks(newDiskNumber);
+                return IsRandom;
+            }
             IsRandom = !IsRandom;
+            GeneratePreparedNextTracks(newDiskNumber);
             return IsRandom;
         }
 
@@ -428,7 +434,7 @@ namespace imBMW.Features.Multimedia
                     // http://id3.org/id3v2.4.0-structure#line-39
                     int startPositionOfAudioStream = (int)buffer[6] << 21 | (int)buffer[7] << 14 | (int)buffer[8] << 7 | (int)buffer[9];
                     Logger.Info("Skip id3 tag bytes: " + startPositionOfAudioStream);
-                    Logger.Trace("FileName:" + CurrentTrack.FileName + " FileLength:" + stream.Length + " startPositionOfAudioStream:" + startPositionOfAudioStream);
+                    Logger.Info("FileName:" + CurrentTrack.FileName + " FileLength:" + stream.Length + " startPositionOfAudioStream:" + startPositionOfAudioStream);
                     if (CurrentPosition >= stream.Length)
                     {
                         CurrentPosition = 0;

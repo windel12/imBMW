@@ -3,6 +3,7 @@ using imBMW.iBus.Devices.Real;
 using imBMW.Tools;
 using imBMW.Features.Localizations;
 using imBMW.iBus.Devices.Emulators;
+using Microsoft.SPOT.Hardware;
 
 namespace imBMW.Features.Menu.Screens
 {
@@ -44,6 +45,8 @@ namespace imBMW.Features.Menu.Screens
                 InstrumentClusterElectronics.RangeChanged += InstrumentClusterElectronics_RangeChanged;
                 InstrumentClusterElectronics.SpeedLimitChanged += InstrumentClusterElectronics_SpeedLimitChanged;
 
+                IntegratedHeatingAndAirConditioning.AuxilaryHeaterWorkingRequestsCounterChanged += IntegratedHeatingAndAirConditioning_AuxilaryHeaterWorkingRequestsCounterChanged;
+
                 UpdateVoltage();
                 return true;
             }
@@ -62,9 +65,16 @@ namespace imBMW.Features.Menu.Screens
                 InstrumentClusterElectronics.Consumption2Changed -= InstrumentClusterElectronics_Consumption2Changed;
                 InstrumentClusterElectronics.RangeChanged -= InstrumentClusterElectronics_RangeChanged;
                 InstrumentClusterElectronics.SpeedLimitChanged -= InstrumentClusterElectronics_SpeedLimitChanged;
+
+                IntegratedHeatingAndAirConditioning.AuxilaryHeaterWorkingRequestsCounterChanged -= IntegratedHeatingAndAirConditioning_AuxilaryHeaterWorkingRequestsCounterChanged;
                 return true;
             }
             return false;
+        }
+
+        private void IntegratedHeatingAndAirConditioning_AuxilaryHeaterWorkingRequestsCounterChanged(byte counter)
+        {
+            OnUpdateHeader(MenuScreenUpdateReason.Refresh);
         }
 
         private void InstrumentClusterElectronics_SpeedLimitChanged(SpeedLimitEventArgs e)
@@ -192,14 +202,14 @@ namespace imBMW.Features.Menu.Screens
             }
         }
 
-        public override string T3Field => 
-            MediaEmulator != null 
-                ? (MediaEmulator.Player.IsRandom ? "RND" : "") 
-                : "";
+        public override string T3Field
+        {
+            get { return MediaEmulator != null ? (MediaEmulator.Player.IsRandom ? "RND" : "") : ""; }
+        }
 
-        public override string T1Field =>
-            MediaEmulator != null
-                ? (MediaEmulator.Player.CurrentTrack.Time.ToString())
-                : "";
+        public override string T1Field
+        {
+            get { return MediaEmulator != null ? (MediaEmulator.Player.CurrentTrack.Time.ToString()) : ""; }
+        }   
     }
 }

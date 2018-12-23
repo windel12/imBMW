@@ -31,7 +31,7 @@ namespace imBMW.Devices.V2
         const string version = "FW1.0.12 HW2";
         static OutputPort LED;
         static OutputPort successInitLED;
-        static OutputPort led4;
+        static OutputPort errorLED;
         static OutputPort resetPin;
 
         static Settings settings;
@@ -54,18 +54,12 @@ namespace imBMW.Devices.V2
         {
             try
             {
-                Thread.Sleep(400);
-
-                //if(Debugger.IsAttached)
-                //    Debug.Print(Debug.GC(true).ToString());
-
                 SDCard sd = null;
                 settings = Settings.Init(sd != null ? sd + @"\imBMW.ini" : null);
                 LED = new OutputPort(Pin.LED, false);
                 successInitLED = new OutputPort(FEZPandaIII.Gpio.Led2, false);
-                led4 = new OutputPort(Pin.LED4, false);
+                errorLED = new OutputPort(Pin.LED4, false);
                 resetPin = new OutputPort(Pin.ResetPin, true);
-
 
                 //SettingsScreen.Instance.Status = version.Length > 11 ? version.Replace(" ", "") : version;
                 //Localization.SetCurrent(RussianLocalization.SystemName); //Localization.SetCurrent(settings.Language);
@@ -74,13 +68,26 @@ namespace imBMW.Devices.V2
                 //Features.Comfort.AutoCloseWindows = settings.AutoCloseWindows;
                 //Features.Comfort.AutoCloseSunroof = settings.AutoCloseSunroof;
 
-                sd_card = new SDCard(SDCard.SDInterface.MCI);
-                sd_card.Mount();
-                rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
+                int sdCardMountRetryCount = 0;
+                do
+                {
+                    try
+                    {
+                        sd_card = new SDCard(SDCard.SDInterface.MCI);
+                        sd_card.Mount();
+                        rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        sdCardMountRetryCount++;
+                        error = true;
+                        Thread.Sleep(333);
+                    }
+                } while (sdCardMountRetryCount < 6);
 
                 Init();
 
-                Debug.EnableGCMessages(true);
                 Logger.Info("Started!");
 
                 if(launchMode == LaunchMode.MicroFramework)
@@ -88,37 +95,48 @@ namespace imBMW.Devices.V2
             }
             catch (Exception ex)
             {
-                led4.Write(true);
+                errorLED.Write(true);
                 Logger.Error(ex, "while modules initialization");
             }
         }
         public static void Init()
         {
             Logger.Logged += Logger_Logged;
-            Logger.Info("Logger inited");
+            Logger.Trace("Logger inited");
 
-            string iBusComPort = Serial.COM1;
-            var busy = Pin.TH3122SENSTA;
-
+            var iBusBusy = Pin.TH3122SENSTA;
+            var kBusBusy = Pin.K_BUS_TH3122SENSTA;
 #if DEBUG || DebugOnRealDeviceOverFTDI
-            busy = Cpu.Pin.GPIO_NONE;
+            iBusBusy = Cpu.Pin.GPIO_NONE;
+            kBusBusy = Cpu.Pin.GPIO_NONE;
 #endif
 
-            ISerialPort iBusPort = new SerialPortTH3122(iBusComPort, busy);
+            string iBusComPort = Serial.COM1;
+            ISerialPort iBusPort = new SerialPortTH3122(iBusComPort, iBusBusy);
             Manager.Init(iBusPort);
-            Logger.Info("iBus manager inited");
-            RefreshLEDs(LedType.OrangeBlinking);
+
+            string kBusComPort = Serial.COM2;
+            ISerialPort kBusPort = new SerialPortTH3122(kBusComPort, kBusBusy);
+            KBusManager.Init(kBusPort);
+
+            ISerialPort dBusPort = new SerialPortTH3122("COM4", Cpu.Pin.GPIO_NONE, writeBufferSize: 1); // d31, d33
+            dBusPort.AfterWriteDelay = 4;
+            DBusManager.Init(dBusPort);
+
 #if !NETMF && DebugOnRealDeviceOverFTDI
-            if(!ibusPort.IsOpen)
+            if(!iBusPort.IsOpen)
                 iBusPort.Open();
 #endif
 
-
+#if DEBUG
             Manager.BeforeMessageReceived += Manager_BeforeMessageReceived;
             Manager.AfterMessageReceived += Manager_AfterMessageReceived;
             Manager.BeforeMessageSent += Manager_BeforeMessageSent;
             Manager.AfterMessageSent += Manager_AfterMessageSent;
-            Logger.Info("iBus manager events subscribed");
+#endif
+
+            KBusManager.Instance.BeforeMessageReceived += KBusManager_BeforeMessageReceived;
+            KBusManager.Instance.BeforeMessageSent += KBusManager_BeforeMessageSent;
 
             //player = new iPodViaHeadset(Cpu.Pin.GPIO_NONE);
             //player = new BluetoothOVC3860(Serial.COM2/*, sd != null ? sd + @"\contacts.vcf" : null*/);
@@ -158,7 +176,7 @@ namespace imBMW.Devices.V2
                 //BordmonitorMenu.FastMenuDrawing = settings.NaviVersion == NaviVersion.MK4;
                 //BordmonitorMenu.Init(emulator);
 
-                Logger.Info("Bordmonitor menu inited");
+                Logger.Trace("Bordmonitor menu inited");
             }
             else
             {
@@ -171,28 +189,37 @@ namespace imBMW.Devices.V2
                 //Logger.Info("Radio menu inited" + (Radio.HasMID ? " with MID" : ""));
             }
 
-            player.IsPlayingChanged += Player_IsPlayingChanged;
-            player.StatusChanged += Player_StatusChanged;
-            Logger.Info("Player events subscribed");
+            //player.IsPlayingChanged += Player_IsPlayingChanged;
+            //player.StatusChanged += Player_StatusChanged;
+            //Logger.Info("Player events subscribed");
 
-            RefreshLEDs(LedType.Green);
+            RefreshLEDs(LedType.GreenBlinking);
+            RefreshLEDs(LedType.GreenBlinking);
+            RefreshLEDs(LedType.GreenBlinking);
             successInitLED.Write(true);
 
-            nextButton = new InterruptPort((Cpu.Pin)FEZPandaIII.Gpio.Ldr1, true, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeHigh);
-            nextButton.OnInterrupt += (p, s, t) =>
-            {
-                if (!emulator.IsEnabled) { emulator.IsEnabled = true; }
-                else { emulator.Player.Next(); }
-            };
-            prevButton = new InterruptPort((Cpu.Pin)FEZPandaIII.Gpio.Ldr0, true, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeHigh);
-            prevButton.OnInterrupt += (p, s, t) =>
-            {
-                //emulator.Player.Prev();
-                //Manager.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, CDChanger.DataSelectDisk6));
-                //emulator.Player.IsRandom = false;
-                //emulator.Player.DiskNumber = 6;
-                emulator.IsEnabled = false;
-            };
+            var dateTimeEventArgs = new DateTimeEventArgs(DateTime.Now, false);
+            dateTimeEventArgs = InstrumentClusterElectronics.GetDateTime();
+            Logger.Trace("Aquired dateTime from IKE: " + dateTimeEventArgs.Value);
+            Utility.SetLocalTime(dateTimeEventArgs.Value);
+
+            RefreshLEDs(LedType.Green);
+
+            //nextButton = new InterruptPort((Cpu.Pin)FEZPandaIII.Gpio.Ldr1, true, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeHigh);
+            //nextButton.OnInterrupt += (p, s, t) =>
+            //{
+            //    if (!emulator.IsEnabled) { emulator.IsEnabled = true; }
+            //    else { emulator.Player.Next(); }
+            //};
+            //prevButton = new InterruptPort((Cpu.Pin)FEZPandaIII.Gpio.Ldr0, true, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeHigh);
+            //prevButton.OnInterrupt += (p, s, t) =>
+            //{
+            //    //emulator.Player.Prev();
+            //    //Manager.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, CDChanger.DataSelectDisk6));
+            //    //emulator.Player.IsRandom = false;
+            //    //emulator.Player.DiskNumber = 6;
+            //    emulator.IsEnabled = false;
+            //};
 
             /* 
             var ign = new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.GlobalBroadcastAddress, "Ignition ACC", 0x11, 0x01);
@@ -213,7 +240,6 @@ namespace imBMW.Devices.V2
             LED.Write(Busy(true, 1));
         }
 
-        static bool restrictOutput = true;
         private static void Manager_AfterMessageReceived(MessageEventArgs e)
         {
             LED.Write(Busy(false, 1));
@@ -227,49 +253,15 @@ namespace imBMW.Devices.V2
 
             // Show only messages which are described
             if (e.Message.Describe() == null) { return; }
-            if (!restrictOutput)
+      
+            var logIco = "< ";
+            if (settings.LogMessageToASCII)
             {
-                var logIco = "< ";
-                if (settings.LogMessageToASCII)
-                {
-                    Logger.Info(e.Message.ToPrettyString(true, true), logIco);
-                }
-                else
-                {
-                    Logger.Info(e.Message, logIco);
-                }
-                return;
+                Logger.Info(e.Message.ToPrettyString(false, false), logIco);
             }
-
-            if ((
-                e.Message.SourceDevice == DeviceAddress.Radio && e.Message.DestinationDevice == DeviceAddress.CDChanger ||
-                e.Message.SourceDevice == DeviceAddress.CDChanger && e.Message.DestinationDevice == DeviceAddress.Radio ||
-                e.Message.SourceDevice == DeviceAddress.GraphicsNavigationDriver || e.Message.DestinationDevice == DeviceAddress.GraphicsNavigationDriver ||
-                e.Message.SourceDevice == DeviceAddress.OnBoardMonitor || e.Message.DestinationDevice == DeviceAddress.OnBoardMonitor ||
-                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics || e.Message.DestinationDevice == DeviceAddress.InstrumentClusterElectronics ||
-                e.Message.SourceDevice == DeviceAddress.NavigationEurope || e.Message.DestinationDevice == DeviceAddress.NavigationEurope ||
-                e.Message.SourceDevice == DeviceAddress.NavigationEurope || e.Message.DestinationDevice == DeviceAddress.NavigationEurope
-                )
-                            //&& e.Message.SourceDevice != DeviceAddress.GraphicsNavigationDriver
-                            //&& e.Message.DestinationDevice != DeviceAddress.GraphicsNavigationDriver
-                            //&& e.Message.SourceDevice != DeviceAddress.OnBoardMonitor
-                            //&& e.Message.DestinationDevice != DeviceAddress.OnBoardMonitor
-                            //&& e.Message.SourceDevice != DeviceAddress.CDChanger
-                            //&& e.Message.DestinationDevice != DeviceAddress.CDChanger
-                            && e.Message.DestinationDevice != DeviceAddress.Broadcast
-                            //&& e.Message.SourceDevice != DeviceAddress.Diagnostic
-                            //&& e.Message.DestinationDevice != DeviceAddress.Diagnostic
-                            )
+            else
             {
-                var logIco = "< ";
-                if (settings.LogMessageToASCII)
-                {
-                    Logger.Info(e.Message.ToPrettyString(true, true), logIco);
-                }
-                else
-                {
-                    Logger.Info(e.Message, logIco);
-                }
+                Logger.Info(e.Message, logIco);
             }
         }
 
@@ -281,7 +273,78 @@ namespace imBMW.Devices.V2
         private static void Manager_AfterMessageSent(MessageEventArgs e)
         {
             LED.Write(Busy(false, 2));
-            Logger.Info(e.Message, " >");
+
+            var logIco = " >";
+            if (settings.LogMessageToASCII)
+            {
+                Logger.Info(e.Message.ToPrettyString(false, false), logIco);
+            }
+            else
+            {
+                Logger.Info(e.Message, logIco);
+            }
+        }
+
+        // Log just needed message
+        private static bool KBusLoggerPredicate(MessageEventArgs e)
+        {
+            if (e.Message.SourceDevice == DeviceAddress.IntegratedHeatingAndAirConditioning && e.Message.DestinationDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x83 // Air conditioning compressor status
+                || 
+                e.Message.SourceDevice == DeviceAddress.IntegratedHeatingAndAirConditioning && e.Message.DestinationDevice == DeviceAddress.NavigationEurope && e.Message.Data[0] == 0x86 // Some info for NavigationEurope
+                ||
+                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x11 // Ignition status
+                ||
+                //e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x13 // IKE Sensor status
+                //||
+                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x15 // Country coding status
+                ||
+                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x17 // Odometer
+                ||
+                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x18 // Speed/RPM
+                ||
+                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x19 // Temperature
+                ) 
+            {
+                return false;
+            }
+
+            return e.Message.SourceDevice == DeviceAddress.AuxilaryHeater ||
+                   e.Message.SourceDevice == DeviceAddress.IntegratedHeatingAndAirConditioning ||
+                   e.Message.DestinationDevice == DeviceAddress.AuxilaryHeater ||
+                   e.Message.DestinationDevice == DeviceAddress.IntegratedHeatingAndAirConditioning ||
+                   (e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.DestinationDevice == DeviceAddress.GlobalBroadcastAddress); 
+        }
+
+        private static void KBusManager_BeforeMessageReceived(MessageEventArgs e)
+        {
+            if (KBusLoggerPredicate(e))
+            {
+                var logIco = "KBUS: <- ";
+                if (settings.LogMessageToASCII)
+                {
+                    Logger.Trace(e.Message.ToPrettyString(false, false), logIco);
+                }
+                else
+                {
+                    Logger.Trace(e.Message, logIco);
+                }
+            }
+        }
+
+        private static void KBusManager_BeforeMessageSent(MessageEventArgs e)
+        {
+            if (KBusLoggerPredicate(e))
+            {
+                var logIco = "KBUS: -> ";
+                if (settings.LogMessageToASCII)
+                {
+                    Logger.Trace(e.Message.ToPrettyString(false, false), logIco);
+                }
+                else
+                {
+                    Logger.Trace(e.Message, logIco);
+                }
+            }
         }
 
         private static void Player_StatusChanged(IAudioPlayer player, string status, PlayerEvent playerEvent)
@@ -307,7 +370,7 @@ namespace imBMW.Devices.V2
             if (args.Priority == LogPriority.Error)
             {
                 error = true;
-                led4.Write(true);
+                errorLED.Write(true);
                 RefreshLEDs(LedType.Red);
 
                 StreamWriter errorFile = new StreamWriter(rootDirectory + "\\errorLog.txt", append: true);
@@ -320,10 +383,12 @@ namespace imBMW.Devices.V2
                 traceFile.WriteLine(args.LogString);
                 traceFile.Dispose();
             }
+#if DEBUG
             if (Debugger.IsAttached)
             {
                 Debug.Print(args.LogString);
             }
+#endif
         }
 
         public enum LedType : byte
@@ -343,11 +408,11 @@ namespace imBMW.Devices.V2
             {
                 return;
             }
-            //byte b = 0;
-            //if (error)
-            //{
-            //    b = b.AddBit(0);
-            //}
+            byte b = (byte)ledType;
+            if (error)
+            {
+                b = b.AddBit(0);
+            }
             //if (blinkerOn)
             //{
             //    //b = b.AddBit(2);
@@ -356,7 +421,8 @@ namespace imBMW.Devices.V2
             //{
             //    b = b.AddBit(4);
             //}
-            Manager.EnqueueMessage(new Message(DeviceAddress.Telephone, DeviceAddress.FrontDisplay, "Set LEDs", 0x2B, (byte)ledType));
+            var message = new Message(DeviceAddress.Telephone, DeviceAddress.FrontDisplay, "Set LEDs", 0x2B, b);
+            Manager.EnqueueMessage(message);
         }
 
 

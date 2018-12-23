@@ -186,9 +186,9 @@ namespace imBMW.iBus.Devices.Emulators
             Player.VoiceButtonLongPress();
         }
 
-        protected virtual void RandomToggle()
+        protected virtual void RandomToggle(byte diskNumber)
         {
-            bool rnd = Player.RandomToggle();
+            bool rnd = Player.RandomToggle(diskNumber);
             // TODO send rnd status to radio
         }
 

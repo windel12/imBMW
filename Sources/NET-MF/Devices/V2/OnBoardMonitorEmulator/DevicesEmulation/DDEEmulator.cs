@@ -14,7 +14,7 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
 
         static DDEEmulator()
         {
-            DbusManager.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.OBD, DeviceAddress.DDE, ProcessToDDEMessage);
+            DBusManager.Instance.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.OBD, DeviceAddress.DDE, ProcessToDDEMessage);
         }
 
         static void ProcessToDDEMessage(Message m)
@@ -23,7 +23,7 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
             {
                 Random r = new Random();
                 var motor_temperatur_positive_response = new DBusMessage(DeviceAddress.DDE, DeviceAddress.OBD, 0x6C, 0x10, 0x00, (byte)r.Next(0, 255));
-                DbusManager.EnqueueMessage(motor_temperatur_positive_response);
+                DBusManager.Instance.EnqueueMessage(motor_temperatur_positive_response);
             }
         }
     }

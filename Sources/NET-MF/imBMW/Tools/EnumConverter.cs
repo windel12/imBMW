@@ -9,7 +9,19 @@ namespace imBMW.Tools
         * :) Sorry, it's .NET MF,
         * so there is no pretty way to print enums
         */
-        
+
+        public static BordmonitorFields GetBordmonitorFieldFromIndex(byte index)
+        {
+            switch (index)
+            {
+                case 6: return BordmonitorFields.Status;
+                case 1: return BordmonitorFields.T1;
+                case 3: return BordmonitorFields.T3;
+                case 5: return BordmonitorFields.T5;
+            }
+            return BordmonitorFields.Title;
+        }
+
         public static string ToStringValue(this MFLButton e)
         {
             switch (e)
