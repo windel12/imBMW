@@ -66,10 +66,10 @@ namespace imBMW.Features.Menu
         #region MediaEmulator members
 
         protected Timer displayStatusDelayTimer;
-        protected const int displayStatusDelay = 900; // TODO make abstract
+        protected const ushort displayStatusDelay = 900; // TODO make abstract
         protected Timer delayTimeout;
 
-        protected abstract int StatusTextMaxlen { get; }
+        protected abstract byte StatusTextMaxlen { get; }
 
         //protected abstract void ShowPlayerStatus(IAudioPlayer player, string status, PlayerEvent playerEvent);
 
@@ -114,7 +114,7 @@ namespace imBMW.Features.Menu
                 displayStatusDelayTimer = null;
             }
 
-            int startIndex = 6; // remove path to SD card TODO: refactor this later.Length)
+            byte startIndex = 6; // remove path to SD card TODO: refactor this later.Length)
             displayStatusDelayTimer = new Timer(delegate
             {
                 //if (displayStatusDelayTimer == null)
@@ -209,7 +209,7 @@ namespace imBMW.Features.Menu
             DrawBody(/*args*/);
         }
 
-        public virtual void UpdateScreenWitDelay(int delayTime = 1000)
+        public virtual void UpdateScreenWitDelay(ushort delayTime = 1000)
         {
             delayTimeout = new Timer(delegate
             {

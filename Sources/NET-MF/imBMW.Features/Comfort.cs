@@ -97,7 +97,7 @@ namespace imBMW.Features
             {
                 // TODO Fix windows closing: current commands close them just by half
                 case Command.FullCloseWindows:
-                    for (int i = 0; i < 3; i++)
+                    for (byte i = 0; i < 3; i++)
                     {
                         Manager.EnqueueMessage(BodyModule.MessageCloseWindowDriverFront);
                         Thread.Sleep(750);
@@ -110,7 +110,7 @@ namespace imBMW.Features
                     }
                     break;
                 case Command.FullOpenWindows:
-                    for (int i = 0; i < 3; i++)
+                    for (byte i = 0; i < 3; i++)
                     {
                         Manager.EnqueueMessage(BodyModule.MessageOpenWindowDriverFront);
                         Thread.Sleep(750);

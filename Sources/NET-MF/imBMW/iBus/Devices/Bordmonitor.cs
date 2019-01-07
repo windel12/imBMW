@@ -131,8 +131,8 @@ namespace imBMW.iBus.Devices.Real
             {
                 var index = (byte)(Data[3] & 0x0F);
                 bool isChecked = false;
-                var offset = 4;
-                for (int i = offset; i < Data.Length; i++)
+                byte offset = 4;
+                for (byte i = offset; i < Data.Length; i++)
                 {
                     var isNext = Data[i] == 0x06;
                     var isLast = i == Data.Length - 1;
@@ -149,7 +149,7 @@ namespace imBMW.iBus.Devices.Real
                         {
                             res.Add(new BordmonitorText(Field, "", index, false));
                         }
-                        offset = i + 1;
+                        offset = (byte)(i + 1);
                         continue;
                     }
                     isChecked = Data[i] == 0x2A;

@@ -2,6 +2,7 @@ using System;
 using imBMW.Tools;
 using System.Collections;
 using System.Text;
+using imBMW.iBus.Devices.Real;
 
 namespace imBMW.iBus
 {
@@ -289,7 +290,20 @@ namespace imBMW.iBus
             messageDescriptions.Add(DataPollRequest.ToHex(' '), "Poll request");
             messageDescriptions.Add(DataPollResponse.ToHex(' '), "Poll response");
             messageDescriptions.Add(DataAnnounce.ToHex(' '), "Announce");
-
+            //messageDescriptions.Add(Radio.DataAMPressed.ToHex(' '), "BMBT AM Pressed");
+            //messageDescriptions.Add(Radio.DataAMReleased.ToHex(' '), "BMBT AM Released");
+            //messageDescriptions.Add(Radio.DataFMPressed.ToHex(' '), "BMBT FM Pressed");
+            //messageDescriptions.Add(Radio.DataFMReleased.ToHex(' '), "BMBT FM Released");
+            messageDescriptions.Add(Radio.DataModePressed.ToHex(' '), "BMBT Mode Pressed");
+            messageDescriptions.Add(Radio.DataModeReleased.ToHex(' '), "BMBT Mode Released");
+            //messageDescriptions.Add(Radio.DataNaviKnobPressed.ToHex(' '), "Navi knob Pressed");
+            //messageDescriptions.Add(Radio.DataNaviKnobReleased.ToHex(' '), "Navi knob Released");
+            messageDescriptions.Add(Radio.DataNextPressed.ToHex(' '), "BMBT Next Pressed");
+            messageDescriptions.Add(Radio.DataNextReleased.ToHex(' '), "BMBT Next Released");
+            messageDescriptions.Add(Radio.DataPrevPressed.ToHex(' '), "BMBT Prev Pressed");
+            messageDescriptions.Add(Radio.DataPrevReleased.ToHex(' '), "BMBT Prev Released");
+            messageDescriptions.Add(Radio.DataSwitchPressed.ToHex(' '), "BMBT Switch Pressed");
+            messageDescriptions.Add(Radio.DataSwitchReleased.ToHex(' '), "BMBT Switch Released");
         }
 
         #endregion

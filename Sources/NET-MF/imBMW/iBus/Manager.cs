@@ -91,7 +91,13 @@ namespace imBMW.iBus
         //QueueThreadWorker messageReadQueue;
 
         protected DateTime lastMessage = DateTime.Now;
+#if NETMF
         protected byte[] messageBuffer = new byte[Message.PacketLengthMax];
+#endif
+#if OnBoardMonitorEmulator
+        protected byte[] messageBuffer = new byte[ushort.MaxValue];
+#endif
+
         protected int messageBufferLength = 0;
         protected object bufferSync = new object();
 
@@ -132,6 +138,10 @@ namespace imBMW.iBus
                 }
                 if (data.Length == 1)
                 {
+#if DebugOnRealDeviceOverFTDI && OnBoardMonitorEmulator // remove 0x00 when FTDI sends it for first time
+                    if (data[0] == 0x00)
+                        return;
+#endif
                     messageBuffer[messageBufferLength++] = data[0];
                 }
                 else

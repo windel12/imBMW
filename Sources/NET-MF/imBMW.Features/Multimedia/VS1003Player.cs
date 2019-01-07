@@ -58,28 +58,6 @@ namespace imBMW.Features.Multimedia
 
         #endregion
 
-        private class DiskAndTrack
-        {
-            public DiskAndTrack()
-            { 
-            }
-
-            public DiskAndTrack(byte diskNumber, byte trackNumber, string fileName = "")
-            {
-                this.diskNumber = diskNumber;
-                this.trackNumber = trackNumber;
-                this.fileName = fileName;
-            }
-            public byte diskNumber;
-            public byte trackNumber;
-            public string fileName;
-
-            public override string ToString()
-            {
-                return diskNumber.ToString() + ',' + trackNumber.ToString();
-            }
-        }
-
         OutputPort led3 = new OutputPort(FEZPandaIII.Gpio.Led3, false);
 
         private static InputPort DREQ;
@@ -108,6 +86,7 @@ namespace imBMW.Features.Multimedia
             get { return isPlaying; }
             protected set
             {
+                OnIsPlayingChanging(isPlaying);
                 isPlaying = value;
                 OnIsPlayingChanged(isPlaying);
             }
@@ -123,7 +102,7 @@ namespace imBMW.Features.Multimedia
         public int CurrentPosition { get; set; } = 0;
 
         public VS1003Player(Cpu.Pin MP3_DREQ, Cpu.Pin MP3_CS, Cpu.Pin MP3_DCS, Cpu.Pin MP3_RST)
-        {         
+        {
             #region prepare
             dataConfig = new SPI.Configuration(MP3_DCS, false, 0, 0, false, true, 1000, SPI.SPI_module.SPI2);
             cmdConfig = new SPI.Configuration(MP3_CS, false, 0, 0, false, true, 1000, SPI.SPI_module.SPI2);
@@ -150,6 +129,7 @@ namespace imBMW.Features.Multimedia
             {
                 Logger.Log(LogPriority.Info, "VS1053: Initialized MP3 Decoder.");
             }
+
             #endregion
             SetVolume((byte)255);
 
@@ -221,7 +201,7 @@ namespace imBMW.Features.Multimedia
                     }
                 };
                 //TrackChanged += (sender, trackInfo) => { saveHistory(); };
-                IsPlayingChanged += (sender, isPlaying) => { if(!isPlaying) { saveHistory();} };
+                IsPlayingChanging += (sender, isPlayingBeforeChaning) => { if(isPlaying) { saveHistory();} };
             }
             else
             {
@@ -411,7 +391,7 @@ namespace imBMW.Features.Multimedia
             FileStream stream = null;
             while (true)
             {
-                Thread.Sleep(50);
+                //Thread.Sleep(50);
                 try
                 {
                     //if (!IsPlaying)
@@ -425,7 +405,6 @@ namespace imBMW.Features.Multimedia
                 }
 
                 size = 0;
-                int freeMemotyLoggerCounter = 0;
                 try
                 {
                     stream = new FileStream(CurrentTrack.FileName, FileMode.Open, FileAccess.Read);
@@ -451,8 +430,8 @@ namespace imBMW.Features.Multimedia
                     do
                     {
                         size = stream.Read(buffer, 0, buffer.Length);
-                        //CurrentTrack.Time = GetDecodeTime();
-                        //int byteRate = GetByteRate();
+                        CurrentTrack.Time = GetDecodeTime();
+                        ushort byteRate = GetByteRate();
                         SendData(buffer);
                         if (ChangeTrack)
                         {
@@ -482,6 +461,7 @@ namespace imBMW.Features.Multimedia
                         Next();
                     }
                     ChangeTrack = false;
+                    ResetDecodeTime();
                 }
                 if (!IsPlaying)
                 {
@@ -545,9 +525,14 @@ namespace imBMW.Features.Multimedia
             return WRAMRead(para_byteRate);
         }
 
-        public ushort GetDecodeTime()
+        private ushort GetDecodeTime()
         {
             return SCIRead(SCI_DECODE_TIME);
+        }
+
+        private void ResetDecodeTime()
+        {
+            SCIWrite(SCI_DECODE_TIME, 0);
         }
 
         /// <summary>

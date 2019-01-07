@@ -1,4 +1,5 @@
 ﻿using System;
+using imBMW.iBus;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 
@@ -15,8 +16,8 @@ namespace System.IO.Ports
         /// <param name="port"></param>
         /// <param name="busy"></param>
         /// <param name="fixParity">Set true if the data is corrupted because of parity bit issue in Cerberus software.</param>
-        public SerialPortTH3122(String port, Cpu.Pin busy, bool fixParity = false, int baudRate = (int)BaudRate.Baudrate9600, int writeBufferSize = 0) :
-            base(new SerialPortConfiguration(port, baudRate, Parity.Even, 8 + (fixParity ? 1 : 0), StopBits.One), busy, writeBufferSize, imBMW.iBus.Message.PacketLengthMax, 50)
+        public SerialPortTH3122(String port, Cpu.Pin busy, bool fixParity = false, int baudRate = (int)BaudRate.Baudrate9600, int writeBufferSize = 0, ushort readBufferSize = Message.PacketLengthMax) :
+            base(new SerialPortConfiguration(port, baudRate, Parity.Even, 8 + (fixParity ? 1 : 0), StopBits.One), busy, writeBufferSize, readBufferSize, 50)
         {
             AfterWriteDelay = 4;
             data = new byte[0];

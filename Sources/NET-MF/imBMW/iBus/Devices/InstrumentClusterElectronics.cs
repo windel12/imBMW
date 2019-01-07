@@ -197,7 +197,7 @@ namespace imBMW.iBus.Devices.Real
         static readonly Message MessageGong1 = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Gong 1", 0x23, 0x62, 0x30, 0x37, 0x08);
         static readonly Message MessageGong2 = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Gong 2", 0x23, 0x62, 0x30, 0x37, 0x10);
 
-        private const int _getDateTimeTimeout = 1000;
+        private const int _getDateTimeTimeout = 2000;
 
         private static ManualResetEvent _getDateTimeSync = new ManualResetEvent(false);
         private static DateTimeEventArgs _getDateTimeResult;
@@ -509,7 +509,7 @@ namespace imBMW.iBus.Devices.Real
         public static DateTimeEventArgs GetDateTime(int timeout)
         {
             _getDateTimeSync.Reset();
-            _getDateTimeResult = null;
+            _getDateTimeResult = new DateTimeEventArgs(DateTime.Now, false); ;
             DateTimeChanged += GetDateTimeCallback;
             RequestDateTime();
 #if NETMF

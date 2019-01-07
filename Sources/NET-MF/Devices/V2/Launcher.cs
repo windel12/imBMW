@@ -67,15 +67,25 @@ namespace imBMW.Devices.V2
                 //Features.Comfort.AutoUnlockDoors = settings.AutoUnlockDoors;
                 //Features.Comfort.AutoCloseWindows = settings.AutoCloseWindows;
                 //Features.Comfort.AutoCloseSunroof = settings.AutoCloseSunroof;
+                bool fs_ready = false;
+                RemovableMedia.Insert += (a, b) =>
+                {
+                    fs_ready = true;
+                };
 
-                int sdCardMountRetryCount = 0;
+
+                byte sdCardMountRetryCount = 0;
                 do
                 {
                     try
                     {
                         sd_card = new SDCard(SDCard.SDInterface.MCI);
                         sd_card.Mount();
-                        rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
+
+                        while (!fs_ready)
+                        {
+                            Thread.Sleep(50);
+                        }
                         break;
                     }
                     catch (Exception ex)
@@ -85,6 +95,8 @@ namespace imBMW.Devices.V2
                         Thread.Sleep(333);
                     }
                 } while (sdCardMountRetryCount < 6);
+
+                rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
 
                 Init();
 
@@ -99,6 +111,7 @@ namespace imBMW.Devices.V2
                 Logger.Error(ex, "while modules initialization");
             }
         }
+    
         public static void Init()
         {
             Logger.Logged += Logger_Logged;
@@ -112,7 +125,12 @@ namespace imBMW.Devices.V2
 #endif
 
             string iBusComPort = Serial.COM1;
+#if NETMF
             ISerialPort iBusPort = new SerialPortTH3122(iBusComPort, iBusBusy);
+#endif
+#if OnBoardMonitorEmulator
+            ISerialPort iBusPort = new SerialPortTH3122(iBusComPort, iBusBusy, readBufferSize:ushort.MaxValue);
+#endif
             Manager.Init(iBusPort);
 
             string kBusComPort = Serial.COM2;
@@ -128,7 +146,7 @@ namespace imBMW.Devices.V2
                 iBusPort.Open();
 #endif
 
-#if DEBUG
+#if DEBUG || DebugOnRealDeviceOverFTDI
             Manager.BeforeMessageReceived += Manager_BeforeMessageReceived;
             Manager.AfterMessageReceived += Manager_AfterMessageReceived;
             Manager.BeforeMessageSent += Manager_BeforeMessageSent;
@@ -161,10 +179,13 @@ namespace imBMW.Devices.V2
                     BordmonitorMenu.Init(emulator);
                     BordmonitorMenu.ResetButtonPressed += () =>
                     {
+                        emulator.PlayerIsPlayingChanged += (s, isPlayingChangedValue) =>
+                        {
+                            if(!isPlayingChangedValue)
+                                resetPin.Write(false);
+                        };
                         RefreshLEDs(LedType.Empty);
                         Radio.PressOnOffToggle();
-                        Thread.Sleep(100);
-                        resetPin.Write(false);
                     };
                 }
                 else
@@ -198,8 +219,7 @@ namespace imBMW.Devices.V2
             RefreshLEDs(LedType.GreenBlinking);
             successInitLED.Write(true);
 
-            var dateTimeEventArgs = new DateTimeEventArgs(DateTime.Now, false);
-            dateTimeEventArgs = InstrumentClusterElectronics.GetDateTime();
+            var dateTimeEventArgs = InstrumentClusterElectronics.GetDateTime();
             Logger.Trace("Aquired dateTime from IKE: " + dateTimeEventArgs.Value);
             Utility.SetLocalTime(dateTimeEventArgs.Value);
 
@@ -383,9 +403,10 @@ namespace imBMW.Devices.V2
                 traceFile.WriteLine(args.LogString);
                 traceFile.Dispose();
             }
-#if DEBUG
+#if DEBUG || DebugOnRealDeviceOverFTDI
             if (Debugger.IsAttached)
             {
+                Logger.FreeMemory();
                 Debug.Print(args.LogString);
             }
 #endif

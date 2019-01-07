@@ -12,6 +12,8 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
 {
     public static class RadioEmulator
     {
+        public static bool IsEnabled { get; set; }
+
         static RadioEmulator()
         {
             Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.Radio, ProcessToRadioMessage);
@@ -48,6 +50,23 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
                 var diskNumber = m.Data[6];
                 var trackNumber = m.Data[7];
                 Bordmonitor.ShowText("CD " + (diskNumber) + "-" + (trackNumber), BordmonitorFields.Title, send: true);
+            }
+            if (m.Data.Length == 2 && m.Data.StartsWith(Radio.DataRadioKnobPressed))
+            {
+                if (IsEnabled)
+                {
+                    Manager.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, CDChanger.DataStop));
+                }
+            }
+            if (m.Data.Length == 2 && m.Data.StartsWith(Radio.DataNextPressed))
+            {
+                var message = new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, CDChanger.DataNext);
+                Manager.EnqueueMessage(message);
+            }
+            if (m.Data.Length == 2 && m.Data.StartsWith(Radio.DataPrevPressed))
+            {
+                var message = new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, CDChanger.DataPrev);
+                Manager.EnqueueMessage(message);
             }
         }
     }

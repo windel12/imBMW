@@ -1,29 +1,16 @@
-using imBMW.Features.Localizations;
-using imBMW.Features.Menu;
-using imBMW.iBus.Devices.Real;
-using imBMW.Tools;
-using Microsoft.SPOT;
-using Microsoft.SPOT.Hardware;
-using System;
-using System.Threading;
+//using imBMW.Features.Localizations;
+//using imBMW.Features.Menu;
+//using imBMW.iBus.Devices.Real;
+//using imBMW.Tools;
+//using Microsoft.SPOT;
+//using Microsoft.SPOT.Hardware;
+//using System;
+//using System.Threading;
 
-namespace imBMW.Multimedia
-{
-    public class iPodViaHeadset //: AudioPlayerBase, IDisposable
-    {
-        public enum iPodCommand
-        {
-            Play,
-            Pause,
-            PlayPauseToggle,
-            Next,
-            Prev,
-            VoiceOverCurrent,
-            VoiceOverMenu,
-            VolumeUp,
-            VolumeDown
-        }
-
+//namespace imBMW.Multimedia
+//{
+//    public class iPodViaHeadset : AudioPlayerBase, IDisposable
+//    {
         //        const int VoiceOverMenuTimeoutSeconds = 60;
 
         //        OutputPort iPod;
@@ -312,5 +299,5 @@ namespace imBMW.Multimedia
         //            EnqueueIPodCommand(iPodCommand.VoiceOverMenu);
         //        }
 
-    }
-}
+//    }
+//}

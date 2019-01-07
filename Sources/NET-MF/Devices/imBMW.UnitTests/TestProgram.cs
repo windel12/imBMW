@@ -15,7 +15,7 @@ namespace imBMW.UnitTests
     {
         public void ShouldTrimText_WithLength_LessThanTrimLength()
         {
-            int startIndex;
+            byte startIndex;
             string testString = "Dua Lipa";
             int trimLength = 10;
             string result = "";
@@ -30,7 +30,7 @@ namespace imBMW.UnitTests
 
         public void ShouldTrimText_WithLength_EqualToTrimLength()
         {
-            int startIndex;
+            byte startIndex;
             string testString = "Dua Lipa";
             int trimLength = testString.Length;
             string result = "";
@@ -45,7 +45,7 @@ namespace imBMW.UnitTests
 
         public void ShouldTrimText_WithLength_BiggerThanTrimLength()
         {
-            int startIndex;
+            byte startIndex;
             string testString = "The Last Of The Real Ones";
             int trimLength = 10;
             string result = "";

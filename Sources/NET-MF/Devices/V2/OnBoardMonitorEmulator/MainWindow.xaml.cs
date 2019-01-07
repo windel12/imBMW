@@ -58,7 +58,36 @@ namespace OnBoardMonitorEmulator
         public static byte[] PhoneButtonClick = {0x48, 0x08};
         public static byte[] MenuButonHold = { 0x48, 0x74 };
 
-        public bool IsEnabled = false;
+        private bool _isEnabled = false;
+        public bool IsEnabled
+        {
+            get { return _isEnabled; }
+            set
+            {
+                _isEnabled = value;
+                RadioEmulator.IsEnabled = value; 
+            }
+        }
+
+        private GraphicsNavigationDriverState _state;
+
+        public GraphicsNavigationDriverState State
+        {
+            get { return _state; }
+            set
+            {
+                if (value == GraphicsNavigationDriverState.BordComputer)
+                {
+                    BordComputerGrid.Visibility = Visibility.Visible;
+                    CDChangerPanel.Visibility = Visibility.Hidden;
+                }
+                else
+                {
+                    BordComputerGrid.Visibility = Visibility.Hidden;
+                    CDChangerPanel.Visibility = Visibility.Visible;
+                }
+            }
+        }
 
         public MainWindow()
         {
@@ -69,21 +98,26 @@ namespace OnBoardMonitorEmulator
             AuxilaryHeaterEmulator.Init();
             RadioEmulator.Init();
             DDEEmulator.Init();
+            FrontDisplayEmulator.Init();
 
             Launcher.Launch(Launcher.LaunchMode.WPF);
 
-            
-
             Bordmonitor.TextReceived += Bordmonitor_TextReceived;
+            FrontDisplayEmulator.LedChanged += FrontDisplayEmulator_LedChanged;
 
             BordmonitorMenu.Instance.CurrentScreen = HomeScreen.Instance;
+#if !DebugOnRealDeviceOverFTDI
             Launcher.emulator.IsEnabled = true;
+#endif
         }
 
         private void Bordmonitor_TextReceived(BordmonitorText args)
         {
             this.Dispatcher.Invoke(() =>
             {
+                if (State != GraphicsNavigationDriverState.MediaScreen)
+                    State = GraphicsNavigationDriverState.MediaScreen;
+
                 switch (args.Field)
                 {
                     case BordmonitorFields.Title:
@@ -111,6 +145,31 @@ namespace OnBoardMonitorEmulator
             });
         }
 
+        private void FrontDisplayEmulator_LedChanged(Launcher.LedType ledType)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                if (ledType == Launcher.LedType.Red || ledType == Launcher.LedType.RedBlinking)
+                {
+                    RedIndicator.Fill = new SolidColorBrush(Colors.Red);
+                }
+                if (ledType == Launcher.LedType.Orange || ledType == Launcher.LedType.OrangeBlinking)
+                {
+                    OrangeIndicator.Fill = new SolidColorBrush(Colors.Orange);
+                }
+                if (ledType == Launcher.LedType.Green || ledType == Launcher.LedType.GreenBlinking)
+                {
+                    GreenIndicator.Fill = new SolidColorBrush(Colors.Green);
+                }
+                if (ledType == Launcher.LedType.Empty)
+                {
+                    RedIndicator.Fill = new SolidColorBrush(Colors.White);
+                    OrangeIndicator.Fill = new SolidColorBrush(Colors.White);
+                    GreenIndicator.Fill = new SolidColorBrush(Colors.White);
+                }
+            });
+        }
+
         private void WriteMessage(Message message)
         {
             Manager.EnqueueMessage(message);
@@ -133,18 +192,27 @@ namespace OnBoardMonitorEmulator
 
         private void NextButton_Click(object sender, RoutedEventArgs e)
         {
+#if DebugOnRealDeviceOverFTDI
             var message = new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, DataNext);
             WriteMessage(message);
+#else
+            Radio.PressNext();
+#endif
         }
 
         private void PrevButton_Click(object sender, RoutedEventArgs e)
         {
+#if DebugOnRealDeviceOverFTDI
             var message = new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, DataPrev);
             WriteMessage(message);
+#else
+            Radio.PressPrev();
+#endif
         }
 
         private void MenuButton_Click(object sender, RoutedEventArgs e)
-        {    
+        {
+            State = GraphicsNavigationDriverState.BordComputer;
         }
 
         private void MenuButton_MouseDoubleClick(object sender, MouseButtonEventArgs e)

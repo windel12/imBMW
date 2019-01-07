@@ -161,6 +161,7 @@ namespace imBMW.Multimedia
             IsEnabled = PlayerHostState == Multimedia.PlayerHostState.On && IsCurrentPlayer;
         }
 
+        public event IsPlayingHandler IsPlayingChanging;
         public event IsPlayingHandler IsPlayingChanged;
 
         public event PlayerStatusHandler StatusChanged;
@@ -168,6 +169,15 @@ namespace imBMW.Multimedia
         public event NowPlayingHandler NowPlayingChanged;
 
         public event NowPlayingHandler TrackChanged;
+
+        protected virtual void OnIsPlayingChanging(bool isPlaying)
+        {
+            var e = IsPlayingChanging;
+            if (e != null)
+            {
+                e.Invoke(this, isPlaying);
+            }
+        }
 
         protected virtual void OnIsPlayingChanged(bool isPlaying)
         {

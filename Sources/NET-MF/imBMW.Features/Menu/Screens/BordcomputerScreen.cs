@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Threading;
 using imBMW.iBus.Devices.Real;
 using imBMW.Tools;
 using imBMW.Features.Localizations;
 using imBMW.iBus.Devices.Emulators;
+using imBMW.Multimedia;
+using imBMW.Features.Multimedia.Models;
 using Microsoft.SPOT.Hardware;
 
 namespace imBMW.Features.Menu.Screens
@@ -19,7 +22,11 @@ namespace imBMW.Features.Menu.Screens
         protected DateTime lastUpdated;
         protected bool needUpdateVoltage;
 
-        protected int updateLimitSeconds = 1;
+        protected byte updateLimitSeconds = 1;
+
+        private ushort refreshInterval = 1000;
+        private ushort timeoutBeforeStart = 2000;
+        protected Timer refreshTimer;
 
         public MediaEmulator MediaEmulator { get; set; }
 
@@ -30,6 +37,8 @@ namespace imBMW.Features.Menu.Screens
 
             InstrumentClusterElectronics.RequestConsumption();
             InstrumentClusterElectronics.RequestAverageSpeed();
+
+            
         }
 
         public override bool OnNavigatedTo(MenuBase menu)
@@ -46,6 +55,12 @@ namespace imBMW.Features.Menu.Screens
                 InstrumentClusterElectronics.SpeedLimitChanged += InstrumentClusterElectronics_SpeedLimitChanged;
 
                 IntegratedHeatingAndAirConditioning.AuxilaryHeaterWorkingRequestsCounterChanged += IntegratedHeatingAndAirConditioning_AuxilaryHeaterWorkingRequestsCounterChanged;
+
+                MediaEmulator.Player.TrackChanged += TrackChanged;
+                refreshTimer = new Timer(delegate
+                {
+                    OnUpdateHeader(MenuScreenUpdateReason.Refresh);
+                }, null, timeoutBeforeStart, refreshInterval);
 
                 UpdateVoltage();
                 return true;
@@ -67,9 +82,24 @@ namespace imBMW.Features.Menu.Screens
                 InstrumentClusterElectronics.SpeedLimitChanged -= InstrumentClusterElectronics_SpeedLimitChanged;
 
                 IntegratedHeatingAndAirConditioning.AuxilaryHeaterWorkingRequestsCounterChanged -= IntegratedHeatingAndAirConditioning_AuxilaryHeaterWorkingRequestsCounterChanged;
+
+                MediaEmulator.Player.TrackChanged -= TrackChanged;
+                if (refreshTimer != null)
+                {
+                    refreshTimer.Dispose();
+                    refreshTimer = null;
+                }
+
                 return true;
             }
             return false;
+        }
+
+        static bool isTrackChanging = false;
+
+        private void TrackChanged(IAudioPlayer sender, TrackInfo nowPlaying)
+        {
+            refreshTimer.Change(timeoutBeforeStart, refreshInterval);
         }
 
         private void IntegratedHeatingAndAirConditioning_AuxilaryHeaterWorkingRequestsCounterChanged(byte counter)

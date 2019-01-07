@@ -70,7 +70,7 @@ namespace imBMW.Features.Menu
             MaxItemsCount = 10;
         }
 
-        public static int MaxItemsCount { get; set; } // TODO refactor
+        public static SByte MaxItemsCount { get; set; } // TODO refactor
 
         public MenuScreenGetTextHandler TitleCallback { get; set; }
         public MenuScreenGetTextHandler StatusCallback { get; set; }
@@ -140,11 +140,11 @@ namespace imBMW.Features.Menu
 
         protected ArrayList Items { get; private set; }
 
-        public int ItemsCount
+        public byte ItemsCount
         {
             get
             {
-                return Items.Count;
+                return (byte)Items.Count;
             }
         }
 
@@ -157,12 +157,12 @@ namespace imBMW.Features.Menu
             return null;
         }
 
-        public void AddItem(MenuItem menuItem, int index = -1)
+        public void AddItem(MenuItem menuItem, SByte index = -1)
         {
             if (index >= MaxItemsCount || index < 0 && ItemsCount == MaxItemsCount)
             {
                 Logger.Error("Can't add screen item \"" + menuItem + "\" with index=" + index + ", count=" + ItemsCount);
-                index = MaxItemsCount - 1;
+                index = (SByte)(MaxItemsCount - 1);
             }
             if (index < 0)
             {

@@ -93,10 +93,10 @@ namespace imBMW.iBus.Devices.Emulators
             Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.CDChanger, ProcessCDCMessage);
             Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.Radio, ProcessToRadioMessage);
 
-            Player.TrackChanged += (s, e) => {
+            /*Player.TrackChanged += (s, e) => {
                 //Manager.EnqueueMessage(StatusPlayed(Player.DiskNumber, Player.TrackNumber));
                 Manager.EnqueueMessage(StatusStartPlaying(Player.DiskNumber, Player.TrackNumber));
-            };
+            };*/
             InstrumentClusterElectronics.IgnitionStateChanged += args =>
             {
                 if (args.CurrentIgnitionState == IgnitionState.Acc && args.PreviousIgnitionState == IgnitionState.Ign)
@@ -181,7 +181,7 @@ namespace imBMW.iBus.Devices.Emulators
                     {
                         announceThread.Resume();
                     }
-                }, null, StopDelayMilliseconds, 0);
+                }, null, 0/*StopDelayMilliseconds*/, 0);
             }
         }
 

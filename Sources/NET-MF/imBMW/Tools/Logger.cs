@@ -30,10 +30,12 @@ namespace imBMW.Tools
 
         public static void FreeMemory()
         {
+#if DebugOnRealDeviceOverFTDI
             if (System.Diagnostics.Debugger.IsAttached)
             {
                 Debug.Print("Free memory:" + Debug.GC(true));
             }
+#endif
         }
 
         public static void Trace(string message, string priorityTitle = null)

@@ -96,7 +96,7 @@ namespace imBMW.Tools
         {
             var found = false;
             char c;
-            for (int i = 0; i < s.Length; i++)
+            for (ushort i = 0; i < s.Length; i++)
             {
                 c = s[i];
                 if (c.GetRussianCharType() != CharType.None)
@@ -112,7 +112,7 @@ namespace imBMW.Tools
 
             var r = "";
             CharType t;
-            for (int j = 0; j < s.Length; j++)
+            for (ushort j = 0; j < s.Length; j++)
             {
                 c = s[j];
                 t = c.GetRussianCharType();
@@ -169,7 +169,7 @@ namespace imBMW.Tools
         {
             var found = false;
             char ch;
-            for (int i = 0; i < s.Length; i++)
+            for (ushort i = 0; i < s.Length; i++)
             {
                 ch = s[i];
                 if (ch > 0xFF)
@@ -188,7 +188,7 @@ namespace imBMW.Tools
             // + 1025 = Ё, 1105 = ё
             var res = new char[s.Length];
             char c;
-            for (var i = 0; i < s.Length; i++)
+            for (ushort i = 0; i < s.Length; i++)
             {
                 c = s[i];
                 var t = c.GetRussianCharType();
@@ -331,7 +331,7 @@ namespace imBMW.Tools
 
         public static bool EndsWith(this string s, string value)
         {
-            int j = 0;
+            ushort j = 0;
             for(int i = s.Length - value.Length; i < s.Length; i++)
             {
                 if(s[i] == value[j])
@@ -345,6 +345,11 @@ namespace imBMW.Tools
                 }
             }
             return true;
+        }
+
+        public static bool IsNullOrEmpty(this string s, string value)
+        {
+            return value == null || value == "";
         }
     }
 }

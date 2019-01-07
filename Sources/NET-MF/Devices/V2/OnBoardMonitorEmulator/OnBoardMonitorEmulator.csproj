@@ -21,7 +21,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>DEBUG;OnBoardMonitorEmulator</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -30,7 +30,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>RELEASE;OnBoardMonitorEmulator</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -56,7 +56,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugOnRealDeviceOverFTDI|AnyCPU'">
     <OutputPath>bin\DebugOnRealDeviceOverFTDI\</OutputPath>
-    <DefineConstants>TRACE;DebugOnRealDeviceOverFTDI;OnBoardMonitorEmulator</DefineConstants>
+    <DefineConstants>DebugOnRealDeviceOverFTDI;OnBoardMonitorEmulator</DefineConstants>
     <Prefer32Bit>true</Prefer32Bit>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
@@ -167,6 +167,9 @@
     </Compile>
     <Compile Include="..\..\..\imBMW.Features\Multimedia\MediaEmulator.cs">
       <Link>imBMW.Features\Multimedia\MediaEmulator.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Multimedia\Models\DiskAndTrack.cs">
+      <Link>imBMW.Features\Multimedia\Models\DiskAndTrack.cs</Link>
     </Compile>
     <Compile Include="..\..\..\imBMW.Features\Multimedia\Models\ModelHelpers.cs">
       <Link>imBMW.Features\Multimedia\Models\ModelHelpers.cs</Link>
@@ -320,9 +323,11 @@
     <Compile Include="DevicesEmulation\InstrumentClusterElectronicsEmulator.cs" />
     <Compile Include="DevicesEmulation\NavigationModuleEmulator.cs" />
     <Compile Include="DevicesEmulation\DDEEmulator.cs" />
+    <Compile Include="DevicesEmulation\FrontDisplayEmulator.cs" />
     <Compile Include="GHI\IO\Storage\SDCard.cs" />
     <Compile Include="GHI\Pins\FEZPandaIII.cs" />
     <Compile Include="DevicesEmulation\RadioEmulator.cs" />
+    <Compile Include="GraphicsNavigationDriverState.cs" />
     <Compile Include="imBMW\IO\BaudRate.cs" />
     <Compile Include="imBMW\IO\Serial.cs" />
     <Compile Include="imBMW\IO\SerialPortTH3122.cs" />
@@ -341,6 +346,10 @@
     <Compile Include="Microsoft.SPOT\Hardware\Port.cs" />
     <Compile Include="Microsoft.SPOT\Hardware\SPI.cs" />
     <Compile Include="Microsoft.SPOT\Hardware\Utility.cs" />
+    <Compile Include="Microsoft.SPOT\IO\EjectEventHandler.cs" />
+    <Compile Include="Microsoft.SPOT\IO\InsertEventHandler.cs" />
+    <Compile Include="Microsoft.SPOT\IO\MediaEventArgs.cs" />
+    <Compile Include="Microsoft.SPOT\IO\RemovableMedia.cs" />
     <Compile Include="Microsoft.SPOT\IO\VolumeInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

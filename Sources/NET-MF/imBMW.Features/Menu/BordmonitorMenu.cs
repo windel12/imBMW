@@ -1,14 +1,9 @@
 using System;
-using Microsoft.SPOT;
 using imBMW.iBus.Devices.Real;
 using imBMW.iBus;
 using imBMW.Tools;
-using System.Threading;
 using imBMW.Features.Menu.Screens;
 using imBMW.iBus.Devices.Emulators;
-using imBMW.Multimedia;
-using imBMW.Features.Localizations;
-using imBMW.Features.Multimedia.Models;
 
 namespace imBMW.Features.Menu
 {
@@ -30,8 +25,8 @@ namespace imBMW.Features.Menu
             BordcomputerScreen.Instance.MediaEmulator = mediaEmulator;
             CurrentScreen = BordcomputerScreen.Instance;
 
-            int titleStartIndex = 0;
-            int statusStartIndex = 0;
+            byte titleStartIndex = 0;
+            byte statusStartIndex = 0;
             var trackInfo = mediaEmulator.Player.CurrentTrack;
             mediaEmulator.Player.IsPlayingChanged += (s, e) =>
             {
@@ -61,13 +56,14 @@ namespace imBMW.Features.Menu
                 statusStartIndex = 0;
                 trackInfo = mediaEmulator.Player.CurrentTrack;
                 UpdateScreenWitDelay(500);
+                Radio.DisplayText(trackInfo.Title);
             };
             //mediaEmulator.IsEnabledChanged += mediaEmulator_IsEnabledChanged;
             //Radio.OnOffChanged += Radio_OnOffChanged;
             Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.Radio, ProcessToRadioMessage);
         }
 
-        public static string TrimTextToLength(string text, ref int startIndex, int length)
+        public static string TrimTextToLength(string text, ref byte startIndex, int length)
         {
             if (text.Length <= length)
             {
@@ -94,7 +90,7 @@ namespace imBMW.Features.Menu
 
         #region Player items
 
-        protected override int StatusTextMaxlen { get { return 11; } }
+        protected override byte StatusTextMaxlen { get { return 11; } }
 
         //protected override void ShowPlayerStatus(IAudioPlayer player, bool isPlaying)
         //{
@@ -360,11 +356,21 @@ namespace imBMW.Features.Menu
 
                 var messages = new Message[5];
                 var n = 0;
-                messages[n++] = Bordmonitor.ShowText(CurrentScreen.Title ?? String.Empty, BordmonitorFields.Title, 0, false, false);
-                messages[n++] = Bordmonitor.ShowText(CurrentScreen.T1Field ?? String.Empty, BordmonitorFields.T1, 0, false, false);
-                messages[n++] = Bordmonitor.ShowText(CurrentScreen.T3Field ?? String.Empty, BordmonitorFields.T3, 0, false, false);
-                messages[n++] = Bordmonitor.ShowText(CurrentScreen.T5Field ?? String.Empty, BordmonitorFields.T5, 0, false, false);
-                messages[n++] = Bordmonitor.ShowText(CurrentScreen.Status ?? String.Empty, BordmonitorFields.Status, 0, false, false);
+
+                // TODO: refactor
+                string title = CurrentScreen.Title;
+                string status = CurrentScreen.Status;
+
+                if (!StringHelpers.IsNullOrEmpty(title))
+                    messages[n++] = Bordmonitor.ShowText(title, BordmonitorFields.Title, 0, false, false);
+                if (!StringHelpers.IsNullOrEmpty(CurrentScreen.T1Field))
+                    messages[n++] = Bordmonitor.ShowText(CurrentScreen.T1Field, BordmonitorFields.T1, 1, false, false);
+                if (!StringHelpers.IsNullOrEmpty(CurrentScreen.T3Field))
+                    messages[n++] = Bordmonitor.ShowText(CurrentScreen.T3Field, BordmonitorFields.T3, 3, false, false);
+                if (!StringHelpers.IsNullOrEmpty(CurrentScreen.T5Field))
+                    messages[n++] = Bordmonitor.ShowText(CurrentScreen.T5Field, BordmonitorFields.T5, 5, false, false);
+                if (!StringHelpers.IsNullOrEmpty(status))
+                    messages[n++] = Bordmonitor.ShowText(status, BordmonitorFields.Status, 6, false, false);
 
                 Manager.EnqueueMessage(messages);
                 isHeaderDrawing = false;

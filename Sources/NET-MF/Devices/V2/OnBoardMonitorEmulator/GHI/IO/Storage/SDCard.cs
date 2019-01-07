@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.SPOT.IO;
 
 namespace GHI.IO.Storage
 {
@@ -18,7 +19,7 @@ namespace GHI.IO.Storage
 
         public void Mount()
         {
-            //throw new Exception("test");
+            RemovableMedia.FireInserted();
         }
 
         public void Dispose() { }

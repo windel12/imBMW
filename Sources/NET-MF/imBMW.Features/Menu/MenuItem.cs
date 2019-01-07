@@ -66,7 +66,7 @@ namespace imBMW.Features.Menu
             {
                 if (getTextCallback != null)
                 {
-                    Text = getTextCallback(this);
+                    text = getTextCallback(this);
                 }
                 return text;
             }

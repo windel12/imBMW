@@ -3,16 +3,20 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:OnBoardMonitorEmulator"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="351.074" Width="618.128">
     <Grid>
+        <Rectangle Name="RedIndicator" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="13" Margin="510,125,0,0" Stroke="Black" VerticalAlignment="Top" Width="10"/>
+        <Rectangle Name="OrangeIndicator" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="13" Margin="525,125,0,0" Stroke="Black" VerticalAlignment="Top" Width="10"/>
+        <Rectangle Name="GreenIndicator" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="13" Margin="540,125,0,0" Stroke="Black" VerticalAlignment="Top" Width="10"/>
+        
         <Button x:Name="Knob1Button" Content="Radio" HorizontalAlignment="Left" Margin="10,267,0,0" VerticalAlignment="Top" Width="90" Height="42" Click="Knob1Button_Click"/>
-        <Button x:Name="Knob2Button" Content="Navi" HorizontalAlignment="Left" Margin="417,267,0,0" VerticalAlignment="Top" Width="90" Height="42" Click="Knob2Button_Click"/>
+        <Button x:Name="Knob2Button" Content="Navi" HorizontalAlignment="Left" Margin="509,267,0,0" VerticalAlignment="Top" Width="90" Height="42" Click="Knob2Button_Click"/>
+
         <Button x:Name="ModeButton" Content="Mode" HorizontalAlignment="Left" Margin="10,242,0,0" VerticalAlignment="Top" Width="40"/>
         <Button x:Name="SwitchButton" Content="Switch" HorizontalAlignment="Left" Margin="60,242,0,0" VerticalAlignment="Top" Width="40"/>
-        <Button x:Name="PrevButton" Content="&lt;" HorizontalAlignment="Left" Margin="417,217,0,0" VerticalAlignment="Top" Width="40" Click="PrevButton_Click"/>
-        <Button x:Name="NextButton" Content="&gt;" HorizontalAlignment="Left" Margin="467,217,0,0" VerticalAlignment="Top" Width="40" Click="NextButton_Click"/>
+        <Button x:Name="FMButton" Content="FM" HorizontalAlignment="Left" Margin="10,217,0,0" VerticalAlignment="Top" Width="40"/>
+        <Button x:Name="AMButton" Content="AM" HorizontalAlignment="Left" Margin="60,217,0,0" VerticalAlignment="Top" Width="40"/>
         <Button x:Name="FirstDiskButton" Content="1" HorizontalAlignment="Left" Margin="10,143,0,0" VerticalAlignment="Top" Width="40" Mouse.MouseUp="DiskButton_MouseUp"/>
         <Button x:Name="SecondDiskButton" Content="2" HorizontalAlignment="Left" Margin="10,168,0,0" VerticalAlignment="Top" Width="40" Mouse.MouseUp="DiskButton_MouseUp"/>
         <Button x:Name="ThirdDiskButton" Content="3" HorizontalAlignment="Left" Margin="10,193,0,0" VerticalAlignment="Top" Width="40" Mouse.MouseUp="DiskButton_MouseUp"/>
@@ -20,36 +24,88 @@
         <Button x:Name="FifthDiskButton" Content="5" HorizontalAlignment="Left" Margin="60,168,0,0" VerticalAlignment="Top" Width="40" Mouse.MouseUp="DiskButton_MouseUp"/>
         <Button x:Name="SixDiskButton" Content="6" HorizontalAlignment="Left" Margin="60,193,0,0" VerticalAlignment="Top" Width="40" Mouse.MouseUp="DiskButton_MouseUp" />
         <Button x:Name="InfoButton" Content="Info" HorizontalAlignment="Left" Margin="10,118,0,0" VerticalAlignment="Top" Width="90"/>
-        <Button x:Name="ToneButton" Content="Tone" HorizontalAlignment="Left" Margin="417,193,0,0" VerticalAlignment="Top" Width="40"/>
-        <Button x:Name="SelectButton" Content="Select" HorizontalAlignment="Left" Margin="467,193,0,0" VerticalAlignment="Top" Width="40"/>
-        <Button x:Name="ArrowsButton" Content="&lt;&gt;" HorizontalAlignment="Left" Margin="417,168,0,0" VerticalAlignment="Top" Width="40" Mouse.MouseUp="ArrowsButton_MouseUp"/>
-        <Button x:Name="ClockButton" Content="Clock" HorizontalAlignment="Left" Margin="467,168,0,0" VerticalAlignment="Top" Width="40" Mouse.MouseUp="ClockButton_MouseUp"/>
-        <Button x:Name="PhoneButton" Content="Phone" HorizontalAlignment="Left" Margin="417,143,0,0" VerticalAlignment="Top" Width="90" Click="PhoneButton_Click"/>
-        <Button x:Name="EjectButton" Content="Eject" HorizontalAlignment="Left" Margin="462,118,0,0" VerticalAlignment="Top" Width="40"/>
-        <Rectangle Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="13" Margin="448,125,0,0" Stroke="Black" VerticalAlignment="Top" Width="10"/>
-        <Rectangle Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="13" Margin="433,125,0,0" Stroke="Black" VerticalAlignment="Top" Width="10"/>
-        <Rectangle Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="13" Margin="418,125,0,0" Stroke="Black" VerticalAlignment="Top" Width="10"/>
-        <Button x:Name="FMButton" Content="FM" HorizontalAlignment="Left" Margin="10,217,0,0" VerticalAlignment="Top" Width="40"/>
-        <Button x:Name="AMButton" Content="AM" HorizontalAlignment="Left" Margin="60,217,0,0" VerticalAlignment="Top" Width="40"/>
-        <Button x:Name="MenuButton" Content="Menu" HorizontalAlignment="Left" Margin="417,242,0,0" VerticalAlignment="Top" Width="90" Click="MenuButton_Click" MouseDoubleClick="MenuButton_MouseDoubleClick"></Button>
-        <TextBlock x:Name="index1"  HorizontalAlignment="Left" Margin="124,180,0,0" TextWrapping="Wrap" Text="P1: CD 1" VerticalAlignment="Top" Mouse.MouseDown="index_MouseDown"/>
-        <TextBlock x:Name="index2"  HorizontalAlignment="Left" Margin="124,201,0,0" TextWrapping="Wrap" Text="P2: CD 2" VerticalAlignment="Top" Mouse.MouseDown="index_MouseDown"/>
-        <TextBlock x:Name="index3"  HorizontalAlignment="Left" Margin="124,222,0,0" TextWrapping="Wrap" Text="P3: CD 3" VerticalAlignment="Top" Mouse.MouseDown="index_MouseDown"/>
-        <TextBlock x:Name="index4"  HorizontalAlignment="Left" Margin="124,243,0,0" TextWrapping="Wrap" Text="---" VerticalAlignment="Top" Mouse.MouseDown="index_MouseDown"/>
-        <TextBlock x:Name="index5"  HorizontalAlignment="Left" Margin="124,264,0,0" TextWrapping="Wrap" Text="---" VerticalAlignment="Top" Mouse.MouseDown="index_MouseDown"/>
-        <TextBlock x:Name="index6"  HorizontalAlignment="Left" Margin="276,180,0,0" TextWrapping="Wrap" Text="P4: CD 4" VerticalAlignment="Top" Mouse.MouseDown="index_MouseDown"/>
-        <TextBlock x:Name="index7"  HorizontalAlignment="Left" Margin="276,201,0,0" TextWrapping="Wrap" Text="P5: CD 5" VerticalAlignment="Top" Mouse.MouseDown="index_MouseDown"/>
-        <TextBlock x:Name="index8"  HorizontalAlignment="Left" Margin="276,222,0,0" TextWrapping="Wrap" Text="P6: CD 6" VerticalAlignment="Top" Mouse.MouseDown="index_MouseDown"/>
-        <TextBlock x:Name="index9"  HorizontalAlignment="Left" Margin="276,244,0,0" TextWrapping="Wrap" Text="---" VerticalAlignment="Top" Mouse.MouseDown="index_MouseDown"/>
-        <TextBlock x:Name="index10" HorizontalAlignment="Left" Margin="276,265,0,0" TextWrapping="Wrap" Text="---" VerticalAlignment="Top" Mouse.MouseDown="index_MouseDown"/>
 
-        <Label x:Name="label0" Content="CD 1-01" HorizontalAlignment="Left" Margin="105,126,0,0" VerticalAlignment="Top" FontSize="20"/>
-        <Label x:Name="label3" Content="T3abc" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="221,140,0,0" Height="28"/>
-        <Label x:Name="label4" Content="T4a" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="221,125,0,0"/>
-        <Label x:Name="label6" Content="T6abcdefghijklmn" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="267,140,0,0" Height="28"/>
-        <Label x:Name="label5" Content="T5abc" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="267,125,0,0"/>
-        <Label x:Name="label1" Content="T1ab" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="371,140,0,0" Height="28"/>
-        <Label x:Name="label2" Content="T2a" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="371,125,0,0"/>
+        <Button x:Name="MenuButton" Content="Menu" HorizontalAlignment="Left" Margin="509,242,0,0" VerticalAlignment="Top" Width="90" Click="MenuButton_Click" MouseDoubleClick="MenuButton_MouseDoubleClick"></Button>
+        <Button x:Name="PrevButton" Content="&lt;" HorizontalAlignment="Left" Margin="509,217,0,0" VerticalAlignment="Top" Width="40" Click="PrevButton_Click"/>
+        <Button x:Name="NextButton" Content="&gt;" HorizontalAlignment="Left" Margin="559,217,0,0" VerticalAlignment="Top" Width="40" Click="NextButton_Click"/>
+        <Button x:Name="ToneButton" Content="Tone" HorizontalAlignment="Left" Margin="509,193,0,0" VerticalAlignment="Top" Width="40"/>
+        <Button x:Name="SelectButton" Content="Select" HorizontalAlignment="Left" Margin="559,193,0,0" VerticalAlignment="Top" Width="40"/>
+        <Button x:Name="ArrowsButton" Content="&lt;&gt;" HorizontalAlignment="Left" Margin="509,168,0,0" VerticalAlignment="Top" Width="40" Mouse.MouseUp="ArrowsButton_MouseUp"/>
+        <Button x:Name="ClockButton" Content="Clock" HorizontalAlignment="Left" Margin="559,168,0,0" VerticalAlignment="Top" Width="40" Mouse.MouseUp="ClockButton_MouseUp"/>
+        <Button x:Name="PhoneButton" Content="Phone" HorizontalAlignment="Left" Margin="509,143,0,0" VerticalAlignment="Top" Width="90" Click="PhoneButton_Click"/>
+        <Button x:Name="EjectButton" Content="Eject" HorizontalAlignment="Left" Margin="554,118,0,0" VerticalAlignment="Top" Width="40"/>
 
+        <Grid Name="BordComputerGrid" Background="Black" Visibility="Visible" Width="400" Height="234" Margin="105,75,105,10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.5*" />
+                <ColumnDefinition Width="0.5*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Bordcomputer" Foreground="White" FontSize="20" />
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="GPS-Navigation" Foreground="White" FontSize="20"/>
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Telephone" Foreground="White" FontSize="20"/>
+            <TextBlock Grid.Row="3" Grid.Column="0" Text="Code" Foreground="White" FontSize="20"/>
+            <TextBlock Grid.Row="4" Grid.Column="0" Text="BMW Assist" Foreground="White" FontSize="20"/>
+            <TextBlock Grid.Row="5" Grid.Column="0" Text="Settings" Foreground="White" FontSize="20"/>
+
+            <TextBlock Grid.Row="0" Grid.Column="1" Text="Television" Foreground="White" FontSize="20"/>
+            <TextBlock Grid.Row="1" Grid.Column="1" Text="DSP" Foreground="White" FontSize="20"/>
+            <TextBlock Grid.Row="2" Grid.Column="1" Text="Aux. heating/Ventilation" Foreground="White" FontSize="20" />
+            <TextBlock Grid.Row="3" Grid.Column="1" Text="" Foreground="White" FontSize="20"/>
+            <TextBlock Grid.Row="4" Grid.Column="1" Text="" Foreground="White" FontSize="20"/>
+            <TextBlock Grid.Row="5" Grid.Column="1" Text="Monitor Off" Foreground="White" FontSize="20"/>
+        </Grid>
+
+        <StackPanel Name="CDChangerPanel" Orientation="Vertical" Visibility="Hidden" Margin="105,118,105,10">
+            <Grid Name="HeaderGrid" Height="46">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="0.5*" />
+                    <RowDefinition Height="0.5*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.35*" />
+                    <ColumnDefinition Width="0.15*" />
+                    <ColumnDefinition Width="0.35*" />
+                    <ColumnDefinition Width="0.15*" />
+                </Grid.ColumnDefinitions>
+                <Label Grid.RowSpan="2" Grid.Column="0" Name="label0" Content="CD 1-01" VerticalAlignment="Center" FontSize="20" FontWeight="Bold" />
+                <Label Grid.Row="0" Grid.Column="1" Name="label4" Content="T4a" />
+                <Label Grid.Row="1" Grid.Column="1" Name="label3" Content="T3abc" />
+                <Label Grid.Row="0" Grid.Column="2" Name="label5" Content="T5abc" />
+                <Label Grid.Row="1" Grid.Column="2" Name="label6" Content="T6abcdefghijklmn" />
+                <Label Grid.Row="0" Grid.Column="3" Name="label2" Content="T2a" />
+                <Label Grid.Row="1" Grid.Column="3" Name="label1" Content="T1ab" />
+            </Grid>
+            <Grid Height="130" Margin="0,10,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="0.2*" />
+                    <RowDefinition Height="0.2*" />
+                    <RowDefinition Height="0.2*" />
+                    <RowDefinition Height="0.2*" />
+                    <RowDefinition Height="0.2*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.5*" />
+                    <ColumnDefinition Width="0.5*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Name="index1"  Text="" FontSize="18" Mouse.MouseDown="index_MouseDown"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" Name="index2"  Text="" FontSize="18" Mouse.MouseDown="index_MouseDown"/>
+                <TextBlock Grid.Row="2" Grid.Column="0" Name="index3"  Text="" FontSize="18" Mouse.MouseDown="index_MouseDown"/>
+                <TextBlock Grid.Row="3" Grid.Column="0" Name="index4"  Text="" FontSize="18" Mouse.MouseDown="index_MouseDown"/>
+                <TextBlock Grid.Row="4" Grid.Column="0" Name="index5"  Text="" FontSize="18" Mouse.MouseDown="index_MouseDown"/>
+                <TextBlock Grid.Row="0" Grid.Column="1" Name="index6"  Text="" FontSize="18" Mouse.MouseDown="index_MouseDown"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" Name="index7"  Text="" FontSize="18" Mouse.MouseDown="index_MouseDown"/>
+                <TextBlock Grid.Row="2" Grid.Column="1" Name="index8"  Text="" FontSize="18" Mouse.MouseDown="index_MouseDown"/>
+                <TextBlock Grid.Row="3" Grid.Column="1" Name="index9"  Text="" FontSize="18" Mouse.MouseDown="index_MouseDown"/>
+                <TextBlock Grid.Row="4" Grid.Column="1" Name="index10" Text="" FontSize="18" Mouse.MouseDown="index_MouseDown"/>
+            </Grid>
+        </StackPanel>
     </Grid>
 </Window>
