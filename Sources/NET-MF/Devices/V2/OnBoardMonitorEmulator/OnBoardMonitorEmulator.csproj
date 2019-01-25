@@ -234,6 +234,9 @@
     <Compile Include="..\..\..\imBMW\iBus\Devices\BodyModule.cs">
       <Link>imBMW\iBus\Devices\BodyModule.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\imBMW\iBus\Devices\HeadlightVerticalAimControl.cs">
+      <Link>imBMW\iBus\Devices\HeadlightVerticalAimControl.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\imBMW\iBus\Devices\InstrumentClusterElectronics.cs">
       <Link>imBMW\iBus\Devices\InstrumentClusterElectronics.cs</Link>
     </Compile>
@@ -320,6 +323,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DevicesEmulation\AuxilaryHeaterEmulator.cs" />
+    <Compile Include="DevicesEmulation\HeadlightVerticalAimControlEmulator.cs" />
     <Compile Include="DevicesEmulation\InstrumentClusterElectronicsEmulator.cs" />
     <Compile Include="DevicesEmulation\NavigationModuleEmulator.cs" />
     <Compile Include="DevicesEmulation\DDEEmulator.cs" />
@@ -327,6 +331,7 @@
     <Compile Include="GHI\IO\Storage\SDCard.cs" />
     <Compile Include="GHI\Pins\FEZPandaIII.cs" />
     <Compile Include="DevicesEmulation\RadioEmulator.cs" />
+    <Compile Include="GHI\Processor\Watchdog.cs" />
     <Compile Include="GraphicsNavigationDriverState.cs" />
     <Compile Include="imBMW\IO\BaudRate.cs" />
     <Compile Include="imBMW\IO\Serial.cs" />

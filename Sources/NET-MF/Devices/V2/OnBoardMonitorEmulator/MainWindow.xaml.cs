@@ -99,6 +99,7 @@ namespace OnBoardMonitorEmulator
             RadioEmulator.Init();
             DDEEmulator.Init();
             FrontDisplayEmulator.Init();
+            HeadlightVerticalAimControlEmulator.Init();
 
             Launcher.Launch(Launcher.LaunchMode.WPF);
 
@@ -213,6 +214,8 @@ namespace OnBoardMonitorEmulator
         private void MenuButton_Click(object sender, RoutedEventArgs e)
         {
             State = GraphicsNavigationDriverState.BordComputer;
+            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Broadcast, 0x48, 0x34);
+            WriteMessage(message);
         }
 
         private void MenuButton_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -261,6 +264,12 @@ namespace OnBoardMonitorEmulator
         private void ArrowsButton_MouseUp(object sender, MouseButtonEventArgs e)
         {
             var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, 0x48, 0x94);
+            WriteMessage(message);
+        }
+
+        private void imBMWTest_Click(object sender, RoutedEventArgs e)
+        {
+            var message = new Message(DeviceAddress.imBMWTest, DeviceAddress.Broadcast, 0xEE, 0x00);
             WriteMessage(message);
         }
     }

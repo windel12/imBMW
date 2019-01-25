@@ -93,6 +93,7 @@
     <Compile Include="IO\SerialPortOptoPair.cs" />
     <Compile Include="IO\SerialPortTH3122.cs" />
     <Compile Include="IO\SerialTimerInterruptPort.cs" />
+    <Compile Include="iBus\Devices\HeadlightVerticalAimControl.cs" />
     <Compile Include="Shields\BluetoothOVC3860Shield.cs" />
     <Compile Include="Shields\ShieldBase.cs" />
     <Compile Include="Shields\ShieldManager.cs" />

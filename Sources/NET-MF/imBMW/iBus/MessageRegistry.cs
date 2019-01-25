@@ -22,16 +22,16 @@ namespace imBMW.iBus
             "DIAG write memory",        // "0x07",
             "DIAG read coding data",    // "0x08",
             "DIAG write coding data",   // "0x09",
-            "", // "0x0A",
-            "DIAG Read IO status", // "0x0B",
-            "Vehicle control",
-            "DIAG ", // "0x0D",
-            "DIAG PRUEFSTEMPEL_LESEN", // "0x0E",
+            "",                         // "0x0A",
+            "DIAG Read IO status",      // "0x0B",
+            "Vehicle control",          // "0x0C",
+            "DIAG ",                    // "0x0D",
+            "DIAG PRUEFSTEMPEL_LESEN",  // "0x0E",
             "DIAG PRUEFSTEMPEL_SCHREIBEN", // "0x0F",
             "Ignition status request",
             "Ignition status",
             "IKE sensor status request",
-            "IKE sensor status", // m.Data[1] = 0x13, m.Data[8]: 12,13,14,15,16????
+            "IKE sensor status",        // "0x13"
             "Country coding status request",
             "Country coding status",
             "Odometer request",
@@ -142,9 +142,7 @@ namespace imBMW.iBus
             "", // "0x7F",
             "", // "0x80",
             "", // "0x81",
-            "Prepare for auxilary heater starting", // "0x82",  82 83 - after ihka turn on by key to IGN; 
-                                                    //          82 05 - ihka turn on after manual starting auxilary heater(by receiving command 92 00 22 from auxilary heater(key in ACC)); 
-                                                    //          82 03 - ihka turn off after manual stopping auxilary heater(by receiveing command 92 00 11 from auxilary heater(key in ACC));
+            "Air conditioning on/off status", 
             "Air conditioning compressor status", // "0x83", (00 00 - Off; 80 00 - On?; 80 08 - On?)
             "", // "0x84",
             "", // "0x85",
@@ -252,7 +250,7 @@ namespace imBMW.iBus
             "", // "0xEB",
             "", // "0xEC",
             "", // "0xED",
-            "", // "0xEE",
+            "imBMWTest", // "0xEE",
             "", // "0xEF",
             "", // "0xF0",
             "", // "0xF1",
@@ -304,6 +302,14 @@ namespace imBMW.iBus
             messageDescriptions.Add(Radio.DataPrevReleased.ToHex(' '), "BMBT Prev Released");
             messageDescriptions.Add(Radio.DataSwitchPressed.ToHex(' '), "BMBT Switch Pressed");
             messageDescriptions.Add(Radio.DataSwitchReleased.ToHex(' '), "BMBT Switch Released");
+
+            messageDescriptions.Add(new byte[] { 0x38, 0x0A, 00 }.ToHex(' '), "CD changer next track");
+            messageDescriptions.Add(new byte[] { 0x38, 0x0A, 01 }.ToHex(' '), "CD changer prev track");
+
+            messageDescriptions.Add(new byte[] { 0x82, 0x83 }.ToHex(' '), "IHKA message after engine started, or after EngineRunning > Acc > Ign"); //  maybe for auxilary heater starting?
+            messageDescriptions.Add(new byte[] { 0x82, 0x05 }.ToHex(' '), "IHKA turned on by webasto activation"); // after manual starting auxilary heater(by receiving command 92 00 22 from auxilary heater(key in ACC))
+            messageDescriptions.Add(new byte[] { 0x82, 0x03 }.ToHex(' '), "IHKA turned off"); //    after changing Ign > Acc
+                                                                                              // or after manual stopping auxilary heater(by receiving command 92 00 11 from auxilary heater(key in ACC))
         }
 
         #endregion
@@ -349,7 +355,7 @@ namespace imBMW.iBus
 
             if (messageDescriptions.Contains(message.DataDump))
             {
-                return (string)messageDescriptions[message.DataDump];
+                return message.DataDump + " [" + (string)messageDescriptions[message.DataDump] + " ]";
             }
 
             byte firstByte = message.Data[0];

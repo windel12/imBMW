@@ -28,6 +28,7 @@ namespace imBMW.Features.Menu.Screens
         private ushort timeoutBeforeStart = 2000;
         protected Timer refreshTimer;
 
+        // TODO: refactor
         public MediaEmulator MediaEmulator { get; set; }
 
         protected BordcomputerScreen()
@@ -37,8 +38,6 @@ namespace imBMW.Features.Menu.Screens
 
             InstrumentClusterElectronics.RequestConsumption();
             InstrumentClusterElectronics.RequestAverageSpeed();
-
-            
         }
 
         public override bool OnNavigatedTo(MenuBase menu)
@@ -54,13 +53,13 @@ namespace imBMW.Features.Menu.Screens
                 InstrumentClusterElectronics.RangeChanged += InstrumentClusterElectronics_RangeChanged;
                 InstrumentClusterElectronics.SpeedLimitChanged += InstrumentClusterElectronics_SpeedLimitChanged;
 
-                IntegratedHeatingAndAirConditioning.AuxilaryHeaterWorkingRequestsCounterChanged += IntegratedHeatingAndAirConditioning_AuxilaryHeaterWorkingRequestsCounterChanged;
+                //IntegratedHeatingAndAirConditioning.AuxilaryHeaterWorkingRequestsCounterChanged += IntegratedHeatingAndAirConditioning_AuxilaryHeaterWorkingRequestsCounterChanged;
 
-                MediaEmulator.Player.TrackChanged += TrackChanged;
-                refreshTimer = new Timer(delegate
-                {
-                    OnUpdateHeader(MenuScreenUpdateReason.Refresh);
-                }, null, timeoutBeforeStart, refreshInterval);
+                //MediaEmulator.Player.TrackChanged += TrackChanged;
+                //refreshTimer = new Timer(delegate
+                //{
+                //    OnUpdateHeader(MenuScreenUpdateReason.Refresh);
+                //}, null, timeoutBeforeStart, refreshInterval);
 
                 UpdateVoltage();
                 return true;
@@ -81,21 +80,19 @@ namespace imBMW.Features.Menu.Screens
                 InstrumentClusterElectronics.RangeChanged -= InstrumentClusterElectronics_RangeChanged;
                 InstrumentClusterElectronics.SpeedLimitChanged -= InstrumentClusterElectronics_SpeedLimitChanged;
 
-                IntegratedHeatingAndAirConditioning.AuxilaryHeaterWorkingRequestsCounterChanged -= IntegratedHeatingAndAirConditioning_AuxilaryHeaterWorkingRequestsCounterChanged;
+                //IntegratedHeatingAndAirConditioning.AuxilaryHeaterWorkingRequestsCounterChanged -= IntegratedHeatingAndAirConditioning_AuxilaryHeaterWorkingRequestsCounterChanged;
 
-                MediaEmulator.Player.TrackChanged -= TrackChanged;
-                if (refreshTimer != null)
-                {
-                    refreshTimer.Dispose();
-                    refreshTimer = null;
-                }
+                //MediaEmulator.Player.TrackChanged -= TrackChanged;
+                //if (refreshTimer != null)
+                //{
+                //    refreshTimer.Dispose();
+                //    refreshTimer = null;
+                //}
 
                 return true;
             }
             return false;
         }
-
-        static bool isTrackChanging = false;
 
         private void TrackChanged(IAudioPlayer sender, TrackInfo nowPlaying)
         {
@@ -164,6 +161,7 @@ namespace imBMW.Features.Menu.Screens
                 return false;
             }
             lastUpdated = now;
+            OnUpdateHeader(MenuScreenUpdateReason.Refresh);
             OnUpdateBody(MenuScreenUpdateReason.Refresh);
             needUpdateVoltage = true;
             return true;

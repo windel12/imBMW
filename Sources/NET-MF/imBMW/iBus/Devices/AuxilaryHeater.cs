@@ -7,11 +7,12 @@ namespace imBMW.iBus.Devices.Real
     {
         Unknown,
         Present,
-        Stopped,
         StopPending,
+        Stopping,
+        Stopped,
         StartPending,
         Starting,
-        Started
+        Started,
     }
 
     public static class AuxilaryHeater
@@ -28,7 +29,9 @@ namespace imBMW.iBus.Devices.Real
         public static Message DiagnoseOk_KBus = new Message(DeviceAddress.AuxilaryHeater, DeviceAddress.Diagnostic, 0xA0);
 
 
-        /// <summary> 6B 05 5B 93 00 22 ?? </summary>
+        /// <summary> 
+        /// 6B 05 5B 93 00 22 ?? 
+        /// </summary>
         public static Message AdditionalHeaterWorkingResponse = new Message(DeviceAddress.AuxilaryHeater, DeviceAddress.IntegratedHeatingAndAirConditioning, 0x93, 0x00, 0x22);
         /// <summary> 6B 05 5B 93 00 21 ?? </summary>
         public static Message AdditionalHeaterStopped1 = new Message(DeviceAddress.AuxilaryHeater, DeviceAddress.IntegratedHeatingAndAirConditioning, 0x93, 0x00, 0x21);

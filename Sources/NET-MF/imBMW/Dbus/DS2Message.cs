@@ -114,5 +114,10 @@ namespace imBMW.iBus
             }
             return ParsePacketLength(packet) - 3;
         }
+
+        public Message ToIKBusMessage()
+        {
+            return new Message(DeviceAddress.Diagnostic, this.DestinationDevice, this.Data);
+        }
     }
 }

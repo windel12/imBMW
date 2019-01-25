@@ -47,7 +47,8 @@ namespace imBMW.iBus.Devices.Real
         //public static byte[] DataNaviKnobReleased = new byte[] { 0x48, 0x86 };
 
 
-        public const byte DisplayTextMaxLen = 11;
+        public const byte DisplayTextOnMIDMaxLen = 11;
+        public const byte DisplayTextOnIKEMaxLen = 18; // maybe 20?
 
         const int displayTextDelay = 200;
 
@@ -135,17 +136,17 @@ namespace imBMW.iBus.Devices.Real
         private static void DisplayTextMID(string s, TextAlign align)
         {
             byte[] data = new byte[] { 0x23, 0x40, 0x20 };
-            data = data.PadRight(0x20, DisplayTextMaxLen);
-            data.PasteASCII(s.Translit(), 3, DisplayTextMaxLen, align);
+            data = data.PadRight(0x20, DisplayTextOnMIDMaxLen);
+            data.PasteASCII(s.Translit(), 3, DisplayTextOnMIDMaxLen, align);
             Manager.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.MultiInfoDisplay, "Show text \"" + s + "\" on MID", data));
         }
 
         private static void DisplayTextRadio(string s, TextAlign align)
         {
-            byte[] data = new byte[] { 0x23, 0x42, 0x30 };
-            data = data.PadRight(0xFF, DisplayTextMaxLen);
-            data.PasteASCII(s.Translit(), 3, DisplayTextMaxLen, align);
-            Manager.EnqueueMessage(new Message(DeviceAddress.Telephone, DeviceAddress.InstrumentClusterElectronics, "Show text \"" + s + "\" on the IKE", data));
+            byte[] data = new byte[] { 0x23, 0x42, 0x30 }; // can 0x23 be changed to 0x1A ???   and 0x42 on 0x62 ???
+            data = data.PadRight(0xFF, DisplayTextOnIKEMaxLen);
+            data.PasteASCII(s.Translit(), 3, DisplayTextOnIKEMaxLen, align);
+            Manager.EnqueueMessage(new Message(DeviceAddress.Telephone, DeviceAddress.InstrumentClusterElectronics, "Show text \"" + s + "\" on IKE", data));
         }
 
         /// <summary>

@@ -25,11 +25,16 @@ namespace imBMW.iBus.Devices.Real
             get { return _auxilaryHeaterStatus; }
             private set
             {
+                var previousStatus = _auxilaryHeaterStatus;
                 _auxilaryHeaterStatus = value;
-                var e = AuxilaryHeaterStatusChanged;
-                if (e != null)
+
+                if (value != previousStatus)
                 {
-                    e(value);
+                    var e = AuxilaryHeaterStatusChanged;
+                    if (e != null)
+                    {
+                        e(value);
+                    }
                 }
             }
         }
@@ -83,16 +88,23 @@ namespace imBMW.iBus.Devices.Real
                 if (AuxilaryHeaterStatus == AuxilaryHeaterStatus.Unknown)
                 {
                     AuxilaryHeaterStatus = AuxilaryHeaterStatus.Started;
+                    Logger.Trace("Auxilary Heater, previous state was restored.");
+                    // without return!!! for answering
                 }
+
                 if (AuxilaryHeaterStatus == AuxilaryHeaterStatus.StartPending)
                 {
                     AuxilaryHeaterStatus = AuxilaryHeaterStatus.Started;
                     return;
                 }
-                if (AuxilaryHeaterStatus == AuxilaryHeaterStatus.Started)
+                if (AuxilaryHeaterStatus == AuxilaryHeaterStatus.Started || AuxilaryHeaterStatus == AuxilaryHeaterStatus.StopPending)
                 {
-                    ++AuxilaryHeaterWorkingRequestsCounter;
                     KBusManager.Instance.EnqueueMessage(ContinueWorkingAdditionalHeater);
+                    Logger.Trace("Coolant Temperature: " + InstrumentClusterElectronics.TemperatureCoolant);
+                    if (AuxilaryHeaterStatus == AuxilaryHeaterStatus.StopPending)
+                    {
+                        StopAuxilaryHeaterInternal();
+                    }
                     return;
                 }
             }
@@ -101,7 +113,6 @@ namespace imBMW.iBus.Devices.Real
             {
                 startDelay = new Timer(delegate
                 {
-                    AuxilaryHeaterStatus = AuxilaryHeaterStatus.StopPending;
                     KBusManager.Instance.EnqueueMessage(StopAdditionalHeater2);
 
                     if (startDelay != null)
@@ -117,28 +128,42 @@ namespace imBMW.iBus.Devices.Real
             }
         }
 
+        /// <summary> IntegratedHeatingAndAirConditioning > AuxilaryHeater: 01 </summary>
         private static void PollAuxilaryHeater()
         {
             var pollAuxilaryHeaterMessage = new Message(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.AuxilaryHeater, MessageRegistry.DataPollRequest);
             KBusManager.Instance.EnqueueMessage(pollAuxilaryHeaterMessage);
         }
 
+        /// <summary> IntegratedHeatingAndAirConditioning > AuxilaryHeater: 92 00 22 </summary>
         private static void StartAuxilaryHeaterInternal()
         {
             KBusManager.Instance.EnqueueMessage(StartAdditionalHeater);
             AuxilaryHeaterStatus = AuxilaryHeaterStatus.StartPending;
         }
 
+        /// <summary> IntegratedHeatingAndAirConditioning > AuxilaryHeater: 92 00 21 </summary>
+        private static void StopAuxilaryHeaterInternal()
+        {
+            Logger.Trace("Manual stopping of auxilary heater");
+            KBusManager.Instance.EnqueueMessage(StopAdditionalHeater1);
+            AuxilaryHeaterStatus = AuxilaryHeaterStatus.Stopping;
+        }
+
         public static void StartAuxilaryHeater()
         {
             Logger.Trace("Manual start of auxilary heater");
             PollAuxilaryHeater();
+            //AuxilaryHeaterStatus = AuxilaryHeaterStatus.Unknown;
         }
 
         public static void StopAuxilaryHeater()
         {
-            Logger.Trace("Manual stop of auxilary heater");
-            KBusManager.Instance.EnqueueMessage(StopAdditionalHeater1);
+            if (AuxilaryHeaterStatus == AuxilaryHeaterStatus.Started)
+            {
+                Logger.Trace("Manual stop of auxilary heater request");
+                AuxilaryHeaterStatus = AuxilaryHeaterStatus.StopPending;
+            }
         }
 
         public static void Init() { }

@@ -2,6 +2,7 @@ using System;
 using imBMW.Features.Localizations;
 using imBMW.iBus;
 using imBMW.iBus.Devices.Real;
+using imBMW.Tools;
 
 namespace imBMW.Features.Menu.Screens
 {
@@ -24,32 +25,55 @@ namespace imBMW.Features.Menu.Screens
         protected virtual void SetItems()
         {
             ClearItems();
-            AddItem(new MenuItem(i => i.IsChecked ? Localization.Current.TurnOff : Localization.Current.TurnOn,
-                i =>
-                {
-                    if (i.IsChecked)
-                    {
-                        Manager.EnqueueMessage(MessageStopAuxilaryHeater);
-                    }
-                    else
-                    {
-                        Manager.EnqueueMessage(MessageStartAuxilaryHeater);
-                    }
-                }, MenuItemType.Checkbox));
+            //AddItem(new MenuItem(i => i.IsChecked ? Localization.Current.TurnOff : Localization.Current.TurnOn,
+            //    i =>
+            //    {
+            //        if (i.IsChecked)
+            //        {
+            //            Manager.EnqueueMessage(MessageStopAuxilaryHeater);
+            //        }
+            //        else
+            //        {
+            //            Manager.EnqueueMessage(MessageStartAuxilaryHeater);
+            //        }
+            //    }, MenuItemType.Checkbox));
 
-            AddItem(new MenuItem(i => SteuernZuheizerOn, i =>
+            //AddItem(new MenuItem(i => SteuernZuheizerOn, i =>
+            //{
+            //    DBusManager.Port.WriteBufferSize = 0;
+
+            //    AuxilaryHeater.StartAuxilaryHeaterOverDBus();
+            //}, MenuItemType.Button, MenuItemAction.None));
+
+            //AddItem(new MenuItem(i => SteuernZuheizerOff, i =>
+            //{
+            //    DBusManager.Port.WriteBufferSize = 0;
+
+            //    AuxilaryHeater.StopAuxilaryHeaterOverDBus();
+            //}, MenuItemType.Button, MenuItemAction.None));
+
+            string label1 = "W>IHKA: 93 00 22";
+            AddItem(new MenuItem(i => label1, i =>
             {
-                DBusManager.Port.WriteBufferSize = 0;
-
-                AuxilaryHeater.StartAuxilaryHeaterOverDBus();
+                Logger.Trace("Pressed: " + label1);
+                KBusManager.Instance.EnqueueMessage(AuxilaryHeater.AdditionalHeaterWorkingResponse);
             }, MenuItemType.Button, MenuItemAction.None));
 
-            AddItem(new MenuItem(i => SteuernZuheizerOff, i =>
+            string label2 = "IHKA>W: 92 00 21";
+            AddItem(new MenuItem(i => label2, i =>
             {
-                DBusManager.Port.WriteBufferSize = 0;
-
-                AuxilaryHeater.StopAuxilaryHeaterOverDBus();
+                Logger.Trace("Pressed: " + label2);
+                KBusManager.Instance.EnqueueMessage(IntegratedHeatingAndAirConditioning.StopAdditionalHeater1);
             }, MenuItemType.Button, MenuItemAction.None));
+
+            string label3 = "IHKA>W: 92 00 11";
+            AddItem(new MenuItem(i => label3, i =>
+            {
+                Logger.Trace("Pressed: " + label3);
+                KBusManager.Instance.EnqueueMessage(IntegratedHeatingAndAirConditioning.StopAdditionalHeater2);
+            }, MenuItemType.Button, MenuItemAction.None));
+
+
 
             AddItem(new MenuItem(i => "StartAdditionalHeater", i =>
             {

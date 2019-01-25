@@ -44,7 +44,7 @@ namespace imBMW.Tools
                         break;
                 }
             }
-            LogString = Timestamp.ToString("yy-MM-dd HH:mm:ss.fff") + " [" + PriorityTitle + "] " + message;
+            LogString = Timestamp.ToString("dd-MM-yyyy HH:mm:ss.fff") + " [" + PriorityTitle + "] " + message;
         }
     }
 

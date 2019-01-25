@@ -38,12 +38,30 @@ namespace imBMW.Tools
 #endif
         }
 
+        public static void TryTrace(string message, string priorityTitle = null)
+        {
+            try
+            {
+                Trace(message, priorityTitle);
+            }
+            catch (Exception ex) { }
+        }
+
+        public static void TryTrace(Message message, string priorityTitle = null)
+        {
+            try
+            {
+                Trace(message, priorityTitle);
+            }
+            catch (Exception ex) { }
+        }
+
         public static void Trace(string message, string priorityTitle = null)
         {
             Log(LogPriority.Trace, message, priorityTitle);
         }
 
-        public static void Trace(iBus.Message message, string priorityTitle = null)
+        public static void Trace(Message message, string priorityTitle = null)
         {
             Log(LogPriority.Trace, message.ToPrettyString(true), priorityTitle);
         }
@@ -53,7 +71,7 @@ namespace imBMW.Tools
             Log(LogPriority.Info, message, priorityTitle);
         }
 
-        public static void Info(iBus.Message message, string priorityTitle = null)
+        public static void Info(Message message, string priorityTitle = null)
         {
             Log(LogPriority.Info, message.ToPrettyString(true), priorityTitle);
         }
@@ -63,7 +81,7 @@ namespace imBMW.Tools
             Log(LogPriority.Warning, message, priorityTitle);
         }
 
-        public static void Warning(iBus.Message message, string priorityTitle = null)
+        public static void Warning(Message message, string priorityTitle = null)
         {
             Log(LogPriority.Warning, message.ToPrettyString(true), priorityTitle);
         }
@@ -71,6 +89,24 @@ namespace imBMW.Tools
         public static void Warning(Exception exception, string message = null, string priorityTitle = null)
         {
             Log(LogPriority.Warning, exception, message, priorityTitle);
+        }
+
+        public static void TryError(string message, string priorityTitle = null)
+        {
+            try
+            {
+                Error(message, priorityTitle);
+            }
+            catch (Exception ex) { }
+        }
+
+        public static void TryError(Exception exception, string message = null, string priorityTitle = null)
+        {
+            try
+            {
+                Error(exception, message, priorityTitle);
+            }
+            catch (Exception ex) { }
         }
 
         public static void Error(string message, string priorityTitle = null)

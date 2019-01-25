@@ -329,6 +329,11 @@ namespace imBMW.iBus
             }
         }
 
+        public DS2Message ToDS2MessageResponse()
+        {
+            return new DS2Message(SourceDevice, Data);
+        }
+
         public override string ToString()
         {
             return this.ToPrettyString();

@@ -22,17 +22,21 @@ namespace imBMW.Features.Menu
             : base(mediaEmulator)
         {
             //CurrentScreen = HomeScreen.Instance;
+            // TODO: Refactor this!!!
             BordcomputerScreen.Instance.MediaEmulator = mediaEmulator;
+
             CurrentScreen = BordcomputerScreen.Instance;
 
             byte titleStartIndex = 0;
             byte statusStartIndex = 0;
             var trackInfo = mediaEmulator.Player.CurrentTrack;
+
+            // TODO: Refactor this!!!
             mediaEmulator.Player.IsPlayingChanged += (s, e) =>
             {
                 if (s.IsPlaying)
                 {
-                    BordcomputerScreen.Instance.TitleCallback = x =>
+                    DDEScreen.Instance.TitleCallback = BordcomputerScreen.Instance.TitleCallback = x =>
                     {
                         if (trackInfo.Title != null && trackInfo.Title != "")
                         {
@@ -40,7 +44,7 @@ namespace imBMW.Features.Menu
                         }
                         return TrimTextToLength(trackInfo.FullName, ref titleStartIndex, 10);
                     };
-                    BordcomputerScreen.Instance.StatusCallback = x =>
+                    DDEScreen.Instance.StatusCallback = BordcomputerScreen.Instance.StatusCallback = x =>
                     {
                         if (trackInfo.Artist != null && trackInfo.Artist != "")
                         {
@@ -280,10 +284,10 @@ namespace imBMW.Features.Menu
                             //    UpdateScreen();
                             //}
                             break;
-                        case 0x87: // 'AuxilaryHeater/Clock' button release
+                        case 0x87: // 'AuxilaryHeater/Clock' button released
                             IntegratedHeatingAndAirConditioning.StartAuxilaryHeater();
                             break;
-                        case 0x94: // '<>' button release
+                        case 0x94: // '<>' button released
                             IntegratedHeatingAndAirConditioning.StopAuxilaryHeater();
                             break;
                     }

@@ -15,12 +15,16 @@ namespace imBMW.Devices.V2.Hardware
         /// <summary>
         /// LED1. Near microSD socket on imBMW V2 main board.
         /// </summary>
-        public static Cpu.Pin LED = FEZPandaIII.Gpio.Led1;// Generic.GetPin('A', 8);
+        public static Cpu.Pin LED1 = FEZPandaIII.Gpio.Led1;// Generic.GetPin('A', 8);
+
+        public static Cpu.Pin LED2 = FEZPandaIII.Gpio.Led2;
+
+        public static Cpu.Pin LED3 = FEZPandaIII.Gpio.Led3;
 
         /// <summary>
         /// LED4. For rrror
         /// </summary>
-        public static Cpu.Pin LED4 = FEZPandaIII.Gpio.Led4;// Generic.GetPin('A', 8);
+        public static Cpu.Pin LED4 = FEZPandaIII.Gpio.Led4;
 
         /// <summary>
         /// Interrupt port for TH3122 SEN/STA (busy) output.
@@ -38,7 +42,7 @@ namespace imBMW.Devices.V2.Hardware
         public static Cpu.Pin K_BUS_TH3122SENSTA = FEZPandaIII.Gpio.D41; 
 
         /// <summary>
-        /// 
+        /// D40
         /// </summary>
         public static Cpu.Pin ResetPin = FEZPandaIII.Gpio.D40; //Generic.GetPin('C', 2);
 

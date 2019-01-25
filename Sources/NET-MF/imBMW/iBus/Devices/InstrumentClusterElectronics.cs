@@ -10,7 +10,8 @@ namespace imBMW.iBus.Devices.Real
     {
         Off,
         Acc,
-        Ign
+        Ign,
+        Starting
     }
 
     public class IgnitionEventArgs
@@ -230,15 +231,19 @@ namespace imBMW.iBus.Devices.Real
             else if (m.Data[0] == 0x11 && m.Data.Length == 2) // Ignotion status
             {
                 byte ign = m.Data[1];
-                if ((ign & 0x02) != 0)
+                if (((ign & 0x04) != 0))    // 0x07 = 0111b
+                {
+                    CurrentIgnitionState = IgnitionState.Starting;
+                }
+                else if ((ign & 0x02) != 0) // 0x03 = 0011b
                 {
                     CurrentIgnitionState = IgnitionState.Ign;
                 }
-                else if ((ign & 0x01) != 0)
+                else if ((ign & 0x01) != 0) // 01h = 0001b
                 {
                     CurrentIgnitionState = IgnitionState.Acc;
                 }
-                else if (ign == 0x00)
+                else if (ign == 0x00)       // 00h = 0000b
                 {
                     CurrentIgnitionState = IgnitionState.Off;
                 } 

@@ -36,8 +36,9 @@ namespace imBMW
             {
                 case AuxilaryHeaterStatus.Unknown: return "Unknown";
                 case AuxilaryHeaterStatus.Present: return "Present";
-                case AuxilaryHeaterStatus.Stopped: return "Stopped";
                 case AuxilaryHeaterStatus.StopPending: return "StopPending";
+                case AuxilaryHeaterStatus.Stopping: return "Stopping";
+                case AuxilaryHeaterStatus.Stopped: return "Stopped";
                 case AuxilaryHeaterStatus.StartPending: return "StartPending";
                 case AuxilaryHeaterStatus.Starting: return "Starting";
                 case AuxilaryHeaterStatus.Started: return "Started";
@@ -51,6 +52,16 @@ namespace imBMW
             {
                 case AudioSource.SDCard: return "SDCard";
                 case AudioSource.Bluetooth: return "Bluetooth";
+            }
+            return "NotSpecified(" + e.ToString() + ")";
+        }
+
+        public static string ToStringValue(this GHI.Processor.Watchdog.ResetCause e)
+        {
+            switch (e)
+            {
+                case GHI.Processor.Watchdog.ResetCause.Normal: return "Normal";
+                case GHI.Processor.Watchdog.ResetCause.Watchdog: return "Watchdog";
             }
             return "NotSpecified(" + e.ToString() + ")";
         }

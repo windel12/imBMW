@@ -340,7 +340,8 @@ namespace imBMW.Features.Menu
             var e = UpdateBody;
             if (e != null)
             {
-                e(this, new MenuScreenUpdateEventArgs(reason, item));
+                var args = new MenuScreenUpdateEventArgs(reason, item);
+                e(this, args);
             }
         }
 

@@ -69,15 +69,7 @@ namespace imBMW.Features.Menu.Screens
 
         private void UpdateRefreshTimer()
         {
-            if (refreshTimer != null)
-            {
-                refreshTimer.Dispose();
-                refreshTimer = null;
-            }
-            refreshTimer = new Timer(delegate
-            {
-                OnUpdateBody(MenuScreenUpdateReason.Refresh);
-            }, null, 0, refreshRate);
+            refreshTimer.Change(0, refreshRate);
         }
 
         public static DDEScreen Instance

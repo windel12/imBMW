@@ -58,7 +58,7 @@ namespace imBMW.Features.Multimedia
 
         #endregion
 
-        OutputPort led3 = new OutputPort(FEZPandaIII.Gpio.Led3, false);
+        //OutputPort led3 = new OutputPort(FEZPandaIII.Gpio.Led3, false);
 
         private static InputPort DREQ;
 
@@ -70,8 +70,13 @@ namespace imBMW.Features.Multimedia
         private static byte[] cmdBuffer = new byte[4];
 
         Thread playerThread;
+
+        private Thread generateRandomDiskAndTrackThread;
+        private readonly ManualResetEvent trackChangedSync = new ManualResetEvent(true);
+
         ArrayList changingHistory = new ArrayList();
         int changingHistoryPreviousPointer = 0;
+
 
         private Stack backChangingHistory = new Stack();
         private Stack nextChangingHistory = new Stack();
@@ -133,7 +138,7 @@ namespace imBMW.Features.Multimedia
             #endregion
             SetVolume((byte)255);
 
-            Logger.Log(LogPriority.Info, "Getting files and folders:");
+            Logger.Trace("Getting files and folders:");
             if (VolumeInfo.GetVolumes()[0].IsFormatted)
             {
                 string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
@@ -309,6 +314,8 @@ namespace imBMW.Features.Multimedia
 
         public override void Next()
         {
+            trackChangedSync.WaitOne(5000, true);
+
             backChangingHistory.Push(new DiskAndTrack(DiskNumber, TrackNumber, FileName));
 
             if (nextChangingHistory.Count > 0)
@@ -328,8 +335,27 @@ namespace imBMW.Features.Multimedia
                 FileName = preparedItem.fileName;
 
                 OnTrackChanged();
-                var newRandomTrackItem = GenerateRandomDiskAndTrack(DiskNumber);
-                NextTracksQueue.Enqueue(newRandomTrackItem);
+                if (generateRandomDiskAndTrackThread == null)
+                {
+                    generateRandomDiskAndTrackThread = new Thread(() =>
+                    {
+                        while (true)
+                        {
+                            trackChangedSync.Reset();
+                            var newRandomTrackItem = GenerateRandomDiskAndTrack(DiskNumber);
+                            NextTracksQueue.Enqueue(newRandomTrackItem);
+                            trackChangedSync.Set();
+                            generateRandomDiskAndTrackThread.Suspend();
+                        }
+                    });
+                    generateRandomDiskAndTrackThread.Priority = ThreadPriority.Lowest;
+                    generateRandomDiskAndTrackThread.Start();
+                }
+                if (generateRandomDiskAndTrackThread.ThreadState == ThreadState.Suspended || generateRandomDiskAndTrackThread.ThreadState == ThreadState.SuspendRequested
+                    || generateRandomDiskAndTrackThread.ThreadState == ThreadState.Stopped || generateRandomDiskAndTrackThread.ThreadState == ThreadState.StopRequested)
+                {
+                    generateRandomDiskAndTrackThread.Resume();
+                }
             }
         }
 
@@ -430,8 +456,8 @@ namespace imBMW.Features.Multimedia
                     do
                     {
                         size = stream.Read(buffer, 0, buffer.Length);
-                        CurrentTrack.Time = GetDecodeTime();
-                        ushort byteRate = GetByteRate();
+                        //CurrentTrack.Time = GetDecodeTime();
+                        //ushort byteRate = GetByteRate();
                         SendData(buffer);
                         if (ChangeTrack)
                         {
@@ -446,7 +472,7 @@ namespace imBMW.Features.Multimedia
                 }
                 catch (Exception ex)
                 {
-                    led3.Write(true);
+                    //led3.Write(true);
                     IsPlaying = false;
                     Logger.Error(ex);
                 }
@@ -461,7 +487,7 @@ namespace imBMW.Features.Multimedia
                         Next();
                     }
                     ChangeTrack = false;
-                    ResetDecodeTime();
+                    //ResetDecodeTime();
                 }
                 if (!IsPlaying)
                 {

@@ -1,7 +1,6 @@
 using GHI.IO.Storage;
 using GHI.Pins;
 using imBMW.Devices.V2.Hardware;
-using imBMW.Features;
 using imBMW.Features.Localizations;
 using imBMW.Features.Menu;
 using imBMW.Features.Menu.Screens;
@@ -11,17 +10,13 @@ using imBMW.iBus.Devices.Emulators;
 using imBMW.iBus.Devices.Real;
 using imBMW.Multimedia;
 using imBMW.Tools;
-using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 using Microsoft.SPOT.IO;
 using System;
-using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Ports;
-using System.Text;
 using System.Threading;
-using imBMW.Diagnostics;
 using Debug = Microsoft.SPOT.Debug;
 
 namespace imBMW.Devices.V2
@@ -29,9 +24,12 @@ namespace imBMW.Devices.V2
     public class Launcher
     {
         const string version = "FW1.0.12 HW2";
-        static OutputPort LED;
-        static OutputPort successInitLED;
-        static OutputPort errorLED;
+
+        static OutputPort iBusMessageSendReceiveBlinker_BlueLed;
+        static OutputPort successInited_GreenLed;
+        static OutputPort orangeLed;
+        static OutputPort error_RedLed;
+
         static OutputPort resetPin;
 
         static Settings settings;
@@ -44,22 +42,65 @@ namespace imBMW.Devices.V2
         public static SDCard sd_card;
         private static string rootDirectory;
 
+        private static ManualResetEvent _removableMediaInsertedSync = new ManualResetEvent(false);
+
+        private static GHI.Processor.Watchdog.ResetCause _resetCause;
+
         public enum LaunchMode
         {
             MicroFramework,
             WPF
         }
 
+        private static void ResetBoard()
+        {
+            Logger.TryTrace("Board will reset in 2 seconds!!!");
+            RefreshLEDs(LedType.OrangeBlinking);
+            Thread.Sleep(200); // wait to add pause after previous blinking
+            LedBlinking(orangeLed, 5, 200);
+
+            if (resetPin == null)
+            {
+                resetPin = new OutputPort(Pin.ResetPin, false);
+            }
+        }
+
+
         public static void Launch(LaunchMode launchMode = LaunchMode.MicroFramework)
         {
             try
             {
+                _resetCause = GHI.Processor.Watchdog.LastResetCause;
+
+                iBusMessageSendReceiveBlinker_BlueLed = new OutputPort(Pin.LED1, false);
+                successInited_GreenLed = new OutputPort(Pin.LED2, false);
+                orangeLed = new OutputPort(Pin.LED3, _resetCause == GHI.Processor.Watchdog.ResetCause.Watchdog);
+                error_RedLed = new OutputPort(Pin.LED4, false);
+
+                // Timeout 30 seconds
+                ushort timeoutInMilliseconds = 1000 * 10;
+#if !RELEASE
+                if (Debugger.IsAttached)
+                {
+                    try
+                    {
+                        //GHI.Processor.Watchdog.Enable(timeoutInMilliseconds * 2);
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+                }
+                else
+                {
+                    //GHI.Processor.Watchdog.Enable(timeoutInMilliseconds);
+                }
+#else
+                GHI.Processor.Watchdog.Enable(timeoutInMilliseconds);
+#endif
+
+
                 SDCard sd = null;
                 settings = Settings.Init(sd != null ? sd + @"\imBMW.ini" : null);
-                LED = new OutputPort(Pin.LED, false);
-                successInitLED = new OutputPort(FEZPandaIII.Gpio.Led2, false);
-                errorLED = new OutputPort(Pin.LED4, false);
-                resetPin = new OutputPort(Pin.ResetPin, true);
 
                 //SettingsScreen.Instance.Status = version.Length > 11 ? version.Replace(" ", "") : version;
                 //Localization.SetCurrent(RussianLocalization.SystemName); //Localization.SetCurrent(settings.Language);
@@ -67,10 +108,10 @@ namespace imBMW.Devices.V2
                 //Features.Comfort.AutoUnlockDoors = settings.AutoUnlockDoors;
                 //Features.Comfort.AutoCloseWindows = settings.AutoCloseWindows;
                 //Features.Comfort.AutoCloseSunroof = settings.AutoCloseSunroof;
-                bool fs_ready = false;
+
                 RemovableMedia.Insert += (a, b) =>
                 {
-                    fs_ready = true;
+                    _removableMediaInsertedSync.Set();
                 };
 
 
@@ -79,44 +120,55 @@ namespace imBMW.Devices.V2
                 {
                     try
                     {
-                        sd_card = new SDCard(SDCard.SDInterface.MCI);
+                        sd_card = new SDCard(SDCard.SDInterface.SPI);
                         sd_card.Mount();
 
-                        while (!fs_ready)
-                        {
-                            Thread.Sleep(50);
-                        }
+                        error = false;
                         break;
                     }
                     catch (Exception ex)
                     {
                         sdCardMountRetryCount++;
                         error = true;
-                        Thread.Sleep(333);
+
+                        LedBlinking(error_RedLed, 5, 100);
                     }
-                } while (sdCardMountRetryCount < 6);
+                } while (sdCardMountRetryCount < 3);
+
+                bool isSignalled = !error && _removableMediaInsertedSync.WaitOne(5000, true);
+                if (!isSignalled)
+                {
+                    ResetBoard();
+                }
 
                 rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
 
+                Logger.Logged += Logger_Logged;
+                Logger.Trace("Logger inited! sdCardMountRetryCount:" + sdCardMountRetryCount);
+                Logger.Trace("Watchdog.ResetCause: " + _resetCause.ToStringValue());
+
                 Init();
 
-                Logger.Info("Started!");
+                Logger.Trace("Started!");
 
-                if(launchMode == LaunchMode.MicroFramework)
+#if RELEASE
+                InitWatchDogReset();
+#endif
+
+                if (launchMode == LaunchMode.MicroFramework)
                     Thread.Sleep(Timeout.Infinite);
             }
             catch (Exception ex)
             {
-                errorLED.Write(true);
-                Logger.Error(ex, "while modules initialization");
+                error = true;
+                error_RedLed.Write(true);
+                Logger.TryError(ex, "while modules initialization");
+                ResetBoard();
             }
         }
-    
+
         public static void Init()
         {
-            Logger.Logged += Logger_Logged;
-            Logger.Trace("Logger inited");
-
             var iBusBusy = Pin.TH3122SENSTA;
             var kBusBusy = Pin.K_BUS_TH3122SENSTA;
 #if DEBUG || DebugOnRealDeviceOverFTDI
@@ -132,33 +184,37 @@ namespace imBMW.Devices.V2
             ISerialPort iBusPort = new SerialPortTH3122(iBusComPort, iBusBusy, readBufferSize:ushort.MaxValue);
 #endif
             Manager.Init(iBusPort);
+            Logger.Trace("Manager inited");
 
             string kBusComPort = Serial.COM2;
             ISerialPort kBusPort = new SerialPortTH3122(kBusComPort, kBusBusy);
             KBusManager.Init(kBusPort);
+            Logger.Trace("KBusManager inited");
 
             ISerialPort dBusPort = new SerialPortTH3122("COM4", Cpu.Pin.GPIO_NONE, writeBufferSize: 1); // d31, d33
             dBusPort.AfterWriteDelay = 4;
             DBusManager.Init(dBusPort);
+            Logger.Trace("DBusManager inited");
 
 #if !NETMF && DebugOnRealDeviceOverFTDI
-            if(!iBusPort.IsOpen)
+            if (!iBusPort.IsOpen)
                 iBusPort.Open();
 #endif
-
-#if DEBUG || DebugOnRealDeviceOverFTDI
             Manager.BeforeMessageReceived += Manager_BeforeMessageReceived;
             Manager.AfterMessageReceived += Manager_AfterMessageReceived;
             Manager.BeforeMessageSent += Manager_BeforeMessageSent;
             Manager.AfterMessageSent += Manager_AfterMessageSent;
-#endif
 
             KBusManager.Instance.BeforeMessageReceived += KBusManager_BeforeMessageReceived;
             KBusManager.Instance.BeforeMessageSent += KBusManager_BeforeMessageSent;
 
+            RefreshLEDs(LedType.OrangeBlinking);
+
             //player = new iPodViaHeadset(Cpu.Pin.GPIO_NONE);
             //player = new BluetoothOVC3860(Serial.COM2/*, sd != null ? sd + @"\contacts.vcf" : null*/);
+            Logger.Trace("Prepare creating VS1003Player");
             player = new VS1003Player(FEZPandaIII.Gpio.D25, FEZPandaIII.Gpio.D27, FEZPandaIII.Gpio.D24, FEZPandaIII.Gpio.D26);
+            Logger.Trace("VS1003Player created");
             RefreshLEDs(LedType.Orange);
             if (settings.MenuMode != Tools.MenuMode.RadioCDC || Manager.FindDevice(DeviceAddress.OnBoardMonitor, 10000))
             {
@@ -181,8 +237,10 @@ namespace imBMW.Devices.V2
                     {
                         emulator.PlayerIsPlayingChanged += (s, isPlayingChangedValue) =>
                         {
-                            if(!isPlayingChangedValue)
-                                resetPin.Write(false);
+                            if (!isPlayingChangedValue)
+                            {
+                                ResetBoard();
+                            }
                         };
                         RefreshLEDs(LedType.Empty);
                         Radio.PressOnOffToggle();
@@ -214,16 +272,15 @@ namespace imBMW.Devices.V2
             //player.StatusChanged += Player_StatusChanged;
             //Logger.Info("Player events subscribed");
 
-            RefreshLEDs(LedType.GreenBlinking);
-            RefreshLEDs(LedType.GreenBlinking);
-            RefreshLEDs(LedType.GreenBlinking);
-            successInitLED.Write(true);
+            successInited_GreenLed.Write(true);
 
-            var dateTimeEventArgs = InstrumentClusterElectronics.GetDateTime();
+            var dateTimeEventArgs = InstrumentClusterElectronics.GetDateTime(3000);
+            Logger.Trace("dateTimeEventArgs.DateIsSet: " + dateTimeEventArgs.DateIsSet);
             Logger.Trace("Aquired dateTime from IKE: " + dateTimeEventArgs.Value);
             Utility.SetLocalTime(dateTimeEventArgs.Value);
 
             RefreshLEDs(LedType.Green);
+			RefreshLEDs(LedType.Green);
 
             //nextButton = new InterruptPort((Cpu.Pin)FEZPandaIII.Gpio.Ldr1, true, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeHigh);
             //nextButton.OnInterrupt += (p, s, t) =>
@@ -255,14 +312,80 @@ namespace imBMW.Devices.V2
             */
         }
 
+        public static void InitWatchDogReset()
+        {
+            Manager.AddMessageReceiverForSourceDevice(DeviceAddress.imBMWTest, (m) =>
+            {
+                if (m.Data.Length > 1 && m.Data.StartsWith(0xEE, 0x00))
+                {
+                    error = true;
+                }
+            });
+            ActivateScreen.DisableWatchdogCounterReset += () =>
+            {
+                error = true;
+                RefreshLEDs(LedType.RedBlinking);
+                Radio.PressOnOffToggle();
+            };
+
+            // Start a time counter reset thread
+            WDTCounterReset = new Thread(WDTCounterResetLoop);
+            WDTCounterReset.Start();
+        }
+
+        static Thread WDTCounterReset;
+        static void WDTCounterResetLoop()
+        {
+            while (true)
+            {
+                // reset time counter every 5 seconds
+                Thread.Sleep(1000);
+
+                if (!error)
+                {
+                    LedBlinking(orangeLed, 1, 100);
+                    GHI.Processor.Watchdog.ResetCounter();
+                }
+            }
+        }
+
+        // Log just needed message
+        private static bool IBusLoggerPredicate(MessageEventArgs e)
+        {
+            if(e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x11 // Ignition status
+                ||
+                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x13 // IKE Sensor status
+                ||
+                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x15 // Country coding status
+                ||
+                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x17 // Odometer
+                ||
+                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x18 // Speed/RPM
+                ||
+                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x19 // Temperature
+            )
+            {
+                return false;
+            }
+
+            return e.Message.SourceDevice == DeviceAddress.Radio &&
+                   e.Message.DestinationDevice == DeviceAddress.CDChanger
+                   ||
+                   e.Message.SourceDevice == DeviceAddress.CDChanger &&
+                   e.Message.DestinationDevice == DeviceAddress.Radio
+                   ||
+                   e.Message.SourceDevice == DeviceAddress.Radio && 
+                   e.Message.DestinationDevice == DeviceAddress.InstrumentClusterElectronics;
+        }
+
         private static void Manager_BeforeMessageReceived(MessageEventArgs e)
         {
-            LED.Write(Busy(true, 1));
+            iBusMessageSendReceiveBlinker_BlueLed.Write(Busy(true, 1));
         }
 
         private static void Manager_AfterMessageReceived(MessageEventArgs e)
         {
-            LED.Write(Busy(false, 1));
+            iBusMessageSendReceiveBlinker_BlueLed.Write(Busy(false, 1));
 
             if (e.Message.Data.Compare(MessageRegistry.DataAnnounce)
                 || e.Message.Data.Compare(MessageRegistry.DataPollRequest)
@@ -287,12 +410,12 @@ namespace imBMW.Devices.V2
 
         private static void Manager_BeforeMessageSent(MessageEventArgs e)
         {
-            LED.Write(Busy(true, 2));
+            iBusMessageSendReceiveBlinker_BlueLed.Write(Busy(true, 2));
         }
 
         private static void Manager_AfterMessageSent(MessageEventArgs e)
         {
-            LED.Write(Busy(false, 2));
+            iBusMessageSendReceiveBlinker_BlueLed.Write(Busy(false, 2));
 
             var logIco = " >";
             if (settings.LogMessageToASCII)
@@ -308,12 +431,12 @@ namespace imBMW.Devices.V2
         // Log just needed message
         private static bool KBusLoggerPredicate(MessageEventArgs e)
         {
-            if (e.Message.SourceDevice == DeviceAddress.IntegratedHeatingAndAirConditioning && e.Message.DestinationDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x83 // Air conditioning compressor status
+            if (e.Message.SourceDevice == DeviceAddress.IntegratedHeatingAndAirConditioning && e.Message.Data[0] == 0x83 // Air conditioning compressor status
                 || 
-                e.Message.SourceDevice == DeviceAddress.IntegratedHeatingAndAirConditioning && e.Message.DestinationDevice == DeviceAddress.NavigationEurope && e.Message.Data[0] == 0x86 // Some info for NavigationEurope
+                e.Message.SourceDevice == DeviceAddress.IntegratedHeatingAndAirConditioning && e.Message.Data[0] == 0x86 // Some info for NavigationEurope
                 ||
-                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x11 // Ignition status
-                ||
+                //e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x11 // Ignition status
+                //||
                 //e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x13 // IKE Sensor status
                 //||
                 e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x15 // Country coding status
@@ -329,10 +452,17 @@ namespace imBMW.Devices.V2
             }
 
             return e.Message.SourceDevice == DeviceAddress.AuxilaryHeater ||
-                   e.Message.SourceDevice == DeviceAddress.IntegratedHeatingAndAirConditioning ||
                    e.Message.DestinationDevice == DeviceAddress.AuxilaryHeater ||
+                   e.Message.SourceDevice == DeviceAddress.IntegratedHeatingAndAirConditioning ||
                    e.Message.DestinationDevice == DeviceAddress.IntegratedHeatingAndAirConditioning ||
-                   (e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.DestinationDevice == DeviceAddress.GlobalBroadcastAddress); 
+                   e.Message.SourceDevice == DeviceAddress.HeadlightVerticalAimControl ||
+                   e.Message.DestinationDevice == DeviceAddress.HeadlightVerticalAimControl ||
+                   e.Message.SourceDevice == DeviceAddress.Diagnostic ||
+                   e.Message.DestinationDevice == DeviceAddress.Diagnostic ||
+                   (
+                       e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.DestinationDevice == DeviceAddress.GlobalBroadcastAddress
+                       || e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.DestinationDevice == DeviceAddress.Broadcast
+                   ); 
         }
 
         private static void KBusManager_BeforeMessageReceived(MessageEventArgs e)
@@ -380,28 +510,24 @@ namespace imBMW.Devices.V2
             //RefreshLEDs();
         }
 
-
-        static bool blinkerOn = true;
         static byte busy = 0;
         static bool error = false;
+        private static object _sync = new object();
 
         static void Logger_Logged(LoggerArgs args)
         {
-            if (args.Priority == LogPriority.Error)
-            {
-                error = true;
-                errorLED.Write(true);
-                RefreshLEDs(LedType.Red);
+            if (StringHelpers.IsNullOrEmpty(rootDirectory))
+                return;
 
-                StreamWriter errorFile = new StreamWriter(rootDirectory + "\\errorLog.txt", append: true);
-                errorFile.WriteLine(args.LogString);
-                errorFile.Close();
-            }
-            if (args.Priority == LogPriority.Trace)
+            if (args.Priority == LogPriority.Trace || args.Priority == LogPriority.Error)
             {
-                StreamWriter traceFile = new StreamWriter(rootDirectory + "\\traceLog.txt", append: true);
-                traceFile.WriteLine(args.LogString);
-                traceFile.Dispose();
+                lock (_sync)
+                {
+                    StreamWriter traceFile = new StreamWriter(rootDirectory + "\\traceLog.txt", append: true);
+                    traceFile.WriteLine(args.LogString);
+                    traceFile.Flush();
+                    traceFile.Dispose();
+                }
             }
 #if DEBUG || DebugOnRealDeviceOverFTDI
             if (Debugger.IsAttached)
@@ -446,6 +572,16 @@ namespace imBMW.Devices.V2
             Manager.EnqueueMessage(message);
         }
 
+        static void LedBlinking(OutputPort led, byte blinkingCount, ushort interval)
+        {
+            for (byte i = 0; i < blinkingCount; i++)
+            {
+                led.Write(true);
+                Thread.Sleep(interval);
+                led.Write(false);
+                Thread.Sleep(interval);
+            }
+        }
 
         static bool Busy(bool busy, byte type)
         {

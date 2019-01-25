@@ -68,6 +68,7 @@ namespace imBMW.iBus
         CentralSwitchControlUnit = 0xF5,
         Broadcast = 0xFF,
 
+        imBMWTest = 0xFB,
         imBMWMenu = 0xFC,
         imBMWPlayer = 0xFD,
         imBMWLogger = 0xFE,

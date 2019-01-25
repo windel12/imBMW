@@ -1,10 +1,9 @@
 using System;
-using System.IO.Ports;
 using imBMW.Diagnostics;
 using imBMW.Features.Localizations;
 using imBMW.iBus;
 using imBMW.iBus.Devices.Real;
-using Microsoft.SPOT.Hardware;
+using imBMW.Tools;
 
 namespace imBMW.Features.Menu.Screens
 {
@@ -16,6 +15,8 @@ namespace imBMW.Features.Menu.Screens
 
         protected ActivateScreen()
         {
+            FastMenuDrawing = true;
+
             TitleCallback = s => Localization.Current.Activate;
             //StatusCallback = s => AuxilaryHeater.Status.ToString();
 
@@ -49,9 +50,60 @@ namespace imBMW.Features.Menu.Screens
                 DBusManager.Instance.EnqueueMessage(status_lesen);
             }, MenuItemType.Button, MenuItemAction.None));
 
+            AddItem(new MenuItem(i => "DisableWatchdog", x =>
+            {
+                OnDisableWatchdogCounterReset();
+            }, MenuItemType.Button, MenuItemAction.None));
+
+            AddItem(new MenuItem(i => "Sensors: " 
+            //+ HeadlightVerticalAimControl.FrontSensorVoltage.ToString("F2") + "V " + HeadlightVerticalAimControl.RearSensorVoltage.ToString("F2") + "V"
+            , x =>
+            {
+                //HeadlightVerticalAimControl.STATUS_SENSOR_LESSEN();
+            }, MenuItemType.Button, MenuItemAction.None));
+            AddItem(new MenuItem(i => "LWR-STEUERN_ANTRIEBE", x =>
+            {
+                //HeadlightVerticalAimControl.STEUERN_ANTRIEBE();
+            }, MenuItemType.Button, MenuItemAction.None));
+            AddItem(new MenuItem(i => "LWR-DIAGNOSE_ENDE", x =>
+            {
+                //HeadlightVerticalAimControl.DIAGNOSE_ENDE();
+            }, MenuItemType.Button, MenuItemAction.None));
+            AddItem(new MenuItem(i => "Unused", x =>
+            {
+                
+            }, MenuItemType.Button, MenuItemAction.None));
+
             this.AddBackButton();
 
             NavigationModule.BatteryVoltageChanged += (voltage) => OnUpdateBody(MenuScreenUpdateReason.Refresh);
+        }
+
+        public override bool OnNavigatedTo(MenuBase menu)
+        {
+            if (base.OnNavigatedTo(menu))
+            {
+                //HeadlightVerticalAimControl.FrontSensorVoltageChanged += HeadlightVerticalAimControl_SensorsVoltageChanged;
+                //HeadlightVerticalAimControl.RearSensorVoltageChanged += HeadlightVerticalAimControl_SensorsVoltageChanged;
+                return true;
+            }
+            return false;
+        }
+
+        public override bool OnNavigatedFrom(MenuBase menu)
+        {
+            if (base.OnNavigatedFrom(menu))
+            {
+                //HeadlightVerticalAimControl.FrontSensorVoltageChanged -= HeadlightVerticalAimControl_SensorsVoltageChanged;
+                //HeadlightVerticalAimControl.RearSensorVoltageChanged -= HeadlightVerticalAimControl_SensorsVoltageChanged;
+                return true;
+            }
+            return false;
+        }
+
+        private void HeadlightVerticalAimControl_SensorsVoltageChanged(double voltage)
+        {
+            OnUpdateBody(MenuScreenUpdateReason.Refresh);
         }
 
         public static ActivateScreen Instance
@@ -74,5 +126,18 @@ namespace imBMW.Features.Menu.Screens
                 this.Refresh();
             }
         }
+
+        void OnDisableWatchdogCounterReset()
+        {
+            var e = DisableWatchdogCounterReset;
+            if (e != null)
+            {
+                Logger.Trace("OnDisableWatchdogCounterReset was called");
+                e();
+            }
+        }
+
+        public delegate void DisableWatchdogCounterResetHanlder();
+        public static event DisableWatchdogCounterResetHanlder DisableWatchdogCounterReset;
     }
 }
