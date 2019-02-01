@@ -274,6 +274,11 @@ namespace imBMW.iBus
             }
 
             _port.Write(m.Packet);
+            // Flush DBus port
+            if (_port.WriteBufferSize == 1)
+            {
+                _port.Flush();
+            }
 
             #if DEBUG
             m.PerformanceInfo.TimeEndedProcessing = DateTime.Now;

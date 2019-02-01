@@ -191,7 +191,7 @@ namespace imBMW.Features.Menu
             ScreenNavigatedTo(CurrentScreen);
         }
 
-        public virtual void UpdateHeader(/*MenuScreenUpdateEventArgs args*/)
+        public virtual void UpdateHeader(MenuScreenUpdateEventArgs args = null)
         {
             if (!IsEnabled)
             {
@@ -209,11 +209,43 @@ namespace imBMW.Features.Menu
             DrawBody(/*args*/);
         }
 
-        public virtual void UpdateScreenWitDelay(ushort delayTime = 1000)
+        public virtual void UpdateScreen(ushort headerDrawDelay = 500)
+        {
+            UpdateBody();
+            UpdateHeaderWithDelay(headerDrawDelay);
+        }
+
+        public virtual void UpdateHeaderWithDelay(ushort delayTime = 1000)
         {
             delayTimeout = new Timer(delegate
             {
                 UpdateHeader();
+                if (delayTimeout != null)
+                {
+                    delayTimeout.Dispose();
+                    delayTimeout = null;
+                }
+            }, null, delayTime, 0);
+        }
+
+        public virtual void UpdateBodyWithDelay(ushort delayTime = 1000)
+        {
+            delayTimeout = new Timer(delegate
+            {
+                UpdateBody();
+                if (delayTimeout != null)
+                {
+                    delayTimeout.Dispose();
+                    delayTimeout = null;
+                }
+            }, null, delayTime, 0);
+        }
+
+        public virtual void UpdateScreenWitDelay(ushort delayTime = 1000)
+        {
+            delayTimeout = new Timer(delegate
+            {
+                UpdateHeaderWithDelay(500);
                 UpdateBody();
                 if (delayTimeout != null)
                 {
@@ -225,7 +257,14 @@ namespace imBMW.Features.Menu
 
         void currentScreen_UpdateHeader(MenuScreen screen, MenuScreenUpdateEventArgs args)
         {
-            UpdateHeader();
+            if (args.Reason == MenuScreenUpdateReason.RefreshWithDelay && args.Item != null)
+            {
+                UpdateHeaderWithDelay((ushort) args.Item);
+            }
+            else
+            {
+                UpdateHeader();
+            }
         }
 
         void currentScreen_UpdateBody(MenuScreen screen, MenuScreenUpdateEventArgs args)
@@ -246,8 +285,7 @@ namespace imBMW.Features.Menu
                 {
                     if (value)
                     {
-                        UpdateHeader();
-                        UpdateBody();
+                        UpdateScreen();
                     }
                     return;
                 }
@@ -319,8 +357,7 @@ namespace imBMW.Features.Menu
                 ScreenNavigatedFrom(currentScreen);
                 currentScreen = value;
                 ScreenNavigatedTo(currentScreen);
-                UpdateHeader();
-                UpdateBody(/*MenuScreenUpdateReason.Navigation*/);
+                UpdateScreen();
             }
         }
 
@@ -364,8 +401,7 @@ namespace imBMW.Features.Menu
                     NavigateHome();
                     break;
                 case MenuItemAction.Refresh:
-                    UpdateHeader();
-                    UpdateBody();
+                    UpdateScreen();
                     break;
             }
         }

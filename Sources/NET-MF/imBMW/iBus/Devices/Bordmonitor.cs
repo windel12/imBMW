@@ -10,17 +10,17 @@ namespace imBMW.iBus.Devices.Real
     {
         /// <summary> T0 field, 11 chars </summary>
         Title,
-        /// <summary> T1 field, 4 chars </summary>
+        /// <summary> Bottom right corner - 4 symbols field.  </summary>
         T1,
-        /// <summary> T2 field, 3 chars </summary>
+        /// <summary> Top right corner - 3 symbols field. </summary>
         T2,
-        /// <summary> T3 field, 5 chars('<>', 'RND') </summary>
+        /// <summary> Bottom left corner - 5 symbols field. </summary>
         T3,
-        /// <summary> T4 field, 3 chars </summary>
+        /// <summary> Top left corner - 3 symbols field. </summary>
         T4,
-        /// <summary> T5 field, 5 chars </summary>
+        /// <summary> Top center - 5 symbols field. </summary>
         T5,
-        /// <summary> T6 field, 11 chars </summary>
+        /// <summary> Bottom center - 11 symbols fields </summary>
         Status,
         /// <summary> One of 10 items, 23 chars </summary>
         Item,
@@ -99,6 +99,11 @@ namespace imBMW.iBus.Devices.Real
                 case BordmonitorFields.Title:
                     Text = ASCIIEncoding.GetString(Data, Bordmonitor.DataShowTitle.Length, -1, false).Trim().ASCIIToUTF8();
                     break;
+                case BordmonitorFields.T1:
+                case BordmonitorFields.T2:
+                case BordmonitorFields.T3:
+                case BordmonitorFields.T4:
+                case BordmonitorFields.T5:
                 case BordmonitorFields.Status:
                     Text = ASCIIEncoding.GetString(Data, Bordmonitor.DataShowStatus.Length, -1, false).Trim().ASCIIToUTF8();
                     break;
@@ -180,7 +185,9 @@ namespace imBMW.iBus.Devices.Real
         public static byte[] DataShowHeader =   new byte[] { 0xA5, 0x62, 0x01 };
         public static byte[] DataShowStatus =   new byte[] { 0xA5, 0x62, 0x01, /*In*/0x06/*dex*/ }; // <68 Length 3B> A5 62 01 <Index of the text field> <Text in ASCII Hex> <XOR>
         public static byte[] DataShowT1 =       new byte[] { 0xA5, 0x62, 0x01, /*In*/0x01/*dex*/ };
+        public static byte[] DataShowT2 =       new byte[] { 0xA5, 0x62, 0x01, /*In*/0x02/*dex*/ };
         public static byte[] DataShowT3 =       new byte[] { 0xA5, 0x62, 0x01, /*In*/0x03/*dex*/ };
+        public static byte[] DataShowT4 =       new byte[] { 0xA5, 0x62, 0x01, /*In*/0x04/*dex*/ };
         public static byte[] DataShowT5 =       new byte[] { 0xA5, 0x62, 0x01, /*In*/0x05/*dex*/ };
 
         public static byte[] DataDrawIndexMk2 = { 0xA5, 0x62, 0x00 };
@@ -359,9 +366,17 @@ namespace imBMW.iBus.Devices.Real
                     len = 4;
                     data = DataShowT1;
                     break;
+                case BordmonitorFields.T2:
+                    len = 3;
+                    data = DataShowT2;
+                    break;
                 case BordmonitorFields.T3:
-                    len = 4;
+                    len = 5;
                     data = DataShowT3;
+                    break;
+                case BordmonitorFields.T4:
+                    len = 3;
+                    data = DataShowT4;
                     break;
                 case BordmonitorFields.T5:
                     len = 5;

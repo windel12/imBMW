@@ -25,6 +25,7 @@ namespace imBMW.Features.Menu.Screens
             AuxilaryHeater.Init();
 
             DBusMessage motor_temperatur = new DBusMessage(DeviceAddress.OBD, DeviceAddress.DDE, 0x2C, 0x10, 0x0F, 0x00);
+            DS2Message navigation_module_status_lesen = new DS2Message(DeviceAddress.NavigationEurope, 0x0B);
 
             AddItem(new MenuItem(i => "Increase delay: " + DBusManager.Port.AfterWriteDelay, x =>
             {
@@ -39,15 +40,15 @@ namespace imBMW.Features.Menu.Screens
             AddItem(new MenuItem(i => MotorTemperatur, i =>
             {
                 DBusManager.Port.WriteBufferSize = 1;
-
+                Logger.Trace("Sending diagnostic message to DDE, for acquiring motor temperature.");
                 DBusManager.Instance.EnqueueMessage(motor_temperatur);
             }, MenuItemType.Button, MenuItemAction.Refresh));
 
             AddItem(new MenuItem(i => Localization.Current.Voltage + ": " + (NavigationModule.BatteryVoltage > 0 ? NavigationModule.BatteryVoltage.ToString("F2") : "-") + " " + Localization.Current.VoltageShort, x =>
             {
                 DBusManager.Port.WriteBufferSize = 0;
-                DS2Message status_lesen = new DS2Message(DeviceAddress.NavigationEurope, 0x0B);
-                DBusManager.Instance.EnqueueMessage(status_lesen);
+                Logger.Trace("Sending diagnostic message to navigation module, for acquiring voltage.");
+                DBusManager.Instance.EnqueueMessage(navigation_module_status_lesen);
             }, MenuItemType.Button, MenuItemAction.None));
 
             AddItem(new MenuItem(i => "DisableWatchdog", x =>
@@ -55,19 +56,21 @@ namespace imBMW.Features.Menu.Screens
                 OnDisableWatchdogCounterReset();
             }, MenuItemType.Button, MenuItemAction.None));
 
-            AddItem(new MenuItem(i => "Sensors: " 
-            //+ HeadlightVerticalAimControl.FrontSensorVoltage.ToString("F2") + "V " + HeadlightVerticalAimControl.RearSensorVoltage.ToString("F2") + "V"
-            , x =>
-            {
-                //HeadlightVerticalAimControl.STATUS_SENSOR_LESSEN();
-            }, MenuItemType.Button, MenuItemAction.None));
+            AddItem(new MenuItem(
+                i => "Sensors: " + HeadlightVerticalAimControl.FrontSensorVoltage.ToString("F2") + "V " + HeadlightVerticalAimControl.RearSensorVoltage.ToString("F2") + "V", x =>
+                {
+                    Logger.Trace("Manual: HeadlightVerticalAimControl.STATUS_SENSOR_LESSEN");
+                    HeadlightVerticalAimControl.STATUS_SENSOR_LESSEN();
+                }, MenuItemType.Button, MenuItemAction.None));
             AddItem(new MenuItem(i => "LWR-STEUERN_ANTRIEBE", x =>
             {
-                //HeadlightVerticalAimControl.STEUERN_ANTRIEBE();
+                Logger.Trace("Manual: HeadlightVerticalAimControl.STEUERN_ANTRIEBE");
+                HeadlightVerticalAimControl.STEUERN_ANTRIEBE();
             }, MenuItemType.Button, MenuItemAction.None));
             AddItem(new MenuItem(i => "LWR-DIAGNOSE_ENDE", x =>
             {
-                //HeadlightVerticalAimControl.DIAGNOSE_ENDE();
+                Logger.Trace("Manual: HeadlightVerticalAimControl.DIAGNOSE_ENDE");
+                HeadlightVerticalAimControl.DIAGNOSE_ENDE();
             }, MenuItemType.Button, MenuItemAction.None));
             AddItem(new MenuItem(i => "Unused", x =>
             {
@@ -83,8 +86,8 @@ namespace imBMW.Features.Menu.Screens
         {
             if (base.OnNavigatedTo(menu))
             {
-                //HeadlightVerticalAimControl.FrontSensorVoltageChanged += HeadlightVerticalAimControl_SensorsVoltageChanged;
-                //HeadlightVerticalAimControl.RearSensorVoltageChanged += HeadlightVerticalAimControl_SensorsVoltageChanged;
+                HeadlightVerticalAimControl.FrontSensorVoltageChanged += HeadlightVerticalAimControl_SensorsVoltageChanged;
+                HeadlightVerticalAimControl.RearSensorVoltageChanged += HeadlightVerticalAimControl_SensorsVoltageChanged;
                 return true;
             }
             return false;
@@ -94,8 +97,8 @@ namespace imBMW.Features.Menu.Screens
         {
             if (base.OnNavigatedFrom(menu))
             {
-                //HeadlightVerticalAimControl.FrontSensorVoltageChanged -= HeadlightVerticalAimControl_SensorsVoltageChanged;
-                //HeadlightVerticalAimControl.RearSensorVoltageChanged -= HeadlightVerticalAimControl_SensorsVoltageChanged;
+                HeadlightVerticalAimControl.FrontSensorVoltageChanged -= HeadlightVerticalAimControl_SensorsVoltageChanged;
+                HeadlightVerticalAimControl.RearSensorVoltageChanged -= HeadlightVerticalAimControl_SensorsVoltageChanged;
                 return true;
             }
             return false;

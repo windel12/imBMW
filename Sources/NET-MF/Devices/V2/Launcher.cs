@@ -274,7 +274,12 @@ namespace imBMW.Devices.V2
 
             successInited_GreenLed.Write(true);
 
-            var dateTimeEventArgs = InstrumentClusterElectronics.GetDateTime(3000);
+            var dateTimeEventArgs = InstrumentClusterElectronics.GetDateTime(1500);
+            if (!dateTimeEventArgs.DateIsSet)
+            {
+                Logger.Trace("Ask dateTime again");
+               dateTimeEventArgs = InstrumentClusterElectronics.GetDateTime(1500);
+            }
             Logger.Trace("dateTimeEventArgs.DateIsSet: " + dateTimeEventArgs.DateIsSet);
             Logger.Trace("Aquired dateTime from IKE: " + dateTimeEventArgs.Value);
             Utility.SetLocalTime(dateTimeEventArgs.Value);
@@ -435,10 +440,10 @@ namespace imBMW.Devices.V2
                 || 
                 e.Message.SourceDevice == DeviceAddress.IntegratedHeatingAndAirConditioning && e.Message.Data[0] == 0x86 // Some info for NavigationEurope
                 ||
-                //e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x11 // Ignition status
-                //||
-                //e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x13 // IKE Sensor status
-                //||
+                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x11 // Ignition status
+                ||
+                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x13 // IKE Sensor status
+                ||
                 e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x15 // Country coding status
                 ||
                 e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x17 // Odometer
@@ -446,23 +451,29 @@ namespace imBMW.Devices.V2
                 e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x18 // Speed/RPM
                 ||
                 e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x19 // Temperature
+                ||
+                e.Message.SourceDevice == DeviceAddress.IntegratedHeatingAndAirConditioning && e.Message.Data[0] == 0x92 // IntegratedHeatingAndAirConditioning > AuxilaryHeater: 92 00 22 (Command for auxilary heater)
+                ||
+                e.Message.SourceDevice == DeviceAddress.AuxilaryHeater && e.Message.Data[0] == 0x93 // AuxilaryHeater > IntegratedHeatingAndAirConditioning: 93 00 22 (Auxilary heater status)
                 ) 
             {
                 return false;
             }
 
-            return e.Message.SourceDevice == DeviceAddress.AuxilaryHeater ||
+            return 
+                   e.Message.SourceDevice == DeviceAddress.AuxilaryHeater ||
                    e.Message.DestinationDevice == DeviceAddress.AuxilaryHeater ||
                    e.Message.SourceDevice == DeviceAddress.IntegratedHeatingAndAirConditioning ||
                    e.Message.DestinationDevice == DeviceAddress.IntegratedHeatingAndAirConditioning ||
                    e.Message.SourceDevice == DeviceAddress.HeadlightVerticalAimControl ||
                    e.Message.DestinationDevice == DeviceAddress.HeadlightVerticalAimControl ||
                    e.Message.SourceDevice == DeviceAddress.Diagnostic ||
-                   e.Message.DestinationDevice == DeviceAddress.Diagnostic ||
-                   (
-                       e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.DestinationDevice == DeviceAddress.GlobalBroadcastAddress
-                       || e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.DestinationDevice == DeviceAddress.Broadcast
-                   ); 
+                   e.Message.DestinationDevice == DeviceAddress.Diagnostic
+                   //|| (
+                   //    e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.DestinationDevice == DeviceAddress.GlobalBroadcastAddress
+                   //    || e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.DestinationDevice == DeviceAddress.Broadcast
+                   //)
+                   ; 
         }
 
         private static void KBusManager_BeforeMessageReceived(MessageEventArgs e)
@@ -516,13 +527,12 @@ namespace imBMW.Devices.V2
 
         static void Logger_Logged(LoggerArgs args)
         {
-            if (StringHelpers.IsNullOrEmpty(rootDirectory))
-                return;
-
             if (args.Priority == LogPriority.Trace || args.Priority == LogPriority.Error)
             {
                 lock (_sync)
                 {
+                    if (StringHelpers.IsNullOrEmpty(rootDirectory))
+                        return;
                     StreamWriter traceFile = new StreamWriter(rootDirectory + "\\traceLog.txt", append: true);
                     traceFile.WriteLine(args.LogString);
                     traceFile.Flush();
@@ -532,7 +542,7 @@ namespace imBMW.Devices.V2
 #if DEBUG || DebugOnRealDeviceOverFTDI
             if (Debugger.IsAttached)
             {
-                Logger.FreeMemory();
+                //Logger.FreeMemory();
                 Debug.Print(args.LogString);
             }
 #endif

@@ -8,6 +8,17 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
 {
     public static class InstrumentClusterElectronicsEmulator
     {
+        private static Timer rpmSpeedAnounceTimer;
+        private static Timer temperatureAnounceTimer;
+
+        private static byte rpmSpeedAnounceTimerInterval = 1;//2;
+        private static byte temperatureAnounceTimerIterval = 1;//10;
+
+        private static byte CurrentSpeed = 0;
+        private static byte CurrentRPM = 0;
+        private static byte TemperatureOutside = 15;
+        private static byte TemperatureCoolant = 5;
+
         public static void Init() { }
 
         static InstrumentClusterElectronicsEmulator()
@@ -16,6 +27,35 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
 
             DBusManager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.OBD, ProcessDS2MessageAndForwardToIBus);
             Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.Diagnostic, ProcessDiagnosticMessageFromIBusAndForwardToDBus);
+        }
+
+        private static void GenerateRpmSpeedTemp()
+        {
+            var random = new Random();
+            CurrentSpeed = (byte)random.Next(0x00, 0xFF);
+            CurrentRPM = (byte)random.Next(0x00, 44);
+            TemperatureOutside++;
+            TemperatureCoolant++;
+        }
+
+        public static void StartAnounce()
+        {
+            rpmSpeedAnounceTimer = new Timer((state) =>
+            {
+                GenerateRpmSpeedTemp();
+                var rpmSpeedMessage = new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.GlobalBroadcastAddress, 0x18, CurrentSpeed, CurrentRPM);
+                Manager.EnqueueMessage(rpmSpeedMessage);
+                KBusManager.Instance.EnqueueMessage(rpmSpeedMessage);
+            }, null, 0, rpmSpeedAnounceTimerInterval * 1000);
+
+            temperatureAnounceTimer = new Timer((state) =>
+            {
+                GenerateRpmSpeedTemp();
+                var temperatureMessage = new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.GlobalBroadcastAddress, 0x19, TemperatureOutside, TemperatureCoolant, 0x00);
+                Manager.EnqueueMessage(temperatureMessage);
+                KBusManager.Instance.EnqueueMessage(temperatureMessage);
+
+            }, null, 0, temperatureAnounceTimerIterval * 1000);
         }
 
         static void ProcessMessageFromGraphicNavigationDriver(Message m)

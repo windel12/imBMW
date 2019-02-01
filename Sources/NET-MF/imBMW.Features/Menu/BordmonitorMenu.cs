@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using imBMW.iBus.Devices.Real;
 using imBMW.iBus;
 using imBMW.Tools;
@@ -59,7 +60,8 @@ namespace imBMW.Features.Menu
                 titleStartIndex = 0;
                 statusStartIndex = 0;
                 trackInfo = mediaEmulator.Player.CurrentTrack;
-                UpdateScreenWitDelay(500);
+                //UpdateScreenWitDelay(500);
+                UpdateHeaderWithDelay(500);
                 Radio.DisplayText(trackInfo.Title);
             };
             //mediaEmulator.IsEnabledChanged += mediaEmulator_IsEnabledChanged;
@@ -358,7 +360,7 @@ namespace imBMW.Features.Menu
                 isHeaderDrawing = true;
                 base.DrawHeader();
 
-                var messages = new Message[5];
+                var messages = new ArrayList();
                 var n = 0;
 
                 // TODO: refactor
@@ -366,17 +368,21 @@ namespace imBMW.Features.Menu
                 string status = CurrentScreen.Status;
 
                 if (!StringHelpers.IsNullOrEmpty(title))
-                    messages[n++] = Bordmonitor.ShowText(title, BordmonitorFields.Title, 0, false, false);
+                    messages.Add(Bordmonitor.ShowText(title, BordmonitorFields.Title, 0, false, false));
                 if (!StringHelpers.IsNullOrEmpty(CurrentScreen.T1Field))
-                    messages[n++] = Bordmonitor.ShowText(CurrentScreen.T1Field, BordmonitorFields.T1, 1, false, false);
-                if (!StringHelpers.IsNullOrEmpty(CurrentScreen.T3Field))
-                    messages[n++] = Bordmonitor.ShowText(CurrentScreen.T3Field, BordmonitorFields.T3, 3, false, false);
+                    messages.Add(Bordmonitor.ShowText(CurrentScreen.T1Field, BordmonitorFields.T1, 1, false, false));
+                if (!StringHelpers.IsNullOrEmpty(CurrentScreen.T2Field))                                           
+                    messages.Add(Bordmonitor.ShowText(CurrentScreen.T2Field, BordmonitorFields.T2, 2, false, false));
+                if (!StringHelpers.IsNullOrEmpty(CurrentScreen.T3Field))                                           
+                    messages.Add(Bordmonitor.ShowText(CurrentScreen.T3Field, BordmonitorFields.T3, 3, false, false));
+                if (!StringHelpers.IsNullOrEmpty(CurrentScreen.T4Field))                                           
+                    messages.Add(Bordmonitor.ShowText(CurrentScreen.T4Field, BordmonitorFields.T4, 4, false, false));
                 if (!StringHelpers.IsNullOrEmpty(CurrentScreen.T5Field))
-                    messages[n++] = Bordmonitor.ShowText(CurrentScreen.T5Field, BordmonitorFields.T5, 5, false, false);
+                    messages.Add(Bordmonitor.ShowText(CurrentScreen.T5Field, BordmonitorFields.T5, 5, false, false));
                 if (!StringHelpers.IsNullOrEmpty(status))
-                    messages[n++] = Bordmonitor.ShowText(status, BordmonitorFields.Status, 6, false, false);
+                    messages.Add(Bordmonitor.ShowText(status, BordmonitorFields.Status, 6, false, false));
 
-                Manager.EnqueueMessage(messages);
+                Manager.EnqueueMessage((Message[])messages.ToArray(typeof(Message)));
                 isHeaderDrawing = false;
             }
         }

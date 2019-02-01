@@ -101,8 +101,13 @@ namespace imBMW.iBus.Devices.Real
                 {
                     KBusManager.Instance.EnqueueMessage(ContinueWorkingAdditionalHeater);
                     Logger.Trace("Coolant Temperature: " + InstrumentClusterElectronics.TemperatureCoolant);
-                    if (AuxilaryHeaterStatus == AuxilaryHeaterStatus.StopPending)
+                    bool stoppingByReachingNeededTemperature = InstrumentClusterElectronics.TemperatureCoolant == 75;
+                    if (AuxilaryHeaterStatus == AuxilaryHeaterStatus.StopPending || stoppingByReachingNeededTemperature)
                     {
+                        if (stoppingByReachingNeededTemperature)
+                        {
+                            Logger.Trace("Turning off Auxilary heater by reaching needed temperature.");
+                        }
                         StopAuxilaryHeaterInternal();
                     }
                     return;

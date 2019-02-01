@@ -156,12 +156,12 @@ namespace imBMW.iBus
             "", // "0x8D",
             "", // "0x8E",
             "", // "0x8F",
-            "", // "0x90",
+            "Some diag request from AirBagModule1", // "0x90", (FF, FF)
             "", // "0x91",
             "Command for auxilary heater", // "0x92",
             "Auxilary heater status", // "0x93",
             "", // "0x94",
-            "", // "0x95",
+            "Some diag request from AirBagModule2", // "0x95", (09 03 24 37)
             "", // "0x96",
             "", // "0x97",
             "", // "0x98",

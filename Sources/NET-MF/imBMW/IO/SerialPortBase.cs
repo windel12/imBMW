@@ -118,7 +118,7 @@ namespace System.IO.Ports
                 WriteDirect(data, i, _writeBufferSize);                         // send it out
                 if (AfterWriteDelay > 0)
                     SPIN_WAIT_TIMER.WaitMilliseconds(AfterWriteDelay);
-                //Thread.Sleep(AfterWriteDelay);         // and include pause after chunk
+                    //Thread.Sleep(AfterWriteDelay);         // and include pause after chunk
             }
 
             if (modulus > 0)                                                    // If any data left which do not fill whole _writeBuferSize chunk,
@@ -126,7 +126,7 @@ namespace System.IO.Ports
                 WriteDirect(data, offset + length, modulus);                    // send it out as well
                 if (AfterWriteDelay > 0)
                     SPIN_WAIT_TIMER.WaitMilliseconds(AfterWriteDelay);
-                //Thread.Sleep(AfterWriteDelay);         // and pause for case consecutive calls to any write method.
+                    //Thread.Sleep(AfterWriteDelay);         // and pause for case consecutive calls to any write method.
             }
 
             _writeThread = null;                                                // release current thread so that the _busy signal does not affect external code execution

@@ -12,6 +12,7 @@ namespace imBMW.Features.Menu
         StatusChanged,
         ItemChanged,
         Refresh,
+        RefreshWithDelay,
         Scroll
     }
 
@@ -21,7 +22,7 @@ namespace imBMW.Features.Menu
 
         public MenuScreenUpdateReason Reason { get; set; }
 
-        public MenuScreenUpdateEventArgs(MenuScreenUpdateReason reason, object item = null)
+        public MenuScreenUpdateEventArgs(MenuScreenUpdateReason reason = MenuScreenUpdateReason.Refresh, object item = null)
         {
             Reason = reason;
             Item = item;
@@ -123,8 +124,20 @@ namespace imBMW.Features.Menu
             get;
         }
 
+        /// <summary> Top right corner - 3 symbols field.  </summary>
+        public virtual string T2Field
+        {
+            get;
+        }
+
         /// <summary> Bottom left corner - 5 symbols field.  </summary>
         public virtual string T3Field
+        {
+            get;
+        }
+
+        /// <summary> Top left corner - 3 symbols field.  </summary>
+        public virtual string T4Field
         {
             get;
         }

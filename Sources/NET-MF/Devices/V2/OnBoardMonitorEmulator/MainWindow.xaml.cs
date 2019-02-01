@@ -103,6 +103,9 @@ namespace OnBoardMonitorEmulator
 
             Launcher.Launch(Launcher.LaunchMode.WPF);
 
+            InstrumentClusterElectronicsEmulator.StartAnounce();
+
+            Bordmonitor.ReplyToScreenUpdates = true;
             Bordmonitor.TextReceived += Bordmonitor_TextReceived;
             FrontDisplayEmulator.LedChanged += FrontDisplayEmulator_LedChanged;
 
@@ -125,8 +128,12 @@ namespace OnBoardMonitorEmulator
                         label0.Content = args.Text; break;
                     case BordmonitorFields.T1:
                         label1.Content = args.Text; break;
+                    case BordmonitorFields.T2:
+                        label2.Content = args.Text; break;
                     case BordmonitorFields.T3:
                         label3.Content = args.Text; break;
+                    case BordmonitorFields.T4:
+                        label4.Content = args.Text; break;
                     case BordmonitorFields.T5:
                         label5.Content = args.Text; break;
                     case BordmonitorFields.Status:

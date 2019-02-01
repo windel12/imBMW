@@ -161,8 +161,8 @@ namespace imBMW.Features.Menu.Screens
                 return false;
             }
             lastUpdated = now;
-            OnUpdateHeader(MenuScreenUpdateReason.Refresh);
             OnUpdateBody(MenuScreenUpdateReason.Refresh);
+            OnUpdateHeader(MenuScreenUpdateReason.RefreshWithDelay, (ushort)500);
             needUpdateVoltage = true;
             return true;
         }
@@ -230,14 +230,32 @@ namespace imBMW.Features.Menu.Screens
             }
         }
 
+        //private Random r = new Random();
+        //public override string T1Field
+        //{
+        //    //get { return MediaEmulator != null ? (MediaEmulator.Player.CurrentTrack.Time.ToString()) : ""; }
+        //    get { return "T1" + r.Next(99); }
+        //}
+
+        //public override string T2Field
+        //{
+        //    get { return "T2" + r.Next(9); }
+        //}
+
         public override string T3Field
         {
             get { return MediaEmulator != null ? (MediaEmulator.Player.IsRandom ? "RND" : "") : ""; }
+            //get { return "T3" + r.Next(999); }
         }
 
-        public override string T1Field
-        {
-            get { return MediaEmulator != null ? (MediaEmulator.Player.CurrentTrack.Time.ToString()) : ""; }
-        }   
+        //public override string T4Field
+        //{
+        //    get { return "T4" + r.Next(9); }
+        //}
+
+        //public override string T5Field
+        //{
+        //    get { return "T5" + r.Next(999); }
+        //}
     }
 }
