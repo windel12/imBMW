@@ -1,4 +1,5 @@
 using System;
+using imBMW.Tools;
 
 namespace imBMW.iBus.Devices.Real
 {
@@ -14,9 +15,14 @@ namespace imBMW.iBus.Devices.Real
 
         static void ProcessDiagMessageFromHeadlightVerticalAimControl(Message m)
         {
-            if (m.Data.Length == 3 && m.Data[0] == 0xA0) // 0xA0 - DIAG data
+            if (m.Data.Length == 13 && m.Data[0] == 0xA0) // A0 88 37 59 64 D1 03 01 05 43 00 07 05
             {
-                m.ReceiverDescription = "LWR2A.PRG -> STATUS_SENSOR_LESEN - Response";
+                m.ReceiverDescription = "LWR2A.PRG -> IDENT Response";
+                FrontSensorVoltage = 0.01;
+            }
+            if (m.Data.Length == 3 && m.Data[0] == 0xA0) // A0 58 B2
+            {
+                m.ReceiverDescription = "LWR2A.PRG -> STATUS_SENSOR_LESEN Response";
 
                 FrontSensorVoltage = (float)m.Data[1] / 255 * 5;
                 RearSensorVoltage = (float)m.Data[2] / 255 * 5;
@@ -51,6 +57,18 @@ namespace imBMW.iBus.Devices.Real
                     e(value);
                 }
             }
+        }
+
+        public static void IDENT()
+        {
+            var ident = new Message(DeviceAddress.Diagnostic, DeviceAddress.HeadlightVerticalAimControl, 0x00);
+            KBusManager.Instance.EnqueueMessage(ident);
+        }
+
+        public static void STATUS_LESSEN()
+        {
+            var status_sensor_lessen = new Message(DeviceAddress.Diagnostic, DeviceAddress.HeadlightVerticalAimControl, 0x0B);
+            KBusManager.Instance.EnqueueMessage(status_sensor_lessen);
         }
 
         public static void STATUS_SENSOR_LESSEN()

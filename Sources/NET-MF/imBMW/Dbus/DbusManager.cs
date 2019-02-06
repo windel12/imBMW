@@ -9,6 +9,7 @@ namespace imBMW.iBus
 {
     public class DBusManager : ManagerImpl
     {
+        public static string PORT_NAME = "dBus";
         private static DBusManager _instance;
         public static DBusManager Instance
         {
@@ -31,7 +32,7 @@ namespace imBMW.iBus
         {
             if (!Instance.Inited)
             {
-                Instance.InitPort(port, "dBus");
+                Instance.InitPort(port, DBusManager.PORT_NAME);
             }
             else
             {

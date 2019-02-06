@@ -20,9 +20,11 @@ namespace imBMW.Features.Menu.Screens
         protected MenuItem itemSettings;
 
         protected DateTime lastUpdated;
+        protected DateTime lastVoltageUpdated;
         protected bool needUpdateVoltage;
 
         protected byte updateLimitSeconds = 1;
+        protected byte updateVoltageLimitSeconds = 5;
 
         private ushort refreshInterval = 1000;
         private ushort timeoutBeforeStart = 2000;
@@ -152,9 +154,10 @@ namespace imBMW.Features.Menu.Screens
         {
             var now = DateTime.Now;
             int span;
-            if (needUpdateVoltage) // span > updateLimitSeconds / 2 && 
+            if ((now - lastVoltageUpdated).GetTotalSeconds() > updateVoltageLimitSeconds || lastUpdated == DateTime.MinValue) //(needUpdateVoltage) // span > updateLimitSeconds / 2 && 
             {
                 UpdateVoltage();
+                lastVoltageUpdated = now;
             }
             if (!force && lastUpdated != DateTime.MinValue && (span = (now - lastUpdated).GetTotalSeconds()) < updateLimitSeconds)
             {
@@ -162,7 +165,7 @@ namespace imBMW.Features.Menu.Screens
             }
             lastUpdated = now;
             OnUpdateBody(MenuScreenUpdateReason.Refresh);
-            OnUpdateHeader(MenuScreenUpdateReason.RefreshWithDelay, (ushort)500);
+            //OnUpdateHeader(MenuScreenUpdateReason.RefreshWithDelay, (ushort)1000);
             needUpdateVoltage = true;
             return true;
         }

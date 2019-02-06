@@ -27,9 +27,9 @@ namespace System.IO.Ports
             ReadTimeout = readTimeout;
 
 #if NETMF
-            Open();
+            _port.Open();
 #else
-            // in this case, need to open port manually in code(e.g. ActiveScreen.cs as link in OnBoardMonitorEmulator)
+// in this case, need to open port manually in code(e.g. ActivateScreen.cs as link in OnBoardMonitorEmulator)
 #endif
         }
 

@@ -33,7 +33,7 @@ namespace imBMW.Tools
 #if DebugOnRealDeviceOverFTDI
             if (System.Diagnostics.Debugger.IsAttached)
             {
-                Debug.Print("Free memory:" + Debug.GC(true));
+                Debug.Print("Free memory:" + Debug.GC(true).ToString());
             }
 #endif
         }

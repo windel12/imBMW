@@ -310,6 +310,96 @@ namespace imBMW.iBus
             messageDescriptions.Add(new byte[] { 0x82, 0x05 }.ToHex(' '), "IHKA turned on by webasto activation"); // after manual starting auxilary heater(by receiving command 92 00 22 from auxilary heater(key in ACC))
             messageDescriptions.Add(new byte[] { 0x82, 0x03 }.ToHex(' '), "IHKA turned off"); //    after changing Ign > Acc
                                                                                               // or after manual stopping auxilary heater(by receiving command 92 00 11 from auxilary heater(key in ACC))
+
+            /*messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x60 }.ToHex(' '), "Get anmPWG");
+            messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x65 }.ToHex(' '), "Get anmUBT");
+            messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x1F, 0x06 }.ToHex(' '), "Get anmVDF");
+            messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x00 }.ToHex(' '), "Get anmWTF");
+
+            messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x30 }.ToHex(' '), "Get armM_List");
+            messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x32 }.ToHex(' '), "Get armM_Lsoll");
+            messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x10 }.ToHex(' '), "Get dzmNmit");
+            messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x40 }.ToHex(' '), "Get ldmP_Llin");
+            messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x42 }.ToHex(' '), "Get ldmP_Lsoll");
+            messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x1F, 0x5D }.ToHex(' '), "Get zumP_RAIL");
+            messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x1F, 0x5E }.ToHex(' '), "Get zumPQsoll");*/
+
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x20, 0x41 }.ToHex(' '), "Get admADF");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x2F, 0xFE }.ToHex(' '), "Get admIDV");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x2F, 0xFC }.ToHex(' '), "Get admKDF");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x20, 0x42 }.ToHex(' '), "Get admLDF");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x20, 0x61 }.ToHex(' '), "Get admLMM");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x20, 0x01 }.ToHex(' '), "Get admLTF");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x2F, 0xFA }.ToHex(' '), "Get admPGS");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x20, 0x60 }.ToHex(' '), "Get admPWG");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x20, 0x65 }.ToHex(' '), "Get admUBT");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x20, 0x06 }.ToHex(' '), "Get admVDF");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x20, 0x00 }.ToHex(' '), "Get admWTF");
+
+            /*messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x63 }.ToHex(' '), "Get anmADF");
+            messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0xFE }.ToHex(' '), "Get anmIDV");
+            messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0xFC }.ToHex(' '), "Get anmKDF");
+            messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x62 }.ToHex(' '), "Get anmLDF");
+            messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x61 }.ToHex(' '), "Get anmLMM");
+            messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x01 }.ToHex(' '), "Get anmLTF");
+            messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0xFA }.ToHex(' '), "Get anmPGS");*/
+
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x30, 0x11 }.ToHex(' '), "Get anoU_ADF");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x30, 0x0C }.ToHex(' '), "Get anoU_IDV");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x30, 0x0A }.ToHex(' '), "Get anoU_KDF");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x30, 0x04 }.ToHex(' '), "Get anoU_LDF");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x34 }.ToHex(' '), "Get anoU_LMM");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x30, 0x0E }.ToHex(' '), "Get anoU_LTF");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x30, 0x06 }.ToHex(' '), "Get anoU_PGS");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x35 }.ToHex(' '), "Get anoU_PWG");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x30, 0x13 }.ToHex(' '), "Get anoU_UBT");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x30, 0x1A }.ToHex(' '), "Get anoU_VDF");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x30, 0x02 }.ToHex(' '), "Get anoU_WTF");
+
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0E, 0x91 }.ToHex(' '), "Get ehmFKLI");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0E, 0x80 }.ToHex(' '), "Get ehmFARS");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0E, 0xA6 }.ToHex(' '), "Get ehmFEKP");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0E, 0x9A }.ToHex(' '), "Get ehmFDRA");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0E, 0x87 }.ToHex(' '), "Get ehmFGRS");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0E, 0x9B }.ToHex(' '), "Get ehmFKWH");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0E, 0xA5 }.ToHex(' '), "Get ehmFKDR");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0E, 0x81 }.ToHex(' '), "Get ehmFLDS");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0E, 0xA2 }.ToHex(' '), "Get ehmFMLS");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0E, 0x9F }.ToHex(' '), "Get ehmFMML");
+
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x00, 0x10 }.ToHex(' '), "Get aroIST_4");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0xDF, 0x0E }.ToHex(' '), "Get aroIST_5");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0E, 0xE0 }.ToHex(' '), "Get aroREG_2");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x31 }.ToHex(' '), "Get aroSOLL_5");
+
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x19 }.ToHex(' '), "Get dzmzMk1");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x1A }.ToHex(' '), "Get dzmzMk2");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x1B }.ToHex(' '), "Get dzmzMk3");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x1C }.ToHex(' '), "Get dzmzMk4");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x1D }.ToHex(' '), "Get dzmzMk5");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x1E }.ToHex(' '), "Get dzmzMk6");
+
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x13 }.ToHex(' '), "Get dzmzN1");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x14 }.ToHex(' '), "Get dzmzN2");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x15 }.ToHex(' '), "Get dzmzN3");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x16 }.ToHex(' '), "Get dzmzN4");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x17 }.ToHex(' '), "Get dzmzN5");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x18 }.ToHex(' '), "Get dzmzN6");
+
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x80 }.ToHex(' '), "Get mrmM_EAKT");
+
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x1F, 0x51 }.ToHex(' '), "Get zuoAB_VE1");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x1F, 0x5A }.ToHex(' '), "Get zumAB_HE");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x1F, 0x60 }.ToHex(' '), "Get zumAB_NE");
+
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x1F, 0x52 }.ToHex(' '), "Get zuoAD_VE1");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x1F, 0x5B }.ToHex(' '), "Get zuoAD_HE");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x1F, 0x61 }.ToHex(' '), "Get zumAD_NE");
+
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x1F, 0x53 }.ToHex(' '), "Get zuoME_VE");
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x1F, 0x5C }.ToHex(' '), "Get zuoMEHE");
+
+            //messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x1F, 0x57 }.ToHex(' '), "Get zuoMEVGW"); // GW-Kennfeld Menge Voreinspritzung
         }
 
         #endregion

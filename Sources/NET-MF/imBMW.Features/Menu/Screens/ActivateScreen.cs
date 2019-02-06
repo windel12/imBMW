@@ -56,25 +56,28 @@ namespace imBMW.Features.Menu.Screens
                 OnDisableWatchdogCounterReset();
             }, MenuItemType.Button, MenuItemAction.None));
 
+            AddItem(new MenuItem(i => "IDENT", x =>
+            {
+                Logger.Trace("Manual: HeadlightVerticalAimControl.IDENT");
+                HeadlightVerticalAimControl.IDENT();
+            }, MenuItemType.Button, MenuItemAction.None));
+            AddItem(new MenuItem(
+                i => "Status: " + HeadlightVerticalAimControl.FrontSensorVoltage.ToString("F2") + "V " + HeadlightVerticalAimControl.RearSensorVoltage.ToString("F2") + "V", x =>
+                {
+                    HeadlightVerticalAimControl.STATUS_LESSEN();
+                }, MenuItemType.Button, MenuItemAction.None));
             AddItem(new MenuItem(
                 i => "Sensors: " + HeadlightVerticalAimControl.FrontSensorVoltage.ToString("F2") + "V " + HeadlightVerticalAimControl.RearSensorVoltage.ToString("F2") + "V", x =>
                 {
-                    Logger.Trace("Manual: HeadlightVerticalAimControl.STATUS_SENSOR_LESSEN");
                     HeadlightVerticalAimControl.STATUS_SENSOR_LESSEN();
                 }, MenuItemType.Button, MenuItemAction.None));
-            AddItem(new MenuItem(i => "LWR-STEUERN_ANTRIEBE", x =>
-            {
-                Logger.Trace("Manual: HeadlightVerticalAimControl.STEUERN_ANTRIEBE");
-                HeadlightVerticalAimControl.STEUERN_ANTRIEBE();
-            }, MenuItemType.Button, MenuItemAction.None));
+            //AddItem(new MenuItem(i => "LWR-STEUERN_ANTRIEBE", x =>
+            //{
+            //    HeadlightVerticalAimControl.STEUERN_ANTRIEBE();
+            //}, MenuItemType.Button, MenuItemAction.None));
             AddItem(new MenuItem(i => "LWR-DIAGNOSE_ENDE", x =>
             {
-                Logger.Trace("Manual: HeadlightVerticalAimControl.DIAGNOSE_ENDE");
                 HeadlightVerticalAimControl.DIAGNOSE_ENDE();
-            }, MenuItemType.Button, MenuItemAction.None));
-            AddItem(new MenuItem(i => "Unused", x =>
-            {
-                
             }, MenuItemType.Button, MenuItemAction.None));
 
             this.AddBackButton();
@@ -125,6 +128,7 @@ namespace imBMW.Features.Menu.Screens
         {
             if (m.Data[0] == 0x6C && m.Data[1] == 0x10)
             {
+                Logger.Trace("Response from DDE: " + m.Data.ToHex(' '));
                 MotorTemperatur = BitConverter.ToInt16(new byte[2] { m.Data[2], m.Data[3] }, 0).ToString();
                 this.Refresh();
             }

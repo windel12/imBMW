@@ -8,6 +8,7 @@ namespace System.IO.Ports
     public class SerialPortTH3122 : SerialInterruptPort
     {
         private byte[] data;
+        private int readAvailable;
         private object _lock = new object();
 
         /// <summary>
@@ -25,7 +26,8 @@ namespace System.IO.Ports
 
         public override void Flush()
         {
-            _port.DiscardOutBuffer();
+            if(_port.IsOpen)
+                _port.DiscardOutBuffer();
         }
 
         protected override int WriteDirect(byte[] data, int offset, int length)
@@ -35,9 +37,15 @@ namespace System.IO.Ports
                 //this.data = data;
                 lock (_lock)
                 {
-                    this.data = new byte[length];
-                    Array.Copy(data, offset, this.data, 0, length);
-                    return this.data.Length;
+                    if (offset == 0)
+                    {
+                        readAvailable = 0;
+                        this.data = new byte[data.Length];
+                    }
+
+                    Array.Copy(data, offset, this.data, readAvailable, length);
+                    readAvailable += length;
+                    return readAvailable;
                 }
             }
             return base.WriteDirect(data, offset, length);
@@ -47,7 +55,11 @@ namespace System.IO.Ports
         {
             if (!_port.IsOpen)
             {
-                return this.data.Length;
+                lock (_lock)
+                {
+                    Array.Copy(this.data, data, this.data.Length);
+                    return this.data.Length;
+                }
             }
             return _port.Read(data, 0, _port.BytesToRead);
         }
@@ -58,9 +70,11 @@ namespace System.IO.Ports
             {
                 lock (_lock)
                 {
-                    var temp = new byte[this.data.Length];
-                    Array.Copy(this.data, temp, this.data.Length);
-                    this.data = new byte[0];
+                    var temp = new byte[this.readAvailable];
+                    Array.Copy(this.data, temp, this.readAvailable);
+
+                    Array.Clear(this.data, 0, readAvailable);
+                    readAvailable = 0;
                     return temp;
                 }
             }

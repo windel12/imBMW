@@ -255,6 +255,9 @@
     <Compile Include="..\..\..\imBMW\iBus\Manager.cs">
       <Link>imBMW\iBus\Manager.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\imBMW\iBus\ManagerImpl.cs">
+      <Link>imBMW\iBus\ManagerImpl.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\imBMW\iBus\ManagerTools.cs">
       <Link>imBMW\iBus\ManagerTools.cs</Link>
     </Compile>

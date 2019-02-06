@@ -9,6 +9,7 @@ namespace imBMW.Tools
         public delegate void ProcessItem(object item);
 
         Thread queueThread;
+        private string threadName;
         ProcessItem processItem;
         object lockObj = new object();
 
@@ -19,6 +20,7 @@ namespace imBMW.Tools
                 throw new ArgumentException("processItem is null");
             }
             this.processItem = processItem;
+            this.threadName = threadName;
             queueThread = new Thread(queueWorker);
             queueThread.Priority = ThreadPriority.AboveNormal;
 #if !NETMF

@@ -81,6 +81,7 @@
     <Compile Include="iBus\Devices\Radio.cs" />
     <Compile Include="iBus\InternalMessage.cs" />
     <Compile Include="iBus\KBusManager.cs" />
+    <Compile Include="iBus\ManagerImpl.cs" />
     <Compile Include="iBus\ManagerTools.cs" />
     <Compile Include="iBus\MessageParser.cs" />
     <Compile Include="IO\ISerialPort.cs" />

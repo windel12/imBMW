@@ -84,7 +84,7 @@ namespace imBMW.Features.Multimedia
         static IDictionary StorageInfo = new Hashtable();
         private static Queue NextTracksQueue = new Queue();
 
-        public static int FileNameOffset = 6;
+        public static int FileNameOffset = 10;
 
         public override bool IsPlaying
         {
@@ -149,8 +149,7 @@ namespace imBMW.Features.Multimedia
                     byte filesCount = 0;
                     foreach(var fileObj in files)
                     {
-                        var file = fileObj.ToString();
-                        if (file.EndsWith(".mp3") /* || file.EndsWith(".m4a")*/)
+                        if (((string)fileObj).EndsWith(".mp3") /* || file.EndsWith(".m4a")*/)
                         {
                             filesCount++;
                         }
@@ -292,12 +291,11 @@ namespace imBMW.Features.Multimedia
                 byte trackIndex = 1;
                 foreach (var fileObj in files)
                 {
-                    string file = fileObj.ToString();
-                    if (file.EndsWith(".mp3") /* || file.EndsWith(".m4a")*/)
+                    if (((string)fileObj).EndsWith(".mp3") /* || file.EndsWith(".m4a")*/)
                     {
                         if (trackIndex == trackNumber)
                         {
-                            result = new DiskAndTrack(diskNumber, trackIndex, file);
+                            result = new DiskAndTrack(diskNumber, trackIndex, ((string)fileObj));
                             break;
                         }
                         trackIndex++;
@@ -410,9 +408,11 @@ namespace imBMW.Features.Multimedia
         {
         }
 
+        private static byte[] buffer = new byte[256];
+
         public void PlayDirect(bool resetWhenFinished = false)
         {
-            byte[] buffer;
+            //byte[] buffer;
             int size;
             FileStream stream = null;
             while (true)
@@ -422,7 +422,7 @@ namespace imBMW.Features.Multimedia
                 {
                     //if (!IsPlaying)
                     //    Thread.CurrentThread.Suspend();
-                    buffer = new byte[256];
+                    //buffer = new byte[256];
                 }
                 catch (Exception ex)
                 {

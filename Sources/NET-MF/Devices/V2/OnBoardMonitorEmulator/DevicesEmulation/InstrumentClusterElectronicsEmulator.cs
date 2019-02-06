@@ -75,7 +75,7 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
         static void ProcessDS2MessageAndForwardToIBus(Message m)
         {
             // do not forward responses from modules
-            if (m.Data[0] == 0xA0)
+            if (m.Data[0] == 0xA0 || m.DestinationDevice == DeviceAddress.DDE || m.DestinationDevice == DeviceAddress.ElectronicGearbox || m.DestinationDevice == DeviceAddress.ASC)
             {
                 return;
             }
@@ -87,7 +87,7 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
 
         static void ProcessDiagnosticMessageFromIBusAndForwardToDBus(Message m)
         {
-            if (m.Data[0] == 0xA0) // 0xA0 - DIAG OKAY
+            if (m.Data[0] == 0xA0 && m.SourceDevice != DeviceAddress.NavigationEurope) // 0xA0 - DIAG OKAY
             {
                 Thread.Sleep(100);
                 var message = new DS2Message(m.SourceDevice, m.Data);

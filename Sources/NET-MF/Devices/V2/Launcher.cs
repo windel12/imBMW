@@ -78,7 +78,7 @@ namespace imBMW.Devices.V2
                 error_RedLed = new OutputPort(Pin.LED4, false);
 
                 // Timeout 30 seconds
-                ushort timeoutInMilliseconds = 1000 * 10;
+                ushort timeoutInMilliseconds = 1000 * 15;
 #if !RELEASE
                 if (Debugger.IsAttached)
                 {
@@ -132,6 +132,7 @@ namespace imBMW.Devices.V2
                         error = true;
 
                         LedBlinking(error_RedLed, 5, 100);
+                        Thread.Sleep(100);
                     }
                 } while (sdCardMountRetryCount < 3);
 
@@ -207,6 +208,9 @@ namespace imBMW.Devices.V2
 
             KBusManager.Instance.BeforeMessageReceived += KBusManager_BeforeMessageReceived;
             KBusManager.Instance.BeforeMessageSent += KBusManager_BeforeMessageSent;
+
+            DBusManager.Instance.BeforeMessageReceived += DBusManager_BeforeMessageReceived;
+            DBusManager.Instance.BeforeMessageSent += DBusManager_BeforeMessageSent;
 
             RefreshLEDs(LedType.OrangeBlinking);
 
@@ -357,30 +361,11 @@ namespace imBMW.Devices.V2
         // Log just needed message
         private static bool IBusLoggerPredicate(MessageEventArgs e)
         {
-            if(e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x11 // Ignition status
-                ||
-                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x13 // IKE Sensor status
-                ||
-                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x15 // Country coding status
-                ||
-                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x17 // Odometer
-                ||
-                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x18 // Speed/RPM
-                ||
-                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x19 // Temperature
-            )
-            {
-                return false;
-            }
-
-            return e.Message.SourceDevice == DeviceAddress.Radio &&
-                   e.Message.DestinationDevice == DeviceAddress.CDChanger
+            return e.Message.SourceDevice == DeviceAddress.Radio && e.Message.DestinationDevice == DeviceAddress.CDChanger
                    ||
-                   e.Message.SourceDevice == DeviceAddress.CDChanger &&
-                   e.Message.DestinationDevice == DeviceAddress.Radio
+                   e.Message.SourceDevice == DeviceAddress.CDChanger && e.Message.DestinationDevice == DeviceAddress.Radio
                    ||
-                   e.Message.SourceDevice == DeviceAddress.Radio && 
-                   e.Message.DestinationDevice == DeviceAddress.InstrumentClusterElectronics;
+                   e.Message.SourceDevice == DeviceAddress.Radio && e.Message.DestinationDevice == DeviceAddress.InstrumentClusterElectronics;
         }
 
         private static void Manager_BeforeMessageReceived(MessageEventArgs e)
@@ -392,24 +377,23 @@ namespace imBMW.Devices.V2
         {
             iBusMessageSendReceiveBlinker_BlueLed.Write(Busy(false, 1));
 
-            if (e.Message.Data.Compare(MessageRegistry.DataAnnounce)
-                || e.Message.Data.Compare(MessageRegistry.DataPollRequest)
-                || e.Message.Data.Compare(MessageRegistry.DataPollResponse))
+            if (IBusLoggerPredicate(e))
             {
-                return;
-            }
+                // Show only messages which are described
+                if (e.Message.Describe() == null)
+                {
+                    return;
+                }
 
-            // Show only messages which are described
-            if (e.Message.Describe() == null) { return; }
-      
-            var logIco = "< ";
-            if (settings.LogMessageToASCII)
-            {
-                Logger.Info(e.Message.ToPrettyString(false, false), logIco);
-            }
-            else
-            {
-                Logger.Info(e.Message, logIco);
+                var logIco = "I < ";
+                if (settings.LogMessageToASCII)
+                {
+                    Logger.Trace(e.Message.ToPrettyString(false, false), logIco);
+                }
+                else
+                {
+                    Logger.Trace(e.Message, logIco);
+                }
             }
         }
 
@@ -422,14 +406,17 @@ namespace imBMW.Devices.V2
         {
             iBusMessageSendReceiveBlinker_BlueLed.Write(Busy(false, 2));
 
-            var logIco = " >";
-            if (settings.LogMessageToASCII)
+            if (IBusLoggerPredicate(e))
             {
-                Logger.Info(e.Message.ToPrettyString(false, false), logIco);
-            }
-            else
-            {
-                Logger.Info(e.Message, logIco);
+                var logIco = "I > ";
+                if (settings.LogMessageToASCII)
+                {
+                    Logger.Trace(e.Message.ToPrettyString(false, false), logIco);
+                }
+                else
+                {
+                    Logger.Trace(e.Message, logIco);
+                }
             }
         }
 
@@ -480,7 +467,7 @@ namespace imBMW.Devices.V2
         {
             if (KBusLoggerPredicate(e))
             {
-                var logIco = "KBUS: <- ";
+                var logIco = "K < ";
                 if (settings.LogMessageToASCII)
                 {
                     Logger.Trace(e.Message.ToPrettyString(false, false), logIco);
@@ -496,7 +483,45 @@ namespace imBMW.Devices.V2
         {
             if (KBusLoggerPredicate(e))
             {
-                var logIco = "KBUS: -> ";
+                var logIco = "K > ";
+                if (settings.LogMessageToASCII)
+                {
+                    Logger.Trace(e.Message.ToPrettyString(false, false), logIco);
+                }
+                else
+                {
+                    Logger.Trace(e.Message, logIco);
+                }
+            }
+        }
+
+        // Log just needed message
+        private static bool DBusLoggerPredicate(MessageEventArgs e)
+        {
+            return true;
+        }
+
+        private static void DBusManager_BeforeMessageReceived(MessageEventArgs e)
+        {
+            if (DBusLoggerPredicate(e))
+            {
+                var logIco = "D < ";
+                if (settings.LogMessageToASCII)
+                {
+                    Logger.Trace(e.Message.ToPrettyString(false, false), logIco);
+                }
+                else
+                {
+                    Logger.Trace(e.Message, logIco);
+                }
+            }
+        }
+
+        private static void DBusManager_BeforeMessageSent(MessageEventArgs e)
+        {
+            if (DBusLoggerPredicate(e))
+            {
+                var logIco = "D > ";
                 if (settings.LogMessageToASCII)
                 {
                     Logger.Trace(e.Message.ToPrettyString(false, false), logIco);
@@ -542,7 +567,7 @@ namespace imBMW.Devices.V2
 #if DEBUG || DebugOnRealDeviceOverFTDI
             if (Debugger.IsAttached)
             {
-                //Logger.FreeMemory();
+                Logger.FreeMemory();
                 Debug.Print(args.LogString);
             }
 #endif

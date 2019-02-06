@@ -6,6 +6,7 @@ namespace imBMW.iBus
 {
     public class KBusManager : ManagerImpl
     {
+        public static string PORT_NAME = "kBus";
         private static KBusManager _instance;
         public static KBusManager Instance
         {
@@ -28,7 +29,7 @@ namespace imBMW.iBus
         {
             if (!Instance.Inited)
             {
-                Instance.InitPort(port, "kBus");
+                Instance.InitPort(port, KBusManager.PORT_NAME);
             }
             else
             {
