@@ -209,9 +209,8 @@ namespace imBMW.Features.Menu.Screens
             }));
             AddItem(new MenuItem(i => Localization.Current.Limit + ": " + (InstrumentClusterElectronics.SpeedLimit == 0 ? "-" : InstrumentClusterElectronics.SpeedLimit + Localization.Current.KMH), MenuItemType.Button, MenuItemAction.GoToScreen)
             {
-                GoToScreen = SpeedLimitScreen.Instance
+                GoToScreenCallback = () => { return SpeedLimitScreen.Instance; }
             });
-
             this.AddBackButton();
         }
 

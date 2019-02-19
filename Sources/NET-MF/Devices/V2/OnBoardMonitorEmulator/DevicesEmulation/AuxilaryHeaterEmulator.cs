@@ -37,29 +37,29 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
                 KBusManager.Instance.EnqueueMessage(auxilaryHeaterPollResponseMessage);
             }
 
-            if (message.Data.StartsWith(IntegratedHeatingAndAirConditioning.StartAdditionalHeater.Data))
+            if (message.Data.StartsWith(IntegratedHeatingAndAirConditioning.StartAuxilaryHeaterMessage.Data))
             {
                 if (IntegratedHeatingAndAirConditioning.AuxilaryHeaterStatus == AuxilaryHeaterStatus.StartPending)
                 {
                     Thread.Sleep(100);
-                    KBusManager.Instance.EnqueueMessage(AuxilaryHeater.AdditionalHeaterWorkingResponse);
+                    KBusManager.Instance.EnqueueMessage(AuxilaryHeater.AuxilaryHeaterWorkingResponse);
                     announceThread = new Thread(announce);
                     announceThread.Start();
                 }
             }
 
-            if (message.Data.StartsWith(IntegratedHeatingAndAirConditioning.StopAdditionalHeater1.Data))
+            if (message.Data.StartsWith(IntegratedHeatingAndAirConditioning.StopAuxilaryHeater1.Data))
             {
                 Thread.Sleep(100);
-                KBusManager.Instance.EnqueueMessage(AuxilaryHeater.AdditionalHeaterStopped1);
+                KBusManager.Instance.EnqueueMessage(AuxilaryHeater.AuxilaryHeaterStopped1);
 
                 if (announceThread.ThreadState != ThreadState.Suspended)
                     announceThread.Suspend();
             }
-            if (message.Data.StartsWith(IntegratedHeatingAndAirConditioning.StopAdditionalHeater2.Data))
+            if (message.Data.StartsWith(IntegratedHeatingAndAirConditioning.StopAuxilaryHeater2.Data))
             {
                 Thread.Sleep(100);
-                KBusManager.Instance.EnqueueMessage(AuxilaryHeater.AdditionalHeaterStopped2);
+                KBusManager.Instance.EnqueueMessage(AuxilaryHeater.AuxilaryHeaterStopped2);
             }
         }
 
@@ -68,7 +68,7 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
             while (true)
             {
                 Thread.Sleep(10000);
-                KBusManager.Instance.EnqueueMessage(AuxilaryHeater.AdditionalHeaterWorkingResponse);
+                KBusManager.Instance.EnqueueMessage(AuxilaryHeater.AuxilaryHeaterWorkingResponse);
             }
         }
     }

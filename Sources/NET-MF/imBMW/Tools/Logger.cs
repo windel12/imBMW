@@ -6,6 +6,8 @@ namespace imBMW.Tools
 {
     public static class Logger
     {
+        public static bool wasError = false;
+
         public static event LoggerEventHangler Logged;
 
         public static void Log(LogPriority priority, string message, string priorityTitle = null)
@@ -44,7 +46,7 @@ namespace imBMW.Tools
             {
                 Trace(message, priorityTitle);
             }
-            catch (Exception ex) { }
+            catch (Exception ex) { wasError = true; }
         }
 
         public static void TryTrace(Message message, string priorityTitle = null)
@@ -53,7 +55,7 @@ namespace imBMW.Tools
             {
                 Trace(message, priorityTitle);
             }
-            catch (Exception ex) { }
+            catch (Exception ex) { wasError = true; }
         }
 
         public static void Trace(string message, string priorityTitle = null)
@@ -97,7 +99,7 @@ namespace imBMW.Tools
             {
                 Error(message, priorityTitle);
             }
-            catch (Exception ex) { }
+            catch (Exception ex) { wasError = true; }
         }
 
         public static void TryError(Exception exception, string message = null, string priorityTitle = null)
@@ -106,7 +108,7 @@ namespace imBMW.Tools
             {
                 Error(exception, message, priorityTitle);
             }
-            catch (Exception ex) { }
+            catch (Exception ex) { wasError = true; }
         }
 
         public static void Error(string message, string priorityTitle = null)

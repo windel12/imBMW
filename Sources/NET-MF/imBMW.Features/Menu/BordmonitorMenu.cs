@@ -37,7 +37,7 @@ namespace imBMW.Features.Menu
             {
                 if (s.IsPlaying)
                 {
-                    DDEScreen.Instance.TitleCallback = BordcomputerScreen.Instance.TitleCallback = x =>
+                    /*DDEScreen.Instance.TitleCallback = */BordcomputerScreen.Instance.TitleCallback = x =>
                     {
                         if (trackInfo.Title != null && trackInfo.Title != "")
                         {
@@ -45,7 +45,7 @@ namespace imBMW.Features.Menu
                         }
                         return TrimTextToLength(trackInfo.FullName, ref titleStartIndex, 10);
                     };
-                    DDEScreen.Instance.StatusCallback = BordcomputerScreen.Instance.StatusCallback = x =>
+                    /*DDEScreen.Instance.StatusCallback = */BordcomputerScreen.Instance.StatusCallback = x =>
                     {
                         if (trackInfo.Artist != null && trackInfo.Artist != "")
                         {
@@ -260,6 +260,20 @@ namespace imBMW.Features.Menu
 
         protected void ProcessToRadioMessage(Message m)
         {
+            // BM buttons
+            if (m.Data[0] == 0x48 && m.Data.Length == 2)
+            {
+                switch (m.Data[1])
+                {
+                    case 0x87: // 'AuxilaryHeater/Clock' button released
+                        IntegratedHeatingAndAirConditioning.StartAuxilaryHeater();
+                        break;
+                    case 0x94: // '<>' button released
+                        IntegratedHeatingAndAirConditioning.StopAuxilaryHeater();
+                        break;
+                }
+            }
+
             if (mediaEmulator.IsEnabled)
             {
                 // BM buttons
@@ -285,12 +299,6 @@ namespace imBMW.Features.Menu
                             //{
                             //    UpdateScreen();
                             //}
-                            break;
-                        case 0x87: // 'AuxilaryHeater/Clock' button released
-                            IntegratedHeatingAndAirConditioning.StartAuxilaryHeater();
-                            break;
-                        case 0x94: // '<>' button released
-                            IntegratedHeatingAndAirConditioning.StopAuxilaryHeater();
                             break;
                     }
                 }

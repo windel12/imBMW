@@ -392,7 +392,7 @@ namespace imBMW.Features.Menu
             switch (item.Action)
             {
                 case MenuItemAction.GoToScreen:
-                    Navigate(item.GoToScreen);
+                    Navigate(item.GoToScreenCallback());
                     break;
                 case MenuItemAction.GoBackScreen:
                     NavigateBack();

@@ -32,11 +32,11 @@ namespace imBMW.iBus.Devices.Real
         /// <summary> 
         /// 6B 05 5B 93 00 22 ?? 
         /// </summary>
-        public static Message AdditionalHeaterWorkingResponse = new Message(DeviceAddress.AuxilaryHeater, DeviceAddress.IntegratedHeatingAndAirConditioning, 0x93, 0x00, 0x22);
+        public static Message AuxilaryHeaterWorkingResponse = new Message(DeviceAddress.AuxilaryHeater, DeviceAddress.IntegratedHeatingAndAirConditioning, 0x93, 0x00, 0x22);
         /// <summary> 6B 05 5B 93 00 21 ?? </summary>
-        public static Message AdditionalHeaterStopped1 = new Message(DeviceAddress.AuxilaryHeater, DeviceAddress.IntegratedHeatingAndAirConditioning, 0x93, 0x00, 0x21);
+        public static Message AuxilaryHeaterStopped1 = new Message(DeviceAddress.AuxilaryHeater, DeviceAddress.IntegratedHeatingAndAirConditioning, 0x93, 0x00, 0x21);
         /// <summary> 6B 05 5B 93 00 11 ?? </summary>
-        public static Message AdditionalHeaterStopped2 = new Message(DeviceAddress.AuxilaryHeater, DeviceAddress.IntegratedHeatingAndAirConditioning, 0x93, 0x00, 0x11);
+        public static Message AuxilaryHeaterStopped2 = new Message(DeviceAddress.AuxilaryHeater, DeviceAddress.IntegratedHeatingAndAirConditioning, 0x93, 0x00, 0x11);
 
         public static byte[] DataZuheizerStatusRequest = new byte[] { 0x00 };
 

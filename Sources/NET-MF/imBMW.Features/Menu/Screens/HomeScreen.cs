@@ -1,6 +1,7 @@
 using System;
 using Microsoft.SPOT;
 using imBMW.Features.Localizations;
+using imBMW.Tools;
 
 namespace imBMW.Features.Menu.Screens
 {
@@ -21,27 +22,27 @@ namespace imBMW.Features.Menu.Screens
 
             itemBC = new MenuItem(i => Localization.Current.Bordcomputer, MenuItemType.Button, MenuItemAction.GoToScreen)
             {
-                GoToScreen = BordcomputerScreen.Instance
+                GoToScreenCallback = () => { return BordcomputerScreen.Instance; }
             };
             itemSettings = new MenuItem(i => Localization.Current.Settings, MenuItemType.Button, MenuItemAction.GoToScreen)
             {
-                GoToScreen = SettingsScreen.Instance
+                GoToScreenCallback = () => { return SettingsScreen.Instance; }
             };
             auxilaryHeaterItem = new MenuItem(i => Localization.Current.AuxilaryHeater, MenuItemType.Button, MenuItemAction.GoToScreen)
             {
-                GoToScreen = AuxilaryHeaterScreen.Instance
+                GoToScreenCallback = () => { return AuxilaryHeaterScreen.Instance; }
             };
             ddeItem = new MenuItem(i => "DDE", MenuItemType.Button, MenuItemAction.GoToScreen)
             {
-                GoToScreen = DDEScreen.Instance
+                GoToScreenCallback = () => { return DDEScreen.Instance; }
             };
             bluetoothItem = new MenuItem(i => "Bluetooth", MenuItemType.Button, MenuItemAction.GoToScreen)
             {
-                GoToScreen = BluetoothScreen.Instance
+                GoToScreenCallback = () => { return BluetoothScreen.Instance; }
             };
             activateItem = new MenuItem(i => Localization.Current.Activate, MenuItemType.Button, MenuItemAction.GoToScreen)
             {
-                GoToScreen = ActivateScreen.Instance
+                GoToScreenCallback = () => { return ActivateScreen.Instance; }
             };
 
             SetItems();

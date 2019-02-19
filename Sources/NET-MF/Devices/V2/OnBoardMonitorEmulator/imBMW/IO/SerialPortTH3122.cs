@@ -2,6 +2,7 @@
 using imBMW.iBus;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
+using System.Linq;
 
 namespace System.IO.Ports
 {
@@ -58,7 +59,7 @@ namespace System.IO.Ports
                 lock (_lock)
                 {
                     Array.Copy(this.data, data, this.data.Length);
-                    return this.data.Length;
+                    return this.data.Where(x => x != 0x00).Count();
                 }
             }
             return _port.Read(data, 0, _port.BytesToRead);

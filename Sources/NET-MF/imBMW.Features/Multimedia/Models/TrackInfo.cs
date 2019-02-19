@@ -8,10 +8,6 @@ namespace imBMW.Features.Multimedia.Models
 {
     public class TrackInfo
     {
-        private string _fullName;
-        private string _title = "";
-        private string _artist;
-
         public TrackInfo()
         {
         }

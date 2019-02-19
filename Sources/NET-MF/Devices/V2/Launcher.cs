@@ -70,6 +70,10 @@ namespace imBMW.Devices.V2
         {
             try
             {
+                BluetoothScreen.BluetoothChargingState = true;
+                BluetoothScreen.AudioSource = AudioSource.Bluetooth;
+
+                Logger.FreeMemory();
                 _resetCause = GHI.Processor.Watchdog.LastResetCause;
 
                 iBusMessageSendReceiveBlinker_BlueLed = new OutputPort(Pin.LED1, false);
@@ -98,9 +102,10 @@ namespace imBMW.Devices.V2
                 GHI.Processor.Watchdog.Enable(timeoutInMilliseconds);
 #endif
 
-
+                Logger.FreeMemory();
                 SDCard sd = null;
                 settings = Settings.Init(sd != null ? sd + @"\imBMW.ini" : null);
+                Logger.FreeMemory();
 
                 //SettingsScreen.Instance.Status = version.Length > 11 ? version.Replace(" ", "") : version;
                 //Localization.SetCurrent(RussianLocalization.SystemName); //Localization.SetCurrent(settings.Language);
@@ -114,7 +119,7 @@ namespace imBMW.Devices.V2
                     _removableMediaInsertedSync.Set();
                 };
 
-
+                Logger.FreeMemory();
                 byte sdCardMountRetryCount = 0;
                 do
                 {
@@ -135,14 +140,16 @@ namespace imBMW.Devices.V2
                         Thread.Sleep(100);
                     }
                 } while (sdCardMountRetryCount < 3);
+                Logger.FreeMemory();
 
                 bool isSignalled = !error && _removableMediaInsertedSync.WaitOne(5000, true);
                 if (!isSignalled)
                 {
                     ResetBoard();
                 }
-
+                Logger.FreeMemory();
                 rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
+                Logger.FreeMemory();
 
                 Logger.Logged += Logger_Logged;
                 Logger.Trace("Logger inited! sdCardMountRetryCount:" + sdCardMountRetryCount);
@@ -182,7 +189,7 @@ namespace imBMW.Devices.V2
             ISerialPort iBusPort = new SerialPortTH3122(iBusComPort, iBusBusy);
 #endif
 #if OnBoardMonitorEmulator
-            ISerialPort iBusPort = new SerialPortTH3122(iBusComPort, iBusBusy, readBufferSize:ushort.MaxValue);
+            ISerialPort iBusPort = new SerialPortTH3122(iBusComPort, iBusBusy, readBufferSize:byte.MaxValue);
 #endif
             Manager.Init(iBusPort);
             Logger.Trace("Manager inited");
@@ -228,15 +235,22 @@ namespace imBMW.Devices.V2
                 //}
                 if (settings.MenuMode == MenuMode.BordmonitorCDC)
                 {
+                    Logger.FreeMemory();
                     emulator = new CDChanger(player);
+                    Logger.FreeMemory();
                     if (settings.NaviVersion == NaviVersion.MK2)
                     {
+                        Logger.FreeMemory();
                         Localization.Current = new RadioLocalization();
                         SettingsScreen.Instance.CanChangeLanguage = false;
+                        Logger.FreeMemory();
                     }
                     Bordmonitor.NaviVersion = settings.NaviVersion;
                     //BordmonitorMenu.FastMenuDrawing = settings.NaviVersion == NaviVersion.MK4;
+                    Logger.FreeMemory();
                     BordmonitorMenu.Init(emulator);
+                    BluetoothScreen.Init();
+                    Logger.FreeMemory();
                     BordmonitorMenu.ResetButtonPressed += () =>
                     {
                         emulator.PlayerIsPlayingChanged += (s, isPlayingChangedValue) =>
@@ -361,11 +375,20 @@ namespace imBMW.Devices.V2
         // Log just needed message
         private static bool IBusLoggerPredicate(MessageEventArgs e)
         {
+            if (e.Message.SourceDevice == DeviceAddress.Radio && e.Message.DestinationDevice == DeviceAddress.CDChanger && e.Message.Data[0] == 0x01) // poll request
+            {
+                return false;
+            }
+
             return e.Message.SourceDevice == DeviceAddress.Radio && e.Message.DestinationDevice == DeviceAddress.CDChanger
                    ||
                    e.Message.SourceDevice == DeviceAddress.CDChanger && e.Message.DestinationDevice == DeviceAddress.Radio
                    ||
-                   e.Message.SourceDevice == DeviceAddress.Radio && e.Message.DestinationDevice == DeviceAddress.InstrumentClusterElectronics;
+                   e.Message.SourceDevice == DeviceAddress.Radio && e.Message.DestinationDevice == DeviceAddress.InstrumentClusterElectronics
+                   ||
+                   e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.DestinationDevice == DeviceAddress.FrontDisplay
+                   ||
+                   e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.DestinationDevice == DeviceAddress.Broadcast;
         }
 
         private static void Manager_BeforeMessageReceived(MessageEventArgs e)
@@ -438,10 +461,10 @@ namespace imBMW.Devices.V2
                 e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x18 // Speed/RPM
                 ||
                 e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x19 // Temperature
-                ||
-                e.Message.SourceDevice == DeviceAddress.IntegratedHeatingAndAirConditioning && e.Message.Data[0] == 0x92 // IntegratedHeatingAndAirConditioning > AuxilaryHeater: 92 00 22 (Command for auxilary heater)
-                ||
-                e.Message.SourceDevice == DeviceAddress.AuxilaryHeater && e.Message.Data[0] == 0x93 // AuxilaryHeater > IntegratedHeatingAndAirConditioning: 93 00 22 (Auxilary heater status)
+                //||
+                //e.Message.SourceDevice == DeviceAddress.IntegratedHeatingAndAirConditioning && e.Message.Data.StartsWith(0x92, 0x00, 0x22) // IntegratedHeatingAndAirConditioning > AuxilaryHeater: 92 00 22 (Command for auxilary heater)
+                //||
+                //e.Message.SourceDevice == DeviceAddress.AuxilaryHeater && e.Message.Data.StartsWith(0x93, 0x00, 0x22) // AuxilaryHeater > IntegratedHeatingAndAirConditioning: 93 00 22 (Auxilary heater status)
                 ) 
             {
                 return false;
@@ -547,8 +570,10 @@ namespace imBMW.Devices.V2
         }
 
         static byte busy = 0;
-        static bool error = false;
+        public static bool error = false;
         private static object _sync = new object();
+        private static string traceFileName = "traceLog";
+        private static byte traceFileNameNumber = 0;
 
         static void Logger_Logged(LoggerArgs args)
         {
@@ -558,10 +583,26 @@ namespace imBMW.Devices.V2
                 {
                     if (StringHelpers.IsNullOrEmpty(rootDirectory))
                         return;
-                    StreamWriter traceFile = new StreamWriter(rootDirectory + "\\traceLog.txt", append: true);
-                    traceFile.WriteLine(args.LogString);
-                    traceFile.Flush();
-                    traceFile.Dispose();
+
+                    StreamWriter traceFile = null;
+                    try
+                    {
+                        traceFile = new StreamWriter(
+                            rootDirectory + "\\" + traceFileName + (traceFileNameNumber == 0 ? "" : traceFileNameNumber.ToString()) + ".txt", append: true);
+                    }
+                    catch
+                    {
+                        traceFileNameNumber++;
+                    }
+                    finally
+                    {
+                        if (traceFile != null)
+                        {
+                            traceFile.WriteLine(args.LogString);
+                            traceFile.Flush();
+                            traceFile.Dispose();
+                        }
+                    }
                 }
             }
 #if DEBUG || DebugOnRealDeviceOverFTDI
@@ -591,7 +632,7 @@ namespace imBMW.Devices.V2
                 return;
             }
             byte b = (byte)ledType;
-            if (error)
+            if (error || Logger.wasError)
             {
                 b = b.AddBit(0);
             }

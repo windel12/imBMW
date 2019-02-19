@@ -2,6 +2,7 @@ using System;
 using GHI.Pins;
 using imBMW.Features.Localizations;
 using imBMW.iBus;
+using imBMW.Tools;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 
@@ -17,18 +18,13 @@ namespace imBMW.Features.Menu.Screens
     {
         protected static BluetoothScreen instance;
 
-        static OutputPort xiaomiBluetoothTransceiverPowerOutput;
-        static OutputPort leftAudioChannelRelay;
-        static OutputPort groundAudioRelay;
-        static OutputPort rightAudioChannelRelay;
+        static OutputPort xiaomiBluetoothTransceiverPowerOutput = new OutputPort(FEZPandaIII.Gpio.D8, true); // K1 relay
+        static OutputPort leftAudioChannelRelay = new OutputPort(FEZPandaIII.Gpio.D9, true); // K2 relay
+        static OutputPort groundAudioRelay = new OutputPort(FEZPandaIII.Gpio.D10, true); // K3 relay
+        static OutputPort rightAudioChannelRelay = new OutputPort(FEZPandaIII.Gpio.D11, true); // K4 relay
 
         public BluetoothScreen()
         {
-            xiaomiBluetoothTransceiverPowerOutput = new OutputPort(FEZPandaIII.Gpio.D8, true); // K1 relay
-            leftAudioChannelRelay = new OutputPort(FEZPandaIII.Gpio.D9, true); // K2 relay
-            groundAudioRelay = new OutputPort(FEZPandaIII.Gpio.D10, true); // K3 relay
-            rightAudioChannelRelay = new OutputPort(FEZPandaIII.Gpio.D11, true); // K4 relay
-
             ClearItems();
 
             AddItem(new MenuItem(i => "Источник: " + AudioSource.ToStringValue(), i =>
@@ -80,6 +76,11 @@ namespace imBMW.Features.Menu.Screens
                 }
                 return instance;
             }
+        }
+
+        public static void Init()
+        {
+            // do nothing, just call static constructor
         }
     }
 }

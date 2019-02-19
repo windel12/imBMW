@@ -56,26 +56,26 @@ namespace imBMW.Features.Menu.Screens
             AddItem(new MenuItem(i => label1, i =>
             {
                 Logger.Trace("Pressed: " + label1);
-                KBusManager.Instance.EnqueueMessage(AuxilaryHeater.AdditionalHeaterWorkingResponse);
+                KBusManager.Instance.EnqueueMessage(AuxilaryHeater.AuxilaryHeaterWorkingResponse);
             }, MenuItemType.Button, MenuItemAction.None));
 
             string label2 = "IHKA>W: 92 00 21";
             AddItem(new MenuItem(i => label2, i =>
             {
                 Logger.Trace("Pressed: " + label2);
-                KBusManager.Instance.EnqueueMessage(IntegratedHeatingAndAirConditioning.StopAdditionalHeater1);
+                KBusManager.Instance.EnqueueMessage(IntegratedHeatingAndAirConditioning.StopAuxilaryHeater1);
             }, MenuItemType.Button, MenuItemAction.None));
 
             string label3 = "IHKA>W: 92 00 11";
             AddItem(new MenuItem(i => label3, i =>
             {
                 Logger.Trace("Pressed: " + label3);
-                KBusManager.Instance.EnqueueMessage(IntegratedHeatingAndAirConditioning.StopAdditionalHeater2);
+                KBusManager.Instance.EnqueueMessage(IntegratedHeatingAndAirConditioning.StopAuxilaryHeater2);
             }, MenuItemType.Button, MenuItemAction.None));
 
 
 
-            AddItem(new MenuItem(i => "StartAdditionalHeater", i =>
+            AddItem(new MenuItem(i => "StartAuxilaryHeater", i =>
             {
                 IntegratedHeatingAndAirConditioning.StartAuxilaryHeater();
             }, MenuItemType.Button, MenuItemAction.None));

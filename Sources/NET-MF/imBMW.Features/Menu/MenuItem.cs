@@ -23,6 +23,8 @@ namespace imBMW.Features.Menu
 
     public delegate void MenuItemEventHandler(MenuItem item);
 
+    public delegate MenuScreen GetMenuScreenDelegate();
+
     public class MenuItem
     {
         private string text;
@@ -100,6 +102,8 @@ namespace imBMW.Features.Menu
         public MenuItemType Type { get; private set; }
 
         public MenuScreen GoToScreen { get; set; }
+
+        public GetMenuScreenDelegate GoToScreenCallback { get; set; }
 
         public void Refresh()
         {

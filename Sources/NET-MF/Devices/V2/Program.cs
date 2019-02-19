@@ -1,4 +1,5 @@
 ﻿using imBMW.Devices.V2;
+using imBMW.Tools;
 
 namespace imBMW.Devices.V2
 {
@@ -6,6 +7,7 @@ namespace imBMW.Devices.V2
     {
         public static void Main()
         {
+            Logger.FreeMemory();
             Launcher.Launch();
         }
     }

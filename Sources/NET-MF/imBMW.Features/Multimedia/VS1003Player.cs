@@ -74,10 +74,6 @@ namespace imBMW.Features.Multimedia
         private Thread generateRandomDiskAndTrackThread;
         private readonly ManualResetEvent trackChangedSync = new ManualResetEvent(true);
 
-        ArrayList changingHistory = new ArrayList();
-        int changingHistoryPreviousPointer = 0;
-
-
         private Stack backChangingHistory = new Stack();
         private Stack nextChangingHistory = new Stack();
 
@@ -154,6 +150,7 @@ namespace imBMW.Features.Multimedia
                             filesCount++;
                         }
                     }
+                    files = null;
                     StorageInfo[i] = filesCount;
                 }
 
@@ -301,6 +298,7 @@ namespace imBMW.Features.Multimedia
                         trackIndex++;
                     }
                 }
+                files = null;
             }
             else
             {
@@ -480,7 +478,7 @@ namespace imBMW.Features.Multimedia
                 {
                     if (stream != null)
                     {
-                        stream.Close();
+                        stream.Dispose();
                     }
                     if (IsPlaying && !ChangeTrack)
                     {

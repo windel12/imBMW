@@ -8,16 +8,16 @@ namespace imBMW.iBus.Devices.Real
     {
         private static Timer startDelay;
 
-        private static byte[] startOrContinueWorkingAdditionalHeater = {0x92, 0x00, 0x22};
+        private static byte[] startOrContinueWorkingAuxilaryHeater = {0x92, 0x00, 0x22};
 
         /// <summary> 5B 05 6B 92 00 22 ?? </summary>
-        public static Message StartAdditionalHeater = new Message(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.AuxilaryHeater, startOrContinueWorkingAdditionalHeater);
+        public static Message StartAuxilaryHeaterMessage = new Message(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.AuxilaryHeater, startOrContinueWorkingAuxilaryHeater);
         /// <summary> 5B 05 6B 92 00 22 ?? </summary>
-        public static Message ContinueWorkingAdditionalHeater = new Message(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.AuxilaryHeater, startOrContinueWorkingAdditionalHeater);
+        public static Message ContinueWorkingAuxilaryHeater = new Message(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.AuxilaryHeater, startOrContinueWorkingAuxilaryHeater);
         /// <summary> 5B 05 6B 92 00 21 ?? </summary>
-        public static Message StopAdditionalHeater1 = new Message(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.AuxilaryHeater, 0x92, 0x00, 0x21);
+        public static Message StopAuxilaryHeater1 = new Message(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.AuxilaryHeater, 0x92, 0x00, 0x21);
         /// <summary> 5B 05 6B 92 00 11 ?? </summary>
-        public static Message StopAdditionalHeater2 = new Message(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.AuxilaryHeater, 0x92, 0x00, 0x11);
+        public static Message StopAuxilaryHeater2 = new Message(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.AuxilaryHeater, 0x92, 0x00, 0x11);
 
         private static AuxilaryHeaterStatus _auxilaryHeaterStatus;
         public static AuxilaryHeaterStatus AuxilaryHeaterStatus
@@ -69,6 +69,7 @@ namespace imBMW.iBus.Devices.Real
         {
             if (message.Data.StartsWith(MessageRegistry.DataPollResponse))
             {
+                Logger.Trace("Auxilary heater responded.");
                 AuxilaryHeaterStatus = AuxilaryHeaterStatus.Present;
                 startDelay = new Timer(delegate
                 {
@@ -82,7 +83,7 @@ namespace imBMW.iBus.Devices.Real
                 }, null, 2000, 0);
             }
 
-            if (message.Data.StartsWith(AuxilaryHeater.AdditionalHeaterWorkingResponse.Data))
+            if (message.Data.StartsWith(AuxilaryHeater.AuxilaryHeaterWorkingResponse.Data))
             {
                 // this happens, if we restart imBMW during webasto working
                 if (AuxilaryHeaterStatus == AuxilaryHeaterStatus.Unknown)
@@ -94,15 +95,17 @@ namespace imBMW.iBus.Devices.Real
 
                 if (AuxilaryHeaterStatus == AuxilaryHeaterStatus.StartPending)
                 {
+                    Logger.Trace("Auxilary heater started");
                     AuxilaryHeaterStatus = AuxilaryHeaterStatus.Started;
+                    Manager.EnqueueMessage(new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.FrontDisplay, 0x2A, 0x00, 0x08)); // Aux_Heating_LED = On_blink
                     return;
                 }
-                if (AuxilaryHeaterStatus == AuxilaryHeaterStatus.Started || AuxilaryHeaterStatus == AuxilaryHeaterStatus.StopPending)
+                if (AuxilaryHeaterStatus == AuxilaryHeaterStatus.Started || AuxilaryHeaterStatus == AuxilaryHeaterStatus.StopPending || AuxilaryHeaterStatus == AuxilaryHeaterStatus.Stopping)
                 {
-                    KBusManager.Instance.EnqueueMessage(ContinueWorkingAdditionalHeater);
+                    KBusManager.Instance.EnqueueMessage(ContinueWorkingAuxilaryHeater);
                     Logger.Trace("Coolant Temperature: " + InstrumentClusterElectronics.TemperatureCoolant);
-                    bool stoppingByReachingNeededTemperature = InstrumentClusterElectronics.TemperatureCoolant == 75;
-                    if (AuxilaryHeaterStatus == AuxilaryHeaterStatus.StopPending || stoppingByReachingNeededTemperature)
+                    bool stoppingByReachingNeededTemperature = InstrumentClusterElectronics.TemperatureCoolant >= 75;
+                    if (AuxilaryHeaterStatus == AuxilaryHeaterStatus.StopPending || AuxilaryHeaterStatus == AuxilaryHeaterStatus.Stopping || stoppingByReachingNeededTemperature)
                     {
                         if (stoppingByReachingNeededTemperature)
                         {
@@ -114,11 +117,11 @@ namespace imBMW.iBus.Devices.Real
                 }
             }
 
-            if (message.Data.StartsWith(AuxilaryHeater.AdditionalHeaterStopped1.Data))
+            if (message.Data.StartsWith(AuxilaryHeater.AuxilaryHeaterStopped1.Data))
             {
                 startDelay = new Timer(delegate
                 {
-                    KBusManager.Instance.EnqueueMessage(StopAdditionalHeater2);
+                    KBusManager.Instance.EnqueueMessage(StopAuxilaryHeater2);
 
                     if (startDelay != null)
                     {
@@ -127,7 +130,7 @@ namespace imBMW.iBus.Devices.Real
                     }
                 }, null, 1000, 0);
             }
-            if (message.Data.StartsWith(AuxilaryHeater.AdditionalHeaterStopped2.Data))
+            if (message.Data.StartsWith(AuxilaryHeater.AuxilaryHeaterStopped2.Data))
             {
                 AuxilaryHeaterStatus = AuxilaryHeaterStatus.Stopped;
             }
@@ -136,6 +139,7 @@ namespace imBMW.iBus.Devices.Real
         /// <summary> IntegratedHeatingAndAirConditioning > AuxilaryHeater: 01 </summary>
         private static void PollAuxilaryHeater()
         {
+            Logger.Trace("Poll auxilary heater before start");
             var pollAuxilaryHeaterMessage = new Message(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.AuxilaryHeater, MessageRegistry.DataPollRequest);
             KBusManager.Instance.EnqueueMessage(pollAuxilaryHeaterMessage);
         }
@@ -143,7 +147,8 @@ namespace imBMW.iBus.Devices.Real
         /// <summary> IntegratedHeatingAndAirConditioning > AuxilaryHeater: 92 00 22 </summary>
         private static void StartAuxilaryHeaterInternal()
         {
-            KBusManager.Instance.EnqueueMessage(StartAdditionalHeater);
+            Logger.Trace("Auxilary heater start pending: 92 00 22");
+            KBusManager.Instance.EnqueueMessage(StartAuxilaryHeaterMessage);
             AuxilaryHeaterStatus = AuxilaryHeaterStatus.StartPending;
         }
 
@@ -151,14 +156,16 @@ namespace imBMW.iBus.Devices.Real
         private static void StopAuxilaryHeaterInternal()
         {
             Logger.Trace("Manual stopping of auxilary heater");
-            KBusManager.Instance.EnqueueMessage(StopAdditionalHeater1);
+            KBusManager.Instance.EnqueueMessage(StopAuxilaryHeater1);
             AuxilaryHeaterStatus = AuxilaryHeaterStatus.Stopping;
+            Manager.EnqueueMessage(new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.FrontDisplay, 0x2A, 0x00, 0x04)); // Aux_Heating_LED = On
         }
 
         public static void StartAuxilaryHeater()
         {
             Logger.Trace("Manual start of auxilary heater");
             PollAuxilaryHeater();
+            Manager.EnqueueMessage(new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.FrontDisplay, 0x2A, 0x00, 0x04)); // Aux_Heating_LED = On
             //AuxilaryHeaterStatus = AuxilaryHeaterStatus.Unknown;
         }
 

@@ -6,6 +6,7 @@ using imBMW.Tools;
 using imBMW.iBus.Devices.Real;
 using imBMW.Multimedia;
 using GHI.Pins;
+using imBMW.Features.Menu.Screens;
 using imBMW.Features.Multimedia;
 using imBMW.iBus;
 
@@ -150,6 +151,8 @@ namespace imBMW.iBus.Devices.Emulators
             Player.PlayerHostState = isEnabled ? PlayerHostState.On : PlayerHostState.Off;
             if (isEnabled)
             {
+                BluetoothScreen.BluetoothChargingState = false;
+                BluetoothScreen.AudioSource = AudioSource.SDCard;
                 if (Player.IsPlaying)
                 {
                     // Already playing - CDC turning off cancelled
