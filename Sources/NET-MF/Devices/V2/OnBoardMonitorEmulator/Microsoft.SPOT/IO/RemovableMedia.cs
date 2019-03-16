@@ -9,7 +9,9 @@ namespace Microsoft.SPOT.IO
 
         public static void FireInserted()
         {
-            Insert(new object(), new MediaEventArgs(new VolumeInfo(), DateTime.Now));
+            var volumeInfo = new VolumeInfo();
+            var mediaEventArgs = new MediaEventArgs(volumeInfo, DateTime.Now);
+            Insert(new object(), mediaEventArgs);
         }
     }
 }

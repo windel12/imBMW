@@ -310,7 +310,11 @@ namespace imBMW.iBus
             messageDescriptions.Add(new byte[] { 0x82, 0x05 }.ToHex(' '), "IHKA turned on by webasto activation"); // after manual starting auxilary heater(by receiving command 92 00 22 from auxilary heater(key in ACC))
             messageDescriptions.Add(new byte[] { 0x82, 0x03 }.ToHex(' '), "IHKA turned off"); //    after changing Ign > Acc
                                                                                               // or after manual stopping auxilary heater(by receiving command 92 00 11 from auxilary heater(key in ACC))
+            messageDescriptions.Add(new byte[] { 0x2A, 0x00, 0x00 }.ToHex(' '), "Aux. heater indicator turn off ");
+            messageDescriptions.Add(new byte[] { 0x2A, 0x00, 0x04 }.ToHex(' '), "Aux. heater indicator turn on");
+            messageDescriptions.Add(new byte[] { 0x2A, 0x00, 0x08 }.ToHex(' '), "Aux. heater indicator blinking");
 
+            messageDescriptions.Add(new byte[] { 0x0C, 0x10 }.ToHex(' '), "Get DDE params");
             /*messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x60 }.ToHex(' '), "Get anmPWG");
             messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x65 }.ToHex(' '), "Get anmUBT");
             messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x1F, 0x06 }.ToHex(' '), "Get anmVDF");
@@ -440,12 +444,12 @@ namespace imBMW.iBus
 
             if (message.ReceiverDescription != null)
             {
-                return message.ReceiverDescription;
+                return message.DataDump + " {" + message.ReceiverDescription + "}";
             }
 
             if (messageDescriptions.Contains(message.DataDump))
             {
-                return message.DataDump + " [" + (string)messageDescriptions[message.DataDump] + " ]";
+                return message.DataDump + " [" + (string)messageDescriptions[message.DataDump] + "]";
             }
 
             byte firstByte = message.Data[0];

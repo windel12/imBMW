@@ -323,13 +323,13 @@ namespace imBMW.iBus.Devices.Real
                         }
                         break;
                     case 0x03: // 24 03 outside temperature
-                        if (m.Data.Length == 8)
+                        if (m.Data.Length == 10/*8*/) 
                         {
                             float temperature;
                             if (m.Data.ParseFloat(out temperature, 3, 5))
                             {
                                 //TemperatureOutside = (sbyte)temperature;
-                                m.ReceiverDescription = "Outside temperature  " + temperature + "°C";
+                                m.ReceiverDescription = "Outside temperature " + temperature + "°C";
                             }
                         }
                         break;
@@ -344,28 +344,30 @@ namespace imBMW.iBus.Devices.Real
                         }
                         break;
                     case 0x06: // 24 06 range
-                        if (m.Data.Length == 7)
+                        if (m.Data.Length == 10/*7*/)
                         {
                             int range;
                             if (m.Data.ParseInt(out range, 3, 4))
                             {
                                 OnRangeChanged((uint)range);
-                                m.ReceiverDescription = "Range  " + Range + " km";
+                                m.ReceiverDescription = "Range " + Range + " km";
                             }
                         }
                         break;
                     case 0x07: // 24 07 distance
+                        m.ReceiverDescription = "Distance ";
                         break;
                     case 0x08: // 24 08 arrival
+                        m.ReceiverDescription = "Arrival ";
                         break;
                     case 0x09: // 24 09 speed limit
-                        if (m.Data.Length == 7)
+                        if (m.Data.Length == 11/*7*/)
                         {
                             int speedLimit;
                             if (m.Data.ParseInt(out speedLimit, 3, 3))
                             {
                                 OnSpeedLimitChanged((ushort)speedLimit);
-                                m.ReceiverDescription = "Speed limit  " + SpeedLimit + " km/h";
+                                m.ReceiverDescription = "Speed limit " + SpeedLimit + " km/h";
                             }
                         }
                         break;
@@ -375,10 +377,23 @@ namespace imBMW.iBus.Devices.Real
                             float speed = 0;
                             m.Data.ParseFloat(out speed, 3, 4);
                             OnAverageSpeedChanged(speed);
-                            m.ReceiverDescription = "Average speed  " + AverageSpeed + " km/h";
+                            m.ReceiverDescription = "Average speed " + AverageSpeed + " km/h";
                         }
                         break;
-                    case 0x0E: // stopwatch
+                    case 0x0D:
+                        m.ReceiverDescription = "Code?";
+                        break;
+                    case 0x0E: 
+                        m.ReceiverDescription = "Swopwatch";
+                        break;
+                    case 0x0F:
+                        m.ReceiverDescription = "Timer1: ";
+                        break;
+                    case 0x10:
+                        m.ReceiverDescription = "Timer2: ";
+                        break;
+                    case 0x1A:
+                        m.ReceiverDescription = "Interim Time?";
                         break;
                 }
             }

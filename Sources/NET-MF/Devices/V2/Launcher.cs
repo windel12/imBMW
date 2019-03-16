@@ -1,5 +1,6 @@
 using GHI.IO.Storage;
 using GHI.Pins;
+using GHI.Usb.Host;
 using imBMW.Devices.V2.Hardware;
 using imBMW.Features.Localizations;
 using imBMW.Features.Menu;
@@ -82,7 +83,7 @@ namespace imBMW.Devices.V2
                 error_RedLed = new OutputPort(Pin.LED4, false);
 
                 // Timeout 30 seconds
-                ushort timeoutInMilliseconds = 1000 * 15;
+                ushort timeoutInMilliseconds = 1000 * 20;
 #if !RELEASE
                 if (Debugger.IsAttached)
                 {
@@ -114,13 +115,14 @@ namespace imBMW.Devices.V2
                 //Features.Comfort.AutoCloseWindows = settings.AutoCloseWindows;
                 //Features.Comfort.AutoCloseSunroof = settings.AutoCloseSunroof;
 
-                RemovableMedia.Insert += (a, b) =>
+                byte sdCardMountRetryCount = 0;
+
+                /*RemovableMedia.Insert += (a, b) =>
                 {
                     _removableMediaInsertedSync.Set();
                 };
 
                 Logger.FreeMemory();
-                byte sdCardMountRetryCount = 0;
                 do
                 {
                     try
@@ -140,18 +142,72 @@ namespace imBMW.Devices.V2
                         Thread.Sleep(100);
                     }
                 } while (sdCardMountRetryCount < 3);
-                Logger.FreeMemory();
-
+                
                 bool isSignalled = !error && _removableMediaInsertedSync.WaitOne(5000, true);
                 if (!isSignalled)
                 {
                     ResetBoard();
+                }*/
+
+
+
+                Controller.DeviceConnectFailed += (sss, eee) =>
+                {
+                    ResetBoard();
+                };
+                Controller.UnknownDeviceConnected += (ss, ee) =>
+                {
+                    ResetBoard();
+                };
+                Controller.MassStorageConnected += (sender, massStorage) =>
+                {
+                    LedBlinking(iBusMessageSendReceiveBlinker_BlueLed, 1, 100);
+                    RemovableMedia.Insert += (s, e) =>
+                    {
+                        LedBlinking(successInited_GreenLed, 1, 100);
+                        _removableMediaInsertedSync.Set();
+                    };
+
+                    do
+                    {
+                        try
+                        {
+                            massStorage.Mount();
+                            error = false;
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            sdCardMountRetryCount++;
+                            error = true;
+
+                            LedBlinking(error_RedLed, 5, 100);
+                            Thread.Sleep(100);
+                        }
+                    } while (sdCardMountRetryCount < 3);
+                };
+                if (Debugger.IsAttached)
+                {
+                    Controller.Start();
                 }
-                Logger.FreeMemory();
+                else
+                {
+#if RELEASE
+                    Controller.Start();
+#endif
+                }
+
+                bool isSignalled = !error && _removableMediaInsertedSync.WaitOne(10000, true);
+                if (!isSignalled)
+                {
+                    ResetBoard();
+                }
+
                 rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
                 Logger.FreeMemory();
 
                 Logger.Logged += Logger_Logged;
+                Logger.Trace("\n\n\n\n\n");
                 Logger.Trace("Logger inited! sdCardMountRetryCount:" + sdCardMountRetryCount);
                 Logger.Trace("Watchdog.ResetCause: " + _resetCause.ToStringValue());
 

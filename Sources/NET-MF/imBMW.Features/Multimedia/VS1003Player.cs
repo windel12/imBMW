@@ -72,7 +72,7 @@ namespace imBMW.Features.Multimedia
         Thread playerThread;
 
         private Thread generateRandomDiskAndTrackThread;
-        private readonly ManualResetEvent trackChangedSync = new ManualResetEvent(true);
+        private readonly AutoResetEvent trackChangedSync = new AutoResetEvent(true);
 
         private Stack backChangingHistory = new Stack();
         private Stack nextChangingHistory = new Stack();
@@ -164,6 +164,10 @@ namespace imBMW.Features.Multimedia
                     TrackNumber = lastTrackInfo[1];
                     IsRandom = lastTrackInfo[2] == 1;
                     CurrentPosition = BitConverter.ToInt32(lastTrackInfo, 3);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex, "while reading lastTrackInfo");
                 }
                 finally
                 {
@@ -337,7 +341,7 @@ namespace imBMW.Features.Multimedia
                     {
                         while (true)
                         {
-                            trackChangedSync.Reset();
+                            //trackChangedSync.Reset();
                             var newRandomTrackItem = GenerateRandomDiskAndTrack(DiskNumber);
                             NextTracksQueue.Enqueue(newRandomTrackItem);
                             trackChangedSync.Set();
@@ -350,6 +354,7 @@ namespace imBMW.Features.Multimedia
                 if (generateRandomDiskAndTrackThread.ThreadState == ThreadState.Suspended || generateRandomDiskAndTrackThread.ThreadState == ThreadState.SuspendRequested
                     || generateRandomDiskAndTrackThread.ThreadState == ThreadState.Stopped || generateRandomDiskAndTrackThread.ThreadState == ThreadState.StopRequested)
                 {
+                    trackChangedSync.Reset();
                     generateRandomDiskAndTrackThread.Resume();
                 }
             }
@@ -407,6 +412,8 @@ namespace imBMW.Features.Multimedia
         }
 
         private static byte[] buffer = new byte[256];
+        private static int errorCounts = 0;
+        private string erroredTrackFileName = "";
 
         public void PlayDirect(bool resetWhenFinished = false)
         {
@@ -431,7 +438,7 @@ namespace imBMW.Features.Multimedia
                 size = 0;
                 try
                 {
-                    stream = new FileStream(CurrentTrack.FileName, FileMode.Open, FileAccess.Read);
+                    stream = new FileStream(CurrentTrack.FileName, FileMode.Open/*, FileAccess.Read*/);
                     int id3v2_header_length = 10;
                     stream.Read(buffer, 0, id3v2_header_length);
                     // http://id3.org/id3v2.4.0-structure#line-39
@@ -453,7 +460,25 @@ namespace imBMW.Features.Multimedia
                     stream.Seek(CurrentPosition, SeekOrigin.Begin);
                     do
                     {
-                        size = stream.Read(buffer, 0, buffer.Length);
+                        try
+                        {
+                            size = stream.Read(buffer, 0, buffer.Length);
+                        }
+                        catch (Exception ex)
+                        {
+                            if (erroredTrackFileName != CurrentTrack.FileName)
+                            {
+                                Logger.Trace("Track name: " + CurrentTrack.FileName);
+                                erroredTrackFileName = CurrentTrack.FileName;
+                            } 
+                            ++errorCounts;
+                            if (errorCounts % 10 == 0)
+                            {
+                                Logger.Error(ex, "Error counts: " + errorCounts);
+                            }
+                            continue;
+                        }
+                        errorCounts = 0;
                         //CurrentTrack.Time = GetDecodeTime();
                         //ushort byteRate = GetByteRate();
                         SendData(buffer);
@@ -471,7 +496,8 @@ namespace imBMW.Features.Multimedia
                 catch (Exception ex)
                 {
                     //led3.Write(true);
-                    IsPlaying = false;
+                    Logger.Trace("Error during reading beggining of file. Track name: " + CurrentTrack.FileName);
+                    //IsPlaying = false;
                     Logger.Error(ex);
                 }
                 finally

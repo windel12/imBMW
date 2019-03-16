@@ -94,6 +94,8 @@ namespace imBMW.iBus.Devices.Emulators
             Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.CDChanger, ProcessCDCMessage);
             Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.Radio, ProcessToRadioMessage);
 
+            //Radio.OnOffChanged += Radio_OnOffChanged;
+
             /*Player.TrackChanged += (s, e) => {
                 //Manager.EnqueueMessage(StatusPlayed(Player.DiskNumber, Player.TrackNumber));
                 Manager.EnqueueMessage(StatusStartPlaying(Player.DiskNumber, Player.TrackNumber));
@@ -111,6 +113,11 @@ namespace imBMW.iBus.Devices.Emulators
 
             announceThread = new Thread(announce);
             announceThread.Start();
+        }
+
+        private void Radio_OnOffChanged(bool turnedOn)
+        {
+            IsEnabled = turnedOn;
         }
 
         #region Player control
@@ -219,6 +226,19 @@ namespace imBMW.iBus.Devices.Emulators
 
         void ProcessCDCMessage(Message m)
         {
+            if (m.Data.Compare(DataCurrentDiskTrackRequest))
+            {
+                if (Player.IsPlaying && this.IsEnabled)
+                {
+                    //Manager.EnqueueMessage(StatusPlaying(Player.DiskNumber, Player.TrackNumber));
+                    Manager.EnqueueMessage(StatusStartPlaying(Player.DiskNumber, Player.TrackNumber));
+                }
+                else
+                {
+                    Manager.EnqueueMessage(StatusStopped(Player.DiskNumber, Player.TrackNumber));
+                }
+                //m.ReceiverDescription = "CD status request";
+            }
             if (m.Data.Compare(DataPlay))
             {
                 IsEnabled = true;
@@ -253,19 +273,6 @@ namespace imBMW.iBus.Devices.Emulators
                 RandomToggle(Player.DiskNumber);
                 Manager.EnqueueMessage(StatusStartPlaying(Player.DiskNumber, Player.TrackNumber));
                 m.ReceiverDescription = "Random toggle";
-            }
-            if (m.Data.Compare(DataCurrentDiskTrackRequest))
-            {
-                if (Player.IsPlaying && this.IsEnabled)
-                {
-                    //Manager.EnqueueMessage(StatusPlaying(Player.DiskNumber, Player.TrackNumber));
-                    Manager.EnqueueMessage(StatusStartPlaying(Player.DiskNumber, Player.TrackNumber));
-                }
-                else
-                {
-                    Manager.EnqueueMessage(StatusStopped(Player.DiskNumber, Player.TrackNumber));
-                }
-                //m.ReceiverDescription = "CD status request";
             }
             else if (m.Data.Compare(DataScanPlaylistOff) || m.Data.Compare(DataScanPlaylistOn))
             {

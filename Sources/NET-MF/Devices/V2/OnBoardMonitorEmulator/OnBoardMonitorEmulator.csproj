@@ -234,6 +234,9 @@
     <Compile Include="..\..\..\imBMW\iBus\Devices\BodyModule.cs">
       <Link>imBMW\iBus\Devices\BodyModule.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\imBMW\iBus\Devices\FrontDisplay.cs">
+      <Link>imBMW\iBus\Devices\FrontDisplay.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\imBMW\iBus\Devices\HeadlightVerticalAimControl.cs">
       <Link>imBMW\iBus\Devices\HeadlightVerticalAimControl.cs</Link>
     </Compile>
@@ -335,6 +338,8 @@
     <Compile Include="GHI\Pins\FEZPandaIII.cs" />
     <Compile Include="DevicesEmulation\RadioEmulator.cs" />
     <Compile Include="GHI\Processor\Watchdog.cs" />
+    <Compile Include="GHI\Usb\Host\Controller.cs" />
+    <Compile Include="GHI\Usb\Host\MassStorage.cs" />
     <Compile Include="GraphicsNavigationDriverState.cs" />
     <Compile Include="imBMW\IO\BaudRate.cs" />
     <Compile Include="imBMW\IO\Serial.cs" />
@@ -389,6 +394,9 @@
     <Content Include="SDC\1\1abcdefghijklmno - 1abcdefghijklmno.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="SDC\1\Pegboard Nerds – Swamp Thing.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="SDC\2\2apsq3hfqwh09 - 1asfj980sghadgioa.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -435,6 +443,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

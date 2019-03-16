@@ -72,6 +72,7 @@
     <Compile Include="iBus\Devices\AuxilaryHeater.cs" />
     <Compile Include="iBus\Devices\BodyModule.cs" />
     <Compile Include="iBus\Devices\Bordmonitor.cs" />
+    <Compile Include="iBus\Devices\FrontDisplay.cs" />
     <Compile Include="iBus\Devices\Immobiliser.cs" />
     <Compile Include="iBus\Devices\InstrumentClusterElectronics.cs" />
     <Compile Include="iBus\Devices\IntegratedHeatingAndAirConditioning.cs" />

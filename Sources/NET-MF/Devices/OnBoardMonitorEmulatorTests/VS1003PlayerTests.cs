@@ -86,6 +86,24 @@ namespace OnBoardMonitorEmulatorTests
             Assert.AreEqual(player.CurrentPosition, currentPosition);
         }
 
+        [TestMethod]
+        public void Should_ReadCurrentPosition_Of_PegboardNerds_SwampThing_mp3()
+        {
+            // assert
+            GenerateDataFile(1, 2, false, 0);
+
+            VS1003Player player = new VS1003Player(FEZPandaIII.Gpio.D25, FEZPandaIII.Gpio.D27, FEZPandaIII.Gpio.D24, FEZPandaIII.Gpio.D26);
+            //var mp3File = File.Open(player.CurrentTrack.FileName, FileMode.OpenOrCreate);
+            //int startPositionOfAudioStream = 0x000000e3;
+            //ModifyId3Header(mp3File, startPositionOfAudioStream);
+
+            // act
+            player.PlayDirect();
+
+            // assert
+            Assert.AreEqual(player.CurrentPosition, 0x7f8ec);
+        }
+
         private void GenerateDataFile(byte diskNumber, byte trackNumber, bool isRandom, int lastPosition)
         {
             byte[] lastPositionBytes = BitConverter.GetBytes(lastPosition);
