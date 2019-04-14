@@ -47,6 +47,8 @@ namespace imBMW.Devices.V2
 
         private static GHI.Processor.Watchdog.ResetCause _resetCause;
 
+        private static MassStorage _massStorage;
+
         public enum LaunchMode
         {
             MicroFramework,
@@ -55,10 +57,18 @@ namespace imBMW.Devices.V2
 
         private static void ResetBoard()
         {
+
             Logger.TryTrace("Board will reset in 2 seconds!!!");
             RefreshLEDs(LedType.OrangeBlinking);
             Thread.Sleep(200); // wait to add pause after previous blinking
             LedBlinking(orangeLed, 5, 200);
+
+            if (_massStorage != null && _massStorage.Mounted)
+                _massStorage.Unmount();
+
+#if DEBUG
+            return;
+#endif
 
             if (resetPin == null)
             {
@@ -71,6 +81,13 @@ namespace imBMW.Devices.V2
         {
             try
             {
+#if DEBUG
+                if (!Debugger.IsAttached)
+                {
+                    Thread.Sleep(60000);
+                }
+#endif
+
                 BluetoothScreen.BluetoothChargingState = true;
                 BluetoothScreen.AudioSource = AudioSource.Bluetooth;
 
@@ -84,29 +101,12 @@ namespace imBMW.Devices.V2
 
                 // Timeout 30 seconds
                 ushort timeoutInMilliseconds = 1000 * 20;
-#if !RELEASE
-                if (Debugger.IsAttached)
-                {
-                    try
-                    {
-                        //GHI.Processor.Watchdog.Enable(timeoutInMilliseconds * 2);
-                    }
-                    catch (Exception ex)
-                    {
-                    }
-                }
-                else
-                {
-                    //GHI.Processor.Watchdog.Enable(timeoutInMilliseconds);
-                }
-#else
+#if RELEASE
                 GHI.Processor.Watchdog.Enable(timeoutInMilliseconds);
 #endif
 
-                Logger.FreeMemory();
                 SDCard sd = null;
                 settings = Settings.Init(sd != null ? sd + @"\imBMW.ini" : null);
-                Logger.FreeMemory();
 
                 //SettingsScreen.Instance.Status = version.Length > 11 ? version.Replace(" ", "") : version;
                 //Localization.SetCurrent(RussianLocalization.SystemName); //Localization.SetCurrent(settings.Language);
@@ -115,100 +115,61 @@ namespace imBMW.Devices.V2
                 //Features.Comfort.AutoCloseWindows = settings.AutoCloseWindows;
                 //Features.Comfort.AutoCloseSunroof = settings.AutoCloseSunroof;
 
-                byte sdCardMountRetryCount = 0;
+                //RemovableMedia.Insert += (a, b) =>
+                //{
+                //    _removableMediaInsertedSync.Set();
+                //};
 
-                /*RemovableMedia.Insert += (a, b) =>
-                {
-                    _removableMediaInsertedSync.Set();
-                };
-
-                Logger.FreeMemory();
-                do
-                {
-                    try
-                    {
-                        sd_card = new SDCard(SDCard.SDInterface.SPI);
-                        sd_card.Mount();
-
-                        error = false;
-                        break;
-                    }
-                    catch (Exception ex)
-                    {
-                        sdCardMountRetryCount++;
-                        error = true;
-
-                        LedBlinking(error_RedLed, 5, 100);
-                        Thread.Sleep(100);
-                    }
-                } while (sdCardMountRetryCount < 3);
+                //sd_card = new SDCard(SDCard.SDInterface.MCI);
+                //sd_card.Mount();
                 
-                bool isSignalled = !error && _removableMediaInsertedSync.WaitOne(5000, true);
-                if (!isSignalled)
-                {
-                    ResetBoard();
-                }*/
 
-
-
+#region UsbMassStorage
                 Controller.DeviceConnectFailed += (sss, eee) =>
                 {
+                    LedBlinking(error_RedLed, 5, 100);
                     ResetBoard();
                 };
-                Controller.UnknownDeviceConnected += (ss, ee) =>
-                {
-                    ResetBoard();
-                };
+                Controller.UnknownDeviceConnected += (ss, ee) => ResetBoard();
                 Controller.MassStorageConnected += (sender, massStorage) =>
                 {
-                    LedBlinking(iBusMessageSendReceiveBlinker_BlueLed, 1, 100);
+                    LedBlinking(orangeLed, 2, 100);
                     RemovableMedia.Insert += (s, e) =>
                     {
-                        LedBlinking(successInited_GreenLed, 1, 100);
+                        LedBlinking(successInited_GreenLed, 2, 100);
                         _removableMediaInsertedSync.Set();
                     };
 
-                    do
-                    {
-                        try
-                        {
-                            massStorage.Mount();
-                            error = false;
-                            break;
-                        }
-                        catch (Exception ex)
-                        {
-                            sdCardMountRetryCount++;
-                            error = true;
+                    _massStorage = massStorage;
+                    massStorage.Mount();
 
-                            LedBlinking(error_RedLed, 5, 100);
-                            Thread.Sleep(100);
-                        }
-                    } while (sdCardMountRetryCount < 3);
                 };
+#if RELEASE
+                Controller.Start();
+#else
                 if (Debugger.IsAttached)
                 {
                     Controller.Start();
                 }
-                else
-                {
-#if RELEASE
-                    Controller.Start();
 #endif
-                }
+#endregion
 
-                bool isSignalled = !error && _removableMediaInsertedSync.WaitOne(10000, true);
+                LedBlinking(orangeLed, 1, 100);
+                bool isSignalled = !error && _removableMediaInsertedSync.WaitOne(Debugger.IsAttached ? 30000 : 10000, true);
                 if (!isSignalled)
                 {
+                    LedBlinking(error_RedLed, 3, 100);
                     ResetBoard();
+                }
+                else
+                {
+                    LedBlinking(successInited_GreenLed, 3, 100);
                 }
 
                 rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
-                Logger.FreeMemory();
 
                 Logger.Logged += Logger_Logged;
                 Logger.Trace("\n\n\n\n\n");
-                Logger.Trace("Logger inited! sdCardMountRetryCount:" + sdCardMountRetryCount);
                 Logger.Trace("Watchdog.ResetCause: " + _resetCause.ToStringValue());
 
                 Init();
@@ -250,6 +211,7 @@ namespace imBMW.Devices.V2
             Manager.Init(iBusPort);
             Logger.Trace("Manager inited");
 
+#if NETMF
             string kBusComPort = Serial.COM2;
             ISerialPort kBusPort = new SerialPortTH3122(kBusComPort, kBusBusy);
             KBusManager.Init(kBusPort);
@@ -259,6 +221,7 @@ namespace imBMW.Devices.V2
             dBusPort.AfterWriteDelay = 4;
             DBusManager.Init(dBusPort);
             Logger.Trace("DBusManager inited");
+#endif
 
 #if !NETMF && DebugOnRealDeviceOverFTDI
             if (!iBusPort.IsOpen)
@@ -644,7 +607,10 @@ namespace imBMW.Devices.V2
                     try
                     {
                         traceFile = new StreamWriter(
-                            rootDirectory + "\\" + traceFileName + (traceFileNameNumber == 0 ? "" : traceFileNameNumber.ToString()) + ".txt", append: true);
+                            rootDirectory + "\\" + traceFileName + (traceFileNameNumber == 0 ? "" : traceFileNameNumber.ToString()) + ".txt", append:true);
+                        traceFile.WriteLine(args.LogString);
+                        traceFile.Flush();
+                        VolumeInfo.GetVolumes()[0].FlushAll();
                     }
                     catch
                     {
@@ -654,8 +620,6 @@ namespace imBMW.Devices.V2
                     {
                         if (traceFile != null)
                         {
-                            traceFile.WriteLine(args.LogString);
-                            traceFile.Flush();
                             traceFile.Dispose();
                         }
                     }

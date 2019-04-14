@@ -93,17 +93,17 @@ namespace OnBoardMonitorEmulator
         {
             InitializeComponent();
 
-            InstrumentClusterElectronicsEmulator.Init();
-            NavigationModuleEmulator.Init();
-            AuxilaryHeaterEmulator.Init();
-            RadioEmulator.Init();
-            DDEEmulator.Init();
-            FrontDisplayEmulator.Init();
-            HeadlightVerticalAimControlEmulator.Init();
+            //InstrumentClusterElectronicsEmulator.Init();
+            //NavigationModuleEmulator.Init();
+            //AuxilaryHeaterEmulator.Init();
+            //RadioEmulator.Init();
+            //DDEEmulator.Init();
+            //FrontDisplayEmulator.Init();
+            //HeadlightVerticalAimControlEmulator.Init();
 
             Launcher.Launch(Launcher.LaunchMode.WPF);
 
-            InstrumentClusterElectronicsEmulator.StartAnounce();
+            //InstrumentClusterElectronicsEmulator.StartAnounce();
 
             Bordmonitor.ReplyToScreenUpdates = true;
             Bordmonitor.TextReceived += Bordmonitor_TextReceived;

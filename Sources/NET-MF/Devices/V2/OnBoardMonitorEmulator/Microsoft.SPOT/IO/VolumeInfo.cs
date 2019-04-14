@@ -15,5 +15,7 @@ namespace Microsoft.SPOT.IO
         {
             return new VolumeInfo[] {new VolumeInfo() { IsFormatted = true, RootDirectory = "SDC" } };
         }
+
+        public void FlushAll() { }
     }
 }

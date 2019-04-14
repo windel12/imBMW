@@ -78,6 +78,7 @@ namespace imBMW.Features.Multimedia
         private Stack nextChangingHistory = new Stack();
 
         static IDictionary StorageInfo = new Hashtable();
+        static IDictionary ErrorsInfo = new Hashtable();
         private static Queue NextTracksQueue = new Queue();
 
         public static int FileNameOffset = 10;
@@ -137,25 +138,48 @@ namespace imBMW.Features.Multimedia
             Logger.Trace("Getting files and folders:");
             if (VolumeInfo.GetVolumes()[0].IsFormatted)
             {
+                byte[] testBuffer = new byte[256];
+                FileStream stream = null;
+
                 string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
                 for (byte i = 1; i <= 6; i++)
                 {
                     var folder = rootDirectory + "\\" + i;
-                    var files = Directory.EnumerateFiles(folder);
                     byte filesCount = 0;
-                    foreach(var fileObj in files)
+                    byte errorsCount = 0;
+                    var files = Directory.EnumerateFiles(folder);
+                    foreach (var fileObj in files)
                     {
-                        if (((string)fileObj).EndsWith(".mp3") /* || file.EndsWith(".m4a")*/)
+                        if (((string) fileObj).EndsWith(".mp3") /* || file.EndsWith(".m4a")*/)
                         {
+#if DEBUG
+                            try
+                            {
+                                stream = new FileStream((string) fileObj, FileMode.Open, FileAccess.Read);
+                                stream.Read(testBuffer, 0, testBuffer.Length);
+                            }
+                            catch (Exception ex)
+                            {
+                                errorsCount++;
+                                Logger.Trace("Error during test reading if file - " + (string) fileObj);
+                            }
+                            finally
+                            {
+                                stream.Close();
+                            }
+#endif
+
                             filesCount++;
                         }
                     }
+
                     files = null;
                     StorageInfo[i] = filesCount;
+                    ErrorsInfo[i] = errorCounts;
                 }
 
                 FileStream dataFile = null;
-                byte[] lastTrackInfo = new byte[7] { 1, 1, 1, 0, 0, 0, 0 };
+                byte[] lastTrackInfo = new byte[7] { 1, 1, 0, 0, 0, 0, 0 };
                 try
                 {
                     dataFile = File.Open(rootDirectory + "\\data.bin", FileMode.OpenOrCreate);
@@ -438,7 +462,7 @@ namespace imBMW.Features.Multimedia
                 size = 0;
                 try
                 {
-                    stream = new FileStream(CurrentTrack.FileName, FileMode.Open/*, FileAccess.Read*/);
+                    stream = new FileStream(CurrentTrack.FileName, FileMode.Open, FileAccess.Read);
                     int id3v2_header_length = 10;
                     stream.Read(buffer, 0, id3v2_header_length);
                     // http://id3.org/id3v2.4.0-structure#line-39

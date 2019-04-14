@@ -27,13 +27,13 @@ namespace System.IO.Ports
 
         public override void Flush()
         {
-            if(_port.IsOpen)
+            if (_port.IsOpen)
                 _port.DiscardOutBuffer();
         }
 
         protected override int WriteDirect(byte[] data, int offset, int length)
         {
-            if (!_port.IsOpen) 
+            if (!_port.IsOpen)
             {
                 //this.data = data;
                 lock (_lock)
@@ -59,7 +59,7 @@ namespace System.IO.Ports
                 lock (_lock)
                 {
                     Array.Copy(this.data, data, this.data.Length);
-                    return this.data.Where(x => x != 0x00).Count();
+                    return this.data.Length;//.Where(x => x != 0x00).Count();
                 }
             }
             return _port.Read(data, 0, _port.BytesToRead);
