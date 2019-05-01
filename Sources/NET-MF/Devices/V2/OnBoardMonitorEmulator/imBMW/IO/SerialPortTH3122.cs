@@ -8,8 +8,7 @@ namespace System.IO.Ports
 {
     public class SerialPortTH3122 : SerialInterruptPort
     {
-        private byte[] data;
-        private int readAvailable;
+        private byte[] writeBuffer = new byte[0];
         private object _lock = new object();
 
         /// <summary>
@@ -22,7 +21,6 @@ namespace System.IO.Ports
             base(new SerialPortConfiguration(port, baudRate, Parity.Even, 8 + (fixParity ? 1 : 0), StopBits.One), busy, writeBufferSize, readBufferSize, 50)
         {
             AfterWriteDelay = 4;
-            data = new byte[0];
         }
 
         public override void Flush()
@@ -31,55 +29,54 @@ namespace System.IO.Ports
                 _port.DiscardOutBuffer();
         }
 
-        protected override int WriteDirect(byte[] data, int offset, int length)
+        public override void Write(byte[] newData, int offset, int length)
         {
             if (!_port.IsOpen)
             {
-                //this.data = data;
                 lock (_lock)
                 {
-                    if (offset == 0)
-                    {
-                        readAvailable = 0;
-                        this.data = new byte[data.Length];
-                    }
-
-                    Array.Copy(data, offset, this.data, readAvailable, length);
-                    readAvailable += length;
-                    return readAvailable;
+                    base.Write(newData, offset, length);
                 }
             }
-            return base.WriteDirect(data, offset, length);
+            else
+            {
+                base.Write(newData, offset, length);
+            }
         }
 
-        protected override int ReadDirect(byte[] data, int offset, int length)
+        protected override int WriteDirect(byte[] newData, int offset, int length)
         {
             if (!_port.IsOpen)
             {
-                lock (_lock)
-                {
-                    Array.Copy(this.data, data, this.data.Length);
-                    return this.data.Length;//.Where(x => x != 0x00).Count();
-                }
+                    var temp = new byte[writeBuffer.Length];
+                    Array.Copy(writeBuffer, temp, temp.Length);
+
+                    writeBuffer = new byte[writeBuffer.Length + length];
+                    Array.Copy(temp, writeBuffer, temp.Length);
+                    Array.Copy(newData, offset, writeBuffer, temp.Length, length);
+
+                    return length;
             }
-            return _port.Read(data, 0, _port.BytesToRead);
+
+            return base.WriteDirect(newData, offset, length);
         }
 
-        public override byte[] ReadAvailable(int maxCount)
+        protected override int ReadDirect(byte[] buffer, int offset, int length)
         {
             if (!_port.IsOpen)
             {
                 lock (_lock)
                 {
-                    var temp = new byte[this.readAvailable];
-                    Array.Copy(this.data, temp, this.readAvailable);
+                    Array.Clear(buffer, 0, buffer.Length);
 
-                    Array.Clear(this.data, 0, readAvailable);
-                    readAvailable = 0;
-                    return temp;
+                    Array.Copy(this.writeBuffer, buffer, this.writeBuffer.Length);
+                    int readAmount = this.writeBuffer.Length;
+                    this.writeBuffer = new byte[0];
+                    return readAmount;//.Where(x => x != 0x00).Count();
                 }
             }
-            return base.ReadAvailable(maxCount);
+
+            return _port.Read(buffer, 0, _port.BytesToRead);
         }
 
         public override string ToString()

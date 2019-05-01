@@ -19,6 +19,7 @@ using imBMW.Devices.V2;
 using imBMW.Features.Menu;
 using imBMW.Features.Menu.Screens;
 using imBMW.iBus.Devices.Real;
+using imBMW.Tools;
 using OnBoardMonitorEmulator.DevicesEmulation;
 
 namespace OnBoardMonitorEmulator
@@ -93,21 +94,24 @@ namespace OnBoardMonitorEmulator
         {
             InitializeComponent();
 
-            //InstrumentClusterElectronicsEmulator.Init();
-            //NavigationModuleEmulator.Init();
-            //AuxilaryHeaterEmulator.Init();
-            //RadioEmulator.Init();
-            //DDEEmulator.Init();
-            //FrontDisplayEmulator.Init();
-            //HeadlightVerticalAimControlEmulator.Init();
+            InstrumentClusterElectronicsEmulator.Init();
+            NavigationModuleEmulator.Init();
+            AuxilaryHeaterEmulator.Init();
+            RadioEmulator.Init();
+            DDEEmulator.Init();
+            FrontDisplayEmulator.Init();
+            HeadlightVerticalAimControlEmulator.Init();
 
             Launcher.Launch(Launcher.LaunchMode.WPF);
 
-            //InstrumentClusterElectronicsEmulator.StartAnounce();
+#if !DebugOnRealDeviceOverFTDI
+            InstrumentClusterElectronicsEmulator.StartAnounce();
+#endif
 
             Bordmonitor.ReplyToScreenUpdates = true;
             Bordmonitor.TextReceived += Bordmonitor_TextReceived;
             FrontDisplayEmulator.LedChanged += FrontDisplayEmulator_LedChanged;
+            InstrumentClusterElectronicsEmulator.OBCTextChanged += InstrumentClusterElectronicsEmulator_OBCTextChanged;
 
             BordmonitorMenu.Instance.CurrentScreen = HomeScreen.Instance;
 #if !DebugOnRealDeviceOverFTDI
@@ -178,6 +182,11 @@ namespace OnBoardMonitorEmulator
             });
         }
 
+        private void InstrumentClusterElectronicsEmulator_OBCTextChanged(string message)
+        {
+            this.Dispatcher.Invoke(() => { OBCDisplay.Text = message; });
+        }
+
         private void WriteMessage(Message message)
         {
             Manager.EnqueueMessage(message);
@@ -191,6 +200,10 @@ namespace OnBoardMonitorEmulator
             var button = (sender as Button);
             button.FontWeight = IsEnabled ? FontWeights.Bold : FontWeights.Normal;
             button.Foreground = new SolidColorBrush(IsEnabled ? Colors.Orange : Colors.Black);
+            if (!IsEnabled)
+            {
+                OBCDisplay.Text = "";
+            }
         }
 
         private void Knob2Button_Click(object sender, RoutedEventArgs e)
@@ -201,6 +214,9 @@ namespace OnBoardMonitorEmulator
         private void NextButton_Click(object sender, RoutedEventArgs e)
         {
 #if DebugOnRealDeviceOverFTDI
+
+            var showOBCTextMessage = Radio.GetDisplayTextRadioMessage2("CD 1-1", TextAlign.Center);
+            InstrumentClusterElectronicsEmulator.ProcessMessageToIKE(showOBCTextMessage);
             var message = new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, DataNext);
             WriteMessage(message);
 #else

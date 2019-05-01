@@ -25,6 +25,7 @@ namespace imBMW.Features.Menu
             //CurrentScreen = HomeScreen.Instance;
             // TODO: Refactor this!!!
             BordcomputerScreen.Instance.MediaEmulator = mediaEmulator;
+            MusicListScreen.Instance.MediaEmulator = mediaEmulator;
 
             CurrentScreen = BordcomputerScreen.Instance;
 
@@ -39,11 +40,11 @@ namespace imBMW.Features.Menu
                 {
                     /*DDEScreen.Instance.TitleCallback = */BordcomputerScreen.Instance.TitleCallback = x =>
                     {
-                        if (trackInfo.Title != null && trackInfo.Title != "")
-                        {
+                        //if (trackInfo.Title != null && trackInfo.Title != "")
+                        //{
                             return TrimTextToLength(trackInfo.Title, ref titleStartIndex, 10);
-                        }
-                        return TrimTextToLength(trackInfo.FullName, ref titleStartIndex, 10);
+                        //}
+                        //return TrimTextToLength(trackInfo.FileName, ref titleStartIndex, 10);
                     };
                     /*DDEScreen.Instance.StatusCallback = */BordcomputerScreen.Instance.StatusCallback = x =>
                     {
@@ -53,6 +54,7 @@ namespace imBMW.Features.Menu
                         }
                         return string.Empty;
                     };
+                    Radio.DisplayText(trackInfo.Title);
                 }
             };
             mediaEmulator.Player.TrackChanged += (s, e) =>

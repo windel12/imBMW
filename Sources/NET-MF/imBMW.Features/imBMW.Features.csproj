@@ -56,7 +56,7 @@
     <ErrorReport>prompt</ErrorReport>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>DEBUG,MF_FRAMEWORK_VERSION_V4_3</DefineConstants>
+    <DefineConstants>DEBUG,NETMF</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Comfort.cs" />
@@ -78,6 +78,7 @@
     <Compile Include="Menu\Screens\DDEScreen.cs" />
     <Compile Include="Menu\Screens\HomeScreen.cs" />
     <Compile Include="Menu\Screens\AuxilaryHeaterScreen.cs" />
+    <Compile Include="Menu\Screens\MusicListScreen.cs" />
     <Compile Include="Menu\Screens\SettingsScreen.cs" />
     <Compile Include="Menu\Screens\SpeedLimitScreen.cs" />
     <Compile Include="Multimedia\AudioPlayerBase.cs" />

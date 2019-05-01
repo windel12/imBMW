@@ -27,23 +27,23 @@ namespace imBMW.Multimedia.Models
             return Localization.Current.Artist + ": " + n.Artist;
         }
 
-        public static string GetAlbumWithLabel(this TrackInfo n)
-        {
-            if (StringHelpers.IsNullOrEmpty(n.Album))
-            {
-                return "";
-            }
-            return Localization.Current.Album + ": " + n.Album;
-        }
+        //public static string GetAlbumWithLabel(this TrackInfo n)
+        //{
+        //    if (StringHelpers.IsNullOrEmpty(n.Album))
+        //    {
+        //        return "";
+        //    }
+        //    return Localization.Current.Album + ": " + n.Album;
+        //}
 
-        public static string GetGenreWithLabel(this TrackInfo n)
-        {
-            if (StringHelpers.IsNullOrEmpty(n.Genre))
-            {
-                return "";
-            }
-            return Localization.Current.Genre + ": " + n.Genre;
-        }
+        //public static string GetGenreWithLabel(this TrackInfo n)
+        //{
+        //    if (StringHelpers.IsNullOrEmpty(n.Genre))
+        //    {
+        //        return "";
+        //    }
+        //    return Localization.Current.Genre + ": " + n.Genre;
+        //}
     }
 }
 #endif

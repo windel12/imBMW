@@ -6,36 +6,40 @@ using Microsoft.SPOT.IO;
 
 namespace imBMW.Features.Multimedia.Models
 {
-    public class TrackInfo
+    public struct TrackInfo
     {
-        public TrackInfo()
-        {
-        }
+        static byte FileExtensionLength = 4;
 
-        public TrackInfo(string fileName)
+        public TrackInfo(string filePath)
         {
-            FileName = fileName;
-            FullName = FileName.Substring(VS1003Player.FileNameOffset, FileName.Length - VS1003Player.FileNameOffset - 4);
-            var fileInfo = FullName.Split('-');
+            FilePath = filePath;
+            FileName = Path.GetFileName(FilePath);
+            FileName = FileName.Substring(0, FileName.Length - FileExtensionLength);
+            var fileInfo = FileName.Split('-');
             if (fileInfo.Length >= 2)
             {
-                Artist = fileInfo[fileInfo.Length - 2].Trim();
-                Title = fileInfo[fileInfo.Length - 1].Trim();
+                Title = fileInfo[0].Trim();
+                Artist = fileInfo[1].Trim();
+            }
+            else
+            {
+                Artist = "";
+                Title = FileName;
             }
         }
 
-        public string FileName { get; set; } = "";
+        public string FilePath;
 
-        public string FullName { get; set; } = "";
+        public string FileName;
 
-        public string Title { get; set; } = "";
+        public string Title;
 
-        public string Artist { get; set; } = "";
+        public string Artist;
 
-        public string Album { get; set; }
+        //public string Album { get; set; }
 
-        public string Genre { get; set; }
+        //public string Genre { get; set; }
 
-        public int Time { get; set; }
+        //public int Time { get; set; }
     }
 }

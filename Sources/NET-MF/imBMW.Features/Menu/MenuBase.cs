@@ -306,7 +306,7 @@ namespace imBMW.Features.Menu
         {
             if (screen == null)
             {
-                Logger.Error("Navigation to null screen");
+                Logger.TryError("Navigation to null screen");
                 return;
             }
             if (CurrentScreen == screen)

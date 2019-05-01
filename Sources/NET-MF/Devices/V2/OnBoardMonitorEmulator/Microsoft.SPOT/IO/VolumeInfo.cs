@@ -13,7 +13,15 @@ namespace Microsoft.SPOT.IO
 
         public static VolumeInfo[] GetVolumes()
         {
-            return new VolumeInfo[] {new VolumeInfo() { IsFormatted = true, RootDirectory = "SDC" } };
+            return new VolumeInfo[]
+            {
+                new VolumeInfo()
+                {
+                    IsFormatted = true,
+                    //RootDirectory = "SDC"
+                    RootDirectory = "USB"
+                }
+            };
         }
 
         public void FlushAll() { }

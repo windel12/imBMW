@@ -99,7 +99,14 @@ namespace imBMW.Tools
             {
                 Error(message, priorityTitle);
             }
-            catch (Exception ex) { wasError = true; }
+            catch (Exception ex)
+            {
+                wasError = true;
+            }
+            finally
+            {
+                ShowErrorLed();
+            }
         }
 
         public static void TryError(Exception exception, string message = null, string priorityTitle = null)
@@ -107,8 +114,12 @@ namespace imBMW.Tools
             try
             {
                 Error(exception, message, priorityTitle);
+                ShowErrorLed();
             }
-            catch (Exception ex) { wasError = true; }
+            catch (Exception ex)
+            {
+                wasError = true;
+            }
         }
 
         public static void Error(string message, string priorityTitle = null)
@@ -119,6 +130,12 @@ namespace imBMW.Tools
         public static void Error(Exception exception, string message = null, string priorityTitle = null)
         {
             Log(LogPriority.Error, exception, message, priorityTitle);
+        }
+
+        private static void ShowErrorLed()
+        {
+            var message = new Message(DeviceAddress.Telephone, DeviceAddress.FrontDisplay, "Set LEDs", 0x2B, 1);
+            Manager.EnqueueMessage(message);
         }
     }
 }

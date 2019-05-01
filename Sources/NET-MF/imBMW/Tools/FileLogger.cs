@@ -32,7 +32,7 @@ namespace imBMW.Tools
                 int i = 0;
                 do
                 {
-                    fullpath = path + @"\imBMW" + (i++ == 0 ? "" : i.ToString()) + ".log";
+                    fullpath = path + @"\traceLog" + (i++ == 0 ? "" : i.ToString()) + ".log";
                 } while (File.Exists(fullpath));
                 writer = new StreamWriter(fullpath);
 
@@ -49,6 +49,13 @@ namespace imBMW.Tools
         static void Logger_Logged(LoggerArgs args)
         {
             queue.Enqueue(args.LogString);
+#if DebugOnRealDeviceOverFTDI
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                Logger.FreeMemory();
+                Debug.Print(args.LogString);
+            }
+#endif
         }
 
         static void ProcessItem(object o)

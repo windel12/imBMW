@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
-using GHI.Pins;
-using imBMW.Features.Multimedia;
 using Microsoft.SPOT.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using GHI.Pins;
 using imBMW.Tools;
+using imBMW.Features.Multimedia;
 
 namespace OnBoardMonitorEmulatorTests
 {
@@ -19,7 +19,7 @@ namespace OnBoardMonitorEmulatorTests
             GenerateDataFile(1, 1, false, currentPosition);
 
             VS1003Player player = new VS1003Player(FEZPandaIII.Gpio.D25, FEZPandaIII.Gpio.D27, FEZPandaIII.Gpio.D24, FEZPandaIII.Gpio.D26);
-            var mp3File = File.Open(player.CurrentTrack.FileName, FileMode.OpenOrCreate);
+            var mp3File = File.Open(player.CurrentTrack.FilePath, FileMode.OpenOrCreate);
             int startPositionOfAudioStream = 0x000000ff;
             ModifyId3Header(mp3File, 0x000000ff);
 
@@ -38,7 +38,7 @@ namespace OnBoardMonitorEmulatorTests
             GenerateDataFile(1, 1, false, currentPosition);
 
             VS1003Player player = new VS1003Player(FEZPandaIII.Gpio.D25, FEZPandaIII.Gpio.D27, FEZPandaIII.Gpio.D24, FEZPandaIII.Gpio.D26);
-            var mp3File = File.Open(player.CurrentTrack.FileName, FileMode.OpenOrCreate);
+            var mp3File = File.Open(player.CurrentTrack.FilePath, FileMode.OpenOrCreate);
             ModifyId3Header(mp3File, 0x00ffffff);
 
             // act
@@ -56,7 +56,7 @@ namespace OnBoardMonitorEmulatorTests
             GenerateDataFile(1, 1, false, currentPosition);
 
             VS1003Player player = new VS1003Player(FEZPandaIII.Gpio.D25, FEZPandaIII.Gpio.D27, FEZPandaIII.Gpio.D24, FEZPandaIII.Gpio.D26);
-            var mp3File = File.Open(player.CurrentTrack.FileName, FileMode.OpenOrCreate);
+            var mp3File = File.Open(player.CurrentTrack.FilePath, FileMode.OpenOrCreate);
             int startPositionOfAudioStream = 0x000000e3;
             ModifyId3Header(mp3File, startPositionOfAudioStream);
 
@@ -75,7 +75,7 @@ namespace OnBoardMonitorEmulatorTests
             GenerateDataFile(1, 1, false, currentPosition);
 
             VS1003Player player = new VS1003Player(FEZPandaIII.Gpio.D25, FEZPandaIII.Gpio.D27, FEZPandaIII.Gpio.D24, FEZPandaIII.Gpio.D26);
-            var mp3File = File.Open(player.CurrentTrack.FileName, FileMode.OpenOrCreate);
+            var mp3File = File.Open(player.CurrentTrack.FilePath, FileMode.OpenOrCreate);
             int startPositionOfAudioStream = 0x000000e3;
             ModifyId3Header(mp3File, startPositionOfAudioStream);
 

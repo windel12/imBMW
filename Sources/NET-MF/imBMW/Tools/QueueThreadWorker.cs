@@ -9,7 +9,7 @@ namespace imBMW.Tools
         public delegate void ProcessItem(object item);
 
         Thread queueThread;
-        private string threadName;
+        public string threadName;
         ProcessItem processItem;
         object lockObj = new object();
 

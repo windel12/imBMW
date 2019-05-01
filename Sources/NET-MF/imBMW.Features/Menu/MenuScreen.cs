@@ -174,7 +174,7 @@ namespace imBMW.Features.Menu
         {
             if (index >= MaxItemsCount || index < 0 && ItemsCount == MaxItemsCount)
             {
-                Logger.Error("Can't add screen item \"" + menuItem + "\" with index=" + index + ", count=" + ItemsCount);
+                Logger.TryError("Can't add screen item \"" + menuItem + "\" with index=" + index + ", count=" + ItemsCount);
                 index = (SByte)(MaxItemsCount - 1);
             }
             if (index < 0)

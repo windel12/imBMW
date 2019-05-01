@@ -188,8 +188,7 @@ namespace imBMW.iBus.Devices.Real
         internal static readonly Message MessageResetAverageSpeed = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Reset Average Speed", 0x41, 0x0A, 0x10);
         /// <summary> 41 0E 01 </summary>
         internal static readonly Message MessageRequestTimer = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Timer", 0x41, 0x0E, 0x01);
-
-
+        
         static readonly Message MessageNormalDisplay = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Normal Display", 0x23, 0x62, 0x30, 0x35, 0x01);
         static readonly Message MessageTextBetweenTwoRedTriangles = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Text Between Two Red Triangles", 0x23, 0x62, 0x30, 0x37, 0x01);
         static readonly Message MessageTextBetweenTwoRedFlashingTriangles = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Text Between Two Red Flashing Triangles", 0x23, 0x62, 0x30, 0x37, 0x03);
@@ -197,12 +196,7 @@ namespace imBMW.iBus.Devices.Real
         static readonly Message MessageTextAndGong = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Text And Gong", 0x23, 0x62, 0x30, 0x37, 0x05);
         static readonly Message MessageGong1 = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Gong 1", 0x23, 0x62, 0x30, 0x37, 0x08);
         static readonly Message MessageGong2 = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Gong 2", 0x23, 0x62, 0x30, 0x37, 0x10);
-
-        private const int _getDateTimeTimeout = 2000;
-
-        private static ManualResetEvent _getDateTimeSync = new ManualResetEvent(false);
-        private static DateTimeEventArgs _getDateTimeResult;
-
+        
         private static bool _timeIsSet, _dateIsSet;
         private static byte _timeHour, _timeMinute, _dateDay, _dateMonth;
         private static ushort _dateYear;
@@ -520,6 +514,11 @@ namespace imBMW.iBus.Devices.Real
         {
             Manager.EnqueueMessage(MessageRequestAverageSpeed);
         }
+
+        private const int _getDateTimeTimeout = 2000;
+
+        private static ManualResetEvent _getDateTimeSync = new ManualResetEvent(false);
+        private static DateTimeEventArgs _getDateTimeResult;
 
         public static DateTimeEventArgs GetDateTime()
         {

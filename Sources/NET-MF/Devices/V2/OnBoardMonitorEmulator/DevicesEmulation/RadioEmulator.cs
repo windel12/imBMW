@@ -25,6 +25,11 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
 
         static void ProcessToRadioMessage(Message m)
         {
+            if (m.Data.Compare(MessageRegistry.DataPollRequest))
+            {
+                var pollResponseMessage = new Message(DeviceAddress.Radio, DeviceAddress.GlobalBroadcastAddress, MessageRegistry.DataPollResponse);
+                Manager.EnqueueMessage(pollResponseMessage);
+            }
             if (m.Data.Length == 4 && m.Data.StartsWith(Bordmonitor.DataItemClicked) && m.Data[3] <= 9)
             {
                 var index = m.Data[3];

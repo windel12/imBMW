@@ -50,6 +50,8 @@ namespace imBMW.Multimedia
 
         bool RandomToggle(byte diskNumber);
 
+        void ChangeTrackTo(string fileName);
+
         void VolumeUp();
 
         void VolumeDown();
@@ -70,7 +72,7 @@ namespace imBMW.Multimedia
 
         string Name { get; }
 
-        TrackInfo CurrentTrack { get; }
+        TrackInfo CurrentTrack { get; set; }
 
         MenuScreen Menu { get; }
 

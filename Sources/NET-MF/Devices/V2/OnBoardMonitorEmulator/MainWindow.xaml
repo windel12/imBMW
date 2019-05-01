@@ -9,7 +9,7 @@
         <Rectangle Name="RedIndicator" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="13" Margin="510,125,0,0" Stroke="Black" VerticalAlignment="Top" Width="10"/>
         <Rectangle Name="OrangeIndicator" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="13" Margin="525,125,0,0" Stroke="Black" VerticalAlignment="Top" Width="10"/>
         <Rectangle Name="GreenIndicator" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="13" Margin="540,125,0,0" Stroke="Black" VerticalAlignment="Top" Width="10"/>
-        
+
         <Button x:Name="Knob1Button" Content="Radio" HorizontalAlignment="Left" Margin="10,267,0,0" VerticalAlignment="Top" Width="90" Height="42" Click="Knob1Button_Click"/>
         <Button x:Name="Knob2Button" Content="Navi" HorizontalAlignment="Left" Margin="509,267,0,0" VerticalAlignment="Top" Width="90" Height="42" Click="Knob2Button_Click"/>
 
@@ -108,5 +108,6 @@
             </Grid>
         </StackPanel>
         <Button x:Name="imBMWTest" Content="imBMWTest" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" Click="imBMWTest_Click"/>
+        <TextBlock x:Name="OBCDisplay" HorizontalAlignment="Left" Margin="105,33,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="400" Height="37" Foreground="#FFE08619" Background="Black" Text="123" FontWeight="Bold" FontSize="24" TextAlignment="Center"/>
     </Grid>
 </Window>

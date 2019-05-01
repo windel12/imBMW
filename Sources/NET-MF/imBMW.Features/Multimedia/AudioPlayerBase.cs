@@ -50,6 +50,8 @@ namespace imBMW.Multimedia
 
         public abstract bool RandomToggle(byte diskNumber);
 
+        public abstract void ChangeTrackTo(string fileName);
+
         public abstract void VolumeUp();
 
         public abstract void VolumeDown();
@@ -58,7 +60,7 @@ namespace imBMW.Multimedia
 
         public string Name { get; protected set; }
 
-        public TrackInfo CurrentTrack { get; protected set; }
+        public TrackInfo CurrentTrack { get; set; }
 
         public abstract bool IsPlaying
         {
@@ -66,22 +68,22 @@ namespace imBMW.Multimedia
             protected set;
         }
 
-        public TrackInfo NowPlaying
-        {
-            get
-            {
-                if (nowPlaying == null)
-                {
-                    nowPlaying = new TrackInfo();
-                }
-                return nowPlaying;
-            }
-            protected set
-            {
-                nowPlaying = value;
-                OnNowPlayingChanged(value);
-            }
-        }
+        //public TrackInfo NowPlaying
+        //{
+        //    get
+        //    {
+        //        if (nowPlaying == null)
+        //        {
+        //            nowPlaying = new TrackInfo();
+        //        }
+        //        return nowPlaying;
+        //    }
+        //    protected set
+        //    {
+        //        nowPlaying = value;
+        //        OnNowPlayingChanged(value);
+        //    }
+        //}
 
         public bool IsEnabled
         {

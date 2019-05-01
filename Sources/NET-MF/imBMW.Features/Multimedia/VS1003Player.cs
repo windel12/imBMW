@@ -81,7 +81,11 @@ namespace imBMW.Features.Multimedia
         static IDictionary ErrorsInfo = new Hashtable();
         private static Queue NextTracksQueue = new Queue();
 
-        public static int FileNameOffset = 10;
+#if NETMF
+        public static int FileNameOffset = 7;
+#else
+        public static int FileNameOffset = 6;
+#endif
 
         public override bool IsPlaying
         {
@@ -94,7 +98,7 @@ namespace imBMW.Features.Multimedia
             }
         }
 
-        private bool ChangeTrack { get; set; }
+        public bool ChangeTrack { get; set; }
 
         public override MenuScreen Menu
         {
@@ -105,7 +109,7 @@ namespace imBMW.Features.Multimedia
 
         public VS1003Player(Cpu.Pin MP3_DREQ, Cpu.Pin MP3_CS, Cpu.Pin MP3_DCS, Cpu.Pin MP3_RST)
         {
-            #region prepare
+#region prepare
             dataConfig = new SPI.Configuration(MP3_DCS, false, 0, 0, false, true, 1000, SPI.SPI_module.SPI2);
             cmdConfig = new SPI.Configuration(MP3_CS, false, 0, 0, false, true, 1000, SPI.SPI_module.SPI2);
             DREQ = new InputPort(MP3_DREQ, false, Port.ResistorMode.PullUp);
@@ -132,7 +136,7 @@ namespace imBMW.Features.Multimedia
                 Logger.Log(LogPriority.Info, "VS1053: Initialized MP3 Decoder.");
             }
 
-            #endregion
+#endregion
             SetVolume((byte)255);
 
             Logger.Trace("Getting files and folders:");
@@ -142,40 +146,49 @@ namespace imBMW.Features.Multimedia
                 FileStream stream = null;
 
                 string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
-                for (byte i = 1; i <= 6; i++)
+                for (byte diskNumber = 1; diskNumber <= 6; diskNumber++)
                 {
-                    var folder = rootDirectory + "\\" + i;
+                    var folder = rootDirectory + "\\" + diskNumber;
                     byte filesCount = 0;
-                    byte errorsCount = 0;
+                    byte erroredFilesCounts = 0;
                     var files = Directory.EnumerateFiles(folder);
                     foreach (var fileObj in files)
                     {
                         if (((string) fileObj).EndsWith(".mp3") /* || file.EndsWith(".m4a")*/)
                         {
-#if DEBUG
-                            try
-                            {
-                                stream = new FileStream((string) fileObj, FileMode.Open, FileAccess.Read);
-                                stream.Read(testBuffer, 0, testBuffer.Length);
-                            }
-                            catch (Exception ex)
-                            {
-                                errorsCount++;
-                                Logger.Trace("Error during test reading if file - " + (string) fileObj);
-                            }
-                            finally
-                            {
-                                stream.Close();
-                            }
-#endif
+//#if DEBUG
+//                            if (Debugger.IsAttached)
+//                            {
+//                                try
+//                                {
+//                                    stream = new FileStream((string) fileObj, FileMode.Open, FileAccess.Read);
+//                                    stream.Read(testBuffer, 0, testBuffer.Length);
+//                                }
+//                                catch (Exception ex)
+//                                {
+//                                    erroredFilesCounts++;
+//                                    Logger.Trace("Error during test reading if file - " + (string) fileObj);
+//                                }
+//                                finally
+//                                {
+//                                    stream.Close();
+//                                }
+//                            }
+//#endif
 
                             filesCount++;
+                        }
+                        else
+                        {
+                            Logger.Trace("File is not mp3 file - " + (string)fileObj);
                         }
                     }
 
                     files = null;
-                    StorageInfo[i] = filesCount;
-                    ErrorsInfo[i] = errorCounts;
+                    StorageInfo[diskNumber] = filesCount;
+                    ErrorsInfo[diskNumber] = erroredFilesCounts;
+                    Logger.Trace("Files count on " + diskNumber + " = " + filesCount);
+                    Logger.Trace("Errored files count on " + diskNumber + " = " + erroredFilesCounts);
                 }
 
                 FileStream dataFile = null;
@@ -399,6 +412,12 @@ namespace imBMW.Features.Multimedia
             }
         }
 
+        public override void ChangeTrackTo(string fileName)
+        {
+            FileName = fileName;
+            OnTrackChanged();
+        }
+
         protected override void OnTrackChanged()
         {
             CurrentTrack = new TrackInfo(FileName);
@@ -462,7 +481,7 @@ namespace imBMW.Features.Multimedia
                 size = 0;
                 try
                 {
-                    stream = new FileStream(CurrentTrack.FileName, FileMode.Open, FileAccess.Read);
+                    stream = new FileStream(CurrentTrack.FilePath, FileMode.Open, FileAccess.Read);
                     int id3v2_header_length = 10;
                     stream.Read(buffer, 0, id3v2_header_length);
                     // http://id3.org/id3v2.4.0-structure#line-39
@@ -544,7 +563,7 @@ namespace imBMW.Features.Multimedia
             }
         }
 
-        #region prepare
+#region prepare
 
         [MethodImpl(MethodImplOptions.Synchronized)]
         public void SendData(byte[] data)
@@ -659,9 +678,9 @@ namespace imBMW.Features.Multimedia
             //SCIWrite(SCI_MODE, SM_SDINEW | SM_RESET);
             Reset();
         }
-        #endregion
+#endregion
 
-        #region Private Methods
+#region Private Methods
 
         /// <summary>
         /// Method from reading from WRAM.
@@ -754,6 +773,6 @@ namespace imBMW.Features.Multimedia
             return temp;
         }
 
-        #endregion
+#endregion
     }
 }

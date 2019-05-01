@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Threading;
 using imBMW.iBus;
 using imBMW.iBus.Devices.Real;
@@ -19,11 +20,15 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
         private static byte TemperatureOutside = 15;
         private static byte TemperatureCoolant = 5;
 
+        public delegate void ShowOBCMessageEventHandler(string message);
+        public static event ShowOBCMessageEventHandler OBCTextChanged;
+
         public static void Init() { }
 
         static InstrumentClusterElectronicsEmulator()
         {
             Manager.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, ProcessMessageFromGraphicNavigationDriver);
+            Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.InstrumentClusterElectronics, ProcessMessageToIKE);
 
             DBusManager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.OBD, ProcessDS2MessageAndForwardToIBus);
             Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.Diagnostic, ProcessDiagnosticMessageFromIBusAndForwardToDBus);
@@ -69,6 +74,30 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
             {
                 // 06/26/2016"
                 Manager.EnqueueMessage(new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.FrontDisplay, 0x24, 0x02, 0x00, 0x30, 0x36, 0x2F, 0x32, 0x36, 0x2F, 0x32, 0x30, 0x31, 0x36));
+            }
+        }
+
+        public static void ProcessMessageToIKE(Message m)
+        {
+            if (m.SourceDevice == DeviceAddress.Radio && m.Data.StartsWith(0x23, 0x62, 0x30))
+            {
+                byte[] messageData = m.Data.Skip(3);
+                string message = System.Text.ASCIIEncoding.GetString(messageData);
+                var e = OBCTextChanged;
+                if (e != null)
+                {
+                    e(message);
+                }
+            }
+            if (m.SourceDevice == DeviceAddress.Telephone && m.Data.StartsWith(0x23, 0x42, 0x30))
+            {
+                byte[] messageData = m.Data.Skip(3);
+                string message = System.Text.ASCIIEncoding.GetString(messageData);
+                var e = OBCTextChanged;
+                if (e != null)
+                {
+                    e(message);
+                }
             }
         }
 

@@ -21,7 +21,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;OnBoardMonitorEmulator</DefineConstants>
+    <DefineConstants>DEBUG;DEBUG,OnBoardMonitorEmulator</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -143,6 +143,9 @@
     </Compile>
     <Compile Include="..\..\..\imBMW.Features\Menu\Screens\HomeScreen.cs">
       <Link>imBMW.Features\Menu\Screens\HomeScreen.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\imBMW.Features\Menu\Screens\MusicListScreen.cs">
+      <Link>imBMW.Features\Menu\Screens\MusicListScreen.cs</Link>
     </Compile>
     <Compile Include="..\..\..\imBMW.Features\Menu\Screens\SettingsScreen.cs">
       <Link>imBMW.Features\Menu\Screens\SettingsScreen.cs</Link>
@@ -288,6 +291,9 @@
     <Compile Include="..\..\..\imBMW\Tools\EnumConverter.cs">
       <Link>imBMW\Tools\EnumConverter.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\imBMW\Tools\FileLogger.cs">
+      <Link>imBMW\Tools\FileLogger.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\imBMW\Tools\Logger.cs">
       <Link>imBMW\Tools\Logger.cs</Link>
     </Compile>
@@ -391,55 +397,73 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="SDC\1\1abcdefghijklmno - 1abcdefghijklmno.mp3">
+    <Content Include="USB\1\Airbourne - Blonde, Bad And Beautiful.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SDC\1\Pegboard Nerds – Swamp Thing.mp3">
+    <Content Include="USB\1\Fat Cat Cinema - Nothing At All.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SDC\2\2apsq3hfqwh09 - 1asfj980sghadgioa.mp3">
+    <Content Include="USB\1\Kanita - Dont Le Me Go.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SDC\2\2asp[kpoagjipasip - 3asjfoasijfsa.mp3">
+    <Content Include="USB\1\Muse - Uprising.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SDC\2\2ashfiafsahaofissifou - 2hiasfhiahifsafshi.mp3">
+    <Content Include="USB\1\Pegboard Nerds - Swamp Thing.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SDC\3\3poiasfipasfipfsahiafshioasfhi - 2ipasfhipasiphfiahfoai.mp3">
+    <Content Include="USB\1\Sollar - Cheat Code.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SDC\3\3asfhioihsafhiofsafhios- 1aspfjpasifjiasfiap.mp3">
+    <Content Include="USB\1\The Pretty Reckless - Follow Me Down.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SDC\3\3sa3fh98h98asy89sfash8yf8fas8ahsf89hafsh.mp3">
+    <Content Include="USB\1\Vanotek feat. Mikayla - Cherry Lips.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SDC\4\4aspfgioq180hq - 3qasfj098ahspf.mp3">
+    <Content Include="USB\2\Disturbed - Are You Ready.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SDC\4\4asjf90auf809ah8fs9a - 2a0osfj90aqsf90auf.mp3">
+    <Content Include="USB\2\Fake Pictures - Small Talk.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SDC\4\4a1sfih0s8afh8as0y8afs8ysaf8as0fafasfasasfsaff0dgi.mp3">
+    <Content Include="USB\2\Horja - Movements.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SDC\5\584a4b648gf54j6c - 1as89df74a+9s74.mp3">
+    <Content Include="USB\3\Imagine Dragons - Shots.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SDC\5\5sau9f0fsau98uf0sa88afsu0sfu80 - 3sa8asd885464684.mp3">
+    <Content Include="USB\3\FOXES - Let Go For Tonight %28High Contrast Rmx%29.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SDC\5\5s2ss9ha0h[safoaeffhehwe894e8fwq.mp3">
+    <Content Include="USB\3\My Chemical Romance - The Sharpest Lives.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SDC\6\6%27%3bplp%27pkp[k[ - 1,0923uir-f[29fgu.mp3">
+    <Content Include="USB\4\MARUV And Boosin - Drunk Groove.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SDC\6\6afhs8y89hsfa8h9ysf8h9saf8saf9 - 3fasiu99uas0fu980fsuasf09.mp3">
+    <Content Include="USB\4\Sigala - Easy Love.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SDC\6\62hsfd8h89afs89asf89safsa8fafsh89.mp3">
+    <Content Include="USB\4\The Vamps - Be With You.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="USB\5\Tantrum Desire - Reach %28Push The Feeling%29.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="USB\5\Tori Kelly - Nobody Love.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="USB\5\Dan Balan - Hold On Love.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="USB\6\Ofenbach vs. Nick Waterhouse - Katchi.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="USB\6\AronChupa - I%27m an Albatraoz.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="USB\6\Zardonic and Voicians - Bring Back the Glory.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

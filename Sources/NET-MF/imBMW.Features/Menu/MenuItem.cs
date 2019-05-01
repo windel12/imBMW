@@ -32,6 +32,8 @@ namespace imBMW.Features.Menu
 
         private GetTextHandler getTextCallback;
 
+        public bool ShouldRefreshScreenIfTextChanged = true;
+
         public MenuItem(string text, MenuItemType type = MenuItemType.Text, MenuItemAction action = MenuItemAction.None)
         {
             if (type == MenuItemType.Checkbox && action == MenuItemAction.Refresh)
@@ -79,7 +81,10 @@ namespace imBMW.Features.Menu
                     return;
                 }
                 text = value;
-                Refresh();
+                if (ShouldRefreshScreenIfTextChanged)
+                {
+                    Refresh();
+                }
             }
         }
 

@@ -129,8 +129,8 @@ namespace imBMW.iBus
             "Remote Key buttons",
             "EWS Status request", // "0x73",
             "EWS key status",
-            "", // "0x75",
-            "External lights", // "0x76",
+            "Wiper status request", // "0x75",
+            "External lights(Crash Alarm)", // "0x76",
             "Wiper status", // "0x77",
             "Seat Memory", // "0x78",
             "Doors/windows status request",
@@ -174,10 +174,10 @@ namespace imBMW.iBus
             "DIAG END", // "0x9F",
             "DIAG OKAY", // "0xA0"
             "DIAG BUSY", // "0xA1",
-            "Current position and time",
+            "Current position and time", // "A2"
             "", // "0xA3",
-            "Current location",
-            "Header fields T1-T6",
+            "Current location", // "0xA4"
+            "Header fields T1-T6",  // "0xA5"
             "ANZV: Special indicators", // "0xA6",
             "TMC status request",
             "TMC data", // "0xA8",
