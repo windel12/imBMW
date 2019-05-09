@@ -15,8 +15,8 @@ namespace imBMW.iBus.Devices.Real
         public static byte[] DataRadioOn = new byte[] { 0x4A, 0xFF };
         public static byte[] DataRadioOff = new byte[] { 0x4A, 0x00 };
 
-
         public static byte[] DataRadioKnobPressed = new byte[] { 0x48, 0x06 };
+        public static byte[] DataRadioKnobHold = new byte[] { 0x48, 0x46 };
         public static byte[] DataRadioKnobReleased = new byte[] { 0x48, 0x86 };
 
         public static byte[] DataNextPressed = new byte[] { 0x48, 0x00 };
@@ -63,7 +63,7 @@ namespace imBMW.iBus.Devices.Real
 
         static Radio()
         {
-            Manager.AddMessageReceiverForSourceDevice(DeviceAddress.Radio, ProcessRadioMessage);
+            Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.Radio, ProcessRadioMessage);
         }
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace imBMW.iBus.Devices.Real
                 DisplayText(s, align);
                 if (messageSendAfter != null)
                 {
-                    Manager.EnqueueMessage(messageSendAfter);
+                    Manager.Instance.EnqueueMessage(messageSendAfter);
                 }
             }, null, delay, 0);
         }
@@ -138,7 +138,7 @@ namespace imBMW.iBus.Devices.Real
             byte[] data = new byte[] { 0x23, 0x40, 0x20 };
             data = data.PadRight(0x20, DisplayTextOnMIDMaxLen);
             data.PasteASCII(s.Translit(), 3, DisplayTextOnMIDMaxLen, align);
-            Manager.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.MultiInfoDisplay, "Show text \"" + s + "\" on MID", data));
+            Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.MultiInfoDisplay, "Show text \"" + s + "\" on MID", data));
         }
 
         private static void DisplayTextRadio(string s, TextAlign align)
@@ -146,7 +146,7 @@ namespace imBMW.iBus.Devices.Real
             byte[] data = new byte[] { 0x23, 0x42, 0x30 }; // can 0x23 be changed to 0x1A ???   and 0x42 on 0x62 ???
             data = data.PadRight(0xFF, DisplayTextOnIKEMaxLen);
             data.PasteASCII(s.Translit(), 3, DisplayTextOnIKEMaxLen, align);
-            Manager.EnqueueMessage(new Message(DeviceAddress.Telephone, DeviceAddress.InstrumentClusterElectronics, "Show text \"" + s + "\" on IKE", data));
+            Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Telephone, DeviceAddress.InstrumentClusterElectronics, "Show text \"" + s + "\" on IKE", data));
         }
 
         public static Message GetDisplayTextRadioMessage2(string s, TextAlign align)
@@ -162,7 +162,7 @@ namespace imBMW.iBus.Devices.Real
         /// </summary>
         public static void PressOnOffToggle()
         {
-            Manager.EnqueueMessage(
+            Manager.Instance.EnqueueMessage(
                 new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, "Press radio on/off", DataRadioKnobPressed),
                 new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, "Release radio on/off", DataRadioKnobReleased)
             );
@@ -173,7 +173,7 @@ namespace imBMW.iBus.Devices.Real
         /// </summary>
         public static void PressNext()
         {
-            Manager.EnqueueMessage(
+            Manager.Instance.EnqueueMessage(
                 new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, "Press Next", DataNextPressed),
                 new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, "Release Next", DataNextReleased)
            );
@@ -184,7 +184,7 @@ namespace imBMW.iBus.Devices.Real
         /// </summary>
         public static void PressPrev()
         {
-            Manager.EnqueueMessage(
+            Manager.Instance.EnqueueMessage(
                 new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, "Press Prev", DataPrevPressed),
                 new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, "Release Prev", DataPrevReleased)
              );
@@ -196,7 +196,7 @@ namespace imBMW.iBus.Devices.Real
         /// </summary>
         public static void PressMode()
         {
-            Manager.EnqueueMessage(
+            Manager.Instance.EnqueueMessage(
                 new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, "Press Mode", DataModePressed),
                 new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, "Release Mode", DataModeReleased)
             );
@@ -207,7 +207,7 @@ namespace imBMW.iBus.Devices.Real
         /// </summary>
         public static void PressSwitchSide()
         {
-            Manager.EnqueueMessage(
+            Manager.Instance.EnqueueMessage(
                 new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, "Press Switch Sides", DataSwitchPressed),
                 new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, "Release Switch Sides", DataSwitchReleased)
             );
@@ -218,7 +218,7 @@ namespace imBMW.iBus.Devices.Real
         /// </summary>
         public static void PressFM()
         {
-            Manager.EnqueueMessage(
+            Manager.Instance.EnqueueMessage(
                 new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, "Press FM", DataFMPressed),
                 new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, "Release FM", DataFMReleased)
             );
@@ -229,7 +229,7 @@ namespace imBMW.iBus.Devices.Real
         /// </summary>
         public static void PressAM()
         {
-            Manager.EnqueueMessage(
+            Manager.Instance.EnqueueMessage(
                 new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, "Press AM", DataAMPressed),
                 new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, "Release AM", DataAMReleased)
             );

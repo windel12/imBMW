@@ -153,7 +153,7 @@
 //                CheckAuxOn();
 //                if (value)
 //                {
-//                    Manager.EnqueueMessage(MessageAUXHighVolumeP6);
+//                    Manager.Instance.EnqueueMessage(MessageAUXHighVolumeP6);
 //                }
 //            }
 //        }

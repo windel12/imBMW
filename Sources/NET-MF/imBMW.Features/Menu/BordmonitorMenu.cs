@@ -68,7 +68,7 @@ namespace imBMW.Features.Menu
             };
             //mediaEmulator.IsEnabledChanged += mediaEmulator_IsEnabledChanged;
             //Radio.OnOffChanged += Radio_OnOffChanged;
-            Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.Radio, ProcessToRadioMessage);
+            Manager.Instance.AddMessageReceiverForDestinationDevice(DeviceAddress.Radio, ProcessToRadioMessage);
         }
 
         public static string TrimTextToLength(string text, ref byte startIndex, int length)
@@ -267,11 +267,40 @@ namespace imBMW.Features.Menu
             {
                 switch (m.Data[1])
                 {
-                    case 0x87: // 'AuxilaryHeater/Clock' button released
+                    // 'Phone' button
+                    case 0x08:
+                        m.ReceiverDescription = "BM button Phone - draw bordmonitor menu";
+                        IsEnabled = true;
+                        break;
+                    case 0x48:
+                    case 0x88:
+                        break;
+
+                    // 'AuxilaryHeater/Clock' button
+                    case 0x07:
+                    case 0x47:
+                        break;
+                    case 0x87: 
                         IntegratedHeatingAndAirConditioning.StartAuxilaryHeater();
                         break;
-                    case 0x94: // '<>' button released
+
+                    // '<>' button
+                    case 0x14:
+                    case 0x54:
+                        break;
+                    case 0x94:
                         IntegratedHeatingAndAirConditioning.StopAuxilaryHeater();
+                        break;
+
+                    // Menu
+                    case 0x34: // pressed
+                        m.ReceiverDescription = "BM button Menu";
+                        IsEnabled = false;
+                        break;
+                    case 0x74: // hold > 1s
+                        OnResetButtonPressed();
+                        break;
+                    case 0xB4: // released
                         break;
                 }
             }
@@ -283,24 +312,14 @@ namespace imBMW.Features.Menu
                 {
                     switch (m.Data[1])
                     {
-                        case 0x08: // phone
-                            m.ReceiverDescription = "BM button Phone - draw bordmonitor menu";
-                            IsEnabled = true;
-                            break;
-                        case 0x34: // Menu
-                            m.ReceiverDescription = "BM button Menu";
-                            IsEnabled = false;
-                            break;
-                        case 0x74: // Menu hold >1s
-                            OnResetButtonPressed();
-                            break;
-                        case 0x30: // Radio menu
+                        // switch screen
+                        case 0x30: // pressed
                             m.ReceiverDescription = "BM button Switch Screen";
                             IsEnabled = !IsEnabled;
-                            //if (screenSwitched)
-                            //{
-                            //    UpdateScreen();
-                            //}
+                            //if (screenSwitched) { UpdateScreen(); }
+                            break;
+                        case 0x70: // hold
+                        case 0xB0: // released
                             break;
                     }
                 }
@@ -392,14 +411,14 @@ namespace imBMW.Features.Menu
                 if (!StringHelpers.IsNullOrEmpty(status))
                     messages.Add(Bordmonitor.ShowText(status, BordmonitorFields.Status, 6, false, false));
 
-                Manager.EnqueueMessage((Message[])messages.ToArray(typeof(Message)));
+                Manager.Instance.EnqueueMessage((Message[])messages.ToArray(typeof(Message)));
                 isHeaderDrawing = false;
             }
         }
 
         protected override void DrawBody()
         {
-            if (isBodyDrawing || !mediaEmulator.IsEnabled)
+            if (isBodyDrawing)
             {
                 return; // TODO test
             }
@@ -456,7 +475,7 @@ namespace imBMW.Features.Menu
                 }
                 messages[n++] = Bordmonitor.MessageRefreshScreen;
 
-                Manager.EnqueueMessage(messages);
+                Manager.Instance.EnqueueMessage(messages);
                 isBodyDrawing = false;
             }
         }

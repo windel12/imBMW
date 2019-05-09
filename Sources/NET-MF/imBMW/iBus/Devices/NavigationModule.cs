@@ -10,7 +10,7 @@ namespace imBMW.iBus.Devices.Real
 
         static NavigationModule()
         {
-            Manager.AddMessageReceiverForSourceDevice(DeviceAddress.NavigationEurope, ProcessNaviMessage);
+            Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.NavigationEurope, ProcessNaviMessage);
         }
 
         static void ProcessNaviMessage(Message m)
@@ -43,7 +43,7 @@ namespace imBMW.iBus.Devices.Real
 
         public static void UpdateBatteryVoltage()
         {
-            Manager.EnqueueMessage(MessageGetAnalogValues);
+            Manager.Instance.EnqueueMessage(MessageGetAnalogValues);
         }
 
         public static event VoltageEventHandler BatteryVoltageChanged;

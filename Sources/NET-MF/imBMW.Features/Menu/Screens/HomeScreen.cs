@@ -54,13 +54,13 @@ namespace imBMW.Features.Menu.Screens
             {
                 GoToScreenCallback = () => MusicListScreen.Instance
             };
-            test1Item = new MenuItem(i => "test1", MenuItemType.Button, MenuItemAction.Refresh)
+            test1Item = new MenuItem(i => "-", MenuItemType.Button, MenuItemAction.Refresh)
             {
             };
-            test2Item = new MenuItem(i => "test2", MenuItemType.Button, MenuItemAction.Refresh)
+            test2Item = new MenuItem(i => "-", MenuItemType.Button, MenuItemAction.Refresh)
             {
             };
-            test3Item = new MenuItem(i => "test3", MenuItemType.Button, MenuItemAction.Refresh)
+            test3Item = new MenuItem(i => "-", MenuItemType.Button, MenuItemAction.Refresh)
             {
             };
 

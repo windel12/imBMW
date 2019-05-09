@@ -37,6 +37,7 @@ namespace imBMW.Features.Menu.Screens
 
         private byte pageNumber = 0;
         private byte itemsCount = 7;
+        private bool lastItemReached;
 
         private IEnumerator filesEnumerator;
 
@@ -81,20 +82,22 @@ namespace imBMW.Features.Menu.Screens
 
         public void NextPage(MenuItem item)
         {
-            ++pageNumber;
-            GeneratePage();
-            Refresh();
+            if (!lastItemReached)
+            {
+                ++pageNumber;
+                GeneratePage();
+                Refresh();
+            }
         }
 
         public void PrevPage(MenuItem item)
         {
             if (pageNumber > 0)
             {
+                lastItemReached = false;
                 --pageNumber;
 
                 InitFilesEnumerator();
-                for (int i = 0; i < itemsCount * pageNumber; i++)
-                    filesEnumerator.MoveNext(); // do nothing, just skip current file
 
                 GeneratePage();
                 Refresh();
@@ -103,21 +106,20 @@ namespace imBMW.Features.Menu.Screens
 
         public void GeneratePage()
         {
-            bool skipAllOtherIterations = false;
             for (int i = 0; i < itemsCount; i++)
             {
                 var trackMenuItem = (TrackMenuItem)Items[i];
 
-                if (skipAllOtherIterations || filesEnumerator.MoveNext())
+                if (lastItemReached || !filesEnumerator.MoveNext())
                 {
+                    trackMenuItem.Text = "-";
+                    lastItemReached = true;
+                }
+                else
+                { 
                     TrackInfo trackInfo = new TrackInfo((string) filesEnumerator.Current);
                     trackMenuItem.Text = trackInfo.Title;
                     trackMenuItem.FilePath = trackInfo.FilePath;
-                }
-                else
-                {
-                    trackMenuItem.Text = "-";
-                    skipAllOtherIterations = true;
                 }
             }
         }
@@ -140,7 +142,7 @@ namespace imBMW.Features.Menu.Screens
 
         public override bool OnNavigatedFrom(MenuBase menu)
         {
-            if (base.OnNavigatedTo(menu))
+            if (base.OnNavigatedFrom(menu))
             {
                 filesEnumerator = null;
 
@@ -151,9 +153,19 @@ namespace imBMW.Features.Menu.Screens
 
         public void InitFilesEnumerator()
         {
+            lastItemReached = false;
+
             string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
             var folder = rootDirectory + "\\" + MediaEmulator.Player.DiskNumber;
             filesEnumerator = Directory.EnumerateFiles(folder).GetEnumerator();
+
+            GoToCurrentPage();
+        }
+
+        private void GoToCurrentPage()
+        {
+            for (int i = 0; i < itemsCount * pageNumber; i++)
+                filesEnumerator.MoveNext(); // do nothing, just skip current file
         }
 
         public static MusicListScreen Instance

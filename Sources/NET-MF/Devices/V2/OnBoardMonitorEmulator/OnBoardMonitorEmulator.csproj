@@ -237,6 +237,9 @@
     <Compile Include="..\..\..\imBMW\iBus\Devices\BodyModule.cs">
       <Link>imBMW\iBus\Devices\BodyModule.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\imBMW\iBus\Devices\DigitalDieselElectronics.cs">
+      <Link>imBMW\iBus\Devices\DigitalDieselElectronics.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\imBMW\iBus\Devices\FrontDisplay.cs">
       <Link>imBMW\iBus\Devices\FrontDisplay.cs</Link>
     </Compile>
@@ -357,6 +360,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Microsoft.SPOT\Debug.cs" />
+    <Compile Include="Microsoft.SPOT\EventArgs.cs" />
     <Compile Include="Microsoft.SPOT\Hardware\Cpu.cs" />
     <Compile Include="Microsoft.SPOT\Hardware\InputPort.cs" />
     <Compile Include="Microsoft.SPOT\Hardware\InterruptPort.cs" />

@@ -3,14 +3,16 @@
 using System;
 using Microsoft.SPOT;
 using System.IO;
+using imBMW.iBus;
+using imBMW.iBus.Devices.Real;
 
 namespace imBMW.Tools
 {
     public class FileLogger
     {
-        const int flushLines = 5;
+        const byte flushLines = 5;
 
-        static int unflushed = 0;
+        static ushort unflushed = 0;
 
         static StreamWriter writer;
         static QueueThreadWorker queue;
@@ -22,19 +24,32 @@ namespace imBMW.Tools
             {
                 FileLogger.flushCallback = flushCallback;
 
+                Logger.FreeMemory();
+
                 queue = new QueueThreadWorker(ProcessItem);
+
+                Logger.FreeMemory();
 
                 if (!Directory.Exists(path))
                 {
                     Directory.CreateDirectory(path);
                 }
+
+                Logger.FreeMemory();
+
                 string fullpath;
-                int i = 0;
+                ushort i = 0;
                 do
                 {
                     fullpath = path + @"\traceLog" + (i++ == 0 ? "" : i.ToString()) + ".log";
+                    Logger.FreeMemory();
                 } while (File.Exists(fullpath));
-                writer = new StreamWriter(fullpath);
+
+                Logger.FreeMemory();
+
+                writer = new StreamWriter(fullpath, append:true);
+
+                Logger.FreeMemory();
 
                 Logger.Logged += Logger_Logged;
 
@@ -42,6 +57,7 @@ namespace imBMW.Tools
             }
             catch (Exception ex)
             {
+                FrontDisplay.RefreshLEDs(LedType.RedBlinking);
                 Logger.Error(ex, "file logger init");
             }
         }
@@ -52,8 +68,8 @@ namespace imBMW.Tools
 #if DebugOnRealDeviceOverFTDI
             if (System.Diagnostics.Debugger.IsAttached)
             {
-                Logger.FreeMemory();
                 Debug.Print(args.LogString);
+                Logger.FreeMemory();
             }
 #endif
         }

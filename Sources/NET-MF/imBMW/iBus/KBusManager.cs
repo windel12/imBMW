@@ -1,6 +1,7 @@
 using System;
 using System.IO.Ports;
-using Microsoft.SPOT;
+using imBMW.Diagnostics;
+using imBMW.Tools;
 
 namespace imBMW.iBus
 {
@@ -29,7 +30,7 @@ namespace imBMW.iBus
         {
             if (!Instance.Inited)
             {
-                Instance.InitPort(port, KBusManager.PORT_NAME);
+                Instance.InitPort(port, PORT_NAME);
             }
             else
             {

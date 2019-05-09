@@ -16,7 +16,7 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
 
         static RadioEmulator()
         {
-            Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.Radio, ProcessToRadioMessage);
+            Manager.Instance.AddMessageReceiverForDestinationDevice(DeviceAddress.Radio, ProcessToRadioMessage);
 
             // emulate radio response to CD changer
         }
@@ -28,7 +28,7 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
             if (m.Data.Compare(MessageRegistry.DataPollRequest))
             {
                 var pollResponseMessage = new Message(DeviceAddress.Radio, DeviceAddress.GlobalBroadcastAddress, MessageRegistry.DataPollResponse);
-                Manager.EnqueueMessage(pollResponseMessage);
+                Manager.Instance.EnqueueMessage(pollResponseMessage);
             }
             if (m.Data.Length == 4 && m.Data.StartsWith(Bordmonitor.DataItemClicked) && m.Data[3] <= 9)
             {
@@ -48,7 +48,7 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
                 }
                 var showTitleMessage = Bordmonitor.ShowText("CD " + diskNumber + "-", BordmonitorFields.Title, send: false);
                 var selectDiskMessage = new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, CDChanger.GetDataSelectDisk(diskNumber));
-                Manager.EnqueueMessage(showTitleMessage, selectDiskMessage);
+                Manager.Instance.EnqueueMessage(showTitleMessage, selectDiskMessage);
             }
             if (m.Data.Length == 8 && m.Data.StartsWith(0x39))
             {
@@ -58,20 +58,18 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
             }
             if (m.Data.Length == 2 && m.Data.StartsWith(Radio.DataRadioKnobPressed))
             {
-                if (IsEnabled)
-                {
-                    Manager.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, CDChanger.DataStop));
-                }
+                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.Broadcast, IsEnabled ? Radio.DataRadioOff : Radio.DataRadioOn));
+                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, IsEnabled ? CDChanger.DataStop : CDChanger.DataPlay));
             }
             if (m.Data.Length == 2 && m.Data.StartsWith(Radio.DataNextPressed))
             {
                 var message = new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, CDChanger.DataNext);
-                Manager.EnqueueMessage(message);
+                Manager.Instance.EnqueueMessage(message);
             }
             if (m.Data.Length == 2 && m.Data.StartsWith(Radio.DataPrevPressed))
             {
                 var message = new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, CDChanger.DataPrev);
-                Manager.EnqueueMessage(message);
+                Manager.Instance.EnqueueMessage(message);
             }
         }
     }

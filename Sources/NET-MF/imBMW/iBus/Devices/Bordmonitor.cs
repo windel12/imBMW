@@ -216,7 +216,7 @@ namespace imBMW.iBus.Devices.Real
 
         static Bordmonitor()
         {
-            Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.GraphicsNavigationDriver, ProcessNavGraphicsMessage);
+            Manager.Instance.AddMessageReceiverForDestinationDevice(DeviceAddress.GraphicsNavigationDriver, ProcessNavGraphicsMessage);
         }
 
         /// <summary>
@@ -313,7 +313,7 @@ namespace imBMW.iBus.Devices.Real
             {
                 i--;
                 _screenUpdatedCounter = 0;
-                Manager.EnqueueMessage(new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.Radio, "Screen updated messages: " + (i + 1), 0x22, 0x00, i));
+                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.Radio, "Screen updated messages: " + (i + 1), 0x22, 0x00, i));
             }
 
             i = _screenUpdatedMenuCounter;
@@ -321,7 +321,7 @@ namespace imBMW.iBus.Devices.Real
             {
                 i--;
                 _screenUpdatedMenuCounter = 0;
-                Manager.EnqueueMessage(new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.Radio, "Menu updated messages: " + (i + 1), 0x22, i, 0xFF));
+                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.Radio, "Menu updated messages: " + (i + 1), 0x22, i, 0xFF));
             }
         }
 
@@ -439,7 +439,7 @@ namespace imBMW.iBus.Devices.Real
             var m = new Message(iBus.DeviceAddress.Radio, iBus.DeviceAddress.GraphicsNavigationDriver, "Show message on BM (" + index.ToHex() + "): " + s, data);
             if (send)
             {
-                Manager.EnqueueMessage(m);
+                Manager.Instance.EnqueueMessage(m);
             }
             return m;
         }
@@ -447,24 +447,24 @@ namespace imBMW.iBus.Devices.Real
         public static void PressItem(byte index)
         {
             index &= 0x0F;
-            Manager.EnqueueMessage(new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.Radio, "Press Screen item #" + index, DataItemClicked, index));
+            Manager.Instance.EnqueueMessage(new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.Radio, "Press Screen item #" + index, DataItemClicked, index));
             index += 0x40;
-            Manager.EnqueueMessage(new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.Radio, "Release Screen item #" + index, DataItemClicked, index));
+            Manager.Instance.EnqueueMessage(new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.Radio, "Release Screen item #" + index, DataItemClicked, index));
         }
 
         public static void RefreshScreen()
         {
-            Manager.EnqueueMessage(MessageRefreshScreen);
+            Manager.Instance.EnqueueMessage(MessageRefreshScreen);
         }
 
         public static void DisableRadioMenu()
         {
-            Manager.EnqueueMessage(MessageDisableRadioMenu);
+            Manager.Instance.EnqueueMessage(MessageDisableRadioMenu);
         }
 
         public static void EnableRadioMenu()
         {
-            Manager.EnqueueMessage(MessageEnableRadioMenu);
+            Manager.Instance.EnqueueMessage(MessageEnableRadioMenu);
         }
 
 

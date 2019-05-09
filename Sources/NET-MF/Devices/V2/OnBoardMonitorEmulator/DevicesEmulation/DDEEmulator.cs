@@ -22,8 +22,17 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
             if (m.Data[0] == 0x2C && m.Data[1] == 0x10)
             {
                 Random r = new Random();
-                var motor_temperatur_positive_response = new DBusMessage(DeviceAddress.DDE, DeviceAddress.OBD, 0x6C, 0x10, 0x00, (byte)r.Next(0, 255));
-                DBusManager.Instance.EnqueueMessage(motor_temperatur_positive_response);
+                var response = new DBusMessage(DeviceAddress.DDE, DeviceAddress.OBD, 0x6C, 0x10, 
+                    0x01, (byte)r.Next(0, 255),
+                    0x03, (byte)r.Next(0, 255),
+                    0x05, (byte)r.Next(0, 255),
+                    0x07, (byte)r.Next(0, 255),
+                    0x09, (byte)r.Next(0, 255),
+                    0x0B, (byte)r.Next(0, 255),
+                    0x0D, (byte)r.Next(0, 255),
+                    0x0F, (byte)r.Next(0, 255),
+                    0x11, (byte)r.Next(0, 255));
+                DBusManager.Instance.EnqueueMessage(response);
             }
         }
     }

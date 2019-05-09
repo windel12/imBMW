@@ -14,7 +14,7 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
 
         static AuxilaryHeaterEmulator()
         {
-            Manager.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.Diagnostic, DeviceAddress.AuxilaryHeater, ProcessDiagnosticMessageToAuxilaryHeater);
+            Manager.Instance.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.Diagnostic, DeviceAddress.AuxilaryHeater, ProcessDiagnosticMessageToAuxilaryHeater);
             KBusManager.Instance.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.AuxilaryHeater, ProcessMessageFromIHKA);
         }
 
@@ -25,7 +25,7 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
                 m.Data.StartsWith(AuxilaryHeater.SteuernZuheizerOff.Data))
             {
                 Thread.Sleep(100);
-                Manager.EnqueueMessage(AuxilaryHeater.DiagnoseOk_KBus);
+                Manager.Instance.EnqueueMessage(AuxilaryHeater.DiagnoseOk_KBus);
             }
         }
 

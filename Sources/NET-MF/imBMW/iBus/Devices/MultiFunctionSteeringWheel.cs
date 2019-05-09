@@ -9,6 +9,8 @@ namespace imBMW.iBus.Devices.Real
     {
         Next,
         Prev,
+        VolumeUp,
+        VolumeDown,
         RT,
         ModeRadio,
         ModeTelephone,
@@ -41,7 +43,7 @@ namespace imBMW.iBus.Devices.Real
         static MultiFunctionSteeringWheel()
         {
             // TODO receive BM volume commands
-            Manager.AddMessageReceiverForSourceDevice(DeviceAddress.MultiFunctionSteeringWheel, ProcessMFLMessage);
+            Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.MultiFunctionSteeringWheel, ProcessMFLMessage);
             InstrumentClusterElectronics.IgnitionStateChanged += InstrumentClusterElectronics_IgnitionStateChanged;
         }
 
@@ -54,14 +56,14 @@ namespace imBMW.iBus.Devices.Real
         {
             step = (byte)System.Math.Max((byte)1, System.Math.Min(step, (byte)9));
             var p = (byte)((step << 4) + 1);
-            Manager.EnqueueMessage(new Message(DeviceAddress.MultiFunctionSteeringWheel, DeviceAddress.Radio, "Volume Up +" + step, 0x32, p));
+            Manager.Instance.EnqueueMessage(new Message(DeviceAddress.MultiFunctionSteeringWheel, DeviceAddress.Radio, "Volume Up +" + step, 0x32, p));
         }
 
         public static void VolumeDown(byte step = 1)
         {
             step = (byte)System.Math.Max((byte)1, System.Math.Min(step, (byte)9));
             var p = (byte)(step << 4);
-            Manager.EnqueueMessage(new Message(DeviceAddress.MultiFunctionSteeringWheel, DeviceAddress.Radio, "Volume Down -" + step, 0x32, p));
+            Manager.Instance.EnqueueMessage(new Message(DeviceAddress.MultiFunctionSteeringWheel, DeviceAddress.Radio, "Volume Down -" + step, 0x32, p));
         }
 
         static void InstrumentClusterElectronics_IgnitionStateChanged(IgnitionEventArgs e)
@@ -79,7 +81,19 @@ namespace imBMW.iBus.Devices.Real
             {
                 if (EmulatePhone)
                 {
-                    Manager.EnqueueMessage(MessagePhoneResponse);
+                    Manager.Instance.EnqueueMessage(MessagePhoneResponse);
+                }
+            }
+            else if (m.Data.Length == 2 && m.Data[0] == 0x32)
+            {
+                switch (m.Data[1])
+                {
+                    case 0x10:
+                        OnButtonPressed(m, MFLButton.VolumeDown);
+                        break;
+                    case 0x11:
+                        OnButtonPressed(m, MFLButton.VolumeUp);
+                        break;
                 }
             }
             else if (m.Data.Length == 2 && m.Data[0] == 0x3B)
@@ -90,7 +104,6 @@ namespace imBMW.iBus.Devices.Real
                     case 0x01:
                         OnButtonPressed(m, MFLButton.Next);
                         break;
-
                     case 0x08:
                         OnButtonPressed(m, MFLButton.Prev);
                         break;

@@ -1,5 +1,4 @@
 using System;
-using Microsoft.SPOT;
 using System.Collections;
 using imBMW.Tools;
 using imBMW.iBus.Devices.Real;
@@ -16,7 +15,7 @@ namespace imBMW.Features.Menu
         Scroll
     }
 
-    public class MenuScreenUpdateEventArgs : EventArgs
+    public class MenuScreenUpdateEventArgs : Microsoft.SPOT.EventArgs
     {
         public object Item { get; protected set; }
 

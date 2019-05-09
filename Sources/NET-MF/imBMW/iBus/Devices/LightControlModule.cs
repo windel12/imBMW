@@ -23,7 +23,7 @@ namespace imBMW.iBus.Devices.Real
     {
         static LightControlModule()
         {
-            Manager.AddMessageReceiverForSourceDevice(DeviceAddress.LightControlModule, ProcessLCMMessage);
+            Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.LightControlModule, ProcessLCMMessage);
         }
 
         /// <summary>

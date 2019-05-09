@@ -207,7 +207,7 @@ namespace imBMW.iBus.Devices.Real
             TemperatureOutside = sbyte.MinValue;
             TemperatureCoolant = sbyte.MinValue;
 
-            Manager.AddMessageReceiverForSourceDevice(DeviceAddress.InstrumentClusterElectronics, ProcessIKEMessage);
+            Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.InstrumentClusterElectronics, ProcessIKEMessage);
         }
 
         /// <summary>
@@ -415,37 +415,37 @@ namespace imBMW.iBus.Devices.Real
 
         public static void Gong1()
         {
-            Manager.EnqueueMessage(MessageGong1);
+            Manager.Instance.EnqueueMessage(MessageGong1);
         }
 
         public static void Gong2()
         {
-            Manager.EnqueueMessage(MessageGong2);
+            Manager.Instance.EnqueueMessage(MessageGong2);
         }
 
         public static void ResetConsumption1()
         {
-            Manager.EnqueueMessage(MessageResetConsumption1);
+            Manager.Instance.EnqueueMessage(MessageResetConsumption1);
         }
 
         public static void ResetConsumption2()
         {
-            Manager.EnqueueMessage(MessageResetConsumption2);
+            Manager.Instance.EnqueueMessage(MessageResetConsumption2);
         }
 
         public static void ResetAverageSpeed()
         {
-            Manager.EnqueueMessage(MessageResetAverageSpeed);
+            Manager.Instance.EnqueueMessage(MessageResetAverageSpeed);
         }
 
         public static void SetSpeedLimitToCurrentSpeed()
         {
-            Manager.EnqueueMessage(MessageSpeedLimitCurrentSpeed);
+            Manager.Instance.EnqueueMessage(MessageSpeedLimitCurrentSpeed);
         }
 
         public static void SetSpeedLimitOff()
         {
-            Manager.EnqueueMessage(MessageSpeedLimitOff);
+            Manager.Instance.EnqueueMessage(MessageSpeedLimitOff);
         }
 
         public static void SetSpeedLimitOn()
@@ -475,11 +475,11 @@ namespace imBMW.iBus.Devices.Real
                 {
                     _lastSpeedLimit = limit;
                 }
-                Manager.EnqueueMessage(new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Set speed limit", 0x40, 0x09, (byte)(limit >> 8), (byte)(limit & 0xFF)));
+                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Set speed limit", 0x40, 0x09, (byte)(limit >> 8), (byte)(limit & 0xFF)));
             }
             if (refresh)
             {
-                Manager.EnqueueMessage(MessageSpeedLimitOn);
+                Manager.Instance.EnqueueMessage(MessageSpeedLimitOn);
             }
         }
 
@@ -502,17 +502,17 @@ namespace imBMW.iBus.Devices.Real
 
         public static void RequestDateTime()
         {
-            Manager.EnqueueMessage(MessageRequestDate, MessageRequestTime);
+            Manager.Instance.EnqueueMessage(MessageRequestDate, MessageRequestTime);
         }
 
         public static void RequestConsumption()
         {
-            Manager.EnqueueMessage(MessageRequestConsumtion1, MessageRequestConsumtion2);
+            Manager.Instance.EnqueueMessage(MessageRequestConsumtion1, MessageRequestConsumtion2);
         }
 
         public static void RequestAverageSpeed()
         {
-            Manager.EnqueueMessage(MessageRequestAverageSpeed);
+            Manager.Instance.EnqueueMessage(MessageRequestAverageSpeed);
         }
 
         private const int _getDateTimeTimeout = 2000;

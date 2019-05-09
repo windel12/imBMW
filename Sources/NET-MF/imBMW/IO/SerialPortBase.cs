@@ -64,8 +64,19 @@ namespace System.IO.Ports
             _bufferSync = new object();                 // initializing the sync root object
             _incomingBuffer = new byte[_readBufferSize]; // allocating memory for incoming data
 
-            SPIN_WAIT_TIMER = new SpinWaitTimer();
-            SPIN_WAIT_TIMER.Calibrate();
+            //SPIN_WAIT_TIMER = new SpinWaitTimer();
+            //SPIN_WAIT_TIMER.Calibrate();
+        }
+
+        private void Wait(long microseconds)
+        {
+            var then = Utility.GetMachineTime().Ticks;
+            var ticksToWait = microseconds * TimeSpan.TicksPerMillisecond / 1000;
+            while (true)
+            {
+                var now = Utility.GetMachineTime().Ticks;
+                if ((now - then) > ticksToWait) break;
+            }
         }
 
         public abstract bool IsOpen { get; }
@@ -117,16 +128,26 @@ namespace System.IO.Ports
             {
                 WriteDirect(data, i, _writeBufferSize);                         // send it out
                 if (AfterWriteDelay > 0)
-                    SPIN_WAIT_TIMER.WaitMilliseconds(AfterWriteDelay);
-                    //Thread.Sleep(AfterWriteDelay);         // and include pause after chunk
+                    //SPIN_WAIT_TIMER.WaitMilliseconds(AfterWriteDelay);
+#if OnBoardMonitorEmulator
+                    Thread.Sleep(AfterWriteDelay);         // and include pause after chunk
+#endif
+#if NETMF
+                    Wait(AfterWriteDelay * 1000);
+#endif
             }
 
             if (modulus > 0)                                                    // If any data left which do not fill whole _writeBuferSize chunk,
             {
                 WriteDirect(data, offset + length, modulus);                    // send it out as well
                 if (AfterWriteDelay > 0)
-                    SPIN_WAIT_TIMER.WaitMilliseconds(AfterWriteDelay);
-                    //Thread.Sleep(AfterWriteDelay);         // and pause for case consecutive calls to any write method.
+                    //SPIN_WAIT_TIMER.WaitMilliseconds(AfterWriteDelay);
+#if OnBoardMonitorEmulator
+                    Thread.Sleep(AfterWriteDelay);         // and pause for case consecutive calls to any write method.
+#endif
+#if NETMF
+                    Wait(AfterWriteDelay * 1000);
+#endif
             }
 
             _writeThread = null;                                                // release current thread so that the _busy signal does not affect external code execution
@@ -162,10 +183,10 @@ namespace System.IO.Ports
             Write(text + NewLine);
         }
 
-        #endregion
+#endregion
 
 
-        #region Reading
+#region Reading
 
         protected abstract int ReadDirect(byte[] data, int offset, int length);
 
@@ -395,10 +416,10 @@ namespace System.IO.Ports
             return -1;
         }
 
-        #endregion
+#endregion
 
 
-        #region DataReceived event stuff
+#region DataReceived event stuff
 
         protected object _bufferSync;                 // Sync root object for manipulation with the _incomingBuffer and/or its position/valid length fields.
         protected bool _continueReading;              // A soft way to end the reading thread.
@@ -603,6 +624,6 @@ namespace System.IO.Ports
             get { return _readThread != null && (_readThread.ThreadState == ThreadState.WaitSleepJoin || _readThread.ThreadState == ThreadState.Running); }
         }
 
-        #endregion
+#endregion
     }
 }

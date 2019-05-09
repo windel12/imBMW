@@ -1,6 +1,7 @@
 using System;
-using Microsoft.SPOT;
 using System.Threading;
+using imBMW.iBus;
+using imBMW.iBus.Devices.Real;
 
 namespace imBMW.Features.Menu.Screens
 {
@@ -10,44 +11,83 @@ namespace imBMW.Features.Menu.Screens
 
         protected Timer refreshTimer;
         private int refreshRate = 1000;
-        private Random r = new Random();
+        //private Random r = new Random();
+
+        protected MenuItem item1;
+        protected MenuItem item2;
+        protected MenuItem item3;
+        protected MenuItem item4;
+        protected MenuItem item5;
+        protected MenuItem item6;
+        protected MenuItem item7;
+        protected MenuItem item8;
+        protected MenuItem item9;
 
         public DDEScreen()
         {
             FastMenuDrawing = true;
 
-            ClearItems();
-            AddItem(new MenuItem(i => "Increase refresh rate", x =>
+            item1 = new MenuItem(x => "VDF: " + DigitalDieselElectronics.PresupplyPressure) { ShouldRefreshScreenIfTextChanged = false };
+            item2 = new MenuItem(x => "RPM: " + DigitalDieselElectronics.Rpm) { ShouldRefreshScreenIfTextChanged = false };
+            item3 = new MenuItem(x => "LDF_in: " + DigitalDieselElectronics.BoostActual) { ShouldRefreshScreenIfTextChanged = false };
+            item4 = new MenuItem(x => "LDF_soll: " + DigitalDieselElectronics.BoostTarget) { ShouldRefreshScreenIfTextChanged = false };
+            item5 = new MenuItem(x => "IQ: " + DigitalDieselElectronics.InjectionQuantity) { ShouldRefreshScreenIfTextChanged = false };
+            item6 = new MenuItem(x => "KDF_soll: " + DigitalDieselElectronics.RailPressureTarget) { ShouldRefreshScreenIfTextChanged = false };
+            item7 = new MenuItem(x => "KDF_in: " + DigitalDieselElectronics.RailpressureActual) { ShouldRefreshScreenIfTextChanged = false };
+            item8 = new MenuItem(x => "LMM: " + DigitalDieselElectronics.AirMass) { ShouldRefreshScreenIfTextChanged = false };
+            //item9 = new MenuItem(x => "armM_List: " + DigitalDieselElectronics.AirMassPerStroke) { ShouldRefreshScreenIfTextChanged = false };
+            item9 = new MenuItem("Refresh", (e) =>
             {
-                refreshRate -= 200;
-                UpdateRefreshTimer();
-            }));
-            AddItem(new MenuItem(i => "Decrease refresh rate", x =>
-            {
-                refreshRate += 200;
-                UpdateRefreshTimer();
-            }));
-            AddItem(new MenuItem(i => "admIDV: " + r.Next(1000)));
-            AddItem(new MenuItem(i => "admKDF: " + r.Next(1000)));
-            AddItem(new MenuItem(i => "admLDF: " + r.Next(1000)));
-            AddItem(new MenuItem(i => "admLMM: " + r.Next(1000)));
-            AddItem(new MenuItem(i => "admLTF: " + r.Next(1000)));
-            AddItem(new MenuItem(i => "admPWG: " + r.Next(1000)));
-            AddItem(new MenuItem(i => "refresh rate: " + refreshRate.ToString()));
+                DBusManager.Instance.EnqueueMessage(DigitalDieselElectronics.QueryMessage);
+            }, MenuItemType.Button, MenuItemAction.Refresh);
 
+
+            //ClearItems();
+            //AddItem(new MenuItem(i => "Increase refresh rate", x =>
+            //{
+            //    refreshRate -= 200;
+            //    UpdateRefreshTimer();
+            //}));
+            //AddItem(new MenuItem(i => "Decrease refresh rate", x =>
+            //{
+            //    refreshRate += 200;
+            //    UpdateRefreshTimer();
+            //}));
+            //AddItem(new MenuItem(i => "admIDV: " + r.Next(1000)));
+            //AddItem(new MenuItem(i => "admKDF: " + r.Next(1000)));
+            //AddItem(new MenuItem(i => "admLDF: " + r.Next(1000)));
+            //AddItem(new MenuItem(i => "admLMM: " + r.Next(1000)));
+            //AddItem(new MenuItem(i => "admLTF: " + r.Next(1000)));
+            //AddItem(new MenuItem(i => "admPWG: " + r.Next(1000)));
+            //AddItem(new MenuItem(i => "refresh rate: " + refreshRate.ToString()));
+
+            AddItem(item1);
+            AddItem(item2);
+            AddItem(item3);
+            AddItem(item4);
+            AddItem(item5);
+            AddItem(item6);
+            AddItem(item7);
+            AddItem(item8);
+            AddItem(item9);
             this.AddBackButton();
+        }
+
+        private void DigitalDieselElectronics_MessageReceived(Microsoft.SPOT.EventArgs e)
+        {
+            this.Refresh();
         }
 
         public override bool OnNavigatedTo(MenuBase menu)
         {
             if (base.OnNavigatedTo(menu))
             {
-                refreshRate = 1000;
-                refreshTimer = new Timer(delegate
-                {
-                    OnUpdateHeader(MenuScreenUpdateReason.Refresh);
-                    OnUpdateBody(MenuScreenUpdateReason.Refresh);
-                }, null, 500, refreshRate);
+                DigitalDieselElectronics.MessageReceived += DigitalDieselElectronics_MessageReceived;
+                //refreshRate = 1000;
+                //refreshTimer = new Timer(delegate
+                //{
+                //    DBusManager.Instance.EnqueueMessage(DigitalDieselElectronics.QueryMessage);
+                //}, null, 500, refreshRate);
                 return true;
             }
             return false;
@@ -57,11 +97,12 @@ namespace imBMW.Features.Menu.Screens
         {
             if (base.OnNavigatedFrom(menu))
             {
-                if (refreshTimer != null)
-                {
-                    refreshTimer.Dispose();
-                    refreshTimer = null;
-                }
+                DigitalDieselElectronics.MessageReceived -= DigitalDieselElectronics_MessageReceived;
+                //if (refreshTimer != null)
+                //{
+                //    refreshTimer.Dispose();
+                //    refreshTimer = null;
+                //}
                 return true;
             }
             return false;

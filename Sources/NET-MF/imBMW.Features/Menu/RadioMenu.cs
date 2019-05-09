@@ -246,7 +246,7 @@
 //                    MessageMIDLastButtons = m; // to save statuses of TP, RND and SC flags
 //                    if (!wereMIDButtonsOverriden)
 //                    {
-//                        Manager.EnqueueMessage(MessageMIDMenuButtons, m);
+//                        Manager.Instance.EnqueueMessage(MessageMIDMenuButtons, m);
 //                        wereMIDButtonsOverriden = true;
 //                    }
 //                    else

@@ -1,25 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO.Ports;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using imBMW.iBus;
-using Microsoft.SPOT.Hardware;
 using imBMW.Devices.V2;
 using imBMW.Features.Menu;
 using imBMW.Features.Menu.Screens;
 using imBMW.iBus.Devices.Real;
-using imBMW.Tools;
 using OnBoardMonitorEmulator.DevicesEmulation;
 
 namespace OnBoardMonitorEmulator
@@ -59,16 +49,16 @@ namespace OnBoardMonitorEmulator
         public static byte[] PhoneButtonClick = {0x48, 0x08};
         public static byte[] MenuButonHold = { 0x48, 0x74 };
 
-        private bool _isEnabled = false;
-        public bool IsEnabled
-        {
-            get { return _isEnabled; }
-            set
-            {
-                _isEnabled = value;
-                RadioEmulator.IsEnabled = value; 
-            }
-        }
+        //private bool _isEnabled = false;
+        //public bool IsEnabled
+        //{
+        //    get { return _isEnabled; }
+        //    set
+        //    {
+        //        _isEnabled = value;
+        //        RadioEmulator.IsEnabled = value;
+        //    }
+        //}
 
         private GraphicsNavigationDriverState _state;
 
@@ -113,9 +103,29 @@ namespace OnBoardMonitorEmulator
             FrontDisplayEmulator.LedChanged += FrontDisplayEmulator_LedChanged;
             InstrumentClusterElectronicsEmulator.OBCTextChanged += InstrumentClusterElectronicsEmulator_OBCTextChanged;
 
-            BordmonitorMenu.Instance.CurrentScreen = HomeScreen.Instance;
+            //BordmonitorMenu.Instance.CurrentScreen = HomeScreen.Instance;
+
+            Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.Radio, m =>
+            {
+                this.Dispatcher.Invoke(() =>
+                {
+                    if (m.Data[0] == 0x4A && m.Data[1] == 0xFF)
+                    {
+                        RadioEmulator.IsEnabled = true;
+                        Knob1Button.FontWeight = FontWeights.Bold;
+                        Knob1Button.Foreground = new SolidColorBrush(Colors.Orange);
+                    }
+                    if (m.Data[0] == 0x4A && m.Data[1] == 0x00)
+                    {
+                        RadioEmulator.IsEnabled = false;
+                        Knob1Button.FontWeight = FontWeights.Normal;
+                        Knob1Button.Foreground = new SolidColorBrush(Colors.Black);
+                        OBCDisplay.Text = "";
+                    }
+                });
+            });
 #if !DebugOnRealDeviceOverFTDI
-            Launcher.emulator.IsEnabled = true;
+            //Launcher.emulator.IsEnabled = true;
 #endif
         }
 
@@ -157,23 +167,32 @@ namespace OnBoardMonitorEmulator
             });
         }
 
-        private void FrontDisplayEmulator_LedChanged(Launcher.LedType ledType)
+        private void FrontDisplayEmulator_LedChanged(LedType ledType)
         {
             this.Dispatcher.Invoke(() =>
             {
-                if (ledType == Launcher.LedType.Red || ledType == Launcher.LedType.RedBlinking)
+                RedIndicator.Fill = OrangeIndicator.Fill = GreenIndicator.Fill = new SolidColorBrush(Colors.White);
+                RedIndicator.Opacity = OrangeIndicator.Opacity = GreenIndicator.Opacity = 1;
+
+                if ((ledType & LedType.Red) != 0 || (ledType & LedType.RedBlinking) != 0)
                 {
                     RedIndicator.Fill = new SolidColorBrush(Colors.Red);
+                    if (ledType == LedType.RedBlinking)
+                        RedIndicator.Opacity = 0.5;
                 }
-                if (ledType == Launcher.LedType.Orange || ledType == Launcher.LedType.OrangeBlinking)
+                if ((ledType & LedType.Orange) != 0 || (ledType & LedType.OrangeBlinking) != 0)
                 {
                     OrangeIndicator.Fill = new SolidColorBrush(Colors.Orange);
+                    if (ledType == LedType.OrangeBlinking)
+                        OrangeIndicator.Opacity = 0.5;
                 }
-                if (ledType == Launcher.LedType.Green || ledType == Launcher.LedType.GreenBlinking)
+                if ((ledType & LedType.Green) != 0 || (ledType & LedType.GreenBlinking) != 0)
                 {
                     GreenIndicator.Fill = new SolidColorBrush(Colors.Green);
+                    if (ledType == LedType.GreenBlinking)
+                        GreenIndicator.Opacity = 0.5;
                 }
-                if (ledType == Launcher.LedType.Empty)
+                if (ledType == LedType.Empty)
                 {
                     RedIndicator.Fill = new SolidColorBrush(Colors.White);
                     OrangeIndicator.Fill = new SolidColorBrush(Colors.White);
@@ -189,21 +208,12 @@ namespace OnBoardMonitorEmulator
 
         private void WriteMessage(Message message)
         {
-            Manager.EnqueueMessage(message);
+            Manager.Instance.EnqueueMessage(message);
         }
 
         private void Knob1Button_Click(object sender, RoutedEventArgs e)
         {
-            var dataPlayMessage = new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, IsEnabled ? DataStop : DataPlay);
-            WriteMessage(dataPlayMessage);
-            IsEnabled = !IsEnabled;
-            var button = (sender as Button);
-            button.FontWeight = IsEnabled ? FontWeights.Bold : FontWeights.Normal;
-            button.Foreground = new SolidColorBrush(IsEnabled ? Colors.Orange : Colors.Black);
-            if (!IsEnabled)
-            {
-                OBCDisplay.Text = "";
-            }
+            Radio.PressOnOffToggle();
         }
 
         private void Knob2Button_Click(object sender, RoutedEventArgs e)
@@ -294,6 +304,16 @@ namespace OnBoardMonitorEmulator
         {
             var message = new Message(DeviceAddress.imBMWTest, DeviceAddress.Broadcast, 0xEE, 0x00);
             WriteMessage(message);
+        }
+
+        private void MFLButton_VolumeUp(object sender, RoutedEventArgs e)
+        {
+            MultiFunctionSteeringWheel.VolumeUp();
+        }
+
+        private void MFLButton_VolumeDown(object sender, RoutedEventArgs e)
+        {
+            MultiFunctionSteeringWheel.VolumeDown();
         }
     }
 }

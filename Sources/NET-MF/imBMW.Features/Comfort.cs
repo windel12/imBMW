@@ -99,26 +99,26 @@ namespace imBMW.Features
                 case Command.FullCloseWindows:
                     for (byte i = 0; i < 3; i++)
                     {
-                        Manager.EnqueueMessage(BodyModule.MessageCloseWindowDriverFront);
+                        Manager.Instance.EnqueueMessage(BodyModule.MessageCloseWindowDriverFront);
                         Thread.Sleep(750);
-                        Manager.EnqueueMessage(BodyModule.MessageCloseWindowPassengerFront);
+                        Manager.Instance.EnqueueMessage(BodyModule.MessageCloseWindowPassengerFront);
                         Thread.Sleep(750);
-                        Manager.EnqueueMessage(BodyModule.MessageCloseWindowDriverRear);
+                        Manager.Instance.EnqueueMessage(BodyModule.MessageCloseWindowDriverRear);
                         Thread.Sleep(750);
-                        Manager.EnqueueMessage(BodyModule.MessageCloseWindowPassengerRear);
+                        Manager.Instance.EnqueueMessage(BodyModule.MessageCloseWindowPassengerRear);
                         Thread.Sleep(750);
                     }
                     break;
                 case Command.FullOpenWindows:
                     for (byte i = 0; i < 3; i++)
                     {
-                        Manager.EnqueueMessage(BodyModule.MessageOpenWindowDriverFront);
+                        Manager.Instance.EnqueueMessage(BodyModule.MessageOpenWindowDriverFront);
                         Thread.Sleep(750);
-                        Manager.EnqueueMessage(BodyModule.MessageOpenWindowPassengerFront);
+                        Manager.Instance.EnqueueMessage(BodyModule.MessageOpenWindowPassengerFront);
                         Thread.Sleep(750);
-                        Manager.EnqueueMessage(BodyModule.MessageOpenWindowDriverRear);
+                        Manager.Instance.EnqueueMessage(BodyModule.MessageOpenWindowDriverRear);
                         Thread.Sleep(750);
-                        Manager.EnqueueMessage(BodyModule.MessageOpenWindowPassengerRear);
+                        Manager.Instance.EnqueueMessage(BodyModule.MessageOpenWindowPassengerRear);
                         Thread.Sleep(750);
                     }
                     break;

@@ -12,11 +12,11 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
         private static Timer rpmSpeedAnounceTimer;
         private static Timer temperatureAnounceTimer;
 
-        private static byte rpmSpeedAnounceTimerInterval = 1;//2;
-        private static byte temperatureAnounceTimerIterval = 1;//10;
+        private static byte rpmSpeedAnounceTimerInterval = 2;//2;
+        private static byte temperatureAnounceTimerIterval = 10;//10;
 
         private static byte CurrentSpeed = 0;
-        private static byte CurrentRPM = 0;
+        private static ushort CurrentRPM = 0;
         private static byte TemperatureOutside = 15;
         private static byte TemperatureCoolant = 5;
 
@@ -27,37 +27,34 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
 
         static InstrumentClusterElectronicsEmulator()
         {
-            Manager.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, ProcessMessageFromGraphicNavigationDriver);
-            Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.InstrumentClusterElectronics, ProcessMessageToIKE);
+            Manager.Instance.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, ProcessMessageFromGraphicNavigationDriver);
+            Manager.Instance.AddMessageReceiverForDestinationDevice(DeviceAddress.InstrumentClusterElectronics, ProcessMessageToIKE);
 
             DBusManager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.OBD, ProcessDS2MessageAndForwardToIBus);
-            Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.Diagnostic, ProcessDiagnosticMessageFromIBusAndForwardToDBus);
-        }
+            Manager.Instance.AddMessageReceiverForDestinationDevice(DeviceAddress.Diagnostic, ProcessDiagnosticMessageFromIBusAndForwardToDBus);
 
-        private static void GenerateRpmSpeedTemp()
-        {
-            var random = new Random();
-            CurrentSpeed = (byte)random.Next(0x00, 0xFF);
-            CurrentRPM = (byte)random.Next(0x00, 44);
-            TemperatureOutside++;
-            TemperatureCoolant++;
+            TemperatureOutside = (byte)(new Random().Next(0, 40));
         }
 
         public static void StartAnounce()
         {
             rpmSpeedAnounceTimer = new Timer((state) =>
             {
-                GenerateRpmSpeedTemp();
-                var rpmSpeedMessage = new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.GlobalBroadcastAddress, 0x18, CurrentSpeed, CurrentRPM);
-                Manager.EnqueueMessage(rpmSpeedMessage);
+                var random = new Random();
+                CurrentSpeed++;// (byte)random.Next(0, 160);
+                CurrentRPM = (ushort)random.Next(800, 4400);
+
+                var rpmSpeedMessage = new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.GlobalBroadcastAddress, 0x18, (byte)(CurrentSpeed / 2), (byte)(CurrentRPM / 100));
+                Manager.Instance.EnqueueMessage(rpmSpeedMessage);
                 KBusManager.Instance.EnqueueMessage(rpmSpeedMessage);
             }, null, 0, rpmSpeedAnounceTimerInterval * 1000);
 
             temperatureAnounceTimer = new Timer((state) =>
             {
-                GenerateRpmSpeedTemp();
+                TemperatureCoolant += 5;
+                
                 var temperatureMessage = new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.GlobalBroadcastAddress, 0x19, TemperatureOutside, TemperatureCoolant, 0x00);
-                Manager.EnqueueMessage(temperatureMessage);
+                Manager.Instance.EnqueueMessage(temperatureMessage);
                 KBusManager.Instance.EnqueueMessage(temperatureMessage);
 
             }, null, 0, temperatureAnounceTimerIterval * 1000);
@@ -68,12 +65,12 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
             if (m.Data.Compare(InstrumentClusterElectronics.MessageRequestTime.Data))
             {
                 // 16:58
-                Manager.EnqueueMessage(new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.FrontDisplay, 0x24, 0x01, 0x00, 0x31, 0x36, 0x3A, 0x34, 0x38, 0x20, 0x20));
+                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.FrontDisplay, 0x24, 0x01, 0x00, 0x31, 0x36, 0x3A, 0x34, 0x38, 0x20, 0x20));
             }
             if (m.Data.Compare(InstrumentClusterElectronics.MessageRequestDate.Data))
             {
                 // 06/26/2016"
-                Manager.EnqueueMessage(new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.FrontDisplay, 0x24, 0x02, 0x00, 0x30, 0x36, 0x2F, 0x32, 0x36, 0x2F, 0x32, 0x30, 0x31, 0x36));
+                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.FrontDisplay, 0x24, 0x02, 0x00, 0x30, 0x36, 0x2F, 0x32, 0x36, 0x2F, 0x32, 0x30, 0x31, 0x36));
             }
         }
 
@@ -111,7 +108,7 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
 
             Thread.Sleep(100);
             var message = new Message(DeviceAddress.Diagnostic, m.DestinationDevice, m.Data);
-            Manager.EnqueueMessage(message);
+            Manager.Instance.EnqueueMessage(message);
         }
 
         static void ProcessDiagnosticMessageFromIBusAndForwardToDBus(Message m)

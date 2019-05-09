@@ -25,7 +25,7 @@ namespace imBMW.Features
                 var data = (byte[])message.Data.Clone();
                 data[4] = data[4].RemoveBits(0x30);
                 var m = new Message(DeviceAddress.LightControlModule, DeviceAddress.GlobalBroadcastAddress, data);
-                Manager.EnqueueMessage(m);
+                Manager.Instance.EnqueueMessage(m);
             }
         }
     }

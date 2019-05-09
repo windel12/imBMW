@@ -35,7 +35,12 @@
         <Button x:Name="PhoneButton" Content="Phone" HorizontalAlignment="Left" Margin="509,143,0,0" VerticalAlignment="Top" Width="90" Click="PhoneButton_Click"/>
         <Button x:Name="EjectButton" Content="Eject" HorizontalAlignment="Left" Margin="554,118,0,0" VerticalAlignment="Top" Width="40"/>
 
-        <Grid Name="BordComputerGrid" Background="Black" Visibility="Visible" Width="400" Height="234" Margin="105,75,105,10">
+        <Button x:Name="VolumeUp" Content="+" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="40" Click="MFLButton_VolumeUp"/>
+        <Button x:Name="VolumeDown" Content="-" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Width="40" Click="MFLButton_VolumeDown"/>
+
+        <TextBlock x:Name="OBCDisplay" HorizontalAlignment="Left" Margin="105,76,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="400" Height="37" Foreground="#FFE08619" Background="Black" Text="123" FontWeight="Bold" FontSize="24" TextAlignment="Center"/>
+
+        <Grid Name="BordComputerGrid" Background="Black" Visibility="Visible" Width="400" Margin="105,118,105,10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -107,7 +112,7 @@
                 <TextBlock Grid.Row="4" Grid.Column="1" Name="index10" Text="" FontSize="18" Mouse.MouseDown="index_MouseDown"/>
             </Grid>
         </StackPanel>
-        <Button x:Name="imBMWTest" Content="imBMWTest" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" Click="imBMWTest_Click"/>
-        <TextBlock x:Name="OBCDisplay" HorizontalAlignment="Left" Margin="105,33,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="400" Height="37" Foreground="#FFE08619" Background="Black" Text="123" FontWeight="Bold" FontSize="24" TextAlignment="Center"/>
+
+        <Button x:Name="imBMWTest" Content="imBMWTest" HorizontalAlignment="Left" Margin="524,10,0,0" VerticalAlignment="Top" Width="75" Click="imBMWTest_Click"/>
     </Grid>
 </Window>

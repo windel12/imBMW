@@ -30,11 +30,11 @@ namespace imBMW.Features.Menu.Screens
             //    {
             //        if (i.IsChecked)
             //        {
-            //            Manager.EnqueueMessage(MessageStopAuxilaryHeater);
+            //            Manager.Instance.EnqueueMessage(MessageStopAuxilaryHeater);
             //        }
             //        else
             //        {
-            //            Manager.EnqueueMessage(MessageStartAuxilaryHeater);
+            //            Manager.Instance.EnqueueMessage(MessageStartAuxilaryHeater);
             //        }
             //    }, MenuItemType.Checkbox));
 

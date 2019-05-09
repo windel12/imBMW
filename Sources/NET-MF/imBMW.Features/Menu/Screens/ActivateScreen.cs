@@ -20,8 +20,6 @@ namespace imBMW.Features.Menu.Screens
             TitleCallback = s => Localization.Current.Activate;
             //StatusCallback = s => AuxilaryHeater.Status.ToString();
 
-            DBusManager.Instance.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.DDE, DeviceAddress.OBD, ProcessFromDDEMessage);
-
             AuxilaryHeater.Init();
 
             DBusMessage motor_temperatur = new DBusMessage(DeviceAddress.OBD, DeviceAddress.DDE, 0x2C, 0x10, 0x0F, 0x00);
@@ -121,16 +119,6 @@ namespace imBMW.Features.Menu.Screens
                     instance = new ActivateScreen();
                 }
                 return instance;
-            }
-        }
-
-        void ProcessFromDDEMessage(Message m)
-        {
-            if (m.Data[0] == 0x6C && m.Data[1] == 0x10)
-            {
-                Logger.Trace("Response from DDE: " + m.Data.ToHex(' '));
-                MotorTemperatur = BitConverter.ToInt16(new byte[2] { m.Data[2], m.Data[3] }, 0).ToString();
-                this.Refresh();
             }
         }
 

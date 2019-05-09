@@ -11,5 +11,10 @@ namespace Microsoft.SPOT.Hardware
         public static void SetLocalTime(DateTime dt)
         {
         }
+
+        public static TimeSpan GetMachineTime()
+        {
+            return new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
+        }
     }
 }

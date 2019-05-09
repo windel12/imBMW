@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.IO.Ports;
-using System.Threading;
 using imBMW.Diagnostics;
 using imBMW.Tools;
 
@@ -32,7 +30,7 @@ namespace imBMW.iBus
         {
             if (!Instance.Inited)
             {
-                Instance.InitPort(port, DBusManager.PORT_NAME);
+                Instance.InitPort(port, PORT_NAME);
             }
             else
             {
@@ -50,7 +48,7 @@ namespace imBMW.iBus
             ISerialPort port = (ISerialPort)sender;
             if (port.AvailableBytes == 0)
             {
-                Logger.Warning("Available bytes lost! " + port.ToString());
+                Logger.Trace("Available bytes lost! " + port.ToString());
                 return;
             }
             lock (bufferSync)
@@ -58,7 +56,7 @@ namespace imBMW.iBus
                 byte[] data = port.ReadAvailable();
                 if (messageBufferLength + data.Length > messageBuffer.Length)
                 {
-                    Logger.Info("Buffer overflow. Extending it. " + port.ToString());
+                    Logger.Trace("Buffer overflow. Extending it. " + port.ToString());
                     byte[] newBuffer = new byte[messageBuffer.Length * 2];
                     Array.Copy(messageBuffer, newBuffer, messageBufferLength);
                     messageBuffer = newBuffer;
@@ -81,7 +79,7 @@ namespace imBMW.iBus
                     {
                         if (!DBusMessage.CanStartWith(messageBuffer, messageBufferLength))
                         {
-                            Logger.Warning("Buffer skip: non-iBus data detected: " + messageBuffer[0].ToHex());
+                            Logger.Trace("Buffer skip: non-dBus data detected: " + messageBuffer[0].ToHex());
                             SkipBuffer(1);
                             continue;
                         }

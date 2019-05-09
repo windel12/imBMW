@@ -135,7 +135,13 @@ namespace imBMW.Tools
         private static void ShowErrorLed()
         {
             var message = new Message(DeviceAddress.Telephone, DeviceAddress.FrontDisplay, "Set LEDs", 0x2B, 1);
-            Manager.EnqueueMessage(message);
+            Manager.Instance.EnqueueMessage(message);
+        }
+
+        public static void Print(string message)
+        {
+            Debug.Print(message);
+            FreeMemory();
         }
     }
 }

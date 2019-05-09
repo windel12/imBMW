@@ -586,12 +586,14 @@ namespace imBMW.Features.Multimedia
                     ushort CANCEL = SCIRead(SCI_MODE);
                     if (CANCEL != SM_CANCEL)
                     {
-                        Logger.Log(LogPriority.Info, "SM_CANCEL cleared");
+                        //Logger.Log(LogPriority.Info, "SM_CANCEL cleared");
                         StopPlayback();
                         break;
                     }
                     else
-                        Logger.Log(LogPriority.Info, "SM_CANCEL has not cleared yet...");
+                    {
+                        //Logger.Log(LogPriority.Info, "SM_CANCEL has not cleared yet...");
+                    }
                 }
             }   
         }
@@ -604,10 +606,10 @@ namespace imBMW.Features.Multimedia
             do
             {
                 for (int n = 0; n < 2052; n++) SDIWrite((byte)(0xFF & endFillByte));
-                Logger.Log(LogPriority.Info, "Sent 2052 endFillByte, checking HDAT0 and HDAT1");
+                //Logger.Log(LogPriority.Info, "Sent 2052 endFillByte, checking HDAT0 and HDAT1");
                 HDAT0 = SCIRead(SCI_HDAT0);
                 HDAT1 = SCIRead(SCI_HDAT1);
-                Logger.Log(LogPriority.Info, "HDAT0: " + HDAT0 + ", HDAT1: " + HDAT1);
+                //Logger.Log(LogPriority.Info, "HDAT0: " + HDAT0 + ", HDAT1: " + HDAT1);
             }
             while (HDAT0 != 0 && HDAT1 != 0);
             //ChangeTrack = false;

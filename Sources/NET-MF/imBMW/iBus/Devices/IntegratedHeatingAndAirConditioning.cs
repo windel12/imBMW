@@ -101,14 +101,14 @@ namespace imBMW.iBus.Devices.Real
                     {
                         Logger.Trace("Auxilary heater started");
                         AuxilaryHeaterStatus = AuxilaryHeaterStatus.Started;
-                        Manager.EnqueueMessage(FrontDisplay.AuxHeaterIndicatorBlinkingMessage);
+                        Manager.Instance.EnqueueMessage(FrontDisplay.AuxHeaterIndicatorBlinkingMessage);
                         return;
                     }
                     if (AuxilaryHeaterStatus == AuxilaryHeaterStatus.Started)
                     {
                         KBusManager.Instance.EnqueueMessage(ContinueWorkingAuxilaryHeater);
                         Logger.Trace("Coolant Temperature: " + InstrumentClusterElectronics.TemperatureCoolant);
-                        Manager.EnqueueMessage(FrontDisplay.AuxHeaterIndicatorBlinkingMessage);
+                        Manager.Instance.EnqueueMessage(FrontDisplay.AuxHeaterIndicatorBlinkingMessage);
 
                         bool stoppingByReachingNeededTemperature = InstrumentClusterElectronics.TemperatureCoolant >= 75;
                         if (stoppingByReachingNeededTemperature)
@@ -167,7 +167,7 @@ namespace imBMW.iBus.Devices.Real
                 Logger.Trace("Manual stopping of auxilary heater");
                 KBusManager.Instance.EnqueueMessage(StopAuxilaryHeater1);
                 AuxilaryHeaterStatus = AuxilaryHeaterStatus.Stopping;
-                Manager.EnqueueMessage(FrontDisplay.AuxHeaterIndicatorTurnOffMessage);
+                Manager.Instance.EnqueueMessage(FrontDisplay.AuxHeaterIndicatorTurnOffMessage);
             }
         }
 
@@ -175,7 +175,7 @@ namespace imBMW.iBus.Devices.Real
         {
             Logger.Trace("Manual start of auxilary heater");
             PollAuxilaryHeater();
-            Manager.EnqueueMessage(FrontDisplay.AuxHeaterIndicatorTurnOnMessage);
+            Manager.Instance.EnqueueMessage(FrontDisplay.AuxHeaterIndicatorTurnOnMessage);
             //AuxilaryHeaterStatus = AuxilaryHeaterStatus.Unknown;
         }
 

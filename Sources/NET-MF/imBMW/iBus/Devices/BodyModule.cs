@@ -76,7 +76,7 @@ namespace imBMW.iBus.Devices.Real
 
         static BodyModule()
         {
-            Manager.AddMessageReceiverForSourceDevice(DeviceAddress.BodyModule, ProcessGMMessage);
+            Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.BodyModule, ProcessGMMessage);
             InstrumentClusterElectronics.IgnitionStateChanged += InstrumentClusterElectronics_IgnitionStateChanged;
         }
 
@@ -178,12 +178,12 @@ namespace imBMW.iBus.Devices.Real
 
         public static void UpdateBatteryVoltage()
         {
-            Manager.EnqueueMessage(MessageGetAnalogValues);
+            Manager.Instance.EnqueueMessage(MessageGetAnalogValues);
         }
 
         public static void OpenTrunk()
         {
-            Manager.EnqueueMessage(MessageOpenTrunk);
+            Manager.Instance.EnqueueMessage(MessageOpenTrunk);
         }
 
         public static void LockDoors()
@@ -192,7 +192,7 @@ namespace imBMW.iBus.Devices.Real
             {
                 isCarLocked = true;
                 wasDriverDoorOpened = false;
-                Manager.EnqueueMessage(MessageToggleLockDoors, MessageRequestDoorsStatus);
+                Manager.Instance.EnqueueMessage(MessageToggleLockDoors, MessageRequestDoorsStatus);
             }
         }
 
@@ -204,7 +204,7 @@ namespace imBMW.iBus.Devices.Real
             }
             isCarLocked = wasDriverDoorOpened;
             wasDriverDoorOpened = false;
-            Manager.EnqueueMessage(MessageToggleLockDoors, MessageRequestDoorsStatus);
+            Manager.Instance.EnqueueMessage(MessageToggleLockDoors, MessageRequestDoorsStatus);
             return !isCarLocked;
         }
 
@@ -213,7 +213,7 @@ namespace imBMW.iBus.Devices.Real
         /// </summary>
         public static void OpenWindows()
         {
-            Manager.EnqueueMessage(MessageOpenWindowDriverFront, 
+            Manager.Instance.EnqueueMessage(MessageOpenWindowDriverFront, 
                 MessageOpenWindowPassengerFront, 
                 MessageOpenWindowPassengerRear,
                 MessageOpenWindowDriverRear);
@@ -224,7 +224,7 @@ namespace imBMW.iBus.Devices.Real
         /// </summary>
         public static void CloseWindows()
         {
-            Manager.EnqueueMessage(MessageCloseWindowDriverFront,
+            Manager.Instance.EnqueueMessage(MessageCloseWindowDriverFront,
                 MessageCloseWindowPassengerFront,
                 MessageCloseWindowPassengerRear,
                 MessageCloseWindowDriverRear);
@@ -232,12 +232,12 @@ namespace imBMW.iBus.Devices.Real
 
         public static void OpenSunroof()
         {
-            Manager.EnqueueMessage(MessageOpenSunroof);
+            Manager.Instance.EnqueueMessage(MessageOpenSunroof);
         }
 
         public static void CloseSunroof()
         {
-            Manager.EnqueueMessage(MessageCloseSunroof);
+            Manager.Instance.EnqueueMessage(MessageCloseSunroof);
         }
 
         /// <summary>
@@ -245,7 +245,7 @@ namespace imBMW.iBus.Devices.Real
         /// </summary>
         public static void FoldMirrors()
         {
-            Manager.EnqueueMessage(MessageFoldMirrorsE46,
+            Manager.Instance.EnqueueMessage(MessageFoldMirrorsE46,
                 MessageFoldPassengerMirrorE39,
                 MessageFoldDriverMirrorE39);
         }
@@ -255,7 +255,7 @@ namespace imBMW.iBus.Devices.Real
         /// </summary>
         public static void UnfoldMirrors()
         {
-            Manager.EnqueueMessage(MessageUnfoldMirrorsE46,
+            Manager.Instance.EnqueueMessage(MessageUnfoldMirrorsE46,
                 MessageUnfoldPassengerMirrorE39,
                 MessageUnfoldDriverMirrorE39);
         }

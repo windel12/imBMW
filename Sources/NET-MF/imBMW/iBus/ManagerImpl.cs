@@ -9,6 +9,7 @@ namespace imBMW.iBus
     public class ManagerImpl
     {
         protected internal ISerialPort _port;
+        protected internal string _portName;
         public bool Inited { get; private set; }
 
         QueueThreadWorker messageWriteQueue;
@@ -35,6 +36,7 @@ namespace imBMW.iBus
             //messageReadQueue = new QueueThreadWorker(ProcessMessage);
 
             _port = port;
+            _portName = queueThreadWorkerName;
             _port.DataReceived += new SerialDataReceivedEventHandler(bus_DataReceived);
 
             Inited = true;
@@ -55,7 +57,7 @@ namespace imBMW.iBus
                 byte[] data = port.ReadAvailable();
                 if (messageBufferLength + data.Length > messageBuffer.Length)
                 {
-                    Logger.Info("Buffer overflow. Extending it. " + port.ToString());
+                    Logger.Info("Buffer overflow. Extending it. " + _portName);
                     byte[] newBuffer = new byte[messageBuffer.Length * 2];
                     Array.Copy(messageBuffer, newBuffer, messageBufferLength);
                     messageBuffer = newBuffer;
@@ -73,6 +75,7 @@ namespace imBMW.iBus
                     Array.Copy(data, 0, messageBuffer, messageBufferLength, data.Length);
                     messageBufferLength += data.Length;
                 }
+                bool shouldDisplayCorruptedMessageBuffer = true;
                 while (messageBufferLength >= Message.PacketLengthMin)
                 {
                     Message m = Message.TryCreate(messageBuffer, messageBufferLength);
@@ -80,7 +83,13 @@ namespace imBMW.iBus
                     {
                         if (!Message.CanStartWith(messageBuffer, messageBufferLength))
                         {
-                            Logger.Warning("Buffer skip: non-iBus data detected: " + messageBuffer[0].ToHex());
+                            if (shouldDisplayCorruptedMessageBuffer)
+                            {
+                                //Logger.Warning("Buffer skip: non-" + _portName + " data detected: " + messageBuffer[0].ToHex());
+                                //Logger.Warning("Buffer skip: non-" + _portName + " data detected: " + messageBuffer.ToHex());
+                                shouldDisplayCorruptedMessageBuffer = false;
+                            }
+
                             SkipBuffer(1);
                             continue;
                         }
@@ -92,6 +101,8 @@ namespace imBMW.iBus
                     //#endif
                     //messageReadQueue.Enqueue(m);
                     SkipBuffer(m.PacketLength);
+
+                    shouldDisplayCorruptedMessageBuffer = true;
                 }
                 lastMessage = DateTime.Now;
             }
@@ -314,49 +325,49 @@ namespace imBMW.iBus
 
         #endregion
 
-        #region Device searching on iBus
+        //#region Device searching on iBus
 
-        const int findDeviceTimeout = 2000;
+        //const ushort findDeviceTimeout = 2000;
 
-        DeviceAddress findDevice;
-        ManualResetEvent findDeviceSync = new System.Threading.ManualResetEvent(false);
-        ArrayList foundDevices = new ArrayList();
+        //DeviceAddress findDevice;
+        //ManualResetEvent findDeviceSync = new System.Threading.ManualResetEvent(false);
+        //ArrayList foundDevices = new ArrayList();
 
-        public bool FindDevice(DeviceAddress device)
-        {
-            return FindDevice(device, findDeviceTimeout);
-        }
+        //public bool FindDevice(DeviceAddress device)
+        //{
+        //    return FindDevice(device, findDeviceTimeout);
+        //}
 
-        public bool FindDevice(DeviceAddress device, int timeout)
-        {
-            if (foundDevices.Contains(device))
-            {
-                return true;
-            }
-            lock (foundDevices)
-            {
-                findDevice = device;
-                findDeviceSync.Reset();
-                AfterMessageReceived += SaveFoundDevice;
-                EnqueueMessage(new Message(DeviceAddress.Diagnostic, device, MessageRegistry.DataPollRequest));
-                findDeviceSync.WaitOne(timeout, true);
-                AfterMessageReceived -= SaveFoundDevice;
-                return foundDevices.Contains(device);
-            }
-        }
+        //public bool FindDevice(DeviceAddress device, ushort timeout)
+        //{
+        //    if (foundDevices.Contains(device))
+        //    {
+        //        return true;
+        //    }
+        //    lock (foundDevices)
+        //    {
+        //        findDevice = device;
+        //        findDeviceSync.Reset();
+        //        AfterMessageReceived += SaveFoundDevice;
+        //        EnqueueMessage(new Message(DeviceAddress.Diagnostic, device, MessageRegistry.DataPollRequest));
+        //        findDeviceSync.WaitOne(timeout, true);
+        //        AfterMessageReceived -= SaveFoundDevice;
+        //        return foundDevices.Contains(device);
+        //    }
+        //}
 
-        void SaveFoundDevice(MessageEventArgs e)
-        {
-            if (!foundDevices.Contains(e.Message.SourceDevice))
-            {
-                foundDevices.Add(e.Message.SourceDevice);
-            }
-            if (findDevice == e.Message.SourceDevice)
-            {
-                findDeviceSync.Set();
-            }
-        }
+        //void SaveFoundDevice(MessageEventArgs e)
+        //{
+        //    if (!foundDevices.Contains(e.Message.SourceDevice))
+        //    {
+        //        foundDevices.Add(e.Message.SourceDevice);
+        //    }
+        //    if (findDevice == e.Message.SourceDevice)
+        //    {
+        //        findDeviceSync.Set();
+        //    }
+        //}
 
-        #endregion
+        //#endregion
     }
 }

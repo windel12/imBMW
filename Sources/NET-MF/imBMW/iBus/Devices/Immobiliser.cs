@@ -29,7 +29,7 @@ namespace imBMW.iBus.Devices.Real
 
         static Immobiliser()
         {
-            Manager.AddMessageReceiverForSourceDevice(DeviceAddress.Immobiliser, ProcessEWSMessage);
+            Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.Immobiliser, ProcessEWSMessage);
         }
 
         /// <summary>

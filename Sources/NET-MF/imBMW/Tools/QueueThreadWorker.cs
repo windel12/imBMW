@@ -13,7 +13,7 @@ namespace imBMW.Tools
         ProcessItem processItem;
         object lockObj = new object();
 
-        public QueueThreadWorker(ProcessItem processItem, string threadName = "")
+        public QueueThreadWorker(ProcessItem processItem, string threadName = "", ThreadPriority threadPriority = ThreadPriority.AboveNormal)
         {
             if (processItem == null)
             {
@@ -22,7 +22,7 @@ namespace imBMW.Tools
             this.processItem = processItem;
             this.threadName = threadName;
             queueThread = new Thread(queueWorker);
-            queueThread.Priority = ThreadPriority.AboveNormal;
+            queueThread.Priority = threadPriority;
 #if !NETMF
             queueThread.Name = threadName;
 #endif
