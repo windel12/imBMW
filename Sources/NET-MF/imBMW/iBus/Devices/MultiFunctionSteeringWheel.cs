@@ -89,9 +89,25 @@ namespace imBMW.iBus.Devices.Real
                 switch (m.Data[1])
                 {
                     case 0x10:
+                    case 0x20:
+                    case 0x30:
+                    case 0x40:
+                    case 0x50:
+                    case 0x60:
+                    case 0x70:
+                    case 0x80:
+                    case 0x90:
                         OnButtonPressed(m, MFLButton.VolumeDown);
                         break;
                     case 0x11:
+                    case 0x21:
+                    case 0x31:
+                    case 0x41:
+                    case 0x51:
+                    case 0x61:
+                    case 0x71:
+                    case 0x81:
+                    case 0x91:
                         OnButtonPressed(m, MFLButton.VolumeUp);
                         break;
                 }

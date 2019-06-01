@@ -114,5 +114,9 @@
         </StackPanel>
 
         <Button x:Name="imBMWTest" Content="imBMWTest" HorizontalAlignment="Left" Margin="524,10,0,0" VerticalAlignment="Top" Width="75" Click="imBMWTest_Click"/>
+        <TextBox x:Name="rpmSpeedAnnounceInterval" HorizontalAlignment="Left" Height="23" Margin="265,8,0,0" TextWrapping="Wrap" Text="2000" VerticalAlignment="Top" Width="45" KeyUp="rpmSpeedAnnounceInterval_KeyUp"/>
+        <TextBox x:Name="temperatureAnounceInterval" HorizontalAlignment="Left" Height="23" Margin="265,36,0,0" TextWrapping="Wrap" Text="10000" VerticalAlignment="Top" Width="45" KeyUp="temperatureAnounceInterval_KeyUp"/>
+        <TextBlock HorizontalAlignment="Left" Margin="105,10,0,0" TextWrapping="Wrap" Text="rpmSpeedAnnounceInterval:" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="105,39,0,0" TextWrapping="Wrap" Text="temperaturAnnounceInterval:" VerticalAlignment="Top"/>
     </Grid>
 </Window>

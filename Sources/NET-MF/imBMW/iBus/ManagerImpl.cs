@@ -30,9 +30,9 @@ namespace imBMW.iBus
         {
         }
 
-        public void InitPort(ISerialPort port, string queueThreadWorkerName = "")
+        public void InitPort(ISerialPort port, string queueThreadWorkerName = "", ThreadPriority threadPriority = ThreadPriority.AboveNormal)
         {
-            messageWriteQueue = new QueueThreadWorker(SendMessage, queueThreadWorkerName);
+            messageWriteQueue = new QueueThreadWorker(SendMessage, queueThreadWorkerName, threadPriority);
             //messageReadQueue = new QueueThreadWorker(ProcessMessage);
 
             _port = port;

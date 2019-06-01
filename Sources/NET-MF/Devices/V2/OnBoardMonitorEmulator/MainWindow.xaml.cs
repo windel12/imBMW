@@ -7,8 +7,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using imBMW.iBus;
 using imBMW.Devices.V2;
-using imBMW.Features.Menu;
-using imBMW.Features.Menu.Screens;
+using imBMW.iBus.Devices.Emulators;
+using imBMW.Tools;
 using imBMW.iBus.Devices.Real;
 using OnBoardMonitorEmulator.DevicesEmulation;
 
@@ -88,15 +88,15 @@ namespace OnBoardMonitorEmulator
             NavigationModuleEmulator.Init();
             AuxilaryHeaterEmulator.Init();
             RadioEmulator.Init();
-            DDEEmulator.Init();
+            DigitalDieselElectronicsEmulator.Init();
             FrontDisplayEmulator.Init();
             HeadlightVerticalAimControlEmulator.Init();
 
             Launcher.Launch(Launcher.LaunchMode.WPF);
 
-#if !DebugOnRealDeviceOverFTDI
+//#if !DebugOnRealDeviceOverFTDI
             InstrumentClusterElectronicsEmulator.StartAnounce();
-#endif
+//#endif
 
             Bordmonitor.ReplyToScreenUpdates = true;
             Bordmonitor.TextReceived += Bordmonitor_TextReceived;
@@ -111,22 +111,32 @@ namespace OnBoardMonitorEmulator
                 {
                     if (m.Data[0] == 0x4A && m.Data[1] == 0xFF)
                     {
-                        RadioEmulator.IsEnabled = true;
-                        Knob1Button.FontWeight = FontWeights.Bold;
-                        Knob1Button.Foreground = new SolidColorBrush(Colors.Orange);
+                        EnableRadio();
                     }
                     if (m.Data[0] == 0x4A && m.Data[1] == 0x00)
                     {
-                        RadioEmulator.IsEnabled = false;
-                        Knob1Button.FontWeight = FontWeights.Normal;
-                        Knob1Button.Foreground = new SolidColorBrush(Colors.Black);
-                        OBCDisplay.Text = "";
+                        DisableRadio();
                     }
                 });
             });
 #if !DebugOnRealDeviceOverFTDI
             //Launcher.emulator.IsEnabled = true;
 #endif
+        }
+
+        private void EnableRadio()
+        {
+            RadioEmulator.IsEnabled = true;
+            Knob1Button.FontWeight = FontWeights.Bold;
+            Knob1Button.Foreground = new SolidColorBrush(Colors.Orange);
+        }
+
+        private void DisableRadio()
+        {
+            RadioEmulator.IsEnabled = false;
+            Knob1Button.FontWeight = FontWeights.Normal;
+            Knob1Button.Foreground = new SolidColorBrush(Colors.Black);
+            OBCDisplay.Text = "";
         }
 
         private void Bordmonitor_TextReceived(BordmonitorText args)
@@ -213,7 +223,15 @@ namespace OnBoardMonitorEmulator
 
         private void Knob1Button_Click(object sender, RoutedEventArgs e)
         {
+#if DEBUG
             Radio.PressOnOffToggle();
+#else
+            Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, RadioEmulator.IsEnabled ? CDChanger.DataStop : CDChanger.DataPlay));
+            if (RadioEmulator.IsEnabled)
+                DisableRadio();
+            else
+                EnableRadio();
+#endif
         }
 
         private void Knob2Button_Click(object sender, RoutedEventArgs e)
@@ -314,6 +332,18 @@ namespace OnBoardMonitorEmulator
         private void MFLButton_VolumeDown(object sender, RoutedEventArgs e)
         {
             MultiFunctionSteeringWheel.VolumeDown();
+        }
+
+        private void rpmSpeedAnnounceInterval_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            int newInterval = int.Parse((sender as TextBox).Text);
+            InstrumentClusterElectronicsEmulator.rpmSpeedAnounceTimer.Change(0, newInterval);
+        }
+
+        private void temperatureAnounceInterval_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            int newInterval = int.Parse((sender as TextBox).Text);
+            InstrumentClusterElectronicsEmulator.temperatureAnounceTimer.Change(0, newInterval);
         }
     }
 }

@@ -10,8 +10,8 @@ namespace imBMW.Diagnostics
     /// </summary>
     public class DBusMessage : Message
     {
-        byte[] packet;
-        byte check;
+        new byte[] packet;
+        //byte check;
         string dataString;
 
         /// <summary>0xB8</summary>

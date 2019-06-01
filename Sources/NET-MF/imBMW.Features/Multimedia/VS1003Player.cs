@@ -142,8 +142,8 @@ namespace imBMW.Features.Multimedia
             Logger.Trace("Getting files and folders:");
             if (VolumeInfo.GetVolumes()[0].IsFormatted)
             {
-                byte[] testBuffer = new byte[256];
-                FileStream stream = null;
+                //byte[] testBuffer = new byte[256];
+                //FileStream stream = null;
 
                 string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
                 for (byte diskNumber = 1; diskNumber <= 6; diskNumber++)
@@ -486,8 +486,8 @@ namespace imBMW.Features.Multimedia
                     stream.Read(buffer, 0, id3v2_header_length);
                     // http://id3.org/id3v2.4.0-structure#line-39
                     int startPositionOfAudioStream = (int)buffer[6] << 21 | (int)buffer[7] << 14 | (int)buffer[8] << 7 | (int)buffer[9];
-                    Logger.Info("Skip id3 tag bytes: " + startPositionOfAudioStream);
-                    Logger.Info("FileName:" + CurrentTrack.FileName + " FileLength:" + stream.Length + " startPositionOfAudioStream:" + startPositionOfAudioStream);
+                    //Logger.Info("Skip id3 tag bytes: " + startPositionOfAudioStream);
+                    //Logger.Info("FileName:" + CurrentTrack.FileName + " FileLength:" + stream.Length + " startPositionOfAudioStream:" + startPositionOfAudioStream);
                     if (CurrentPosition >= stream.Length)
                     {
                         CurrentPosition = 0;

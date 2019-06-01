@@ -34,7 +34,7 @@ namespace imBMW.iBus.Devices.Real
         // mg/Hub
         public static double AirMassPerStroke { get; private set; }
 
-        //public static double WaterTemperature { get; private set; }
+        public static byte EluefterFrequency { get; private set; }
 
         private static byte[] admVDF = {0x20, 0x06};
         private static byte[] dzmNmit = { 0x0F, 0x10 };
@@ -45,10 +45,16 @@ namespace imBMW.iBus.Devices.Real
         private static byte[] zumP_RAIL = { 0x1F, 0x5D };
         private static byte[] aroIST_4 = { 0x00, 0x10 };
         private static byte[] armM_List = { 0x0F, 0x30 };
+        private static byte[] anmWTF = { 0x0F, 0x00 };
 
         public static DBusMessage QueryMessage = new DBusMessage(DeviceAddress.OBD, DeviceAddress.DDE, 0x2C, 0x10,
             admVDF[0], admVDF[1], dzmNmit[0], dzmNmit[1], ldmP_Llin[0], ldmP_Llin[1], ldmP_Lsoll[0], ldmP_Lsoll[1], mrmM_EAKT[0], mrmM_EAKT[1],
             zumPQsoll[0], zumPQsoll[1], zumP_RAIL[0], zumP_RAIL[1], aroIST_4[0], aroIST_4[1], armM_List[0], armM_List[1]);
+
+        public static DBusMessage status_motortemperatur = new DBusMessage(DeviceAddress.OBD, DeviceAddress.DDE, 0x2C, 0x10, anmWTF[0], anmWTF[1]);
+        public static DBusMessage status_vorfoederdruck = new DBusMessage(DeviceAddress.OBD, DeviceAddress.DDE, 0x2C, 0x10, admVDF[0], admVDF[1]);
+
+        public static DBusMessage SteuernEluefter(byte value) => new DBusMessage(DeviceAddress.OBD, DeviceAddress.DDE, 0x30, 0xC7, 0x07, value);
 
         static DigitalDieselElectronics()
         {
@@ -97,14 +103,21 @@ namespace imBMW.iBus.Devices.Real
                 {
                     AirMassPerStroke = ((d[18] << 8) + d[19]) * 0.1;
                 }
+            }
 
-                var e = MessageReceived;
-                if (e != null)
-                    e(Microsoft.SPOT.EventArgs.Empty);
+            if (m.Data[0] == 0x70 && m.Data[1] == 0xC7)
+            {
+                EluefterFrequency = m.Data[3];
+            }
+
+            var e = MessageReceived;
+            if (e != null)
+            {
+                e();
             }
         }
 
-        public delegate void EventHandler(Microsoft.SPOT.EventArgs e);
+        public delegate void EventHandler();
 
         public static event EventHandler MessageReceived;
     }

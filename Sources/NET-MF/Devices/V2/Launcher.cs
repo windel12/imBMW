@@ -1,4 +1,3 @@
-using GHI.IO.Storage;
 using GHI.Pins;
 using GHI.Usb.Host;
 using imBMW.Devices.V2.Hardware;
@@ -19,6 +18,7 @@ using System.IO;
 using System.IO.Ports;
 using System.Threading;
 using Debug = Microsoft.SPOT.Debug;
+using Localization = imBMW.Features.Localizations.Localization;
 
 namespace imBMW.Devices.V2
 {
@@ -37,10 +37,10 @@ namespace imBMW.Devices.V2
         public static MediaEmulator emulator;
         public static IAudioPlayer player;
 
-        static InterruptPort nextButton;
-        static InterruptPort prevButton;
+        //static InterruptPort nextButton;
+        //static InterruptPort prevButton;
 
-        public static SDCard sd_card;
+        //public static SDCard sd_card;
         private static string rootDirectory;
 
         private static ManualResetEvent _removableMediaInsertedSync = new ManualResetEvent(false);
@@ -63,17 +63,26 @@ namespace imBMW.Devices.V2
         private static void ResetBoard()
         {
             Logger.TryTrace("Board will reset in 2 seconds!!!");
-            FrontDisplay.RefreshLEDs(LedType.OrangeBlinking);
+            FrontDisplay.RefreshLEDs(LedType.GreenBlinking);
             Thread.Sleep(200); // wait to add pause after previous blinking
-            LedBlinking(orangeLed, 5, 200);
+            LedBlinking(successInited_GreenLed, 5, 200);
 
             if (_massStorage != null && _massStorage.Mounted)
             {
+                if (FileLogger.FlushCallback != null)
+                {
+                    FileLogger.FlushCallback();
+                }
+
                 _massStorage.Unmount();
                 Thread.Sleep(200);
             }
 
-#if DEBUG
+#if OnBoardMonitorEmulator
+            System.Windows.MessageBox.Show("Board was resetted");
+#endif
+
+#if DEBUG || DebugOnRealDeviceOverFTDI
             if(Debugger.IsAttached)
                 return;
 #endif
@@ -89,10 +98,10 @@ namespace imBMW.Devices.V2
             try
             {
 #if DEBUG
-                //if (!Debugger.IsAttached)
-                //{
-                //    Thread.Sleep(60000);
-                //}
+                if (!Debugger.IsAttached)
+                {
+                    Thread.Sleep(5000);
+                }
 #endif
 
                 BluetoothScreen.BluetoothChargingState = true;
@@ -108,11 +117,11 @@ namespace imBMW.Devices.V2
 #if (NETMF && RELEASE) || (OnBoardMonitorEmulator && DEBUG)
                 _useWatchdog = true;
 #endif
-                if(_useWatchdog)
+                if (_useWatchdog)
                     GHI.Processor.Watchdog.Enable(watchDogTimeoutInMilliseconds);
 
-                SDCard sd = null;
-                settings = Settings.Init(sd != null ? sd + @"\imBMW.ini" : null);
+                //SDCard sd = null;
+                settings = Settings.Init(/*sd != null ? sd + @"\imBMW.ini" : */null);
 
                 //SettingsScreen.Instance.Status = version.Length > 11 ? version.Replace(" ", "") : version;
                 //Localization.SetCurrent(RussianLocalization.SystemName); //Localization.SetCurrent(settings.Language);
@@ -162,7 +171,7 @@ namespace imBMW.Devices.V2
                 Controller.Start();
 #else
                 // WARNING! Be aware, without this lines you can get 'Controller -> DeviceConnectFailed' each time when you start debugging...
-                if (Debugger.IsAttached)
+                //if (Debugger.IsAttached)
                 {
                     Controller.Start();
                 }
@@ -202,15 +211,23 @@ namespace imBMW.Devices.V2
 
                 BordmonitorMenu.ResetButtonPressed += () =>
                 {
-                    emulator.PlayerIsPlayingChanged += (s, isPlayingChangedValue) =>
-                    {
-                        if (!isPlayingChangedValue)
-                        {
-                            ResetBoard();
-                        }
-                    };
                     FrontDisplay.RefreshLEDs(LedType.Empty);
-                    Radio.PressOnOffToggle();
+
+                    if (emulator.IsEnabled)
+                    {
+                        emulator.PlayerIsPlayingChanged += (s, isPlayingChangedValue) =>
+                        {
+                            if (!isPlayingChangedValue)
+                            {
+                                ResetBoard();
+                            }
+                        };
+                        Radio.PressOnOffToggle();
+                    }
+                    else
+                    {
+                        ResetBoard();
+                    }
                 };
 
                 InstrumentClusterElectronics.IgnitionStateChanged += (args) =>
@@ -266,23 +283,26 @@ namespace imBMW.Devices.V2
             Manager.Instance.BeforeMessageSent += Manager_BeforeMessageSent;
             Manager.Instance.AfterMessageSent += Manager_AfterMessageSent;
 
-#if NETMF || DEBUG
+#if NETMF || (OnBoardMonitorEmulator && (DEBUG || DebugOnRealDeviceOverFTDI))
             string kBusComPort = Serial.COM2;
             ISerialPort kBusPort = new SerialPortTH3122(kBusComPort, kBusBusy);
-            KBusManager.Init(kBusPort);
+            KBusManager.Init(kBusPort, ThreadPriority.Normal);
             Logger.Trace("KBusManager inited");
 
             KBusManager.Instance.BeforeMessageReceived += KBusManager_BeforeMessageReceived;
             KBusManager.Instance.BeforeMessageSent += KBusManager_BeforeMessageSent;
+#endif
 
+#if NETMF || (OnBoardMonitorEmulator && DEBUG)
             ISerialPort dBusPort = new SerialPortTH3122("COM4", Cpu.Pin.GPIO_NONE, writeBufferSize: 1); // d31, d33
             dBusPort.AfterWriteDelay = 4;
-            DBusManager.Init(dBusPort);
+            DBusManager.Init(dBusPort, ThreadPriority.Highest);
             Logger.Trace("DBusManager inited");
 
             DBusManager.Instance.BeforeMessageReceived += DBusManager_BeforeMessageReceived;
             DBusManager.Instance.BeforeMessageSent += DBusManager_BeforeMessageSent;
 #endif
+
 
 #if !NETMF && DebugOnRealDeviceOverFTDI
             if (!iBusPort.IsOpen)
@@ -519,30 +539,41 @@ namespace imBMW.Devices.V2
         // Log just needed message
         private static bool IBusLoggerPredicate(MessageEventArgs e)
         {
-            if (e.Message.SourceDevice == DeviceAddress.Radio && e.Message.DestinationDevice == DeviceAddress.CDChanger && e.Message.Data[0] == 0x01) // poll request
+            if (e.Message.SourceDevice == DeviceAddress.Radio && e.Message.DestinationDevice == DeviceAddress.CDChanger && e.Message.Data[0] == 0x01  // poll request
+                //||
+                //e.Message.SourceDevice == DeviceAddress.Radio && e.Message.DestinationDevice == DeviceAddress.GraphicsNavigationDriver && e.Message.Data.StartsWith(0x21, 0x60, 0x00)
+                )
             {
                 return false;
             }
 
-            return e.Message.SourceDevice == DeviceAddress.Radio &&
-                   e.Message.DestinationDevice == DeviceAddress.CDChanger
+            return
+                   //||
+                   // e.Message.SourceDevice == DeviceAddress.Radio &&
+                   //e.Message.DestinationDevice == DeviceAddress.CDChanger
                    //||
                    //e.Message.SourceDevice == DeviceAddress.Radio && e.Message.Data.StartsWith(0x02, 0x00) // Radio poll response
-                   ||
-                   e.Message.SourceDevice == DeviceAddress.CDChanger &&
-                   e.Message.DestinationDevice == DeviceAddress.Radio
-                   ||
-                   e.Message.SourceDevice == DeviceAddress.Radio &&
-                   e.Message.DestinationDevice == DeviceAddress.InstrumentClusterElectronics
-                   ||
+                   //||
+                   //e.Message.SourceDevice == DeviceAddress.CDChanger &&
+                   //e.Message.DestinationDevice == DeviceAddress.Radio
+                   //||
+                   //e.Message.SourceDevice == DeviceAddress.Radio &&
+                   //e.Message.DestinationDevice == DeviceAddress.InstrumentClusterElectronics
+                   //||
                    //e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics &&
                    //e.Message.DestinationDevice == DeviceAddress.FrontDisplay 
                    //||
-                   e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics &&
-                   e.Message.DestinationDevice == DeviceAddress.Broadcast
-                   ||
-                   e.Message.SourceDevice == DeviceAddress.MultiFunctionSteeringWheel &&
-                   e.Message.DestinationDevice == DeviceAddress.Radio;
+                   //e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics &&
+                   //e.Message.DestinationDevice == DeviceAddress.Broadcast
+                   //||
+                   //e.Message.SourceDevice == DeviceAddress.MultiFunctionSteeringWheel &&
+                   //e.Message.DestinationDevice == DeviceAddress.Radio
+                   //|| 
+#if DEBUG
+                   true;
+#else
+                   false;
+#endif
         }
 
         private static void Manager_BeforeMessageReceived(MessageEventArgs e)
@@ -565,6 +596,13 @@ namespace imBMW.Devices.V2
                 var logIco = "I < ";
                 if (settings.LogMessageToASCII)
                 {
+                    //object[] messages = StringHelpers.WholeChunks(e.Message.ToPrettyString(false, false), 10).ToArray();
+                    //foreach (string message in messages)
+                    //{
+                    //    Logger.Trace(message, logIco);
+                    //}
+                    //Logger.Trace("/n");
+
                     Logger.Trace(e.Message.ToPrettyString(false, false), logIco);
                 }
                 else
@@ -600,9 +638,12 @@ namespace imBMW.Devices.V2
         // Log just needed message
         private static bool KBusLoggerPredicate(MessageEventArgs e)
         {
-            if (e.Message.SourceDevice == DeviceAddress.IntegratedHeatingAndAirConditioning && e.Message.Data[0] == 0x83 // Air conditioning compressor status
-                || 
-                e.Message.SourceDevice == DeviceAddress.IntegratedHeatingAndAirConditioning && e.Message.Data[0] == 0x86 // Some info for NavigationEurope
+            if (
+                //e.Message.SourceDevice == DeviceAddress.IntegratedHeatingAndAirConditioning && e.Message.Data[0] == 0x83 // Air conditioning compressor status
+                //|| 
+                //e.Message.SourceDevice == DeviceAddress.IntegratedHeatingAndAirConditioning && e.Message.Data[0] == 0x86 // Some info for NavigationEurope
+                //||
+                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x02 // Poll response
                 ||
                 e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x11 // Ignition status
                 ||
@@ -624,7 +665,9 @@ namespace imBMW.Devices.V2
                 return false;
             }
 
-            return 
+            return
+                   e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics 
+                   ||
                    e.Message.SourceDevice == DeviceAddress.AuxilaryHeater ||
                    e.Message.DestinationDevice == DeviceAddress.AuxilaryHeater ||
                    e.Message.SourceDevice == DeviceAddress.IntegratedHeatingAndAirConditioning ||
@@ -632,12 +675,7 @@ namespace imBMW.Devices.V2
                    e.Message.SourceDevice == DeviceAddress.HeadlightVerticalAimControl ||
                    e.Message.DestinationDevice == DeviceAddress.HeadlightVerticalAimControl ||
                    e.Message.SourceDevice == DeviceAddress.Diagnostic ||
-                   e.Message.DestinationDevice == DeviceAddress.Diagnostic
-                   //|| (
-                   //    e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.DestinationDevice == DeviceAddress.GlobalBroadcastAddress
-                   //    || e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.DestinationDevice == DeviceAddress.Broadcast
-                   //)
-                   ; 
+                   e.Message.DestinationDevice == DeviceAddress.Diagnostic; 
         }
 
         private static void KBusManager_BeforeMessageReceived(MessageEventArgs e)

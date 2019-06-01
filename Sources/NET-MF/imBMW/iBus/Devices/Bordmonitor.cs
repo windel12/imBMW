@@ -191,6 +191,7 @@ namespace imBMW.iBus.Devices.Real
         public static byte[] DataShowT5 =       new byte[] { 0xA5, 0x62, 0x01, /*In*/0x05/*dex*/ };
 
         public static byte[] DataDrawIndexMk2 = { 0xA5, 0x62, 0x00 };
+        /// <summary> 0x21, 0x60, 0x00 </summary>
         public static byte[] DataDrawIndexMk34 = { 0x21, 0x60, 0x00 };
 
         public static byte[] DataUpdateScreen = new byte[] { 0xA5, 0x62, 0x01 }; 

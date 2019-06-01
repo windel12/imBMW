@@ -1,18 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using imBMW.Diagnostics;
 using imBMW.iBus;
 
 namespace OnBoardMonitorEmulator.DevicesEmulation
 {
-    public static class DDEEmulator
+    public static class DigitalDieselElectronicsEmulator
     {
         public static void Init() { }
 
-        static DDEEmulator()
+        static DigitalDieselElectronicsEmulator()
         {
             DBusManager.Instance.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.OBD, DeviceAddress.DDE, ProcessToDDEMessage);
         }
@@ -32,6 +28,12 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
                     0x0D, (byte)r.Next(0, 255),
                     0x0F, (byte)r.Next(0, 255),
                     0x11, (byte)r.Next(0, 255));
+                DBusManager.Instance.EnqueueMessage(response);
+            }
+
+            if (m.Data[0] == 0x30 && m.Data[1] == 0xC7)
+            {
+                var response = new DBusMessage(DeviceAddress.DDE, DeviceAddress.OBD, 0x70, 0xC7, 0x07, m.Data[3]);
                 DBusManager.Instance.EnqueueMessage(response);
             }
         }

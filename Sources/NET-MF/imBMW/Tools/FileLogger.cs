@@ -3,7 +3,7 @@
 using System;
 using Microsoft.SPOT;
 using System.IO;
-using imBMW.iBus;
+using System.Threading;
 using imBMW.iBus.Devices.Real;
 
 namespace imBMW.Tools
@@ -16,17 +16,17 @@ namespace imBMW.Tools
 
         static StreamWriter writer;
         static QueueThreadWorker queue;
-        static Action flushCallback;
+        public static Action FlushCallback;
 
         public static void Init(string path, Action flushCallback = null)
         {
             try
             {
-                FileLogger.flushCallback = flushCallback;
+                FileLogger.FlushCallback = flushCallback;
 
                 Logger.FreeMemory();
 
-                queue = new QueueThreadWorker(ProcessItem);
+                queue = new QueueThreadWorker(ProcessItem, "fileLoggerThread", ThreadPriority.Lowest);
 
                 Logger.FreeMemory();
 
@@ -90,6 +90,8 @@ namespace imBMW.Tools
                     Debug.GC(true);
                     unflushed = 0;
                 }
+
+                Thread.Sleep(0);
             }
             catch (Exception ex)
             {

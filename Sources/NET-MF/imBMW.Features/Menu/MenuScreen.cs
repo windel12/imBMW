@@ -15,7 +15,7 @@ namespace imBMW.Features.Menu
         Scroll
     }
 
-    public class MenuScreenUpdateEventArgs : Microsoft.SPOT.EventArgs
+    public class MenuScreenUpdateEventArgs //: Microsoft.SPOT.EventArgs
     {
         public object Item { get; protected set; }
 

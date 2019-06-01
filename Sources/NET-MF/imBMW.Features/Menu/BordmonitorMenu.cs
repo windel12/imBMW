@@ -12,10 +12,10 @@ namespace imBMW.Features.Menu
     {
         static BordmonitorMenu instance;
 
-        bool skipRefreshScreen;
-        bool skipClearScreen;
-        bool skipClearTillRefresh;
-        bool disableRadioMenu;
+        //bool skipRefreshScreen;
+        //bool skipClearScreen;
+        //bool skipClearTillRefresh;
+        //bool disableRadioMenu;
         bool isScreenSwitched;
         object drawLock = new object();
 
@@ -237,7 +237,7 @@ namespace imBMW.Features.Menu
                         break;
                     case 0x02:
                         m.ReceiverDescription = "Screen switch by rad";
-                        skipClearScreen = true; // to prevent on "clear screen" update on switch to BC/nav
+                        //skipClearScreen = true; // to prevent on "clear screen" update on switch to BC/nav
                         break;
                 }
                 IsScreenSwitched = true;
@@ -251,7 +251,7 @@ namespace imBMW.Features.Menu
             //    return;
             //}
 
-            if (m.Data.StartsWith(Bordmonitor.DataShowTitle) && (lastTitle == null || !lastTitle.Data.Compare(m.Data)))
+            if (m.Data.StartsWith(Bordmonitor.DataShowTitle) /*&& (lastTitle == null || !lastTitle.Data.Compare(m.Data))*/)
             {
                 IsScreenSwitched = false;
                 //disableRadioMenu = true;
@@ -376,7 +376,7 @@ namespace imBMW.Features.Menu
 
         bool isHeaderDrawing;
         bool isBodyDrawing;
-        Message lastTitle;
+        //Message lastTitle;
 
         protected override void DrawHeader()
         {
@@ -390,7 +390,7 @@ namespace imBMW.Features.Menu
                 base.DrawHeader();
 
                 var messages = new ArrayList();
-                var n = 0;
+                //var n = 0;
 
                 // TODO: refactor
                 string title = CurrentScreen.Title;

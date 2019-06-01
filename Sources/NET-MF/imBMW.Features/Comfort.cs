@@ -17,7 +17,7 @@ namespace imBMW.Features
         }
         #endregion
 
-        static QueueThreadWorker commands;
+        //static QueueThreadWorker commands;
 
         static bool needLockDoors = false;
         static bool needUnlockDoors = false;
@@ -69,7 +69,7 @@ namespace imBMW.Features
                     needComfortClose = false;
                     if (AutoCloseWindows)
                     {
-                        commands.Enqueue(Command.FullCloseWindows);
+                        //commands.Enqueue(Command.FullCloseWindows);
                     }
                     if (AutoCloseSunroof)
                     {

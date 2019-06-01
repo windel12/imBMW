@@ -46,7 +46,7 @@ namespace imBMW.Tools
             {
                 Trace(message, priorityTitle);
             }
-            catch (Exception ex) { wasError = true; }
+            catch (Exception) { wasError = true; }
         }
 
         public static void TryTrace(Message message, string priorityTitle = null)
@@ -55,7 +55,7 @@ namespace imBMW.Tools
             {
                 Trace(message, priorityTitle);
             }
-            catch (Exception ex) { wasError = true; }
+            catch (Exception) { wasError = true; }
         }
 
         public static void Trace(string message, string priorityTitle = null)
@@ -99,7 +99,7 @@ namespace imBMW.Tools
             {
                 Error(message, priorityTitle);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 wasError = true;
             }
@@ -116,7 +116,7 @@ namespace imBMW.Tools
                 Error(exception, message, priorityTitle);
                 ShowErrorLed();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 wasError = true;
             }

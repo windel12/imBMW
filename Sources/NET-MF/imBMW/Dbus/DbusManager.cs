@@ -1,5 +1,6 @@
 using System;
 using System.IO.Ports;
+using System.Threading;
 using imBMW.Diagnostics;
 using imBMW.Tools;
 
@@ -26,11 +27,11 @@ namespace imBMW.iBus
         {
         }
 
-        public static void Init(ISerialPort port)
+        public static void Init(ISerialPort port, ThreadPriority threadPriority = ThreadPriority.AboveNormal)
         {
             if (!Instance.Inited)
             {
-                Instance.InitPort(port, PORT_NAME);
+                Instance.InitPort(port, PORT_NAME, threadPriority);
             }
             else
             {

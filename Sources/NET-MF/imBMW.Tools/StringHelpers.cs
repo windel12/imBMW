@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Text;
 
 namespace imBMW.Tools
@@ -350,6 +351,14 @@ namespace imBMW.Tools
         public static bool IsNullOrEmpty(this string s, string value)
         {
             return value == null || value == "";
+        }
+
+        public static ArrayList WholeChunks(string str, int maxChunkSize)
+        {
+            ArrayList result = new ArrayList();
+            for (int i = 0; i < str.Length; i += maxChunkSize)
+                result.Add(str.Substring(i, Math.Min(maxChunkSize, str.Length - i)));
+            return result;
         }
     }
 }

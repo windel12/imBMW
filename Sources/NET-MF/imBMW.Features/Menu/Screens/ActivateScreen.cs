@@ -11,8 +11,6 @@ namespace imBMW.Features.Menu.Screens
     {
         protected static ActivateScreen instance;
 
-        private string MotorTemperatur = "MotorTemperatur";
-
         protected ActivateScreen()
         {
             FastMenuDrawing = true;
@@ -22,7 +20,6 @@ namespace imBMW.Features.Menu.Screens
 
             AuxilaryHeater.Init();
 
-            DBusMessage motor_temperatur = new DBusMessage(DeviceAddress.OBD, DeviceAddress.DDE, 0x2C, 0x10, 0x0F, 0x00);
             DS2Message navigation_module_status_lesen = new DS2Message(DeviceAddress.NavigationEurope, 0x0B);
 
             AddItem(new MenuItem(i => "Increase delay: " + DBusManager.Port.AfterWriteDelay, x =>
@@ -35,24 +32,39 @@ namespace imBMW.Features.Menu.Screens
                     DBusManager.Port.AfterWriteDelay -= 1;
             }, MenuItemType.Button, MenuItemAction.Refresh));
 
-            AddItem(new MenuItem(i => MotorTemperatur, i =>
+            AddItem(new MenuItem(i => "Pre-supply: " + DigitalDieselElectronics.PresupplyPressure.ToString("F2"), i =>
             {
                 DBusManager.Port.WriteBufferSize = 1;
-                Logger.Trace("Sending diagnostic message to DDE, for acquiring motor temperature.");
-                DBusManager.Instance.EnqueueMessage(motor_temperatur);
-            }, MenuItemType.Button, MenuItemAction.Refresh));
+                DBusManager.Instance.EnqueueMessage(DigitalDieselElectronics.status_vorfoederdruck);
+            }, MenuItemType.Button, MenuItemAction.None));
+
+            AddItem(new MenuItem(i => "Eluefter: " + DigitalDieselElectronics.EluefterFrequency, x =>
+            {
+                byte value = DigitalDieselElectronics.EluefterFrequency;
+
+                if (DigitalDieselElectronics.EluefterFrequency < 30)
+                    value = 30;
+                else if (DigitalDieselElectronics.EluefterFrequency >= 30 && DigitalDieselElectronics.EluefterFrequency < 60)
+                    value = 60;
+                else if (DigitalDieselElectronics.EluefterFrequency >= 60 && DigitalDieselElectronics.EluefterFrequency < 90)
+                    value = 90;
+                else
+                    value = 0;
+
+                DBusManager.Port.WriteBufferSize = 1;
+                DBusManager.Instance.EnqueueMessage(DigitalDieselElectronics.SteuernEluefter(value));
+            }, MenuItemType.Button, MenuItemAction.None));
 
             AddItem(new MenuItem(i => Localization.Current.Voltage + ": " + (NavigationModule.BatteryVoltage > 0 ? NavigationModule.BatteryVoltage.ToString("F2") : "-") + " " + Localization.Current.VoltageShort, x =>
             {
                 DBusManager.Port.WriteBufferSize = 0;
-                Logger.Trace("Sending diagnostic message to navigation module, for acquiring voltage.");
                 DBusManager.Instance.EnqueueMessage(navigation_module_status_lesen);
             }, MenuItemType.Button, MenuItemAction.None));
 
-            AddItem(new MenuItem(i => "DisableWatchdog", x =>
-            {
-                OnDisableWatchdogCounterReset();
-            }, MenuItemType.Button, MenuItemAction.None));
+            //AddItem(new MenuItem(i => "DisableWatchdog", x =>
+            //{
+            //    OnDisableWatchdogCounterReset();
+            //}, MenuItemType.Button, MenuItemAction.None));
 
             AddItem(new MenuItem(i => "IDENT", x =>
             {
@@ -89,6 +101,7 @@ namespace imBMW.Features.Menu.Screens
             {
                 HeadlightVerticalAimControl.FrontSensorVoltageChanged += HeadlightVerticalAimControl_SensorsVoltageChanged;
                 HeadlightVerticalAimControl.RearSensorVoltageChanged += HeadlightVerticalAimControl_SensorsVoltageChanged;
+                DigitalDieselElectronics.MessageReceived += DigitalDieselElectronics_MessageReceived;
                 return true;
             }
             return false;
@@ -100,6 +113,7 @@ namespace imBMW.Features.Menu.Screens
             {
                 HeadlightVerticalAimControl.FrontSensorVoltageChanged -= HeadlightVerticalAimControl_SensorsVoltageChanged;
                 HeadlightVerticalAimControl.RearSensorVoltageChanged -= HeadlightVerticalAimControl_SensorsVoltageChanged;
+                DigitalDieselElectronics.MessageReceived -= DigitalDieselElectronics_MessageReceived;
                 return true;
             }
             return false;
@@ -108,6 +122,11 @@ namespace imBMW.Features.Menu.Screens
         private void HeadlightVerticalAimControl_SensorsVoltageChanged(double voltage)
         {
             OnUpdateBody(MenuScreenUpdateReason.Refresh);
+        }
+
+        private void DigitalDieselElectronics_MessageReceived()
+        {
+            Refresh();
         }
 
         public static ActivateScreen Instance

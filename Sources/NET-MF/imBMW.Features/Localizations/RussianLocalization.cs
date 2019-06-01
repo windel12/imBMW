@@ -57,7 +57,7 @@ namespace imBMW.Features.Localizations
 
         public override string Outside
         {
-            get { return "За бортом"; }
+            get { return "Внеш. темп."; }
         }
 
         public override string Refreshing

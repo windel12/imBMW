@@ -9,8 +9,8 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
 {
     public static class InstrumentClusterElectronicsEmulator
     {
-        private static Timer rpmSpeedAnounceTimer;
-        private static Timer temperatureAnounceTimer;
+        public static Timer rpmSpeedAnounceTimer;
+        public static Timer temperatureAnounceTimer;
 
         private static byte rpmSpeedAnounceTimerInterval = 2;//2;
         private static byte temperatureAnounceTimerIterval = 10;//10;
@@ -46,7 +46,8 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
 
                 var rpmSpeedMessage = new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.GlobalBroadcastAddress, 0x18, (byte)(CurrentSpeed / 2), (byte)(CurrentRPM / 100));
                 Manager.Instance.EnqueueMessage(rpmSpeedMessage);
-                KBusManager.Instance.EnqueueMessage(rpmSpeedMessage);
+                if (KBusManager.Instance.Inited)
+                    KBusManager.Instance.EnqueueMessage(rpmSpeedMessage);
             }, null, 0, rpmSpeedAnounceTimerInterval * 1000);
 
             temperatureAnounceTimer = new Timer((state) =>
@@ -55,7 +56,8 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
                 
                 var temperatureMessage = new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.GlobalBroadcastAddress, 0x19, TemperatureOutside, TemperatureCoolant, 0x00);
                 Manager.Instance.EnqueueMessage(temperatureMessage);
-                KBusManager.Instance.EnqueueMessage(temperatureMessage);
+                if(KBusManager.Instance.Inited)
+                    KBusManager.Instance.EnqueueMessage(temperatureMessage);
 
             }, null, 0, temperatureAnounceTimerIterval * 1000);
         }

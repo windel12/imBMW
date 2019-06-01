@@ -27,17 +27,18 @@ namespace imBMW.Features.Menu.Screens
         {
             FastMenuDrawing = true;
 
-            item1 = new MenuItem(x => "VDF: " + DigitalDieselElectronics.PresupplyPressure) { ShouldRefreshScreenIfTextChanged = false };
-            item2 = new MenuItem(x => "RPM: " + DigitalDieselElectronics.Rpm) { ShouldRefreshScreenIfTextChanged = false };
-            item3 = new MenuItem(x => "LDF_in: " + DigitalDieselElectronics.BoostActual) { ShouldRefreshScreenIfTextChanged = false };
-            item4 = new MenuItem(x => "LDF_soll: " + DigitalDieselElectronics.BoostTarget) { ShouldRefreshScreenIfTextChanged = false };
-            item5 = new MenuItem(x => "IQ: " + DigitalDieselElectronics.InjectionQuantity) { ShouldRefreshScreenIfTextChanged = false };
-            item6 = new MenuItem(x => "KDF_soll: " + DigitalDieselElectronics.RailPressureTarget) { ShouldRefreshScreenIfTextChanged = false };
-            item7 = new MenuItem(x => "KDF_in: " + DigitalDieselElectronics.RailpressureActual) { ShouldRefreshScreenIfTextChanged = false };
-            item8 = new MenuItem(x => "LMM: " + DigitalDieselElectronics.AirMass) { ShouldRefreshScreenIfTextChanged = false };
+            item1 = new MenuItem(x => "VDF: " + DigitalDieselElectronics.PresupplyPressure.ToString("F2")) { ShouldRefreshScreenIfTextChanged = false };
+            item2 = new MenuItem(x => "RPM: " + DigitalDieselElectronics.Rpm.ToString("F0")) { ShouldRefreshScreenIfTextChanged = false };
+            item3 = new MenuItem(x => "LDF_in: " + DigitalDieselElectronics.BoostActual.ToString("F0")) { ShouldRefreshScreenIfTextChanged = false };
+            item4 = new MenuItem(x => "LDF_soll: " + DigitalDieselElectronics.BoostTarget.ToString("F0")) { ShouldRefreshScreenIfTextChanged = false };
+            item5 = new MenuItem(x => "IQ: " + DigitalDieselElectronics.InjectionQuantity.ToString("F2")) { ShouldRefreshScreenIfTextChanged = false };
+            item6 = new MenuItem(x => "KDF_soll: " + DigitalDieselElectronics.RailPressureTarget.ToString("F0")) { ShouldRefreshScreenIfTextChanged = false };
+            item7 = new MenuItem(x => "KDF_in: " + DigitalDieselElectronics.RailpressureActual.ToString("F0")) { ShouldRefreshScreenIfTextChanged = false };
+            item8 = new MenuItem(x => "LMM: " + DigitalDieselElectronics.AirMass.ToString("F2")) { ShouldRefreshScreenIfTextChanged = false };
             //item9 = new MenuItem(x => "armM_List: " + DigitalDieselElectronics.AirMassPerStroke) { ShouldRefreshScreenIfTextChanged = false };
             item9 = new MenuItem("Refresh", (e) =>
             {
+                DBusManager.Port.WriteBufferSize = 1;
                 DBusManager.Instance.EnqueueMessage(DigitalDieselElectronics.QueryMessage);
             }, MenuItemType.Button, MenuItemAction.Refresh);
 
@@ -73,9 +74,9 @@ namespace imBMW.Features.Menu.Screens
             this.AddBackButton();
         }
 
-        private void DigitalDieselElectronics_MessageReceived(Microsoft.SPOT.EventArgs e)
+        private void DigitalDieselElectronics_MessageReceived()
         {
-            this.Refresh();
+            Refresh();
         }
 
         public override bool OnNavigatedTo(MenuBase menu)

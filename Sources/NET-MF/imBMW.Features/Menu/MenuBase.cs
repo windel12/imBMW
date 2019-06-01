@@ -114,7 +114,7 @@ namespace imBMW.Features.Menu
                 displayStatusDelayTimer = null;
             }
 
-            byte startIndex = 6; // remove path to SD card TODO: refactor this later.Length)
+            //byte startIndex = 6; // remove path to SD card TODO: refactor this later.Length)
             displayStatusDelayTimer = new Timer(delegate
             {
                 //if (displayStatusDelayTimer == null)

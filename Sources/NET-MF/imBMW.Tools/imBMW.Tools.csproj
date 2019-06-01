@@ -63,7 +63,6 @@
     <Compile Include="DateTimeHelpers.cs" />
     <Compile Include="Delegates.cs" />
     <Compile Include="Enums.cs" />
-    <Compile Include="ExtensionAttribute.cs" />
     <Compile Include="LoggerArgs.cs" />
     <Compile Include="Math.cs" />
     <Compile Include="NumHelpers.cs" />
@@ -73,7 +72,6 @@
     <Compile Include="StringHelpers.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.SPOT.Native" />
     <Reference Include="System.IO" />
   </ItemGroup>
   <Import Condition="EXISTS('$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets')" Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />

@@ -8,11 +8,11 @@ namespace imBMW.Features.Menu.Screens
 {
     public class AuxilaryHeaterScreen : MenuScreen
     {
-        private string SteuernZuheizerOn = "SteuernZuheizerOn";
-        private string SteuernZuheizerOff = "SteuernZuheizerOff";
+        //private string SteuernZuheizerOn = "SteuernZuheizerOn";
+        //private string SteuernZuheizerOff = "SteuernZuheizerOff";
 
-        public static Message MessageStartAuxilaryHeater = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, 0x41, 0x12);
-        public static Message MessageStopAuxilaryHeater = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, 0x41, 0x11);
+        //public static Message MessageStartAuxilaryHeater = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, 0x41, 0x12);
+        //public static Message MessageStopAuxilaryHeater = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, 0x41, 0x11);
 
         protected AuxilaryHeaterScreen()
         {

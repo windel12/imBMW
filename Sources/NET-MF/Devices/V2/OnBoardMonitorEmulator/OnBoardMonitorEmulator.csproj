@@ -341,7 +341,7 @@
     <Compile Include="DevicesEmulation\HeadlightVerticalAimControlEmulator.cs" />
     <Compile Include="DevicesEmulation\InstrumentClusterElectronicsEmulator.cs" />
     <Compile Include="DevicesEmulation\NavigationModuleEmulator.cs" />
-    <Compile Include="DevicesEmulation\DDEEmulator.cs" />
+    <Compile Include="DevicesEmulation\DigitalDieselElectronicsEmulator.cs" />
     <Compile Include="DevicesEmulation\FrontDisplayEmulator.cs" />
     <Compile Include="GHI\IO\Storage\SDCard.cs" />
     <Compile Include="GHI\Pins\FEZPandaIII.cs" />
