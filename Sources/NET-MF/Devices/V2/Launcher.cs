@@ -196,7 +196,7 @@ namespace imBMW.Devices.V2
                 //Logger.Logged += Logger_Logged;
                 FileLogger.Init(rootDirectory, () => VolumeInfo.GetVolumes()[0].FlushAll());
 
-                Logger.Trace("\n\n\n\n\n");
+                //Logger.Trace("\n\n\n\n\n");
                 Logger.Trace("Watchdog.ResetCause: " + _resetCause.ToStringValue());
 
                 Init();
@@ -563,9 +563,10 @@ namespace imBMW.Devices.V2
                    //e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics &&
                    //e.Message.DestinationDevice == DeviceAddress.FrontDisplay 
                    //||
-                   //e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics &&
-                   //e.Message.DestinationDevice == DeviceAddress.Broadcast
-                   //||
+                   e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics &&
+                   e.Message.DestinationDevice == DeviceAddress.Broadcast &&
+                   e.Message.Data[0] == 0x19
+                   ||
                    //e.Message.SourceDevice == DeviceAddress.MultiFunctionSteeringWheel &&
                    //e.Message.DestinationDevice == DeviceAddress.Radio
                    //|| 

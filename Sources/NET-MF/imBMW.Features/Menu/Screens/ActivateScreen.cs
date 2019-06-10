@@ -36,7 +36,7 @@ namespace imBMW.Features.Menu.Screens
             {
                 DBusManager.Port.WriteBufferSize = 1;
                 DBusManager.Instance.EnqueueMessage(DigitalDieselElectronics.status_vorfoederdruck);
-            }, MenuItemType.Button, MenuItemAction.None));
+            }));
 
             AddItem(new MenuItem(i => "Eluefter: " + DigitalDieselElectronics.EluefterFrequency, x =>
             {
@@ -53,46 +53,94 @@ namespace imBMW.Features.Menu.Screens
 
                 DBusManager.Port.WriteBufferSize = 1;
                 DBusManager.Instance.EnqueueMessage(DigitalDieselElectronics.SteuernEluefter(value));
-            }, MenuItemType.Button, MenuItemAction.None));
+            }));
 
             AddItem(new MenuItem(i => Localization.Current.Voltage + ": " + (NavigationModule.BatteryVoltage > 0 ? NavigationModule.BatteryVoltage.ToString("F2") : "-") + " " + Localization.Current.VoltageShort, x =>
             {
                 DBusManager.Port.WriteBufferSize = 0;
                 DBusManager.Instance.EnqueueMessage(navigation_module_status_lesen);
-            }, MenuItemType.Button, MenuItemAction.None));
+            }));
 
             //AddItem(new MenuItem(i => "DisableWatchdog", x =>
             //{
             //    OnDisableWatchdogCounterReset();
             //}, MenuItemType.Button, MenuItemAction.None));
 
-            AddItem(new MenuItem(i => "IDENT", x =>
+
+            AddItem(new MenuItem(i => "First+: " + IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_FirstByte.ToString("X") + " " + IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_SecondByte.ToString("X"), x =>
             {
-                Logger.Trace("Manual: HeadlightVerticalAimControl.IDENT");
-                HeadlightVerticalAimControl.IDENT();
-            }, MenuItemType.Button, MenuItemAction.None));
-            AddItem(new MenuItem(
-                i => "Status: " + HeadlightVerticalAimControl.FrontSensorVoltage.ToString("F2") + "V " + HeadlightVerticalAimControl.RearSensorVoltage.ToString("F2") + "V", x =>
+                if (IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_FirstByte != byte.MaxValue)
                 {
-                    HeadlightVerticalAimControl.STATUS_LESSEN();
-                }, MenuItemType.Button, MenuItemAction.None));
-            AddItem(new MenuItem(
-                i => "Sensors: " + HeadlightVerticalAimControl.FrontSensorVoltage.ToString("F2") + "V " + HeadlightVerticalAimControl.RearSensorVoltage.ToString("F2") + "V", x =>
+                    IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_FirstByte += 0x02;
+                }
+
+                var messageForTurningLuefter = new Message(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.InstrumentClusterElectronics,
+                    0x83, IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_FirstByte, IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_SecondByte);
+                KBusManager.Instance.EnqueueMessage(messageForTurningLuefter);
+            }));
+            AddItem(new MenuItem(i => "First-: " + IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_FirstByte.ToString("X") + " " + IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_SecondByte.ToString("X"), x =>
+            {
+                if (IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_FirstByte != byte.MinValue)
                 {
-                    HeadlightVerticalAimControl.STATUS_SENSOR_LESSEN();
-                }, MenuItemType.Button, MenuItemAction.None));
+                    IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_FirstByte -= 0x02;
+                }
+
+                var messageForTurningLuefter = new Message(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.InstrumentClusterElectronics,
+                    0x83, IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_FirstByte, IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_SecondByte);
+                KBusManager.Instance.EnqueueMessage(messageForTurningLuefter);
+            }));
+            AddItem(new MenuItem(i => "Second+" + IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_FirstByte.ToString("X") + " " + IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_SecondByte.ToString("X"), x =>
+            {
+                if (IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_SecondByte != byte.MaxValue)
+                {
+                    IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_SecondByte += 0x08;
+                }
+
+                var messageForTurningLuefter = new Message(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.InstrumentClusterElectronics, 
+                    0x83, IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_FirstByte, IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_SecondByte);
+                KBusManager.Instance.EnqueueMessage(messageForTurningLuefter);
+            }));
+            AddItem(new MenuItem(i => "Second-" + IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_FirstByte.ToString("X") + " " + IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_SecondByte.ToString("X"), x =>
+            {
+                if (IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_SecondByte != byte.MinValue)
+                {
+                    IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_SecondByte -= 0x08;
+                }
+
+                var messageForTurningLuefter = new Message(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.InstrumentClusterElectronics,
+                    0x83, IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_FirstByte, IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_SecondByte);
+                KBusManager.Instance.EnqueueMessage(messageForTurningLuefter);
+            }));
+
+
+            //AddItem(new MenuItem(i => "IDENT", x =>
+            //{
+            //    Logger.Trace("Manual: HeadlightVerticalAimControl.IDENT");
+            //    HeadlightVerticalAimControl.IDENT();
+            //}, MenuItemType.Button, MenuItemAction.None));
+            //AddItem(new MenuItem(
+            //    i => "Status: " + HeadlightVerticalAimControl.FrontSensorVoltage.ToString("F2") + "V " + HeadlightVerticalAimControl.RearSensorVoltage.ToString("F2") + "V", x =>
+            //    {
+            //        HeadlightVerticalAimControl.STATUS_LESSEN();
+            //    }, MenuItemType.Button, MenuItemAction.None));
+            //AddItem(new MenuItem(
+            //    i => "Sensors: " + HeadlightVerticalAimControl.FrontSensorVoltage.ToString("F2") + "V " + HeadlightVerticalAimControl.RearSensorVoltage.ToString("F2") + "V", x =>
+            //    {
+            //        HeadlightVerticalAimControl.STATUS_SENSOR_LESSEN();
+            //    }, MenuItemType.Button, MenuItemAction.None));
             //AddItem(new MenuItem(i => "LWR-STEUERN_ANTRIEBE", x =>
             //{
             //    HeadlightVerticalAimControl.STEUERN_ANTRIEBE();
             //}, MenuItemType.Button, MenuItemAction.None));
-            AddItem(new MenuItem(i => "LWR-DIAGNOSE_ENDE", x =>
-            {
-                HeadlightVerticalAimControl.DIAGNOSE_ENDE();
-            }, MenuItemType.Button, MenuItemAction.None));
+            //AddItem(new MenuItem(i => "LWR-DIAGNOSE_ENDE", x =>
+            //{
+            //    HeadlightVerticalAimControl.DIAGNOSE_ENDE();
+            //}, MenuItemType.Button, MenuItemAction.None));
 
             this.AddBackButton();
 
             NavigationModule.BatteryVoltageChanged += (voltage) => OnUpdateBody(MenuScreenUpdateReason.Refresh);
+            IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatusChanged += () => OnUpdateBody(MenuScreenUpdateReason.Refresh);
         }
 
         public override bool OnNavigatedTo(MenuBase menu)

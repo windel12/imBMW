@@ -89,7 +89,7 @@ namespace imBMW.Tools
                 case DeviceAddress.CabrioFoldingModule: return "CabrioFoldingModule";
                 case DeviceAddress.ASC: return "ASC";
                 case DeviceAddress.SteeringAngleSensor: return "SteeringAngleSensor";
-                case DeviceAddress.IntegratedHeatingAndAirConditioning: return "IntegratedHeatingAndAirConditioning";
+                case DeviceAddress.IntegratedHeatingAndAirConditioning: return "IHKA";
                 case DeviceAddress.ParkDistanceControl: return "ParkDistanceControl";
                 case DeviceAddress.AdaptiveHeadlightUnit: return "AdaptiveHeadlightUnit";
                 case DeviceAddress.Radio: return "Radio";
@@ -101,7 +101,7 @@ namespace imBMW.Tools
                 case DeviceAddress.SeatOcupancyRecognition: return "SeatOcupancyRecognition";
                 case DeviceAddress.CDChangerDINsize: return "CDChangerDINsize";
                 case DeviceAddress.NavigationEurope: return "NavigationEurope";
-                case DeviceAddress.InstrumentClusterElectronics: return "InstrumentClusterElectronics";
+                case DeviceAddress.InstrumentClusterElectronics: return "IKE";
                 case DeviceAddress.RevolutionCounter_SteeringColumn: return "RevolutionCounter_SteeringColumn";
                 case DeviceAddress.HeadlightVerticalAimControl: return "HeadlightVerticalAimControl";
                 case DeviceAddress.MirrorMemorySecond: return "MirrorMemorySecond";
@@ -114,7 +114,7 @@ namespace imBMW.Tools
                 case DeviceAddress.EHC: return "EHC";
                 case DeviceAddress.SpeedRecognitionSystem: return "SpeedRecognitionSystem";
                 case DeviceAddress.NavigationJapan: return "NavigationJapan";
-                case DeviceAddress.GlobalBroadcastAddress: return "GlobalBroadcastAddress";
+                case DeviceAddress.GlobalBroadcastAddress: return "GBA";
                 case DeviceAddress.MultiInfoDisplay: return "MultiInfoDisplay";
                 case DeviceAddress.Telephone: return "Telephone";
                 case DeviceAddress.Assist: return "Assist";
@@ -127,7 +127,7 @@ namespace imBMW.Tools
                 case DeviceAddress.OnBoardMonitor: return "OnBoardMonitor";
                 case DeviceAddress.OBD: return "OBD";
                 case DeviceAddress.CentralSwitchControlUnit: return "CentralSwitchControlUnit";
-                case DeviceAddress.Broadcast: return "Broadcast";
+                case DeviceAddress.Broadcast: return "LBA";
 
                 case DeviceAddress.imBMWTest: return "imBMWTest";
                 case DeviceAddress.imBMWMenu: return "imBMWMenu";

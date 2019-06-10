@@ -118,5 +118,6 @@
         <TextBox x:Name="temperatureAnounceInterval" HorizontalAlignment="Left" Height="23" Margin="265,36,0,0" TextWrapping="Wrap" Text="10000" VerticalAlignment="Top" Width="45" KeyUp="temperatureAnounceInterval_KeyUp"/>
         <TextBlock HorizontalAlignment="Left" Margin="105,10,0,0" TextWrapping="Wrap" Text="rpmSpeedAnnounceInterval:" VerticalAlignment="Top"/>
         <TextBlock HorizontalAlignment="Left" Margin="105,39,0,0" TextWrapping="Wrap" Text="temperaturAnnounceInterval:" VerticalAlignment="Top"/>
+        <Button x:Name="AC" Content="AC" HorizontalAlignment="Left" Margin="524,35,0,0" VerticalAlignment="Top" Width="75" Click="AC_Click"/>
     </Grid>
 </Window>

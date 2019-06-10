@@ -22,7 +22,7 @@ namespace imBMW.Tools
         {
             try
             {
-                FileLogger.FlushCallback = flushCallback;
+                FlushCallback = flushCallback;
 
                 Logger.FreeMemory();
 
@@ -83,9 +83,9 @@ namespace imBMW.Tools
                 if (++unflushed == flushLines)
                 {
                     writer.Flush();
-                    if (flushCallback != null)
+                    if (FlushCallback != null)
                     {
-                        flushCallback();
+                        FlushCallback();
                     }
                     Debug.GC(true);
                     unflushed = 0;

@@ -239,7 +239,11 @@ namespace imBMW.Features.Multimedia
                     }
                     finally
                     {
-                        if(dataFileWrite != null) { dataFileWrite.Close();}
+                        if (dataFileWrite != null)
+                        {
+                            dataFileWrite.Close();
+                            VolumeInfo.GetVolumes()[0].FlushAll();
+                        }
                     }
                 };
                 //TrackChanged += (sender, trackInfo) => { saveHistory(); };

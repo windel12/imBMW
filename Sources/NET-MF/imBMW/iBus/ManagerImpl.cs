@@ -230,6 +230,7 @@ namespace imBMW.iBus
             }
 
             Thread.Sleep(m.AfterSendDelay > 0 ? m.AfterSendDelay : _port.AfterWriteDelay); // Don't flood iBus
+            m = null; // will it optimize memory usage???
         }
 
         public void EnqueueMessage(Message m)

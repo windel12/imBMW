@@ -340,6 +340,7 @@
     <Compile Include="DevicesEmulation\AuxilaryHeaterEmulator.cs" />
     <Compile Include="DevicesEmulation\HeadlightVerticalAimControlEmulator.cs" />
     <Compile Include="DevicesEmulation\InstrumentClusterElectronicsEmulator.cs" />
+    <Compile Include="DevicesEmulation\IntegratedHeatingAndAirConditioningEmulator.cs" />
     <Compile Include="DevicesEmulation\NavigationModuleEmulator.cs" />
     <Compile Include="DevicesEmulation\DigitalDieselElectronicsEmulator.cs" />
     <Compile Include="DevicesEmulation\FrontDisplayEmulator.cs" />

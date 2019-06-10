@@ -345,5 +345,10 @@ namespace OnBoardMonitorEmulator
             int newInterval = int.Parse((sender as TextBox).Text);
             InstrumentClusterElectronicsEmulator.temperatureAnounceTimer.Change(0, newInterval);
         }
+
+        private void AC_Click(object sender, RoutedEventArgs e)
+        {
+            IntegratedHeatingAndAirConditioningEmulator.AirConditioningCompressorStatus_FirstByte += 0x02;
+        }
     }
 }

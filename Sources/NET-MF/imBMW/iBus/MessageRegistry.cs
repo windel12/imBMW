@@ -28,22 +28,22 @@ namespace imBMW.iBus
             "DIAG ",                    // "0x0D",
             "DIAG PRUEFSTEMPEL_LESEN",  // "0x0E",
             "DIAG PRUEFSTEMPEL_SCHREIBEN", // "0x0F",
-            "Ignition status request",
-            "Ignition status",
-            "IKE sensor status request",
+            "Ignition status request", // "0x10
+            "Ignition status", // "0x11
+            "IKE sensor status request",// "0x12
             "IKE sensor status",        // "0x13"
-            "Country coding status request",
-            "Country coding status",
-            "Odometer request",
-            "Odometer",
-            "Speed/RPM",
-            "Temperature",
-            "IKE text display/Gong",
-            "IKE text status",
-            "Gong",
-            "Temperature request",
+            "Country coding status request", // "0x14
+            "Country coding status",// "0x15
+            "Odometer request",// "0x16
+            "Odometer",// "0x17
+            "Speed/RPM",// "0x18
+            "Temperature",// "0x19
+            "IKE text display/Gong",// "0x1A
+            "IKE text status",// "0x1B
+            "Gong",// "0x1C
+            "Temperature request",// "0x1D
             "", // "0x1E",
-            "UTC time and date",
+            "UTC time and date",// "0x1F
             "LOC: Display status", // "0x20",
             "Radio Short cuts",
             "Text display confirmation",
@@ -142,7 +142,7 @@ namespace imBMW.iBus
             "", // "0x7F",
             "", // "0x80",
             "", // "0x81",
-            "Air conditioning on/off status", 
+            "Air conditioning on/off status", // 0x82
             "Air conditioning compressor status", // "0x83", (00 00 - Off; 80 00 - On?; 80 08 - On?)
             "", // "0x84",
             "", // "0x85",
@@ -457,7 +457,8 @@ namespace imBMW.iBus
             {
                 return null;
             }
-            return message.DataDump + " (" + messageTypeDescriptions[firstByte] + ')';
+
+            return message.DataDump;// + " (" + messageTypeDescriptions[firstByte] + ')';
         }
 
         public static bool IsInternal(this byte device)

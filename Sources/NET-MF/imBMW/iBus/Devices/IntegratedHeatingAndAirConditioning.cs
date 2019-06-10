@@ -55,9 +55,13 @@ namespace imBMW.iBus.Devices.Real
             }
         }
 
+        public static byte AirConditioningCompressorStatus_FirstByte = 0x00;
+        public static byte AirConditioningCompressorStatus_SecondByte = 0x00;
+
         static IntegratedHeatingAndAirConditioning()
         {
             KBusManager.Instance.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.AuxilaryHeater, DeviceAddress.IntegratedHeatingAndAirConditioning, ProcessAuxilaryHeaterMessage);
+            KBusManager.Instance.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.InstrumentClusterElectronics, ProcessMessageToIKE);
             InstrumentClusterElectronics.IgnitionStateChanged += InstrumentClusterElectronics_IgnitionStateChanged;
         }
 
@@ -140,6 +144,21 @@ namespace imBMW.iBus.Devices.Real
             }
         }
 
+        public static void ProcessMessageToIKE(Message message)
+        {
+            if (message.Data[0] == 0x83 && message.Data.Length == 3)
+            {
+                AirConditioningCompressorStatus_FirstByte = message.Data[1];
+                AirConditioningCompressorStatus_SecondByte = message.Data[2];
+
+                var e = AirConditioningCompressorStatusChanged;
+                if (e != null)
+                {
+                    e();
+                }
+            }
+        }
+
         /// <summary> IntegratedHeatingAndAirConditioning > AuxilaryHeater: 01 </summary>
         private static void PollAuxilaryHeater()
         {
@@ -194,5 +213,7 @@ namespace imBMW.iBus.Devices.Real
 
         public delegate void AuxilaryHeaterWorkingRequestsCounterEventHandler(byte counter);
         public static event AuxilaryHeaterWorkingRequestsCounterEventHandler AuxilaryHeaterWorkingRequestsCounterChanged;
+
+        public static event Action AirConditioningCompressorStatusChanged;
     }
 }
