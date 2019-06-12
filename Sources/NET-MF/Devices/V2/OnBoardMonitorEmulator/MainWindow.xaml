@@ -119,5 +119,8 @@
         <TextBlock HorizontalAlignment="Left" Margin="105,10,0,0" TextWrapping="Wrap" Text="rpmSpeedAnnounceInterval:" VerticalAlignment="Top"/>
         <TextBlock HorizontalAlignment="Left" Margin="105,39,0,0" TextWrapping="Wrap" Text="temperaturAnnounceInterval:" VerticalAlignment="Top"/>
         <Button x:Name="AC" Content="AC" HorizontalAlignment="Left" Margin="524,35,0,0" VerticalAlignment="Top" Width="75" Click="AC_Click"/>
+
+        <Label x:Name="IgnitionStateLabel" HorizontalAlignment="Left" Margin="334,4,0,0" VerticalAlignment="Top" Width="171" Height="26"/>
+        <Slider x:Name="IgnitionSlider" HorizontalAlignment="Left" Margin="334,41,0,0" VerticalAlignment="Top" Width="158" IsSnapToTickEnabled="True" Minimum="0" Maximum="3" Value="0" TickFrequency="1" ValueChanged="IgnitionSlider_ValueChanged" />
     </Grid>
 </Window>

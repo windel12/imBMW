@@ -3,7 +3,7 @@ using imBMW.iBus.Devices.Real;
 
 namespace imBMW.Tools
 {
-    static class EnumConverter
+    public static class EnumConverter
     {
         /**
         * :) Sorry, it's .NET MF,

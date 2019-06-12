@@ -153,7 +153,9 @@ namespace imBMW.iBus.Devices.Real
 
         public static sbyte TemperatureOutside { get; private set; }
         public static sbyte TemperatureCoolant { get; private set; }
-        
+
+        /// <summary> 10 </summary>
+        internal static readonly Message MessageRequestIgnitionStatus = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, 0x10);
         /// <summary> 41 01 01 </summary>
         internal static readonly Message MessageRequestTime = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Time", 0x41, 0x01, 0x01);
         /// <summary> 41 02 01</summary>
@@ -498,6 +500,11 @@ namespace imBMW.iBus.Devices.Real
             {
                 SetSpeedLimit((ushort)(SpeedLimit - sub));
             }
+        }
+
+        public static void RequestIgnitionStatus()
+        {
+            Manager.Instance.EnqueueMessage(MessageRequestIgnitionStatus);
         }
 
         public static void RequestDateTime()
