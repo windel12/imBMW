@@ -51,6 +51,7 @@ namespace imBMW.Devices.V2
 
         /// <summary> 30 sec </summary>
         static ushort watchDogTimeoutInMilliseconds = 30000;
+        private static Timer RequestIgnitionStateTimer;
 
         private static MassStorage _massStorage;
 
@@ -149,6 +150,7 @@ namespace imBMW.Devices.V2
                 Controller.UnknownDeviceConnected += (ss, ee) =>
                 {
                     Logger.Print("Controller UnknownDeviceConnected!");
+                    LedBlinking(error_RedLed, 4, 100);
                     ResetBoard();
                 };
                 Controller.MassStorageConnected += (sender, massStorage) =>
@@ -224,45 +226,21 @@ namespace imBMW.Devices.V2
                     }
                 };
 
-                InstrumentClusterElectronics.RequestIgnitionStatus();
-
-                Logger.Trace("Ignition state after init:" + InstrumentClusterElectronics.CurrentIgnitionState.ToStringValue());
-                if (InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Acc)
+                RequestIgnitionStateTimer = new Timer(obj =>
                 {
-                    InitWatchDogResetThread();
-                }
-
-                if (InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Ign)
-                {
-                    InitWatchDogResetByIKEMessageReceiving();
-                }
+                    InstrumentClusterElectronics.RequestIgnitionStatus();
+                }, null, 0, watchDogTimeoutInMilliseconds / 4);
+                
 
                 InstrumentClusterElectronics.IgnitionStateChanged += (args) =>
                 {
-                    if (args.PreviousIgnitionState == IgnitionState.Off && args.CurrentIgnitionState == IgnitionState.Acc)
-                    {
-                        if (!WatchDogResetThreadInited)
-                        {
-                            InitWatchDogResetThread();
-                        }
-                    }
-
-                    if (args.CurrentIgnitionState == IgnitionState.Ign)
-                    {
-                        if (!WatchDogResetByIKEInited)
-                        {
-                            DisposeWatchDogResetThread();
-                            InitWatchDogResetByIKEMessageReceiving();
-                        }
-                    }
-
                     if (args.CurrentIgnitionState == IgnitionState.Acc && args.PreviousIgnitionState == IgnitionState.Ign)
                     {
                         if (emulator.IsEnabled)
                         {
+                            emulator.PlayerIsPlayingChanged += UnmountMassStorage;
                             Radio.PressOnOffToggle();
                             FrontDisplay.RefreshLEDs(LedType.Orange, true);
-                            emulator.PlayerIsPlayingChanged += UnmountMassStorage;
                         }
                         else
                         {
@@ -394,10 +372,6 @@ namespace imBMW.Devices.V2
                 //Logger.Info("Radio menu inited" + (Radio.HasMID ? " with MID" : ""));
             }
 
-            //player.IsPlayingChanged += Player_IsPlayingChanged;
-            //player.StatusChanged += Player_StatusChanged;
-            //Logger.Info("Player events subscribed");
-
             successInited_GreenLed.Write(true);
 
             short getDateTimeTimeout = 1500;
@@ -416,7 +390,6 @@ namespace imBMW.Devices.V2
             Utility.SetLocalTime(dateTimeEventArgs.Value);
 
             FrontDisplay.RefreshLEDs(LedType.Green);
-            FrontDisplay.RefreshLEDs(LedType.Green);
 
             //nextButton = new InterruptPort((Cpu.Pin)FEZPandaIII.Gpio.Ldr1, true, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeHigh);
             //nextButton.OnInterrupt += (p, s, t) =>
@@ -433,158 +406,7 @@ namespace imBMW.Devices.V2
             //    //emulator.Player.DiskNumber = 6;
             //    emulator.IsEnabled = false;
             //};
-
-            /* 
-            var ign = new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.GlobalBroadcastAddress, "Ignition ACC", 0x11, 0x01);
-            Manager.Instance.EnqueueMessage(ign);
-            Manager.AddMessageReceiverForDestinationDevice(DeviceAddress.InstrumentClusterElectronics, m =>
-            {
-                if (m.Data.Compare(0x10))
-                {
-                    Manager.Instance.EnqueueMessage(ign);
-                }
-            });
-            var b = Manager.FindDevice(DeviceAddress.Radio);
-            */
         }
-
-        static bool WatchDogResetByIKEInited = false;
-        public static void InitWatchDogResetByIKEMessageReceiving()
-        {
-            if (_useWatchdog)
-            {
-                Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.InstrumentClusterElectronics, m =>
-                {
-                    if (m.Data[0] == 0x19 && m.Data.Length == 4) // Temperature
-                    {
-                        GHI.Processor.Watchdog.ResetCounter();
-                    }
-                });
-                WatchDogResetByIKEInited = true;
-                Logger.Trace("Watchdog reset started!");
-            }
-        }
-
-        static bool WatchDogResetThreadInited = false;
-        public static void InitWatchDogResetThread()
-        {
-            //Manager.AddMessageReceiverForSourceDevice(DeviceAddress.imBMWTest, (m) =>
-            //{
-            //    if (m.Data.Length > 1 && m.Data.StartsWith(0xEE, 0x00))
-            //    {
-            //        error = true;
-            //    }
-            //});
-            //ActivateScreen.DisableWatchdogCounterReset += () =>
-            //{
-            //    error = true;
-            //    RefreshLEDs(LedType.RedBlinking);
-            //    Radio.PressOnOffToggle();
-            //};
-
-            //Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.Radio, (m) =>
-            //{
-            //    if (m.Data.Compare(MessageRegistry.DataPollResponse))
-            //    {
-            //        var e = RadioPollResponseReceived;
-            //        if (e != null)
-            //        {
-            //            var args = new RadioPollEventArgs(m, true);
-            //            e(args);
-            //        }
-            //    }
-            //});
-
-            if (_useWatchdog)
-            {
-                // Start a time counter reset thread
-                WDTCounterReset = new Thread(WDTCounterResetLoop);
-                WDTCounterReset.Start();
-                WatchDogResetThreadInited = true;
-                Logger.Trace("Watchdog reset thread started!");
-            }
-        }
-
-        public static void DisposeWatchDogResetThread()
-        {
-            if (WDTCounterReset != null && WDTCounterReset.ThreadState != System.Threading.ThreadState.Suspended)
-            {
-                WDTCounterReset.Suspend();
-                Logger.Trace("Watchdog reset thread suspended!");
-            }
-        }
-
-        static Thread WDTCounterReset;
-        static void WDTCounterResetLoop()
-        {
-            while (true)
-            {
-                GHI.Processor.Watchdog.ResetCounter();
-                Thread.Sleep(watchDogTimeoutInMilliseconds / 5);
-
-//                if (!error)
-//                {
-//                    byte retryCount = 3;
-//                    do
-//                    {
-//                        LedBlinking(successInited_GreenLed, 3, 100);
-//                        var radioPollEventArgs = PollRadio(_radioPollResponseWaitTimeout);
-//                        if (radioPollEventArgs.ResponseReceived)
-//                        {
-//#if RELEASE
-//                            GHI.Processor.Watchdog.ResetCounter();
-//#endif
-//                            LedBlinking(successInited_GreenLed, 1, 250);
-//                            break;
-//                        }
-//                        retryCount--;
-//                    } while (retryCount > 0);
-
-//                    Thread.Sleep(watchDogTimeoutInMilliseconds - 10000);
-//                }
-            }
-        }
-
-//        private const int _radioPollResponseWaitTimeout = 2000;
-//        private static ManualResetEvent _radioPollResponseSync = new ManualResetEvent(false);
-//        private static RadioPollEventArgs _radioPollResult;
-//        public delegate void RadioPollEventHandler(RadioPollEventArgs e);
-//        public static event RadioPollEventHandler RadioPollResponseReceived;
-
-//        static RadioPollEventArgs PollRadio(int timeout)
-//        {
-//            _radioPollResponseSync.Reset();
-//            _radioPollResult = new RadioPollEventArgs(null, false);
-//            RadioPollResponseReceived += RadioPollResponseCallback;
-//            var pollRadioMessage = new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, MessageRegistry.DataPollRequest);
-//            Manager.Instance.EnqueueMessage(pollRadioMessage);
-//#if NETMF
-//            _radioPollResponseSync.WaitOne(timeout, true);
-//#else
-//            _radioPollResponseSync.WaitOne(timeout);
-//#endif
-//            RadioPollResponseReceived -= RadioPollResponseCallback;
-//            return _radioPollResult;
-//        }
-
-//        private static void RadioPollResponseCallback(RadioPollEventArgs e)
-//        {
-//            _radioPollResult = e;
-//            _radioPollResponseSync.Set();
-//        }
-
-//        public class RadioPollEventArgs
-//        {
-//            public Message ResponseMessage { get; private set; }
-
-//            public bool ResponseReceived { get; private set; }
-
-//            public RadioPollEventArgs(Message responseMessage, bool responseReceived = false)
-//            {
-//                ResponseMessage = responseMessage;
-//                ResponseReceived = responseReceived;
-//            }
-//        }
 
         // Log just needed message
         private static bool IBusLoggerPredicate(MessageEventArgs e)
@@ -613,15 +435,15 @@ namespace imBMW.Devices.V2
                    //e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics &&
                    //e.Message.DestinationDevice == DeviceAddress.FrontDisplay 
                    //||
-                   e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics &&
-                   e.Message.DestinationDevice == DeviceAddress.GlobalBroadcastAddress &&
-                   e.Message.Data[0] == 0x19
-                   ||
-                   InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Acc
-                   ||
+                   //e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics &&
+                   //e.Message.DestinationDevice == DeviceAddress.GlobalBroadcastAddress &&
+                   //e.Message.Data[0] == 0x19
+                   //||
                    //e.Message.SourceDevice == DeviceAddress.MultiFunctionSteeringWheel &&
                    //e.Message.DestinationDevice == DeviceAddress.Radio
-                   //|| 
+                   //||
+                   InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Acc
+                   ||
 #if DEBUG
                    true;
 #else
@@ -719,8 +541,7 @@ namespace imBMW.Devices.V2
             }
 
             return
-                   e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics 
-                   ||
+                   e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics ||
                    e.Message.SourceDevice == DeviceAddress.AuxilaryHeater ||
                    e.Message.DestinationDevice == DeviceAddress.AuxilaryHeater ||
                    e.Message.SourceDevice == DeviceAddress.IntegratedHeatingAndAirConditioning ||
@@ -774,7 +595,7 @@ namespace imBMW.Devices.V2
         {
             if (DBusLoggerPredicate(e))
             {
-                FrontDisplay.RefreshLEDs(LedType.Green);
+                //FrontDisplay.RefreshLEDs(LedType.Green);
                 var logIco = "D < ";
                 if (settings.LogMessageToASCII)
                 {
@@ -784,7 +605,7 @@ namespace imBMW.Devices.V2
                 {
                     Logger.Trace(e.Message, logIco);
                 }
-                FrontDisplay.RefreshLEDs(LedType.Empty);
+                //FrontDisplay.RefreshLEDs(LedType.Empty);
             }
         }
 
@@ -792,7 +613,7 @@ namespace imBMW.Devices.V2
         {
             if (DBusLoggerPredicate(e))
             {
-                FrontDisplay.RefreshLEDs(LedType.Orange);
+                //FrontDisplay.RefreshLEDs(LedType.Orange);
                 var logIco = "D > ";
                 if (settings.LogMessageToASCII)
                 {
@@ -802,21 +623,8 @@ namespace imBMW.Devices.V2
                 {
                     Logger.Trace(e.Message, logIco);
                 }
-                FrontDisplay.RefreshLEDs(LedType.Empty);
+                //FrontDisplay.RefreshLEDs(LedType.Empty);
             }
-        }
-
-        private static void Player_StatusChanged(IAudioPlayer player, string status, PlayerEvent playerEvent)
-        {
-            if (playerEvent == PlayerEvent.IncomingCall && !player.IsEnabled)
-            {
-                InstrumentClusterElectronics.Gong1();
-            }
-        }
-
-        private static void Player_IsPlayingChanged(IAudioPlayer sender, bool isPlaying)
-        {
-            //RefreshLEDs();
         }
 
         static byte busy = 0;

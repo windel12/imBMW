@@ -226,6 +226,7 @@ namespace imBMW.iBus.Devices.Real
             }
             else if (m.Data[0] == 0x11 && m.Data.Length == 2) // Ignotion status
             {
+                GHI.Processor.Watchdog.ResetCounter();
                 byte ign = m.Data[1];
                 if (((ign & 0x04) != 0))    // 0x07 = 0111b
                 {

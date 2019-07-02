@@ -23,11 +23,22 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
         public delegate void ShowOBCMessageEventHandler(string message);
         public static event ShowOBCMessageEventHandler OBCTextChanged;
 
+        private static IgnitionState _ignitionState;
+        public static IgnitionState IgnitionState
+        {
+            get { return _ignitionState; }
+            set
+            {
+                _ignitionState = value;
+                var ignitionChangedMessage = new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.GlobalBroadcastAddress, 0x11, GetIgnitionStateByte(_ignitionState));
+                Manager.Instance.EnqueueMessage(ignitionChangedMessage);
+            }
+        }
+
         public static void Init() { }
 
         static InstrumentClusterElectronicsEmulator()
         {
-            Manager.Instance.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, ProcessMessageFromGraphicNavigationDriver);
             Manager.Instance.AddMessageReceiverForDestinationDevice(DeviceAddress.InstrumentClusterElectronics, ProcessMessageToIKE);
 
             DBusManager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.OBD, ProcessDS2MessageAndForwardToIBus);
@@ -62,20 +73,6 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
             }, null, 0, temperatureAnounceTimerIterval * 1000);
         }
 
-        static void ProcessMessageFromGraphicNavigationDriver(Message m)
-        {
-            if (m.Data.Compare(InstrumentClusterElectronics.MessageRequestTime.Data))
-            {
-                // 16:58
-                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.FrontDisplay, 0x24, 0x01, 0x00, 0x31, 0x36, 0x3A, 0x34, 0x38, 0x20, 0x20));
-            }
-            if (m.Data.Compare(InstrumentClusterElectronics.MessageRequestDate.Data))
-            {
-                // 06/26/2016"
-                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.FrontDisplay, 0x24, 0x02, 0x00, 0x30, 0x36, 0x2F, 0x32, 0x36, 0x2F, 0x32, 0x30, 0x31, 0x36));
-            }
-        }
-
         public static void ProcessMessageToIKE(Message m)
         {
             if (m.SourceDevice == DeviceAddress.Radio && m.Data.StartsWith(0x23, 0x62, 0x30))
@@ -97,6 +94,20 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
                 {
                     e(message);
                 }
+            }
+            if (m.Data.Compare(InstrumentClusterElectronics.MessageRequestIgnitionStatus.Data))
+            {
+                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.GlobalBroadcastAddress, 0x11, GetIgnitionStateByte(IgnitionState)));
+            }
+            if (m.Data.Compare(InstrumentClusterElectronics.MessageRequestTime.Data))
+            {
+                // 16:58
+                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.FrontDisplay, 0x24, 0x01, 0x00, 0x31, 0x36, 0x3A, 0x34, 0x38, 0x20, 0x20));
+            }
+            if (m.Data.Compare(InstrumentClusterElectronics.MessageRequestDate.Data))
+            {
+                // 06/26/2016"
+                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.FrontDisplay, 0x24, 0x02, 0x00, 0x30, 0x36, 0x2F, 0x32, 0x36, 0x2F, 0x32, 0x30, 0x31, 0x36));
             }
         }
 
@@ -120,6 +131,23 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
                 Thread.Sleep(100);
                 var message = new DS2Message(m.SourceDevice, m.Data);
                 DBusManager.Instance.EnqueueMessage(message);
+            }
+        }
+
+        private static byte GetIgnitionStateByte(IgnitionState ignitionState)
+        {
+            switch (ignitionState)
+            {
+                case IgnitionState.Off:
+                    return 0x00;
+                case IgnitionState.Acc:
+                    return 0x01;
+                case IgnitionState.Ign:
+                    return 0x03;
+                case IgnitionState.Starting:
+                    return 0x07;
+                default:
+                    return 0x00;
             }
         }
     }

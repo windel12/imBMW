@@ -103,8 +103,6 @@ namespace OnBoardMonitorEmulator
             FrontDisplayEmulator.LedChanged += FrontDisplayEmulator_LedChanged;
             InstrumentClusterElectronicsEmulator.OBCTextChanged += InstrumentClusterElectronicsEmulator_OBCTextChanged;
 
-            IgnitionSlider_ValueChanged(null, new RoutedPropertyChangedEventArgs<double>(0, 0));
-
             //BordmonitorMenu.Instance.CurrentScreen = HomeScreen.Instance;
 
             Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.Radio, m =>
@@ -357,25 +355,7 @@ namespace OnBoardMonitorEmulator
         {
             var ignitionState = (IgnitionState) e.NewValue;
             IgnitionStateLabel.Content = string.Format("Ignition status: {0}", ignitionState.ToString());
-            var ignitionChangedMessage = new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.GlobalBroadcastAddress, 0x11, GetIgnitionStateByte(ignitionState));
-            Manager.Instance.EnqueueMessage(ignitionChangedMessage);
-        }
-
-        private byte GetIgnitionStateByte(IgnitionState ignitionState)
-        {
-            switch (ignitionState)
-            {
-                case IgnitionState.Off:
-                    return 0x00;
-                case IgnitionState.Acc:
-                    return 0x01;
-                case IgnitionState.Ign:
-                    return 0x03;
-                case IgnitionState.Starting:
-                    return 0x07;
-                default:
-                    return 0x00;
-            }
+            InstrumentClusterElectronicsEmulator.IgnitionState = ignitionState;
         }
     }
 }

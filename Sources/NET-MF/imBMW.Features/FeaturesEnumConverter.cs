@@ -46,6 +46,16 @@ namespace imBMW
             return "NotSpecified(" + e.ToString() + ")";
         }
 
+        public static string ToStringValue(this AirConditioningCompressorStatus e)
+        {
+            switch (e)
+            {
+                case AirConditioningCompressorStatus.Off: return "Off";
+                case AirConditioningCompressorStatus.On: return "On";
+            }
+            return "NotSpecified(" + e.ToString() + ")";
+        }
+
         public static string ToStringValue(this AudioSource e)
         {
             switch (e)

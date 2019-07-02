@@ -22,7 +22,7 @@ namespace GHI.Processor
             _watchdogTimer = new Timer((arg) =>
             {
                 _counter -= 100;
-                if (_counter == 0)
+                if (_counter <= 0)
                 {
                     System.Windows.MessageBox.Show("Watchdog reset occured!!!");
                 }

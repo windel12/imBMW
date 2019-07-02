@@ -4,6 +4,12 @@ using System.Threading;
 
 namespace imBMW.iBus.Devices.Real
 {
+    public enum AirConditioningCompressorStatus
+    {
+        Off,
+        On
+    }
+
     public static class IntegratedHeatingAndAirConditioning
     {
         private static Timer delay;
@@ -54,6 +60,8 @@ namespace imBMW.iBus.Devices.Real
                 }
             }
         }
+
+        public static AirConditioningCompressorStatus AirConditioningCompressorStatus = AirConditioningCompressorStatus.Off;
 
         public static byte AirConditioningCompressorStatus_FirstByte = 0x00;
         public static byte AirConditioningCompressorStatus_SecondByte = 0x00;
@@ -148,6 +156,15 @@ namespace imBMW.iBus.Devices.Real
         {
             if (message.Data[0] == 0x83 && message.Data.Length == 3)
             {
+                if (message.Data[1] == 0x80)
+                {
+                    AirConditioningCompressorStatus = AirConditioningCompressorStatus.Off;
+                }
+                else
+                {
+                    AirConditioningCompressorStatus = AirConditioningCompressorStatus.On;
+                }
+
                 AirConditioningCompressorStatus_FirstByte = message.Data[1];
                 AirConditioningCompressorStatus_SecondByte = message.Data[2];
 

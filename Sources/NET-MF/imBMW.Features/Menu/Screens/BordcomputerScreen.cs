@@ -182,19 +182,25 @@ namespace imBMW.Features.Menu.Screens
             }
         }
 
+
         protected virtual void SetItems()
         {
             ClearItems();
+
             AddItem(new MenuItem(i => Localization.Current.Speed + ": " + InstrumentClusterElectronics.CurrentSpeed + Localization.Current.KMH));
             AddItem(new MenuItem(i => Localization.Current.Revs + ": " + InstrumentClusterElectronics.CurrentRPM));
-            AddItem(new MenuItem(i => Localization.Current.Consumption + " 1: " + (InstrumentClusterElectronics.Consumption1 == 0 ? "-" : InstrumentClusterElectronics.Consumption1.ToString("F1"))
+            AddItem(new MenuItem(i => Localization.Current.Consumption + ": " 
+                + (InstrumentClusterElectronics.Consumption1 == 0 ? "-" : InstrumentClusterElectronics.Consumption1.ToString("F1")) 
+                + "/"
+                + (InstrumentClusterElectronics.Consumption2 == 0 ? "-" : InstrumentClusterElectronics.Consumption2.ToString("F1"))
             /*, i => InstrumentClusterElectronics.ResetConsumption1()*/)
             );
-            AddItem(new MenuItem(i => Localization.Current.Consumption + " 2: " + (InstrumentClusterElectronics.Consumption2 == 0 ? "-" : InstrumentClusterElectronics.Consumption2.ToString("F1"))
-            /*, i => InstrumentClusterElectronics.ResetConsumption2()*/)
-            );
-            //AddItem(new MenuItem(i => Localization.Current.Range + ": " + (InstrumentClusterElectronics.Range == 0 ? "-" : InstrumentClusterElectronics.Range + Localization.Current.KM)));
+            //AddItem(new MenuItem(i => Localization.Current.Consumption + " 2: " + (InstrumentClusterElectronics.Consumption2 == 0 ? "-" : InstrumentClusterElectronics.Consumption2.ToString("F1"))
+            ///*, i => InstrumentClusterElectronics.ResetConsumption2()*/)
+            //);
             AddItem(new MenuItem(i => Localization.Current.Average + ": " + (InstrumentClusterElectronics.AverageSpeed == 0 ? "-" : InstrumentClusterElectronics.AverageSpeed.ToString("F1") + Localization.Current.KMH)));
+            AddItem(new MenuItem(i => Localization.Current.Range + ": " + (InstrumentClusterElectronics.Range == 0 ? "-" : InstrumentClusterElectronics.Range.ToString())));
+
 
             AddItem(new MenuItem(i => Localization.Current.Voltage + ": " + (NavigationModule.BatteryVoltage > 0 ? NavigationModule.BatteryVoltage.ToString("F2") : "-") + " " + Localization.Current.VoltageShort, i => UpdateVoltage()));
             AddItem(new MenuItem(i =>
@@ -207,10 +213,15 @@ namespace imBMW.Features.Menu.Screens
                 var outside = InstrumentClusterElectronics.TemperatureOutside == sbyte.MinValue ? "-" : InstrumentClusterElectronics.TemperatureOutside.ToString();
                 return Localization.Current.Outside + ": " + outside + Localization.Current.DegreeCelsius;
             }));
-            AddItem(new MenuItem(i => Localization.Current.Limit + ": " + (InstrumentClusterElectronics.SpeedLimit == 0 ? "-" : InstrumentClusterElectronics.SpeedLimit + Localization.Current.KMH), MenuItemType.Button, MenuItemAction.GoToScreen)
-            {
-                GoToScreenCallback = () => { return SpeedLimitScreen.Instance; }
-            });
+            //AddItem(new MenuItem(i => Localization.Current.Limit + ": " + (InstrumentClusterElectronics.SpeedLimit == 0 ? "-" : InstrumentClusterElectronics.SpeedLimit + Localization.Current.KMH), MenuItemType.Button, MenuItemAction.GoToScreen)
+            //{
+            //    GoToScreenCallback = () => { return SpeedLimitScreen.Instance; }
+            //});
+            AddItem(new MenuItem(i => 
+                "Компрессор: " 
+                + IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_FirstByte.ToString("X")                              
+                + " "               
+                + IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_SecondByte.ToString("X")));
             this.AddBackButton();
         }
 

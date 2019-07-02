@@ -247,7 +247,7 @@ namespace imBMW.Features.Localizations
 
         public override string Range
         {
-            get { return "Запас"; }
+            get { return "Запас хода"; }
         }
 
         public override string Consumption
