@@ -408,19 +408,37 @@
     <Content Include="USB\1\Fat Cat Cinema - Nothing At All.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="USB\1\Kanita - Dont Le Me Go - Copy.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="USB\1\Kanita - Dont Le Me Go.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="USB\1\Muse - Uprising - Copy.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="USB\1\Muse - Uprising.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="USB\1\Pegboard Nerds - Swamp Thing - Copy.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="USB\1\Pegboard Nerds - Swamp Thing.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="USB\1\Sollar - Cheat Code - Copy.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="USB\1\Sollar - Cheat Code.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="USB\1\The Pretty Reckless - Follow Me Down - Copy.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="USB\1\The Pretty Reckless - Follow Me Down.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="USB\1\Vanotek feat. Mikayla - Cherry Lips - Copy.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="USB\1\Vanotek feat. Mikayla - Cherry Lips.mp3">

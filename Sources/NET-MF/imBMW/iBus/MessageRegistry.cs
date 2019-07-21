@@ -54,8 +54,8 @@ namespace imBMW.iBus
             "MID display request", // "0x27",
             "", // "0x28",
             "", // "0x29",
-            "On-Board Computer State Update",
-            "Phone LEDs",
+            "On-Board Computer State Update", // "0x2A"
+            "Phone LEDs", // "0x2B"
             "Phone symbol", // "0x2C",
             "", // "0x2D",
             "", // "0x2E",
@@ -64,8 +64,8 @@ namespace imBMW.iBus
             "Select screen item", // "0x31",
             "MFL volume buttons",
             "", // "0x33",
-            "DSP Equalizer Button",
-            "", // "0x35",
+            "DSP Equalizer Button", // "0x34"
+            "GT Car memory response", // "0x35",
             "Audio_control", // "0x36",
             "GT: Select Menu", // "0x37",
             "CD status request",
@@ -91,7 +91,7 @@ namespace imBMW.iBus
             "", // "0x4C",
             "", // "0x4D",
             "Audio source selection", // "0x4E",
-            "Monitor Control",
+            "Monitor Control", // "0x4F"
             "", // "0x50",
             "Check control messages", // "0x51",
             "?Some message to CheckControlModule?", // "0x52",
@@ -102,9 +102,9 @@ namespace imBMW.iBus
             "Check Control button", // "0x57", 01 - Check Control button CHECK_pressed; 02 - Check Control button BC_pressed; 41 - Check Control button CHECK_released; 43 - Check Control button Button 3_released
             "Headlight wipe interval", // "0x58",
             "", // "0x59",
-            "Lamp status request",
-            "Lamp status",
-            "Instrument cluster lighting status",
+            "Lamp status request", // "0x5A",
+            "Lamp status", // "0x5B",
+            "Instrument cluster lighting status", // "0x5C",
             "Instrument cluster lighting status request", // "0x5D",
             "", // "0x5E",
             "", // "0x5F",
@@ -125,18 +125,18 @@ namespace imBMW.iBus
             "", // "0x6E",
             "FBZV", // "0x6F",
             "Remote control central locking status", // "0x70",
-            "Rain sensor status request",
-            "Remote Key buttons",
+            "Rain sensor status request", // "0x71"
+            "Remote Key buttons", // "0x72"
             "EWS Status request", // "0x73",
-            "EWS key status",
+            "EWS key status", // "0x74"
             "Wiper status request", // "0x75",
             "External lights(Crash Alarm)", // "0x76",
             "Wiper status", // "0x77",
             "Seat Memory", // "0x78",
-            "Doors/windows status request",
-            "Doors/windows status",
+            "Doors/windows status request", // "0x79"
+            "Doors/windows status", // "0x7A"
             "", // "0x7B",
-            "SHD status",
+            "SHD status", // "0x7C"
             "SHD control", // "0x7D",
             "", // "0x7E",
             "", // "0x7F",
@@ -179,10 +179,10 @@ namespace imBMW.iBus
             "Current location", // "0xA4"
             "Header fields T1-T6",  // "0xA5"
             "ANZV: Special indicators", // "0xA6",
-            "TMC status request",
+            "TMC status request", // "0xA7"
             "TMC data", // "0xA8",
             "Telephone data", // "0xA9",
-            "Navigation voice Control",
+            "Navigation voice Control", // "0xAA"
             "", // "0xAB",
             "", // "0xAC",
             "", // "0xAD",
@@ -292,19 +292,19 @@ namespace imBMW.iBus
             //messageDescriptions.Add(Radio.DataAMReleased.ToHex(' '), "BMBT AM Released");
             //messageDescriptions.Add(Radio.DataFMPressed.ToHex(' '), "BMBT FM Pressed");
             //messageDescriptions.Add(Radio.DataFMReleased.ToHex(' '), "BMBT FM Released");
-            messageDescriptions.Add(Radio.DataModePressed.ToHex(' '), "BMBT Mode Pressed");
-            messageDescriptions.Add(Radio.DataModeReleased.ToHex(' '), "BMBT Mode Released");
+            //messageDescriptions.Add(Radio.DataModePressed.ToHex(' '), "BMBT Mode Pressed");
+            //messageDescriptions.Add(Radio.DataModeReleased.ToHex(' '), "BMBT Mode Released");
             //messageDescriptions.Add(Radio.DataNaviKnobPressed.ToHex(' '), "Navi knob Pressed");
             //messageDescriptions.Add(Radio.DataNaviKnobReleased.ToHex(' '), "Navi knob Released");
-            messageDescriptions.Add(Radio.DataNextPressed.ToHex(' '), "BMBT Next Pressed");
-            messageDescriptions.Add(Radio.DataNextReleased.ToHex(' '), "BMBT Next Released");
-            messageDescriptions.Add(Radio.DataPrevPressed.ToHex(' '), "BMBT Prev Pressed");
-            messageDescriptions.Add(Radio.DataPrevReleased.ToHex(' '), "BMBT Prev Released");
-            messageDescriptions.Add(Radio.DataSwitchPressed.ToHex(' '), "BMBT Switch Pressed");
-            messageDescriptions.Add(Radio.DataSwitchReleased.ToHex(' '), "BMBT Switch Released");
+            //messageDescriptions.Add(Radio.DataNextPressed.ToHex(' '), "BMBT Next Pressed");
+            //messageDescriptions.Add(Radio.DataNextReleased.ToHex(' '), "BMBT Next Released");
+            //messageDescriptions.Add(Radio.DataPrevPressed.ToHex(' '), "BMBT Prev Pressed");
+            //messageDescriptions.Add(Radio.DataPrevReleased.ToHex(' '), "BMBT Prev Released");
+            //messageDescriptions.Add(Radio.DataSwitchPressed.ToHex(' '), "BMBT Switch Pressed");
+            //messageDescriptions.Add(Radio.DataSwitchReleased.ToHex(' '), "BMBT Switch Released");
 
-            messageDescriptions.Add(new byte[] { 0x38, 0x0A, 00 }.ToHex(' '), "CD changer next track");
-            messageDescriptions.Add(new byte[] { 0x38, 0x0A, 01 }.ToHex(' '), "CD changer prev track");
+            //messageDescriptions.Add(new byte[] { 0x38, 0x0A, 00 }.ToHex(' '), "CD changer next track");
+            //messageDescriptions.Add(new byte[] { 0x38, 0x0A, 01 }.ToHex(' '), "CD changer prev track");
 
             messageDescriptions.Add(new byte[] { 0x82, 0x83 }.ToHex(' '), "IHKA message after engine started, or after EngineRunning > Acc > Ign"); //  maybe for auxilary heater starting?
             messageDescriptions.Add(new byte[] { 0x82, 0x05 }.ToHex(' '), "IHKA turned on by webasto activation"); // after manual starting auxilary heater(by receiving command 92 00 22 from auxilary heater(key in ACC))

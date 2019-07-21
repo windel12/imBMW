@@ -13,7 +13,9 @@ namespace imBMW.Tools
         ProcessItem processItem;
         object lockObj = new object();
 
-        public QueueThreadWorker(ProcessItem processItem, string threadName = "", ThreadPriority threadPriority = ThreadPriority.AboveNormal)
+        private ManualResetEvent ewt = new ManualResetEvent(false);
+
+        public QueueThreadWorker(ProcessItem processItem, string threadName = "", ThreadPriority threadPriority = ThreadPriority.AboveNormal, bool postponeStart = false)
         {
             if (processItem == null)
             {
@@ -26,7 +28,10 @@ namespace imBMW.Tools
 #if !NETMF
             queueThread.Name = threadName;
 #endif
-            queueThread.Start();
+            if (!postponeStart)
+            {
+                queueThread.Start();
+            }
         }
 
         void queueWorker()
@@ -43,6 +48,7 @@ namespace imBMW.Tools
                     else
                     {
                         m = null;
+                        ewt.Set();
                     }
                 }
                 if (m == null)
@@ -95,6 +101,11 @@ namespace imBMW.Tools
             }
         }
 
+        public void Start()
+        {
+            queueThread.Start();
+        }
+
         public void CheckRunning()
         {
             /**
@@ -106,6 +117,19 @@ namespace imBMW.Tools
             {
                 queueThread.Resume();
             }
+        }
+
+        public bool WaitTillQueueBeEmpty()
+        {
+            lock (lockObj)
+            {
+                if (Count > 0)
+                {
+                    ewt.Reset();
+                }
+            }
+            bool result = ewt.WaitOne(2000, true);
+            return result;
         }
     }
 }

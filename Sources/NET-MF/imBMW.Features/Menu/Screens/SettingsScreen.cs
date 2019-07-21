@@ -1,6 +1,7 @@
 using System;
 using Microsoft.SPOT;
 using imBMW.Features.Localizations;
+using imBMW.Tools;
 
 namespace imBMW.Features.Menu.Screens
 {
@@ -39,6 +40,10 @@ namespace imBMW.Features.Menu.Screens
             AddItem(new MenuItem(i => Localization.Current.AutoUnlock, i => Comfort.AutoUnlockDoors = i.IsChecked, MenuItemType.Checkbox)
             {
                 IsChecked = Comfort.AutoUnlockDoors
+            });
+            AddItem(new MenuItem(i => "AutoUnmount", i => Settings.Instance.UnmountMassStorageOnChangingIgnitionToAcc = i.IsChecked, MenuItemType.Checkbox)
+            {
+                IsChecked = Settings.Instance.UnmountMassStorageOnChangingIgnitionToAcc
             });
             this.AddBackButton();
         }

@@ -64,20 +64,12 @@ namespace imBMW.Devices.V2
         private static void ResetBoard()
         {
             Logger.TryTrace("Board will reset in 2 seconds!!!");
-            FrontDisplay.RefreshLEDs(LedType.GreenBlinking);
-            Thread.Sleep(200); // wait to add pause after previous blinking
-            LedBlinking(successInited_GreenLed, 5, 200);
+            FrontDisplay.RefreshLEDs(LedType.RedBlinking, append: true);
+            LedBlinking(orangeLed, 2, 200);
+            
+            RequestIgnitionStateTimer.Dispose();
 
-            if (_massStorage != null && _massStorage.Mounted)
-            {
-                if (FileLogger.FlushCallback != null)
-                {
-                    FileLogger.FlushCallback();
-                }
-
-                _massStorage.Unmount();
-                Thread.Sleep(200);
-            }
+            UnmountMassStorage(null, false);         
 
 #if OnBoardMonitorEmulator
             System.Windows.MessageBox.Show("Board was resetted");
@@ -121,8 +113,10 @@ namespace imBMW.Devices.V2
                 if (_useWatchdog)
                     GHI.Processor.Watchdog.Enable(watchDogTimeoutInMilliseconds);
 
-                //SDCard sd = null;
-                settings = Settings.Init(/*sd != null ? sd + @"\imBMW.ini" : */null);
+                settings = Settings.Instance;
+
+                FileLogger.BaseInit();
+                InitManagers();
 
                 //SettingsScreen.Instance.Status = version.Length > 11 ? version.Replace(" ", "") : version;
                 //Localization.SetCurrent(RussianLocalization.SystemName); //Localization.SetCurrent(settings.Language);
@@ -138,29 +132,33 @@ namespace imBMW.Devices.V2
 
                 //sd_card = new SDCard(SDCard.SDInterface.MCI);
                 //sd_card.Mount();
-                
 
-#region UsbMassStorage
+
+                #region UsbMassStorage
                 Controller.DeviceConnectFailed += (sss, eee) =>
                 {
                     Logger.Print("Controller DeviceConnectFailed!");
-                    LedBlinking(error_RedLed, 5, 100);
-                    ResetBoard();
+                    Radio.DisplayText("DeviceConnectFailed");
+                    LedBlinking(error_RedLed, 1, 100);
+                    Thread.Sleep(200);
                 };
                 Controller.UnknownDeviceConnected += (ss, ee) =>
                 {
                     Logger.Print("Controller UnknownDeviceConnected!");
-                    LedBlinking(error_RedLed, 4, 100);
-                    ResetBoard();
+                    Radio.DisplayText("UnknownDeviceConnected");
+                    LedBlinking(error_RedLed, 2, 100);
+                    Thread.Sleep(200);
                 };
                 Controller.MassStorageConnected += (sender, massStorage) =>
                 {
                     Logger.Print("Controller MassStorageConnected!");
-                    LedBlinking(orangeLed, 2, 100);
+                    LedBlinking(orangeLed, 1, 100);
+                    Thread.Sleep(200);
                     RemovableMedia.Insert += (s, e) =>
                     {
                         Logger.Print("RemovableMedia Inserted!");
-                        LedBlinking(successInited_GreenLed, 2, 100);
+                        LedBlinking(orangeLed, 2, 100);
+                        Thread.Sleep(200);
                         _removableMediaInsertedSync.Set();
                     };
 
@@ -178,25 +176,37 @@ namespace imBMW.Devices.V2
                     Controller.Start();
                 }
 #endif
-#endregion
+                #endregion
 
+                FrontDisplay.RefreshLEDs(LedType.OrangeBlinking);
                 LedBlinking(orangeLed, 1, 100);
                 bool isSignalled = !error && _removableMediaInsertedSync.WaitOne(Debugger.IsAttached ? 30000 : 10000, true);
                 if (!isSignalled)
                 {
+                    Radio.DisplayText("!isSignalled");
                     LedBlinking(error_RedLed, 3, 100);
                     ResetBoard();
                 }
                 else
                 {
-                    Logger.Print("Controller inited!");
-                    LedBlinking(successInited_GreenLed, 3, 100);
+                    Logger.Trace("Controller inited!");
+                    FrontDisplay.RefreshLEDs(LedType.Orange, append:true);
+                    LedBlinking(orangeLed, 3, 100);
                 }
 
-                rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
-
-                //Logger.Logged += Logger_Logged;
-                FileLogger.Init(rootDirectory, () => VolumeInfo.GetVolumes()[0].FlushAll());
+                if (!VolumeInfo.GetVolumes()[0].IsFormatted)
+                {
+                    Radio.DisplayText("!VolumeInfo.IsFormatted");
+                    FrontDisplay.RefreshLEDs(LedType.Orange | LedType.Red | LedType.Green);
+                    rootDirectory = "Unknown";
+                    FileLogger.BaseDispose();
+                }
+                else
+                {
+                    rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
+                    settings = Settings.Init(rootDirectory + "\\imBMW.ini");
+                    FileLogger.Init(rootDirectory, () => VolumeInfo.GetVolumes()[0].FlushAll());
+                }
 
                 //Logger.Trace("\n\n\n\n\n");
                 Logger.Trace("Watchdog.ResetCause: " + _resetCause.ToStringValue());
@@ -205,7 +215,7 @@ namespace imBMW.Devices.V2
 
                 Logger.Trace("Started!");
 
-                BordmonitorMenu.ResetButtonPressed += () =>
+                BordmonitorMenu.MenuButtonHold += () =>
                 {
                     FrontDisplay.RefreshLEDs(LedType.Empty);
 
@@ -219,6 +229,7 @@ namespace imBMW.Devices.V2
                             }
                         };
                         Radio.PressOnOffToggle();
+                        emulator.IsEnabled = false;
                     }
                     else
                     {
@@ -230,16 +241,24 @@ namespace imBMW.Devices.V2
                 {
                     InstrumentClusterElectronics.RequestIgnitionStatus();
                 }, null, 0, watchDogTimeoutInMilliseconds / 4);
-                
+
+                Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.InstrumentClusterElectronics, m =>
+                {
+                    if (m.Data[0] == 0x11 && m.Data.Length == 2) // Ignition status
+                    {
+                        GHI.Processor.Watchdog.ResetCounter();
+                    }
+                });
 
                 InstrumentClusterElectronics.IgnitionStateChanged += (args) =>
                 {
-                    if (args.CurrentIgnitionState == IgnitionState.Acc && args.PreviousIgnitionState == IgnitionState.Ign)
+                    if (Settings.Instance.UnmountMassStorageOnChangingIgnitionToAcc && args.CurrentIgnitionState == IgnitionState.Acc && args.PreviousIgnitionState == IgnitionState.Ign)
                     {
                         if (emulator.IsEnabled)
                         {
                             emulator.PlayerIsPlayingChanged += UnmountMassStorage;
                             Radio.PressOnOffToggle();
+                            emulator.IsEnabled = false;
                             FrontDisplay.RefreshLEDs(LedType.Orange, true);
                         }
                         else
@@ -247,6 +266,11 @@ namespace imBMW.Devices.V2
                             UnmountMassStorage(null, false);
                         }
                     }
+                };
+
+                BordmonitorMenu.PhoneButtonHold += () =>
+                {
+                    UnmountMassStorage(null, false);
                 };
 
                 Logger.Trace("Actions inited!");
@@ -257,20 +281,15 @@ namespace imBMW.Devices.V2
             catch (Exception ex)
             {
                 error = true;
+                LedBlinking(error_RedLed, 5, 100);
+                Thread.Sleep(200);
                 error_RedLed.Write(true);
                 Logger.TryError(ex, "while modules initialization");
                 ResetBoard();
             }
         }
 
-        public static void UnmountMassStorage(IAudioPlayer sender, bool isPlayingChangedValue)
-        {
-            _massStorage.Unmount();
-            FrontDisplay.RefreshLEDs(LedType.Empty);
-            emulator.PlayerIsPlayingChanged -= UnmountMassStorage;
-        }
-
-        public static void Init()
+        private static void InitManagers()
         {
             var iBusBusy = Pin.TH3122SENSTA;
             var kBusBusy = Pin.K_BUS_TH3122SENSTA;
@@ -284,7 +303,7 @@ namespace imBMW.Devices.V2
             ISerialPort iBusPort = new SerialPortTH3122(iBusComPort, iBusBusy);
 #endif
 #if OnBoardMonitorEmulator && (DEBUG || RELEASE)
-            ISerialPort iBusPort = new SerialPortTH3122(iBusComPort, iBusBusy, readBufferSize:ushort.MaxValue);
+            ISerialPort iBusPort = new SerialPortTH3122(iBusComPort, iBusBusy, readBufferSize: ushort.MaxValue);
 #endif
             Manager.Init(iBusPort);
             Logger.Trace("Manager inited");
@@ -319,15 +338,16 @@ namespace imBMW.Devices.V2
             if (!iBusPort.IsOpen)
                 iBusPort.Open();
 #endif
+        }
 
-            FrontDisplay.RefreshLEDs(LedType.OrangeBlinking);
-
+        public static void Init()
+        {
             //player = new iPodViaHeadset(Cpu.Pin.GPIO_NONE);
             //player = new BluetoothOVC3860(Serial.COM2/*, sd != null ? sd + @"\contacts.vcf" : null*/);
             Logger.Trace("Prepare creating VS1003Player");
             player = new VS1003Player(FEZPandaIII.Gpio.D25, FEZPandaIII.Gpio.D27, FEZPandaIII.Gpio.D24, FEZPandaIII.Gpio.D26);
             Logger.Trace("VS1003Player created");
-            FrontDisplay.RefreshLEDs(LedType.Orange);
+            FrontDisplay.RefreshLEDs(LedType.GreenBlinking);
             if (settings.MenuMode != Tools.MenuMode.RadioCDC/* || Manager.FindDevice(DeviceAddress.OnBoardMonitor, 10000)*/)
             {
                 //if (player is BluetoothWT32)
@@ -390,6 +410,7 @@ namespace imBMW.Devices.V2
             Utility.SetLocalTime(dateTimeEventArgs.Value);
 
             FrontDisplay.RefreshLEDs(LedType.Green);
+            FrontDisplay.RefreshLEDs(LedType.Green);
 
             //nextButton = new InterruptPort((Cpu.Pin)FEZPandaIII.Gpio.Ldr1, true, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeHigh);
             //nextButton.OnInterrupt += (p, s, t) =>
@@ -407,6 +428,27 @@ namespace imBMW.Devices.V2
             //    emulator.IsEnabled = false;
             //};
         }
+
+        public static void UnmountMassStorage(IAudioPlayer sender, bool isPlayingChangedValue)
+        {
+            FileLogger.Dispose();
+            if (_massStorage != null && _massStorage.Mounted)
+            {
+                var waitHandle = new ManualResetEvent(false);
+
+                var unmountThread = new Thread(massStorage =>
+                {
+                    (massStorage as MassStorage).Unmount();
+                    waitHandle.Set();
+                });
+                unmountThread.Start(_massStorage);
+
+                bool waitResult = waitHandle.WaitOne(3000);
+            }
+            emulator.PlayerIsPlayingChanged -= UnmountMassStorage;
+            FrontDisplay.RefreshLEDs(LedType.Empty);
+        }
+
 
         // Log just needed message
         private static bool IBusLoggerPredicate(MessageEventArgs e)
@@ -443,6 +485,8 @@ namespace imBMW.Devices.V2
                    //e.Message.DestinationDevice == DeviceAddress.Radio
                    //||
                    InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Acc
+                   ||
+                   InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Off
                    ||
 #if DEBUG
                    true;

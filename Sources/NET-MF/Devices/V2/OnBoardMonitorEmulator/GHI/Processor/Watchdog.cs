@@ -24,6 +24,7 @@ namespace GHI.Processor
                 _counter -= 100;
                 if (_counter <= 0)
                 {
+                    _counter = timeout;
                     System.Windows.MessageBox.Show("Watchdog reset occured!!!");
                 }
             }, null, 0, 100);

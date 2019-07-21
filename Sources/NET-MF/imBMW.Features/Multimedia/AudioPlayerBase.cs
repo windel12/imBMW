@@ -62,6 +62,8 @@ namespace imBMW.Multimedia
 
         public TrackInfo CurrentTrack { get; set; }
 
+        public abstract bool Inited { get; set; }
+
         public abstract bool IsPlaying
         {
             get;

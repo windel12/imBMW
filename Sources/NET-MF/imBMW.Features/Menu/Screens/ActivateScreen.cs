@@ -11,6 +11,8 @@ namespace imBMW.Features.Menu.Screens
     {
         protected static ActivateScreen instance;
 
+        DS2Message navigation_module_status_lesen = new DS2Message(DeviceAddress.NavigationEurope, 0x0B);
+
         protected ActivateScreen()
         {
             FastMenuDrawing = true;
@@ -19,9 +21,10 @@ namespace imBMW.Features.Menu.Screens
             //StatusCallback = s => AuxilaryHeater.Status.ToString();
 
             AuxilaryHeater.Init();
+        }
 
-            DS2Message navigation_module_status_lesen = new DS2Message(DeviceAddress.NavigationEurope, 0x0B);
-
+        private void AddItems()
+        {
             AddItem(new MenuItem(i => "Increase delay: " + DBusManager.Port.AfterWriteDelay, x =>
             {
                 DBusManager.Port.AfterWriteDelay += 1;
@@ -96,7 +99,7 @@ namespace imBMW.Features.Menu.Screens
                     IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_SecondByte += 0x08;
                 }
 
-                var messageForTurningLuefter = new Message(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.InstrumentClusterElectronics, 
+                var messageForTurningLuefter = new Message(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.InstrumentClusterElectronics,
                     0x83, IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_FirstByte, IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_SecondByte);
                 KBusManager.Instance.EnqueueMessage(messageForTurningLuefter);
             }));
@@ -138,15 +141,17 @@ namespace imBMW.Features.Menu.Screens
             //}, MenuItemType.Button, MenuItemAction.None));
 
             this.AddBackButton();
-
-            NavigationModule.BatteryVoltageChanged += (voltage) => OnUpdateBody(MenuScreenUpdateReason.Refresh);
-            IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatusChanged += () => OnUpdateBody(MenuScreenUpdateReason.Refresh);
         }
 
         public override bool OnNavigatedTo(MenuBase menu)
         {
             if (base.OnNavigatedTo(menu))
             {
+                AddItems();
+
+                NavigationModule.BatteryVoltageChanged += NavigationModule_BatteryVoltageChanged;
+                IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatusChanged += IntegratedHeatingAndAirConditioning_AirConditioningCompressorStatusChanged;
+
                 HeadlightVerticalAimControl.FrontSensorVoltageChanged += HeadlightVerticalAimControl_SensorsVoltageChanged;
                 HeadlightVerticalAimControl.RearSensorVoltageChanged += HeadlightVerticalAimControl_SensorsVoltageChanged;
                 DigitalDieselElectronics.MessageReceived += DigitalDieselElectronics_MessageReceived;
@@ -159,12 +164,27 @@ namespace imBMW.Features.Menu.Screens
         {
             if (base.OnNavigatedFrom(menu))
             {
+                ClearItems();
+
+                NavigationModule.BatteryVoltageChanged -= NavigationModule_BatteryVoltageChanged;
+                IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatusChanged -= IntegratedHeatingAndAirConditioning_AirConditioningCompressorStatusChanged;
+
                 HeadlightVerticalAimControl.FrontSensorVoltageChanged -= HeadlightVerticalAimControl_SensorsVoltageChanged;
                 HeadlightVerticalAimControl.RearSensorVoltageChanged -= HeadlightVerticalAimControl_SensorsVoltageChanged;
                 DigitalDieselElectronics.MessageReceived -= DigitalDieselElectronics_MessageReceived;
                 return true;
             }
             return false;
+        }
+
+        private void NavigationModule_BatteryVoltageChanged(double voltage)
+        {
+            OnUpdateBody(MenuScreenUpdateReason.Refresh);
+        }
+
+        private void IntegratedHeatingAndAirConditioning_AirConditioningCompressorStatusChanged()
+        {
+            OnUpdateBody(MenuScreenUpdateReason.Refresh);
         }
 
         private void HeadlightVerticalAimControl_SensorsVoltageChanged(double voltage)

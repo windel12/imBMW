@@ -25,7 +25,7 @@ namespace imBMW.Features.Menu
             //CurrentScreen = HomeScreen.Instance;
             // TODO: Refactor this!!!
             BordcomputerScreen.Instance.MediaEmulator = mediaEmulator;
-            MusicListScreen.Instance.MediaEmulator = mediaEmulator;
+            MusicListScreen.GetMediaEmulator = () => mediaEmulator;
 
             CurrentScreen = BordcomputerScreen.Instance;
 
@@ -180,69 +180,70 @@ namespace imBMW.Features.Menu
         {
             //base.ProcessRadioMessage(m);
 
-            if (!IsEnabled)
-            {
-                return;
-            }
+            //if (!IsEnabled)
+            //{
+            //    return;
+            //}
 
-            var isRefresh = m.Data.Compare(Bordmonitor.MessageRefreshScreen.Data);
-            if (isRefresh)
-            {
-                //m.ReceiverDescription = "Screen refresh";
-                //skipClearTillRefresh = false;
-                //if (skipRefreshScreen)
-                //{
-                //    skipRefreshScreen = false;
-                //    return;
-                //}
-            }
-            var isClear = m.Data.Compare(Bordmonitor.MessageClearScreen.Data);
-            if (isClear)
-            {
-                //m.ReceiverDescription = "Screen clear";
-                //if (skipClearScreen || skipClearTillRefresh)
-                //{
-                //    skipClearScreen = false;
-                //    return;
-                //}
-            }
-            if (isClear || isRefresh)
-            {
-                //if (IsScreenSwitched)
-                //{
-                //    IsScreenSwitched = false;
-                //}
+            //var isRefresh = m.Data.Compare(Bordmonitor.MessageRefreshScreen.Data);
+            //if (isRefresh)
+            //{
+            //    m.ReceiverDescription = "Screen refresh";
+            //    skipClearTillRefresh = false;
+            //    if (skipRefreshScreen)
+            //    {
+            //        skipRefreshScreen = false;
+            //        return;
+            //    }
+            //}
+            //var isClear = m.Data.Compare(Bordmonitor.MessageClearScreen.Data);
+            //if (isClear)
+            //{
+            //    m.ReceiverDescription = "Screen clear";
+            //    if (skipClearScreen || skipClearTillRefresh)
+            //    {
+            //        skipClearScreen = false;
+            //        return;
+            //    }
+            //}
+            //if (isClear || isRefresh)
+            //{
+            //    if (IsScreenSwitched)
+            //    {
+            //        IsScreenSwitched = false;
+            //    }
 
-                //if (disableRadioMenu || isClear)
-                //{
-                //    disableRadioMenu = false;
-                //    Bordmonitor.DisableRadioMenu();
-                //    return;
-                //}
+            //    if (disableRadioMenu || isClear)
+            //    {
+            //        disableRadioMenu = false;
+            //        Bordmonitor.DisableRadioMenu();
+            //        return;
+            //    }
 
-                // TODO test "INFO" button
-                //UpdateScreen(MenuScreenUpdateReason.Refresh);
-                return;
-            }
+            //    TODO test "INFO" button
+            //    UpdateScreen(MenuScreenUpdateReason.Refresh);
+            //    return;
+            //}
 
-            // Screen switch
-            // 0x46 0x01 - switched by nav, after 0x45 0x91 from nav (eg. "menu" button)
+            //Screen switch
+
+            //0x46 0x01 - switched by nav, after 0x45 0x91 from nav (eg. "menu" button)
             // 0x46 0x02 - switched by radio ("switch" button). 
-            if (m.Data.Length == 2 && m.Data[0] == 0x46 && (m.Data[1] == 0x01 || m.Data[1] == 0x02))
-            {
-                switch (m.Data[1])
-                {
-                    case 0x01:
-                        m.ReceiverDescription = "Screen switch by nav";
-                        break;
-                    case 0x02:
-                        m.ReceiverDescription = "Screen switch by rad";
-                        //skipClearScreen = true; // to prevent on "clear screen" update on switch to BC/nav
-                        break;
-                }
-                IsScreenSwitched = true;
-                return;
-            }
+            //if (m.Data.Length == 2 && m.Data[0] == 0x46 && (m.Data[1] == 0x01 || m.Data[1] == 0x02))
+            //{
+            //    switch (m.Data[1])
+            //    {
+            //        case 0x01:
+            //            m.ReceiverDescription = "Screen switch by nav";
+            //            break;
+            //        case 0x02:
+            //            m.ReceiverDescription = "Screen switch by rad";
+            //            skipClearScreen = true; // to prevent on "clear screen" update on switch to BC/nav
+            //            break;
+            //    }
+            //    IsScreenSwitched = true;
+            //    return;
+            //}
 
             //if (m.Data.Compare(Bordmonitor.DataAUX))
             //{
@@ -251,13 +252,13 @@ namespace imBMW.Features.Menu
             //    return;
             //}
 
-            if (m.Data.StartsWith(Bordmonitor.DataShowTitle) /*&& (lastTitle == null || !lastTitle.Data.Compare(m.Data))*/)
-            {
-                IsScreenSwitched = false;
-                //disableRadioMenu = true;
-                //UpdateScreen(MenuScreenUpdateReason.Refresh);
-                return;
-            }
+            //if (m.Data.StartsWith(Bordmonitor.DataShowTitle) /*&& (lastTitle == null || !lastTitle.Data.Compare(m.Data))*/)
+            //{
+            //    IsScreenSwitched = false;
+            //    disableRadioMenu = true;
+            //    UpdateScreen(MenuScreenUpdateReason.Refresh);
+            //    return;
+            //}
         }
 
         protected void ProcessToRadioMessage(Message m)
@@ -273,6 +274,8 @@ namespace imBMW.Features.Menu
                         IsEnabled = true;
                         break;
                     case 0x48:
+                        OnPhoneButtonHold();
+                        break;
                     case 0x88:
                         break;
 
@@ -298,7 +301,7 @@ namespace imBMW.Features.Menu
                         IsEnabled = false;
                         break;
                     case 0x74: // hold > 1s
-                        OnResetButtonPressed();
+                        OnMenuButtonHold();
                         break;
                     case 0xB4: // released
                         break;
@@ -528,9 +531,18 @@ namespace imBMW.Features.Menu
             }
         }
 
-        static void OnResetButtonPressed()
+        static void OnMenuButtonHold()
         {
-            var e = ResetButtonPressed;
+            var e = MenuButtonHold;
+            if (e != null)
+            {
+                e();
+            }
+        }
+
+        static void OnPhoneButtonHold()
+        {
+            var e = PhoneButtonHold;
             if (e != null)
             {
                 e();
@@ -538,6 +550,7 @@ namespace imBMW.Features.Menu
         }
 
         public delegate void ButtonPressedHanlder();
-        public static event ButtonPressedHanlder ResetButtonPressed;
+        public static event ButtonPressedHanlder MenuButtonHold;
+        public static event ButtonPressedHanlder PhoneButtonHold;
     }
 }

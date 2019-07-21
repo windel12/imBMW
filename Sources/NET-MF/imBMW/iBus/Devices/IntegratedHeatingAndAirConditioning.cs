@@ -70,12 +70,6 @@ namespace imBMW.iBus.Devices.Real
         {
             KBusManager.Instance.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.AuxilaryHeater, DeviceAddress.IntegratedHeatingAndAirConditioning, ProcessAuxilaryHeaterMessage);
             KBusManager.Instance.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.InstrumentClusterElectronics, ProcessMessageToIKE);
-            InstrumentClusterElectronics.IgnitionStateChanged += InstrumentClusterElectronics_IgnitionStateChanged;
-        }
-
-        private static void InstrumentClusterElectronics_IgnitionStateChanged(IgnitionEventArgs e)
-        {
-            Logger.Trace("Ignition was changed: " + e.PreviousIgnitionState.ToStringValue() + " > " + e.CurrentIgnitionState.ToStringValue());
         }
 
         public static void ProcessAuxilaryHeaterMessage(Message message)

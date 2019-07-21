@@ -1,6 +1,7 @@
 using System;
 using Microsoft.SPOT;
 using imBMW.iBus;
+using imBMW.iBus.Devices.Real;
 
 namespace imBMW.Tools
 {
@@ -125,11 +126,13 @@ namespace imBMW.Tools
         public static void Error(string message, string priorityTitle = null)
         {
             Log(LogPriority.Error, message, priorityTitle);
+            Radio.DisplayText(message);
         }
 
         public static void Error(Exception exception, string message = null, string priorityTitle = null)
         {
             Log(LogPriority.Error, exception, message, priorityTitle);
+            Radio.DisplayText(message);
         }
 
         private static void ShowErrorLed()

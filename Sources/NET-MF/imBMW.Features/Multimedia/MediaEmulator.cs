@@ -153,42 +153,50 @@ namespace imBMW.iBus.Devices.Emulators
 
         protected virtual void Play()
         {
-            Player.Play();
+            if(Player.Inited)
+                Player.Play();
         }
 
         protected virtual void Pause()
         {
-            Player.Pause();
+            if (Player.Inited)
+                Player.Pause();
         }
 
         protected virtual void PlayPauseToggle()
         {
-            Player.PlayPauseToggle();
+            if (Player.Inited)
+                Player.PlayPauseToggle();
         }
 
         protected virtual void Next()
         {
-            Player.Next();
+            if (Player.Inited)
+                Player.Next();
         }
 
         protected virtual void Prev()
         {
-            Player.Prev();
+            if (Player.Inited)
+                Player.Prev();
         }
 
         protected virtual void VoiceButtonPress()
         {
-            Player.VoiceButtonPress();
+            if (Player.Inited)
+                Player.VoiceButtonPress();
         }
 
         protected virtual void VoiceButtonLongPress()
         {
-            Player.VoiceButtonLongPress();
+            if (Player.Inited)
+                Player.VoiceButtonLongPress();
         }
 
         protected virtual void RandomToggle(byte diskNumber)
         {
-            bool rnd = Player.RandomToggle(diskNumber);
+            if (Player.Inited)
+                Player.RandomToggle(diskNumber);
             // TODO send rnd status to radio
         }
 

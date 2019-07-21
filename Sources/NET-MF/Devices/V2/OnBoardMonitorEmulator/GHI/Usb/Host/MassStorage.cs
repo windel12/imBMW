@@ -13,6 +13,7 @@ namespace GHI.Usb.Host
 
         public void Unmount()
         {
+            Mounted = false;
         }
     }
 }

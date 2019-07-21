@@ -53,6 +53,10 @@ namespace imBMW.iBus.Devices.Real
                     m.ReceiverDescription = "Key " + LastKeyInserted + " inserted";
                     Logger.Info(m.ReceiverDescription);
                 }
+                //if (m.Data[1] == 0x05)
+                //{
+                //    //"Immobilisation_deactivated Valid_key_detected Key#" + m.Data[2];
+                //}
                 else if (m.Data[1] == 0x00)
                 {
                     IsKeyInserted = false;

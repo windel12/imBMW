@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 
 namespace imBMW.Tools
 {
@@ -36,55 +37,58 @@ namespace imBMW.Tools
 
         public string MediaShield { get; set; }
 
+        public bool UnmountMassStorageOnChangingIgnitionToAcc { get; set; }
+
         public static Settings Init(string path)
         {
             Instance = new Settings();
             Instance.InitDefault();
-            //if (path != null && File.Exists(path))
-            //{
-            //    Instance.InitFile(path);
-            //}
-            //else
-            //{
-            //    Logger.Info("No settings file");
-            //}
+            if (path != null && File.Exists(path))
+            {
+                Instance.InitFile(path);
+            }
+            else
+            {
+                Logger.Info("No settings file");
+            }
             return Instance;
         }
 
-        protected virtual void InitDefault()
+        public virtual void InitDefault()
         {
             Log = false;
             LogToSD = false;
             LogMessageToASCII = true;
             MenuMFLControl = true;
-            NaviVersion = Tools.NaviVersion.MK4;
-            MenuMode = Tools.MenuMode.BordmonitorCDC;
+            NaviVersion = NaviVersion.MK4;
+            MenuMode = MenuMode.BordmonitorCDC;
             BluetoothPin = "0000";
+            UnmountMassStorageOnChangingIgnitionToAcc = true;
         }
 
         protected virtual void InitFile(string path)
         {
-            //try
-            //{
-            //    using (var sr = new StreamReader(path))
-            //    {
-            //        string s;
-            //        while ((s = sr.ReadLine()) != null)
-            //        {
-            //            if (s == string.Empty || s[0] == '#')
-            //            {
-            //                continue;
-            //            }
-            //            var parts = s.Split('=');
-            //            ProcessSetting(parts[0].Trim(), parts.Length > 1 ? parts[1].Trim() : null);
-            //        }
-            //    }
-            //    settingsPath = path;
-            //}
-            //catch (Exception ex)
-            //{
-            //    Logger.Error(ex, "reading settings from file");
-            //}
+            try
+            {
+                using (var sr = new StreamReader(path))
+                {
+                    string s;
+                    while ((s = sr.ReadLine()) != null)
+                    {
+                        if (s == string.Empty || s[0] == '#')
+                        {
+                            continue;
+                        }
+                        var parts = s.Split('=');
+                        ProcessSetting(parts[0].Trim(), parts.Length > 1 ? parts[1].Trim() : null);
+                    }
+                }
+                settingsPath = path;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "reading settings from file");
+            }
         }
 
         protected virtual void ProcessSetting(string name, string value)

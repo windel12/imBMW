@@ -4,6 +4,7 @@ using System.IO;
 using imBMW.Features.Localizations;
 using imBMW.Features.Multimedia.Models;
 using imBMW.iBus.Devices.Emulators;
+using imBMW.Tools;
 using Microsoft.SPOT.IO;
 
 namespace imBMW.Features.Menu.Screens
@@ -23,7 +24,8 @@ namespace imBMW.Features.Menu.Screens
         protected static MusicListScreen instance;
 
         // TODO: refactor
-        public MediaEmulator MediaEmulator { get; set; }
+        public delegate MediaEmulator GetMediaEmulatorHandler();
+        public static GetMediaEmulatorHandler GetMediaEmulator;
 
         protected MenuItem item1;
         protected MenuItem item2;
@@ -77,7 +79,10 @@ namespace imBMW.Features.Menu.Screens
         public void ItemSelected(MenuItem item)
         {
             var trackMenuItem = (TrackMenuItem)item;
-            MediaEmulator.Player.ChangeTrackTo(trackMenuItem.FilePath);
+            if (!StringHelpers.IsNullOrEmpty(trackMenuItem.FilePath))
+            {
+                GetMediaEmulator().Player.ChangeTrackTo(trackMenuItem.FilePath);
+            }
         }
 
         public void NextPage(MenuItem item)
@@ -112,7 +117,8 @@ namespace imBMW.Features.Menu.Screens
 
                 if (lastItemReached || !filesEnumerator.MoveNext())
                 {
-                    trackMenuItem.Text = "-";
+                    trackMenuItem.Text = "_-_";
+                    trackMenuItem.FilePath = null;
                     lastItemReached = true;
                 }
                 else
@@ -156,7 +162,7 @@ namespace imBMW.Features.Menu.Screens
             lastItemReached = false;
 
             string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
-            var folder = rootDirectory + "\\" + MediaEmulator.Player.DiskNumber;
+            var folder = rootDirectory + "\\" + GetMediaEmulator().Player.DiskNumber;
             filesEnumerator = Directory.EnumerateFiles(folder).GetEnumerator();
 
             GoToCurrentPage();

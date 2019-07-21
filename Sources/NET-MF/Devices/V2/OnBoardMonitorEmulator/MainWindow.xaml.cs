@@ -46,7 +46,8 @@ namespace OnBoardMonitorEmulator
         public static byte[] DataNext = new byte[] { 0x38, 0x0A, 0x00 };
         public static byte[] DataPrev = new byte[] { 0x38, 0x0A, 0x01 };
 
-        public static byte[] PhoneButtonClick = {0x48, 0x08};
+        public static byte[] PhoneButtonClick = { 0x48, 0x08 };
+        public static byte[] PhoneButtonHold = { 0x48, 0x48 };
         public static byte[] MenuButonHold = { 0x48, 0x74 };
 
         //private bool _isEnabled = false;
@@ -269,7 +270,7 @@ namespace OnBoardMonitorEmulator
             WriteMessage(message);
         }
 
-        private void MenuButton_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void MenuButton_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
             var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Broadcast, MenuButonHold);
             WriteMessage(message);
@@ -278,6 +279,12 @@ namespace OnBoardMonitorEmulator
         private void PhoneButton_Click(object sender, RoutedEventArgs e)
         {
             var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Broadcast, PhoneButtonClick);
+            WriteMessage(message);
+        }
+
+        private void PhoneButton_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Broadcast, PhoneButtonHold);
             WriteMessage(message);
         }
 

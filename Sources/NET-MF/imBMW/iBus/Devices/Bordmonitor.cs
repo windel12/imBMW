@@ -26,6 +26,7 @@ namespace imBMW.iBus.Devices.Real
         Item,
     }
 
+#if OnBoardMonitorEmulator
     public class BordmonitorText
     {
         bool parsed;
@@ -169,17 +170,14 @@ namespace imBMW.iBus.Devices.Real
             return items;
         }
     }
-
-    public delegate void BordmonitorTextHandler(BordmonitorText args);
-
+#endif
     #endregion
 
     public static class Bordmonitor
     {
         public static Message MessageRefreshScreen = new Message(DeviceAddress.Radio, DeviceAddress.GraphicsNavigationDriver, "Refresh screen", 0xA5, 0x60, 0x01, 0x00);
-        public static Message MessageClearScreen   = new Message(DeviceAddress.Radio, DeviceAddress.GraphicsNavigationDriver, "Clear screen",   0x46, 0x0C);
-        public static Message MessageDisableRadioMenu = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.Radio, "Disable radio menu", 0x45, 0x02); // Thanks to RichardP (Intravee) for these two messages
-        public static Message MessageEnableRadioMenu = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.Radio, "Enable radio menu", 0x45, 0x00);
+        //public static Message MessageDisableRadioMenu = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.Radio, "Disable radio menu", 0x45, 0x02); // Thanks to RichardP (Intravee) for these two messages
+        //public static Message MessageEnableRadioMenu = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.Radio, "Enable radio menu", 0x45, 0x00);
 
         public static byte[] DataShowTitle =    new byte[] { 0x23, 0x62, 0x10 }; // <68 Length 3B> 23 62 10 <Text in ASCII Hex> <XOR>
         public static byte[] DataShowHeader =   new byte[] { 0xA5, 0x62, 0x01 };
@@ -194,30 +192,37 @@ namespace imBMW.iBus.Devices.Real
         /// <summary> 0x21, 0x60, 0x00 </summary>
         public static byte[] DataDrawIndexMk34 = { 0x21, 0x60, 0x00 };
 
-        public static byte[] DataUpdateScreen = new byte[] { 0xA5, 0x62, 0x01 }; 
-        public static byte[] DataAUX = new byte[] { 0x23, 0x62, 0x10, 0x41, 0x55, 0x58, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20 };
+        //public static byte[] DataAUX = new byte[] { 0x23, 0x62, 0x10, 0x41, 0x55, 0x58, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20 };
 
         /// <summary>0x31, 0x60, 0x00</summary>
         public static byte[] DataItemClicked = {0x31, 0x60, 0x00};
 
-        public static Tools.NaviVersion NaviVersion { get; set; }
-
-        /// <summary> Emulate response from navigation to radio for screen updates. </summary>
-        public static bool ReplyToScreenUpdates { get; set; }
+        public static NaviVersion NaviVersion { get; set; }
 
         /// <summary> Use translit for non-latin characters </summary>
         public static bool Translit { get; set; }
 
+#if OnBoardMonitorEmulator
+        /// <summary> Emulate response from navigation to radio for screen updates. </summary>
+        public static bool ReplyToScreenUpdates { get; set; }
+        public static byte[] DataUpdateScreen = new byte[] { 0xA5, 0x62, 0x01 };
+
+        public static Message MessageClearScreen = new Message(DeviceAddress.Radio, DeviceAddress.GraphicsNavigationDriver, "Clear screen", 0x46, 0x0C);
+
+        public delegate void BordmonitorTextHandler(BordmonitorText args);
         public static event BordmonitorTextHandler TextReceived;
         public static event Action ScreenCleared;
         public static event Action ScreenRefreshed;
 
         private static byte _screenUpdatedMenuCounter;
         private static byte _screenUpdatedCounter;
+#endif
 
         static Bordmonitor()
         {
+#if OnBoardMonitorEmulator
             Manager.Instance.AddMessageReceiverForDestinationDevice(DeviceAddress.GraphicsNavigationDriver, ProcessNavGraphicsMessage);
+#endif
         }
 
         /// <summary>
@@ -225,6 +230,7 @@ namespace imBMW.iBus.Devices.Real
         /// </summary>
         public static void Init() { }
 
+#if OnBoardMonitorEmulator
         static void ProcessNavGraphicsMessage(Message m) // used for emulator
         {
             var ae = ScreenCleared; // This is the only usage? - no, for emulator
@@ -342,6 +348,7 @@ namespace imBMW.iBus.Devices.Real
                 OnScreenUpdated();
             }
         }
+#endif
 
         public static Message ShowText(string s, BordmonitorFields field, byte index = 0, bool isChecked = false, bool send = true)
         {
@@ -445,6 +452,7 @@ namespace imBMW.iBus.Devices.Real
             return m;
         }
 
+#if OnBoardMonitorEmulator
         public static void PressItem(byte index)
         {
             index &= 0x0F;
@@ -452,22 +460,22 @@ namespace imBMW.iBus.Devices.Real
             index += 0x40;
             Manager.Instance.EnqueueMessage(new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.Radio, "Release Screen item #" + index, DataItemClicked, index));
         }
+#endif
 
-        public static void RefreshScreen()
-        {
-            Manager.Instance.EnqueueMessage(MessageRefreshScreen);
-        }
+        //public static void RefreshScreen()
+        //{
+        //    Manager.Instance.EnqueueMessage(MessageRefreshScreen);
+        //}
 
-        public static void DisableRadioMenu()
-        {
-            Manager.Instance.EnqueueMessage(MessageDisableRadioMenu);
-        }
+        //public static void DisableRadioMenu()
+        //{
+        //    Manager.Instance.EnqueueMessage(MessageDisableRadioMenu);
+        //}
 
-        public static void EnableRadioMenu()
-        {
-            Manager.Instance.EnqueueMessage(MessageEnableRadioMenu);
-        }
-
+        //public static void EnableRadioMenu()
+        //{
+        //    Manager.Instance.EnqueueMessage(MessageEnableRadioMenu);
+        //}
 
         public static byte GetItemIndex(int count, byte index, bool back = false)
         {

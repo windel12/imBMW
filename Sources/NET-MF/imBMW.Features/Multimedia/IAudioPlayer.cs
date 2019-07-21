@@ -74,6 +74,8 @@ namespace imBMW.Multimedia
 
         TrackInfo CurrentTrack { get; set; }
 
+        bool Inited { get; set; }
+
         MenuScreen Menu { get; }
 
         event IsPlayingHandler IsPlayingChanged;

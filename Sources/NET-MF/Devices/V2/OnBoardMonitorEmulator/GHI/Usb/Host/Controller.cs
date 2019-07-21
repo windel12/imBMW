@@ -70,6 +70,11 @@ namespace GHI.Usb.Host
             {
                 e(null, new MassStorage());
             }
+            //var ee = UnknownDeviceConnected;
+            //if (ee != null)
+            //{
+            //    ee(null, new UnknownDeviceConnectedEventArgs());
+            //}
         }
 
         //

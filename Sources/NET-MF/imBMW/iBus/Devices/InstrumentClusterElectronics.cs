@@ -224,9 +224,8 @@ namespace imBMW.iBus.Devices.Real
                 OnSpeedRPMChanged((ushort)(m.Data[1] * 2), (ushort)(m.Data[2] * 100));
                 m.ReceiverDescription = "Speed " + CurrentSpeed + "km/h " + CurrentRPM + "RPM";
             }
-            else if (m.Data[0] == 0x11 && m.Data.Length == 2) // Ignotion status
+            else if (m.Data[0] == 0x11 && m.Data.Length == 2) // Ignition status
             {
-                GHI.Processor.Watchdog.ResetCounter();
                 byte ign = m.Data[1];
                 if (((ign & 0x04) != 0))    // 0x07 = 0111b
                 {
@@ -577,7 +576,7 @@ namespace imBMW.iBus.Devices.Real
                 {
                     OnSpeedRPMChanged(CurrentSpeed, 0);
                 }
-                Logger.Info("Ignition " + currentIgnitionState.ToStringValue());
+                Logger.Trace("Ignition was changed: " + previous.ToStringValue() + " > " + currentIgnitionState.ToStringValue());
             }
         }
 

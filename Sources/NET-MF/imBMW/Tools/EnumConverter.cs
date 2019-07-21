@@ -109,11 +109,11 @@ namespace imBMW.Tools
                 case DeviceAddress.RearMultiInfoDisplay: return "RearMID";
                 case DeviceAddress.AirBagModule: return "AirBagModule";
                 case DeviceAddress.CruiseControlUnit: return "CruiseControlUnit";
-                case DeviceAddress.RearIntegratedHeatingAndAirConditioning: return "RearIntegratedHeatingAndAirConditioning";
-                case DeviceAddress.NavigationChina: return "NavigationChina";
+                case DeviceAddress.RearIntegratedHeatingAndAirConditioning: return "RearIHKA";
+                case DeviceAddress.NavigationChina: return "NAVCh";
                 case DeviceAddress.EHC: return "EHC";
                 case DeviceAddress.SpeedRecognitionSystem: return "SpeedRecognitionSystem";
-                case DeviceAddress.NavigationJapan: return "NavigationJapan";
+                case DeviceAddress.NavigationJapan: return "NAVJ";
                 case DeviceAddress.GlobalBroadcastAddress: return "GLO";
                 case DeviceAddress.MultiInfoDisplay: return "MID";
                 case DeviceAddress.Telephone: return "TEL";
@@ -123,7 +123,7 @@ namespace imBMW.Tools
                 case DeviceAddress.IntegratedRadioInformationSystem: return "IntegratedRadioInformationSystem";
                 case DeviceAddress.FrontDisplay: return "FrontDisplay";
                 case DeviceAddress.RainLightSensor: return "RLS";
-                case DeviceAddress.Television: return "Television";
+                case DeviceAddress.Television: return "TV";
                 case DeviceAddress.OnBoardMonitor: return "OBM";
                 case DeviceAddress.OBD: return "OBD";
                 case DeviceAddress.CentralSwitchControlUnit: return "CentralSwitchControlUnit";

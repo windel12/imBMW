@@ -58,8 +58,6 @@ namespace imBMW.Features.Multimedia
 
         #endregion
 
-        //OutputPort led3 = new OutputPort(FEZPandaIII.Gpio.Led3, false);
-
         private static InputPort DREQ;
 
         private static SPI spi;
@@ -71,15 +69,13 @@ namespace imBMW.Features.Multimedia
 
         Thread playerThread;
 
-        private Thread generateRandomDiskAndTrackThread;
-        private readonly AutoResetEvent trackChangedSync = new AutoResetEvent(true);
-
         private Stack backChangingHistory = new Stack();
         private Stack nextChangingHistory = new Stack();
 
-        static IDictionary StorageInfo = new Hashtable();
-        static IDictionary ErrorsInfo = new Hashtable();
+        private static IDictionary StorageInfo = new Hashtable();
+        private static IDictionary ErrorsInfo = new Hashtable();
         private static Queue NextTracksQueue = new Queue();
+        private static byte totalTracksCount;
 
 #if NETMF
         public static int FileNameOffset = 7;
@@ -107,8 +103,14 @@ namespace imBMW.Features.Multimedia
 
         public int CurrentPosition { get; set; } = 0;
 
+        private QueueThreadWorker generateNextTrackQueue;
+
+        public override bool Inited { get; set; }
+
         public VS1003Player(Cpu.Pin MP3_DREQ, Cpu.Pin MP3_CS, Cpu.Pin MP3_DCS, Cpu.Pin MP3_RST)
         {
+            generateNextTrackQueue = new QueueThreadWorker(GenerateNextTrack, "generateNextTrackQueue", ThreadPriority.Highest);
+
 #region prepare
             dataConfig = new SPI.Configuration(MP3_DCS, false, 0, 0, false, true, 1000, SPI.SPI_module.SPI2);
             cmdConfig = new SPI.Configuration(MP3_CS, false, 0, 0, false, true, 1000, SPI.SPI_module.SPI2);
@@ -146,16 +148,19 @@ namespace imBMW.Features.Multimedia
                 //FileStream stream = null;
 
                 string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
-                for (byte diskNumber = 1; diskNumber <= 6; diskNumber++)
+
+                try
                 {
-                    var folder = rootDirectory + "\\" + diskNumber;
-                    byte filesCount = 0;
-                    byte erroredFilesCounts = 0;
-                    var files = Directory.EnumerateFiles(folder);
-                    foreach (var fileObj in files)
+                    for (byte diskNumber = 1; diskNumber <= 6; diskNumber++)
                     {
-                        if (((string) fileObj).EndsWith(".mp3") /* || file.EndsWith(".m4a")*/)
+                        var folder = rootDirectory + "\\" + diskNumber;
+                        byte filesCount = 0;
+                        byte erroredFilesCounts = 0;
+                        var files = Directory.EnumerateFiles(folder);
+                        foreach (var fileObj in files)
                         {
+                            if (((string) fileObj).EndsWith(".mp3") /* || file.EndsWith(".m4a")*/)
+                            {
 //#if DEBUG
 //                            if (Debugger.IsAttached)
 //                            {
@@ -176,19 +181,25 @@ namespace imBMW.Features.Multimedia
 //                            }
 //#endif
 
-                            filesCount++;
+                                filesCount++;
+                            }
+                            else
+                            {
+                                Logger.Trace("File is not mp3 file - " + (string) fileObj);
+                            }
                         }
-                        else
-                        {
-                            Logger.Trace("File is not mp3 file - " + (string)fileObj);
-                        }
-                    }
 
-                    files = null;
-                    StorageInfo[diskNumber] = filesCount;
-                    ErrorsInfo[diskNumber] = erroredFilesCounts;
-                    Logger.Trace("Files count on " + diskNumber + " = " + filesCount);
-                    Logger.Trace("Errored files count on " + diskNumber + " = " + erroredFilesCounts);
+                        files = null;
+                        StorageInfo[diskNumber] = filesCount;
+                        ErrorsInfo[diskNumber] = erroredFilesCounts;
+                        totalTracksCount += filesCount;
+                        Logger.Trace("Files count on " + diskNumber + " = " + filesCount);
+                        Logger.Trace("Error files count on " + diskNumber + " = " + erroredFilesCounts);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex, "while Directory.EnumerateFiles");
                 }
 
                 FileStream dataFile = null;
@@ -220,7 +231,7 @@ namespace imBMW.Features.Multimedia
                 catch (Exception ex)
                 {
                     DiskNumber = TrackNumber = 1;
-                    Logger.Error(ex);
+                    Logger.Error(ex, "while generating CurrentTrack ");
                 }
 
                 // generate prepared next random tracks
@@ -248,9 +259,12 @@ namespace imBMW.Features.Multimedia
                 };
                 //TrackChanged += (sender, trackInfo) => { saveHistory(); };
                 IsPlayingChanging += (sender, isPlayingBeforeChaning) => { if(isPlaying) { saveHistory();} };
+                Inited = true;
             }
             else
             {
+                CurrentTrack = new TrackInfo("\\_-_.mp3");
+                Inited = false;
                 Logger.Log(LogPriority.Warning, "Storage is not formatted. " + "Format on PC with FAT32/FAT16 first!");
             }
         }
@@ -266,28 +280,6 @@ namespace imBMW.Features.Multimedia
             }
         }
 
-        public override void Play()
-        {
-            base.Play();
-
-            if (playerThread == null || playerThread.ThreadState == ThreadState.Unstarted ||
-                playerThread.ThreadState == ThreadState.Stopped || playerThread.ThreadState == ThreadState.StopRequested ||
-                playerThread.ThreadState == ThreadState.Aborted || playerThread.ThreadState == ThreadState.AbortRequested)
-            {
-                playerThread = new Thread(() =>
-                {
-                    PlayDirect();
-                });
-                playerThread.Priority = ThreadPriority.Highest;
-                playerThread.Start();
-            }
-        }
-
-        public override void Pause()
-        {
-            base.Pause();
-        }
-
         private DiskAndTrack GenerateRandomDiskAndTrackNumbers(byte diskNumber)
         {
             var diskAndTrack = new DiskAndTrack();
@@ -295,12 +287,27 @@ namespace imBMW.Features.Multimedia
             byte filesOnDisk;
             if (IsRandom)
             {
-                do
+                //do
+                //{
+                //    diskAndTrack.diskNumber = (byte)(r.Next(6) + 1);
+                //    filesOnDisk = (byte)StorageInfo[diskAndTrack.diskNumber];
+                //} while (filesOnDisk == 0);
+                //diskAndTrack.trackNumber = (byte)(r.Next(filesOnDisk) + 1);
+                byte randomNumber = (byte) (r.Next(totalTracksCount) + 1);
+                for (byte i = 1; i <= 6; i++)
                 {
-                    diskAndTrack.diskNumber = (byte)(r.Next(6) + 1);
-                    filesOnDisk = (byte)StorageInfo[diskAndTrack.diskNumber];
-                } while (filesOnDisk == 0);
-                diskAndTrack.trackNumber = (byte)(r.Next(filesOnDisk) + 1);
+                    var currentDiskTracksCount = (byte)StorageInfo[i];
+                    if (randomNumber > currentDiskTracksCount)
+                    {
+                        randomNumber -= currentDiskTracksCount;
+                    }
+                    else
+                    {
+                        diskAndTrack.diskNumber = i;
+                        diskAndTrack.trackNumber = randomNumber;
+                        break;
+                    }
+                }
             }
             else
             {
@@ -353,10 +360,36 @@ namespace imBMW.Features.Multimedia
             return result;
         }
 
+        private void GenerateNextTrack(object item)
+        {
+            var newRandomTrackItem = GenerateRandomDiskAndTrack(DiskNumber);
+            NextTracksQueue.Enqueue(newRandomTrackItem);
+        }
+
+        public override void Play()
+        {
+            base.Play();
+
+            if (playerThread == null || playerThread.ThreadState == ThreadState.Unstarted ||
+                playerThread.ThreadState == ThreadState.Stopped || playerThread.ThreadState == ThreadState.StopRequested ||
+                playerThread.ThreadState == ThreadState.Aborted || playerThread.ThreadState == ThreadState.AbortRequested)
+            {
+                playerThread = new Thread(() =>
+                {
+                    PlayDirect();
+                });
+                playerThread.Priority = ThreadPriority.Highest;
+                playerThread.Start();
+            }
+        }
+
+        public override void Pause()
+        {
+            base.Pause();
+        }
+
         public override void Next()
         {
-            trackChangedSync.WaitOne(5000, true);
-
             backChangingHistory.Push(new DiskAndTrack(DiskNumber, TrackNumber, FileName));
 
             if (nextChangingHistory.Count > 0)
@@ -370,34 +403,16 @@ namespace imBMW.Features.Multimedia
             }
             else
             {
+                while (NextTracksQueue.Count == 0)
+                {
+                }
                 var preparedItem = (DiskAndTrack)NextTracksQueue.Dequeue();
                 DiskNumber = preparedItem.diskNumber;
                 TrackNumber = preparedItem.trackNumber;
                 FileName = preparedItem.fileName;
 
                 OnTrackChanged();
-                if (generateRandomDiskAndTrackThread == null)
-                {
-                    generateRandomDiskAndTrackThread = new Thread(() =>
-                    {
-                        while (true)
-                        {
-                            //trackChangedSync.Reset();
-                            var newRandomTrackItem = GenerateRandomDiskAndTrack(DiskNumber);
-                            NextTracksQueue.Enqueue(newRandomTrackItem);
-                            trackChangedSync.Set();
-                            generateRandomDiskAndTrackThread.Suspend();
-                        }
-                    });
-                    generateRandomDiskAndTrackThread.Priority = ThreadPriority.Lowest;
-                    generateRandomDiskAndTrackThread.Start();
-                }
-                if (generateRandomDiskAndTrackThread.ThreadState == ThreadState.Suspended || generateRandomDiskAndTrackThread.ThreadState == ThreadState.SuspendRequested
-                    || generateRandomDiskAndTrackThread.ThreadState == ThreadState.Stopped || generateRandomDiskAndTrackThread.ThreadState == ThreadState.StopRequested)
-                {
-                    trackChangedSync.Reset();
-                    generateRandomDiskAndTrackThread.Resume();
-                }
+                generateNextTrackQueue.Enqueue(1);
             }
         }
 
@@ -464,24 +479,10 @@ namespace imBMW.Features.Multimedia
 
         public void PlayDirect(bool resetWhenFinished = false)
         {
-            //byte[] buffer;
             int size;
             FileStream stream = null;
             while (true)
             {
-                //Thread.Sleep(50);
-                try
-                {
-                    //if (!IsPlaying)
-                    //    Thread.CurrentThread.Suspend();
-                    //buffer = new byte[256];
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex);
-                    break;
-                }
-
                 size = 0;
                 try
                 {
@@ -542,10 +543,7 @@ namespace imBMW.Features.Multimedia
                 }
                 catch (Exception ex)
                 {
-                    //led3.Write(true);
-                    Logger.Trace("Error during reading beggining of file. Track name: " + CurrentTrack.FileName);
-                    //IsPlaying = false;
-                    Logger.Error(ex);
+                    Logger.Error(ex, "Error during reading begin of file. Track name: " + CurrentTrack.FileName);
                 }
                 finally
                 {
