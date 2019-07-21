@@ -15,15 +15,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "imBMW.Diagnostics", "..\..\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SongsNameConverter", "..\..\SongsNameConverter\SongsNameConverter.csproj", "{6915C25D-4D09-423B-8980-823324E5CE51}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "imBMW.DBus.Tester", "..\imBMW.DBus.Tester\imBMW.DBus.Tester.csproj", "{681223EB-EABF-49E6-B4C3-81A0A7EB669C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "imBMW.DBus.Tester", "..\..\imBMW.DBus.Tester\imBMW.DBus.Tester.csproj", "{681223EB-EABF-49E6-B4C3-81A0A7EB669C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "imBMW.UnitTests", "..\imBMW.UnitTests\imBMW.UnitTests.csproj", "{BB332A0F-1E8D-4837-9D90-EECBC068688F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "imBMW.UnitTests", "..\..\imBMW.UnitTests\imBMW.UnitTests.csproj", "{BB332A0F-1E8D-4837-9D90-EECBC068688F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnBoardMonitorEmulator", "OnBoardMonitorEmulator\OnBoardMonitorEmulator.csproj", "{36BDE5D2-D0B8-4F6D-8E6B-D4B5B72F23AF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnBoardMonitorEmulator", "..\..\OnBoardMonitorEmulator\OnBoardMonitorEmulator.csproj", "{36BDE5D2-D0B8-4F6D-8E6B-D4B5B72F23AF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnBoardMonitorEmulatorTests", "..\OnBoardMonitorEmulatorTests\OnBoardMonitorEmulatorTests.csproj", "{BA9CA8A1-38F5-488F-A695-CB132E957FAD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnBoardMonitorEmulatorTests", "..\..\OnBoardMonitorEmulatorTests\OnBoardMonitorEmulatorTests.csproj", "{BA9CA8A1-38F5-488F-A695-CB132E957FAD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuxilaryHeaterEmulator", "..\AuxilaryHeaterEmulator\AuxilaryHeaterEmulator.csproj", "{97976018-DA84-4523-ADFE-675A0E3CEEAB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuxilaryHeaterEmulator", "..\..\AuxilaryHeaterEmulator\AuxilaryHeaterEmulator.csproj", "{97976018-DA84-4523-ADFE-675A0E3CEEAB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
