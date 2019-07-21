@@ -50,7 +50,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\V2\OnBoardMonitorEmulator\OnBoardMonitorEmulator.csproj">
+    <ProjectReference Include="..\OnBoardMonitorEmulator\OnBoardMonitorEmulator.csproj">
       <Project>{36bde5d2-d0b8-4f6d-8e6b-d4b5b72f23af}</Project>
       <Name>OnBoardMonitorEmulator</Name>
     </ProjectReference>

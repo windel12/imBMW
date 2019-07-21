@@ -69,7 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MFUnit, Version=0.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\V2\packages\MFUnit.0.4\lib\netmf43\MFUnit.dll</HintPath>
+      <HintPath>..\Devices\V2\packages\MFUnit.0.4\lib\netmf43\MFUnit.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.SPOT.Graphics" />
@@ -84,19 +84,19 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\imBMW.Diagnostics\imBMW.Diagnostics.csproj">
+    <ProjectReference Include="..\imBMW.Diagnostics\imBMW.Diagnostics.csproj">
       <Project>{CDF5C231-E043-40CF-960B-10AC26355B96}</Project>
       <Name>imBMW.Diagnostics</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\imBMW.Features\imBMW.Features.csproj">
+    <ProjectReference Include="..\imBMW.Features\imBMW.Features.csproj">
       <Project>{1CCF2AD5-0D37-435D-9DA5-27143B169DD0}</Project>
       <Name>imBMW.Features</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\imBMW.Tools\imBMW.Tools.csproj">
+    <ProjectReference Include="..\imBMW.Tools\imBMW.Tools.csproj">
       <Project>{76B622B3-B9D7-41DF-8A7C-627F32AABEB3}</Project>
       <Name>imBMW.Tools</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\imBMW\imBMW.csproj">
+    <ProjectReference Include="..\imBMW\imBMW.csproj">
       <Project>{1809C7F6-0A9F-412B-A45E-E667996E86A3}</Project>
       <Name>imBMW</Name>
     </ProjectReference>

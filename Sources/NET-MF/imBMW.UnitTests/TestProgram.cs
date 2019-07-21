@@ -1,5 +1,4 @@
 using MFUnit;
-using imBMW.Features.Menu;
 
 namespace imBMW.UnitTests
 {
@@ -9,10 +8,5 @@ namespace imBMW.UnitTests
         {
             new TestProgram().Run();
         }
-    }
-
-    public class BordmonitorTests
-    {
-       
     }
 }

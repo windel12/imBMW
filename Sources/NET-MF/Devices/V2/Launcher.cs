@@ -436,14 +436,14 @@ namespace imBMW.Devices.V2
             {
                 var waitHandle = new ManualResetEvent(false);
 
-                var unmountThread = new Thread(massStorage =>
+                var unmountThread = new Thread(() =>
                 {
-                    (massStorage as MassStorage).Unmount();
+                    _massStorage.Unmount();
                     waitHandle.Set();
                 });
-                unmountThread.Start(_massStorage);
+                unmountThread.Start();
 
-                bool waitResult = waitHandle.WaitOne(3000);
+                bool waitResult = waitHandle.WaitOne(3000, true);
             }
             emulator.PlayerIsPlayingChanged -= UnmountMassStorage;
             FrontDisplay.RefreshLEDs(LedType.Empty);

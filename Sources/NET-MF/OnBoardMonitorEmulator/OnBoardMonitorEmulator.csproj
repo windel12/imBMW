@@ -87,250 +87,250 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="..\..\..\imBMW.Features\Comfort.cs">
+    <Compile Include="..\imBMW.Features\Comfort.cs">
       <Link>imBMW.Features\Comfort.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\FeaturesEnumConverter.cs">
+    <Compile Include="..\imBMW.Features\FeaturesEnumConverter.cs">
       <Link>imBMW.Features\FeaturesEnumConverter.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Light.cs">
+    <Compile Include="..\imBMW.Features\Light.cs">
       <Link>imBMW.Features\Light.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Localizations\EnglishLocalization.cs">
+    <Compile Include="..\imBMW.Features\Localizations\EnglishLocalization.cs">
       <Link>imBMW.Features\Localizations\EnglishLocalization.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Localizations\Localization.cs">
+    <Compile Include="..\imBMW.Features\Localizations\Localization.cs">
       <Link>imBMW.Features\Localizations\Localization.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Localizations\RadioLocalization.cs">
+    <Compile Include="..\imBMW.Features\Localizations\RadioLocalization.cs">
       <Link>imBMW.Features\Localizations\RadioLocalization.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Localizations\RussianLocalization.cs">
+    <Compile Include="..\imBMW.Features\Localizations\RussianLocalization.cs">
       <Link>imBMW.Features\Localizations\RussianLocalization.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Menu\BordmonitorMenu.cs">
+    <Compile Include="..\imBMW.Features\Menu\BordmonitorMenu.cs">
       <Link>imBMW.Features\Menu\BordmonitorMenu.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Menu\MenuBase.cs">
+    <Compile Include="..\imBMW.Features\Menu\MenuBase.cs">
       <Link>imBMW.Features\Menu\MenuBase.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Menu\MenuHelpers.cs">
+    <Compile Include="..\imBMW.Features\Menu\MenuHelpers.cs">
       <Link>imBMW.Features\Menu\MenuHelpers.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Menu\MenuItem.cs">
+    <Compile Include="..\imBMW.Features\Menu\MenuItem.cs">
       <Link>imBMW.Features\Menu\MenuItem.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Menu\MenuScreen.cs">
+    <Compile Include="..\imBMW.Features\Menu\MenuScreen.cs">
       <Link>imBMW.Features\Menu\MenuScreen.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Menu\RadioMenu.cs">
+    <Compile Include="..\imBMW.Features\Menu\RadioMenu.cs">
       <Link>imBMW.Features\Menu\RadioMenu.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Menu\Screens\ActivateScreen.cs">
+    <Compile Include="..\imBMW.Features\Menu\Screens\ActivateScreen.cs">
       <Link>imBMW.Features\Menu\Screens\ActivateScreen.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Menu\Screens\AuxilaryHeaterScreen.cs">
+    <Compile Include="..\imBMW.Features\Menu\Screens\AuxilaryHeaterScreen.cs">
       <Link>imBMW.Features\Menu\Screens\AuxilaryHeaterScreen.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Menu\Screens\BluetoothScreen.cs">
+    <Compile Include="..\imBMW.Features\Menu\Screens\BluetoothScreen.cs">
       <Link>imBMW.Features\Menu\Screens\BluetoothScreen.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Menu\Screens\BordcomputerScreen.cs">
+    <Compile Include="..\imBMW.Features\Menu\Screens\BordcomputerScreen.cs">
       <Link>imBMW.Features\Menu\Screens\BordcomputerScreen.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Menu\Screens\DDEScreen.cs">
+    <Compile Include="..\imBMW.Features\Menu\Screens\DDEScreen.cs">
       <Link>imBMW.Features\Menu\Screens\DDEScreen.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Menu\Screens\HomeScreen.cs">
+    <Compile Include="..\imBMW.Features\Menu\Screens\HomeScreen.cs">
       <Link>imBMW.Features\Menu\Screens\HomeScreen.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Menu\Screens\MusicListScreen.cs">
+    <Compile Include="..\imBMW.Features\Menu\Screens\MusicListScreen.cs">
       <Link>imBMW.Features\Menu\Screens\MusicListScreen.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Menu\Screens\SettingsScreen.cs">
+    <Compile Include="..\imBMW.Features\Menu\Screens\SettingsScreen.cs">
       <Link>imBMW.Features\Menu\Screens\SettingsScreen.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Menu\Screens\SpeedLimitScreen.cs">
+    <Compile Include="..\imBMW.Features\Menu\Screens\SpeedLimitScreen.cs">
       <Link>imBMW.Features\Menu\Screens\SpeedLimitScreen.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Multimedia\AudioPlayerBase.cs">
+    <Compile Include="..\imBMW.Features\Multimedia\AudioPlayerBase.cs">
       <Link>imBMW.Features\Multimedia\AudioPlayerBase.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Multimedia\IAudioPlayer.cs">
+    <Compile Include="..\imBMW.Features\Multimedia\IAudioPlayer.cs">
       <Link>imBMW.Features\Multimedia\IAudioPlayer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Multimedia\iBus\BordmonitorAUX.cs">
+    <Compile Include="..\imBMW.Features\Multimedia\iBus\BordmonitorAUX.cs">
       <Link>imBMW.Features\Multimedia\iBus\BordmonitorAUX.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Multimedia\iBus\CDChanger.cs">
+    <Compile Include="..\imBMW.Features\Multimedia\iBus\CDChanger.cs">
       <Link>imBMW.Features\Multimedia\iBus\CDChanger.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Multimedia\iPodViaHeadset.cs">
+    <Compile Include="..\imBMW.Features\Multimedia\iPodViaHeadset.cs">
       <Link>imBMW.Features\Multimedia\iPodViaHeadset.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Multimedia\MediaEmulator.cs">
+    <Compile Include="..\imBMW.Features\Multimedia\MediaEmulator.cs">
       <Link>imBMW.Features\Multimedia\MediaEmulator.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Multimedia\Models\DiskAndTrack.cs">
+    <Compile Include="..\imBMW.Features\Multimedia\Models\DiskAndTrack.cs">
       <Link>imBMW.Features\Multimedia\Models\DiskAndTrack.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Multimedia\Models\ModelHelpers.cs">
+    <Compile Include="..\imBMW.Features\Multimedia\Models\ModelHelpers.cs">
       <Link>imBMW.Features\Multimedia\Models\ModelHelpers.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Multimedia\Models\TrackInfo.cs">
+    <Compile Include="..\imBMW.Features\Multimedia\Models\TrackInfo.cs">
       <Link>imBMW.Features\Multimedia\Models\TrackInfo.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Multimedia\MultiplexorTDA7313.cs">
+    <Compile Include="..\imBMW.Features\Multimedia\MultiplexorTDA7313.cs">
       <Link>imBMW.Features\Multimedia\MultiplexorTDA7313.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Features\Multimedia\VS1003Player.cs">
+    <Compile Include="..\imBMW.Features\Multimedia\VS1003Player.cs">
       <Link>imBMW.Features\Multimedia\VS1003Player.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Tools\ArrayHelpers.cs">
+    <Compile Include="..\imBMW.Tools\ArrayHelpers.cs">
       <Link>imBMW.Tools\ArrayHelpers.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Tools\ASCIIEncoding.cs">
+    <Compile Include="..\imBMW.Tools\ASCIIEncoding.cs">
       <Link>imBMW.Tools\ASCIIEncoding.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Tools\DateTimeHelpers.cs">
+    <Compile Include="..\imBMW.Tools\DateTimeHelpers.cs">
       <Link>imBMW.Tools\DateTimeHelpers.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Tools\Delegates.cs">
+    <Compile Include="..\imBMW.Tools\Delegates.cs">
       <Link>imBMW.Tools\Delegates.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Tools\Enums.cs">
+    <Compile Include="..\imBMW.Tools\Enums.cs">
       <Link>imBMW.Tools\Enums.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Tools\LoggerArgs.cs">
+    <Compile Include="..\imBMW.Tools\LoggerArgs.cs">
       <Link>imBMW.Tools\LoggerArgs.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Tools\NumHelpers.cs">
+    <Compile Include="..\imBMW.Tools\NumHelpers.cs">
       <Link>imBMW.Tools\NumHelpers.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Tools\Parse.cs">
+    <Compile Include="..\imBMW.Tools\Parse.cs">
       <Link>imBMW.Tools\Parse.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Tools\StreamHelpers.cs">
+    <Compile Include="..\imBMW.Tools\StreamHelpers.cs">
       <Link>imBMW.Tools\StreamHelpers.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW.Tools\StringHelpers.cs">
+    <Compile Include="..\imBMW.Tools\StringHelpers.cs">
       <Link>imBMW.Tools\StringHelpers.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\DBus\DbusManager.cs">
+    <Compile Include="..\imBMW\DBus\DbusManager.cs">
       <Link>imBMW\DBus\DbusManager.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\DBus\DBusMessage.cs">
+    <Compile Include="..\imBMW\DBus\DBusMessage.cs">
       <Link>imBMW\DBus\DBusMessage.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\DBus\DBusMessageParser.cs">
+    <Compile Include="..\imBMW\DBus\DBusMessageParser.cs">
       <Link>imBMW\DBus\DBusMessageParser.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\DBus\DS2Message.cs">
+    <Compile Include="..\imBMW\DBus\DS2Message.cs">
       <Link>imBMW\DBus\DS2Message.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\iBus\DeviceAddress.cs">
+    <Compile Include="..\imBMW\iBus\DeviceAddress.cs">
       <Link>imBMW\iBus\DeviceAddress.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\iBus\Devices\AuxilaryHeater.cs">
+    <Compile Include="..\imBMW\iBus\Devices\AuxilaryHeater.cs">
       <Link>imBMW\iBus\Devices\AuxilaryHeater.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\iBus\Devices\BodyModule.cs">
+    <Compile Include="..\imBMW\iBus\Devices\BodyModule.cs">
       <Link>imBMW\iBus\Devices\BodyModule.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\iBus\Devices\DigitalDieselElectronics.cs">
+    <Compile Include="..\imBMW\iBus\Devices\DigitalDieselElectronics.cs">
       <Link>imBMW\iBus\Devices\DigitalDieselElectronics.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\iBus\Devices\FrontDisplay.cs">
+    <Compile Include="..\imBMW\iBus\Devices\FrontDisplay.cs">
       <Link>imBMW\iBus\Devices\FrontDisplay.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\iBus\Devices\HeadlightVerticalAimControl.cs">
+    <Compile Include="..\imBMW\iBus\Devices\HeadlightVerticalAimControl.cs">
       <Link>imBMW\iBus\Devices\HeadlightVerticalAimControl.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\iBus\Devices\InstrumentClusterElectronics.cs">
+    <Compile Include="..\imBMW\iBus\Devices\InstrumentClusterElectronics.cs">
       <Link>imBMW\iBus\Devices\InstrumentClusterElectronics.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\iBus\Devices\IntegratedHeatingAndAirConditioning.cs">
+    <Compile Include="..\imBMW\iBus\Devices\IntegratedHeatingAndAirConditioning.cs">
       <Link>imBMW\iBus\Devices\IntegratedHeatingAndAirConditioning.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\iBus\Devices\MultiFunctionSteeringWheel.cs">
+    <Compile Include="..\imBMW\iBus\Devices\MultiFunctionSteeringWheel.cs">
       <Link>imBMW\iBus\Devices\MultiFunctionSteeringWheel.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\iBus\InternalMessage.cs">
+    <Compile Include="..\imBMW\iBus\InternalMessage.cs">
       <Link>imBMW\iBus\InternalMessage.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\iBus\KBusManager.cs">
+    <Compile Include="..\imBMW\iBus\KBusManager.cs">
       <Link>imBMW\iBus\KBusManager.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\iBus\Manager.cs">
+    <Compile Include="..\imBMW\iBus\Manager.cs">
       <Link>imBMW\iBus\Manager.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\iBus\ManagerImpl.cs">
+    <Compile Include="..\imBMW\iBus\ManagerImpl.cs">
       <Link>imBMW\iBus\ManagerImpl.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\iBus\ManagerTools.cs">
+    <Compile Include="..\imBMW\iBus\ManagerTools.cs">
       <Link>imBMW\iBus\ManagerTools.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\iBus\Message.cs">
+    <Compile Include="..\imBMW\iBus\Message.cs">
       <Link>imBMW\iBus\Message.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\iBus\MessageParser.cs">
+    <Compile Include="..\imBMW\iBus\MessageParser.cs">
       <Link>imBMW\iBus\MessageParser.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\iBus\MessageRegistry.cs">
+    <Compile Include="..\imBMW\iBus\MessageRegistry.cs">
       <Link>imBMW\iBus\MessageRegistry.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\IO\SerialInterruptPort.cs">
+    <Compile Include="..\imBMW\IO\SerialInterruptPort.cs">
       <Link>imBMW\IO\SerialInterruptPort.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\IO\SerialInterruptPortBase.cs">
+    <Compile Include="..\imBMW\IO\SerialInterruptPortBase.cs">
       <Link>imBMW\IO\SerialInterruptPortBase.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\IO\SerialPortBase.cs">
+    <Compile Include="..\imBMW\IO\SerialPortBase.cs">
       <Link>imBMW\IO\SerialPortBase.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\IO\SerialPortConfiguration.cs">
+    <Compile Include="..\imBMW\IO\SerialPortConfiguration.cs">
       <Link>imBMW\IO\SerialPortConfiguration.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\Tools\EnumConverter.cs">
+    <Compile Include="..\imBMW\Tools\EnumConverter.cs">
       <Link>imBMW\Tools\EnumConverter.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\Tools\FileLogger.cs">
+    <Compile Include="..\imBMW\Tools\FileLogger.cs">
       <Link>imBMW\Tools\FileLogger.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\Tools\Logger.cs">
+    <Compile Include="..\imBMW\Tools\Logger.cs">
       <Link>imBMW\Tools\Logger.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\Tools\QueueThreadWorker.cs">
+    <Compile Include="..\imBMW\Tools\QueueThreadWorker.cs">
       <Link>imBMW\Tools\QueueThreadWorker.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\Tools\Settings.cs">
+    <Compile Include="..\imBMW\Tools\Settings.cs">
       <Link>imBMW\Tools\Settings.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\iBus\Devices\Bordmonitor.cs">
+    <Compile Include="..\imBMW\iBus\Devices\Bordmonitor.cs">
       <Link>imBMW\iBus\Devices\Bordmonitor.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\iBus\Devices\Immobiliser.cs">
+    <Compile Include="..\imBMW\iBus\Devices\Immobiliser.cs">
       <Link>imBMW\iBus\Devices\Immobiliser.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\iBus\Devices\LightControlModule.cs">
+    <Compile Include="..\imBMW\iBus\Devices\LightControlModule.cs">
       <Link>imBMW\iBus\Devices\LightControlModule.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\iBus\Devices\NavigationModule.cs">
+    <Compile Include="..\imBMW\iBus\Devices\NavigationModule.cs">
       <Link>imBMW\iBus\Devices\NavigationModule.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\iBus\Devices\Radio.cs">
+    <Compile Include="..\imBMW\iBus\Devices\Radio.cs">
       <Link>imBMW\iBus\Devices\Radio.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\IO\ISerialPort.cs">
+    <Compile Include="..\imBMW\IO\ISerialPort.cs">
       <Link>imBMW\IO\ISerialPort.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\imBMW\Tools\SpinWaitTimer.cs">
+    <Compile Include="..\imBMW\Tools\SpinWaitTimer.cs">
       <Link>imBMW\Tools\SpinWaitTimer.cs</Link>
     </Compile>
-    <Compile Include="..\Hardware\Pin.cs">
+    <Compile Include="..\Devices\V2\Hardware\Pin.cs">
       <Link>imBMW.Devices.V2\Hardware\Pin.cs</Link>
     </Compile>
-    <Compile Include="..\Launcher.cs">
+    <Compile Include="..\Devices\V2\Launcher.cs">
       <Link>imBMW.Devices.V2\Launcher.cs</Link>
     </Compile>
     <Compile Include="App.xaml.cs">
