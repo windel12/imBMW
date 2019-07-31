@@ -6,6 +6,7 @@ namespace imBMW.Tools
 
     public enum LogPriority
     {
+        Debug = 5,
         Trace = 4,
         Info = 3,
         Warning = 2,

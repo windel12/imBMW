@@ -59,6 +59,11 @@ namespace imBMW.Tools
             catch (Exception) { wasError = true; }
         }
 
+        public static void Debug(string message, string priorityTitle = null)
+        {
+            Log(LogPriority.Debug, message, priorityTitle);
+        }
+
         public static void Trace(string message, string priorityTitle = null)
         {
             Log(LogPriority.Trace, message, priorityTitle);
@@ -143,7 +148,7 @@ namespace imBMW.Tools
 
         public static void Print(string message)
         {
-            Debug.Print(message);
+            Microsoft.SPOT.Debug.Print(message);
             FreeMemory();
         }
     }

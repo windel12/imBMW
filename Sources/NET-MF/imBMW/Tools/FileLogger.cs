@@ -13,6 +13,9 @@ namespace imBMW.Tools
     {
         const byte flushLines = 5;
 
+        private static byte queueLimit = 30;
+        private static bool queueLimitExceeded = false;
+
         static ushort unflushed = 0;
 
         static StreamWriter writer;
@@ -59,10 +62,17 @@ namespace imBMW.Tools
 
         static void Logger_Logged(LoggerArgs args)
         {
-            if (queue.Count > 30)
+            if (queue.Count > queueLimit && args.Priority != LogPriority.Debug)
+            {
+                if (!queueLimitExceeded)
+                {
+                    queueLimitExceeded = true;
+                    Logger.Trace("Queue is full");
+                }
                 return;
+            }
 
-            if (args.Priority == LogPriority.Trace || args.Priority == LogPriority.Error)
+            if (args.Priority == LogPriority.Trace || args.Priority == LogPriority.Error || args.Priority == LogPriority.Debug)
             {
                 queue.Enqueue(args.LogString);
             }

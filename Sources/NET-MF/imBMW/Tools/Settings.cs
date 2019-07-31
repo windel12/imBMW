@@ -63,7 +63,7 @@ namespace imBMW.Tools
             NaviVersion = NaviVersion.MK4;
             MenuMode = MenuMode.BordmonitorCDC;
             BluetoothPin = "0000";
-            UnmountMassStorageOnChangingIgnitionToAcc = true;
+            UnmountMassStorageOnChangingIgnitionToAcc = false;
         }
 
         protected virtual void InitFile(string path)

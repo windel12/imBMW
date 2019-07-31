@@ -73,6 +73,12 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
             }, null, 0, temperatureAnounceTimerIterval * 1000);
         }
 
+        public static void StopAnnounce()
+        {
+            rpmSpeedAnounceTimer.Dispose();
+            temperatureAnounceTimer.Dispose();
+        }
+
         public static void ProcessMessageToIKE(Message m)
         {
             if (m.SourceDevice == DeviceAddress.Radio && m.Data.StartsWith(0x23, 0x62, 0x30))

@@ -458,7 +458,7 @@ namespace imBMW.iBus
                 return null;
             }
 
-            return message.DataDump;// + " (" + messageTypeDescriptions[firstByte] + ')';
+            return message.DataDump + " (" + messageTypeDescriptions[firstByte] + ')';
         }
 
         public static bool IsInternal(this byte device)

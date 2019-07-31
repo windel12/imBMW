@@ -76,7 +76,7 @@ namespace imBMW.iBus.Devices.Real
 
         static BodyModule()
         {
-            Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.BodyModule, ProcessGMMessage);
+            KBusManager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.BodyModule, ProcessGMMessage);
             InstrumentClusterElectronics.IgnitionStateChanged += InstrumentClusterElectronics_IgnitionStateChanged;
         }
 

@@ -95,9 +95,18 @@ namespace OnBoardMonitorEmulator
 
             Launcher.Launch(Launcher.LaunchMode.WPF);
 
-//#if !DebugOnRealDeviceOverFTDI
-            InstrumentClusterElectronicsEmulator.StartAnounce();
-//#endif
+            InstrumentClusterElectronics.IgnitionStateChanged += (e) =>
+            {
+                if (e.PreviousIgnitionState == IgnitionState.Off)
+                {
+                    InstrumentClusterElectronicsEmulator.StartAnounce();
+                }
+
+                if (e.CurrentIgnitionState == IgnitionState.Off)
+                {
+                    InstrumentClusterElectronicsEmulator.StopAnnounce();
+                }
+            };
 
             Bordmonitor.ReplyToScreenUpdates = true;
             Bordmonitor.TextReceived += Bordmonitor_TextReceived;

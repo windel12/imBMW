@@ -22,7 +22,7 @@ namespace imBMW.iBus.Devices.Emulators
 
         const ushort StopDelayMilliseconds = 1000;
 
-        Thread announceThread;
+        //Thread announceThread;
         Timer stopDelay;
 
         bool skipNextTrackMessage = false;
@@ -119,9 +119,11 @@ namespace imBMW.iBus.Devices.Emulators
                 //Manager.Instance.EnqueueMessage(StatusPlayed(Player.DiskNumber, Player.TrackNumber));
                 Manager.Instance.EnqueueMessage(StatusStartPlaying(Player.DiskNumber, Player.TrackNumber));
             };*/
-            
-            announceThread = new Thread(announce);
-            announceThread.Start();
+
+            //announceThread = new Thread(announceCallback);
+            //announceThread.Start();
+
+            announce();
         }
 
         private void Radio_OnOffChanged(bool turnedOn)
@@ -179,10 +181,10 @@ namespace imBMW.iBus.Devices.Emulators
                     Play();
                 }
 
-                if (announceThread.ThreadState != ThreadState.Suspended)
-                {
-                    announceThread.Suspend();
-                }
+                //if (announceThread.ThreadState != ThreadState.Suspended)
+                //{
+                //    announceThread.Suspend();
+                //}
             }
 
             base.OnIsEnabledChanged(isEnabled, isEnabled); // fire only if enabled
@@ -196,10 +198,10 @@ namespace imBMW.iBus.Devices.Emulators
                     FireIsEnabledChanged();
                     Pause();
 
-                    if (announceThread.ThreadState == ThreadState.Suspended)
-                    {
-                        announceThread.Resume();
-                    }
+                    //if (announceThread.ThreadState == ThreadState.Suspended)
+                    //{
+                        //announceThread.Resume();
+                    //}
                 }, null, 0/*StopDelayMilliseconds*/, 0);
             }
         }
@@ -319,13 +321,18 @@ namespace imBMW.iBus.Devices.Emulators
             }*/
         }
 
-        static void announce()
+        static void announceCallback()
         {
             while (true)
             {
                 Manager.Instance.EnqueueMessage(MessageAnnounce, MessagePollResponse);
                 Thread.Sleep(30000);
             }
+        }
+
+        static void announce()
+        {
+            Manager.Instance.EnqueueMessage(MessageAnnounce, MessageAnnounce, MessageAnnounce);
         }
 
         #endregion
