@@ -63,6 +63,17 @@ namespace imBMW.Devices.V2
             WPF
         }
 
+        public enum UsbMountState
+        {
+            NotInitialized,
+            DeviceConnectFailed,
+            UnknownDeviceConnected,
+            MassStorageConnected,
+            Mounted
+        }
+
+        private static UsbMountState ControllerState { get; set; }
+
         private static void ResetBoard()
         {
             Logger.TryTrace("Board will reset in 2 seconds!!!");
@@ -120,6 +131,7 @@ namespace imBMW.Devices.V2
                 FileLogger.BaseInit();
                 InitManagers();
 
+                InstrumentClusterElectronics.DateTimeChanged += DateTimeChanged;
 
                 Logger.Debug("Watchdog.ResetCause: " + _resetCause.ToStringValue());
 
@@ -146,25 +158,31 @@ namespace imBMW.Devices.V2
                     Logger.Print("Controller DeviceConnectFailed!");
                     Radio.DisplayText("DeviceConnectFailed");
                     LedBlinking(error_RedLed, 1, 100);
-                    Thread.Sleep(200);
+
+                    ControllerState = UsbMountState.DeviceConnectFailed;
+                    _removableMediaInsertedSync.Set();
                 };
                 Controller.UnknownDeviceConnected += (ss, ee) =>
                 {
                     Logger.Print("Controller UnknownDeviceConnected!");
                     Radio.DisplayText("UnknownDeviceConnected");
                     LedBlinking(error_RedLed, 2, 100);
-                    Thread.Sleep(200);
+
+                    ControllerState = UsbMountState.UnknownDeviceConnected;
+                    _removableMediaInsertedSync.Set();
                 };
                 Controller.MassStorageConnected += (sender, massStorage) =>
                 {
                     Logger.Print("Controller MassStorageConnected!");
                     LedBlinking(orangeLed, 1, 100);
-                    Thread.Sleep(200);
+                    ControllerState = UsbMountState.MassStorageConnected;
+
                     RemovableMedia.Insert += (s, e) =>
                     {
                         Logger.Print("RemovableMedia Inserted!");
                         LedBlinking(orangeLed, 2, 100);
-                        Thread.Sleep(200);
+
+                        ControllerState = UsbMountState.Mounted;
                         _removableMediaInsertedSync.Set();
                     };
 
@@ -195,13 +213,10 @@ namespace imBMW.Devices.V2
                 }
                 else
                 {
-                    Logger.Debug("Controller inited!");
+                    Logger.Debug("Controller state: " + ControllerState.ToString());
                     //FrontDisplay.RefreshLEDs(LedType.Orange, append:true);
                     LedBlinking(orangeLed, 3, 100);
                 }
-
-                InstrumentClusterElectronics.DateTimeChanged += DateTimeChanged;
-                InstrumentClusterElectronics.RequestDateTime();
 
                 if (!VolumeInfo.GetVolumes()[0].IsFormatted)
                 {
@@ -216,6 +231,8 @@ namespace imBMW.Devices.V2
                     settings = Settings.Init(rootDirectory + "\\imBMW.ini");
                     FileLogger.Init(rootDirectory, () => VolumeInfo.GetVolumes()[0].FlushAll());
                 }
+
+                InstrumentClusterElectronics.RequestDateTime();
 
                 Init();
 
@@ -247,7 +264,7 @@ namespace imBMW.Devices.V2
 #if DEBUG
                 int sleepTimeout = 1 * 30 * 1000;
 #else
-                int sleepTimeout = 15 * 60 * 1000;
+                int sleepTimeout = 15 * 60 * 1000 + 50;
 #endif
                 RequestIgnitionStateTimer = new Timer(obj =>
                 {
@@ -303,6 +320,11 @@ namespace imBMW.Devices.V2
                 };
 
                 Logger.Debug("Actions inited!");
+
+                if (DateTime.Now.Year < 2019)
+                {
+                    InstrumentClusterElectronics.RequestDateTime();
+                }
 
                 if (launchMode == LaunchMode.MicroFramework)
                     Thread.Sleep(Timeout.Infinite);
@@ -466,9 +488,9 @@ namespace imBMW.Devices.V2
 
         private static void UnmountMassStorage()
         {
-            FileLogger.Dispose();
             if (_massStorage != null && _massStorage.Mounted)
             {
+                FileLogger.Dispose();
                 var waitHandle = new ManualResetEvent(false);
 
                 var unmountThread = new Thread(() =>
@@ -484,17 +506,9 @@ namespace imBMW.Devices.V2
 
         private static void DateTimeChanged(DateTimeEventArgs e)
         {
-            Logger.Debug("dateTimeEventArgs.DateIsSet: " + e.DateIsSet);
             Logger.Debug("Acquired dateTime from IKE: " + e.Value);
-            if (e.DateIsSet)
-            {
-                Utility.SetLocalTime(e.Value);
-                InstrumentClusterElectronics.DateTimeChanged -= DateTimeChanged;
-            }
-            else
-            {
-                InstrumentClusterElectronics.RequestDateTime();
-            }
+            Utility.SetLocalTime(e.Value);
+            InstrumentClusterElectronics.DateTimeChanged -= DateTimeChanged;
         }
 
         // Log just needed message

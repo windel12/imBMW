@@ -104,12 +104,9 @@ namespace imBMW.iBus.Devices.Real
     {
         public DateTime Value { get; private set; }
 
-        public bool DateIsSet { get; private set; }
-
-        public DateTimeEventArgs(DateTime value, bool dateIsSet = false)
+        public DateTimeEventArgs(DateTime value)
         {
             Value = value;
-            DateIsSet = dateIsSet;
         }
     }
 
@@ -535,7 +532,7 @@ namespace imBMW.iBus.Devices.Real
         public static DateTimeEventArgs GetDateTime(int timeout)
         {
             _getDateTimeSync.Reset();
-            _getDateTimeResult = new DateTimeEventArgs(DateTime.Now, false); ;
+            _getDateTimeResult = new DateTimeEventArgs(DateTime.Now);
             DateTimeChanged += GetDateTimeCallback;
             RequestDateTime();
 #if NETMF
@@ -733,31 +730,26 @@ namespace imBMW.iBus.Devices.Real
             _dateMonth = month;
             _dateYear = year;
             _dateIsSet = true;
+            OnDateTimeChanged();
         }
 
         private static void OnDateTimeChanged()
         {
-            if (!_timeIsSet)
+            if (!_timeIsSet || !_dateIsSet)
             {
                 return;
             }
             var now = DateTime.Now;
-            if (!_dateIsSet)
-            {
-                _dateYear = (ushort)now.Year;
-                _dateMonth = (byte)now.Month;
-                _dateDay = (byte)now.Day;
-            }
             now = new DateTime(_dateYear, _dateMonth, _dateDay, _timeHour, _timeMinute, now.Second);
-            OnDateTimeChanged(now, _dateIsSet);
+            OnDateTimeChanged(now);
         }
 
-        private static void OnDateTimeChanged(DateTime value, bool dateIsSet = false)
+        private static void OnDateTimeChanged(DateTime value)
         {
             var e = DateTimeChanged;
             if (e != null)
             {
-                e(new DateTimeEventArgs(value, dateIsSet));
+                e(new DateTimeEventArgs(value));
             }
         }
 

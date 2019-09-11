@@ -22,26 +22,23 @@ namespace SongsNameConverter
             string MODE = Console.ReadLine();
             if (MODE != "1" && MODE != "2" && MODE != "3")
             {
-                Console.WriteLine("You choosed wrong mode");
+                Console.WriteLine("You chose wrong mode!");
                 return;
             }
 
+            Console.WriteLine("Type folder name:");
+            Console.WriteLine("Or press 'enter' for all child folders");
+            string folderName = Console.ReadLine();
+            string basePath = args.Length > 0 ? args[0] : Environment.CurrentDirectory;
+            string path = string.IsNullOrEmpty(folderName) ? basePath : Path.Combine(basePath, folderName);
 
-            string path = "";
-            //args = new string[1] {"D:\\Music\\Разное"};
-            if (args.Length == 0)
+            if (!string.IsNullOrEmpty(folderName) && !Directory.Exists(Path.Combine(basePath, folderName)))
             {
-                //Console.WriteLine("Please, define path where you songs stored. Press any key to exit.");
-                //Console.ReadLine();
-                //return;
-                path = Environment.CurrentDirectory;
+                Console.WriteLine("Folder don't exist!");
+                return;
             }
-            else
-            {
-                path = args[0];
-            }
-            
-            var mp3filesPathes = Directory.EnumerateFiles(path, "*.mp3", SearchOption.AllDirectories);
+
+            var mp3filesPathes = Directory.EnumerateFiles(path, "*.mp3", string.IsNullOrEmpty(folderName) ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
             foreach (string filePath in mp3filesPathes)
             {
                 var taglibFile = TagLib.File.Create(filePath);
