@@ -8,8 +8,11 @@ namespace Microsoft.SPOT.Hardware
 {
     public static class Utility
     {
-        public static void SetLocalTime(DateTime dt)
+        public static DateTime CurrentDateTime;
+
+        public static void SetLocalTime(DateTime dateTime)
         {
+            CurrentDateTime = dateTime;
         }
 
         public static TimeSpan GetMachineTime()

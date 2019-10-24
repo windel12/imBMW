@@ -15,24 +15,11 @@ namespace imBMW.Features.Menu
         Scroll
     }
 
-    public class MenuScreenUpdateEventArgs //: Microsoft.SPOT.EventArgs
-    {
-        public object Item { get; protected set; }
-
-        public MenuScreenUpdateReason Reason { get; set; }
-
-        public MenuScreenUpdateEventArgs(MenuScreenUpdateReason reason = MenuScreenUpdateReason.Refresh, object item = null)
-        {
-            Reason = reason;
-            Item = item;
-        }
-    }
-
     public delegate void MenuScreenEventHandler(MenuScreen screen);
 
-    public delegate void MenuScreenUpdateEventHandler(MenuScreen screen, MenuScreenUpdateEventArgs args);
+    public delegate void MenuScreenUpdateEventHandler(MenuScreen screen);
 
-    public delegate void MenuScreenItemEventHandler(MenuScreen screen, MenuItem item);
+    public delegate void MenuScreenItemClickedEventHandler(MenuScreen screen, MenuItem item);
 
     public delegate string MenuScreenGetTextHandler(MenuScreen screen);
 
@@ -173,7 +160,7 @@ namespace imBMW.Features.Menu
         {
             if (index >= MaxItemsCount || index < 0 && ItemsCount == MaxItemsCount)
             {
-                Logger.TryError("Can't add screen item \"" + menuItem + "\" with index=" + index + ", count=" + ItemsCount);
+                Logger.Error("Can't add screen item \"" + menuItem + "\" with index=" + index + ", count=" + ItemsCount);
                 index = (SByte)(MaxItemsCount - 1);
             }
             if (index < 0)
@@ -300,7 +287,7 @@ namespace imBMW.Features.Menu
             }
         }
 
-        public event MenuScreenItemEventHandler ItemClicked;
+        public event MenuScreenItemClickedEventHandler ItemClicked;
 
         public event MenuScreenUpdateEventHandler UpdateHeader;
 
@@ -327,10 +314,10 @@ namespace imBMW.Features.Menu
 
         protected void menuItem_Changed(MenuItem item)
         {
-            OnUpdateBody(MenuScreenUpdateReason.ItemChanged, item);
+            OnUpdateBody(MenuScreenUpdateReason.ItemChanged);
         }
 
-        protected void OnUpdateHeader(MenuScreenUpdateReason reason, object item = null)
+        protected void OnUpdateHeader(MenuScreenUpdateReason reason)
         {
             if (updateSuspended)
             {
@@ -339,11 +326,11 @@ namespace imBMW.Features.Menu
             var e = UpdateHeader;
             if (e != null)
             {
-                e(this, new MenuScreenUpdateEventArgs(reason, item));
+                e(this);
             }
         }
 
-        protected void OnUpdateBody(MenuScreenUpdateReason reason, object item = null)
+        protected void OnUpdateBody(MenuScreenUpdateReason reason)
         {
             if (updateSuspended)
             {
@@ -352,8 +339,7 @@ namespace imBMW.Features.Menu
             var e = UpdateBody;
             if (e != null)
             {
-                var args = new MenuScreenUpdateEventArgs(reason, item);
-                e(this, args);
+                e(this);
             }
         }
 

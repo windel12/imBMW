@@ -139,5 +139,19 @@ namespace imBMW.Tools
             }
             return "NotSpecified(" + e.ToString() + ")";
         }
+
+        public static string ToStringValue(this UsbMountState e)
+        {
+            switch (e)
+            {
+                case UsbMountState.NotInitialized: return "NotInitialized";
+                case UsbMountState.DeviceConnectFailed: return "DeviceConnectFailed";
+                case UsbMountState.UnknownDeviceConnected: return "UnknownDeviceConnected";
+                case UsbMountState.MassStorageConnected: return "MassStorageConnected";
+                case UsbMountState.Mounted: return "Mounted";
+                case UsbMountState.Unmounted: return "Unmounted";
+            }
+            return "NotSpecified(" + e.ToString() + ")";
+        }
     }
 }

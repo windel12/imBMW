@@ -134,7 +134,7 @@ namespace imBMW.Features.Menu.Screens
         {
             if (base.OnNavigatedTo(menu))
             {
-                if (VolumeInfo.GetVolumes()[0].IsFormatted)
+                if (VolumeInfo.GetVolumes().Length > 0 && VolumeInfo.GetVolumes()[0].IsFormatted)
                 {
                     InitFilesEnumerator();
 

@@ -119,7 +119,7 @@ namespace imBMW.Tools
             }
         }
 
-        public bool WaitTillQueueBeEmpty()
+        public bool WaitTillQueueBeEmpty(int waitTimeout)
         {
             lock (lockObj)
             {
@@ -128,7 +128,7 @@ namespace imBMW.Tools
                     ewt.Reset();
                 }
             }
-            bool result = ewt.WaitOne(2000, true);
+            bool result = ewt.WaitOne(waitTimeout, true);
             return result;
         }
     }

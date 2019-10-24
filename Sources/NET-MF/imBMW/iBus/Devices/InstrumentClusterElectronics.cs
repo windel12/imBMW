@@ -8,6 +8,7 @@ namespace imBMW.iBus.Devices.Real
 
     public enum IgnitionState
     {
+        Unknown,
         Off,
         Acc,
         Ign,
@@ -133,7 +134,7 @@ namespace imBMW.iBus.Devices.Real
 
     public static class InstrumentClusterElectronics
     {
-        static IgnitionState currentIgnitionState = IgnitionState.Off;
+        static IgnitionState currentIgnitionState = IgnitionState.Unknown;
         
         public static ushort CurrentRPM { get; private set; }
         public static ushort CurrentSpeed { get; private set; }

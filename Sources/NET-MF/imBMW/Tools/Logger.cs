@@ -7,8 +7,6 @@ namespace imBMW.Tools
 {
     public static class Logger
     {
-        public static bool wasError = false;
-
         public static event LoggerEventHangler Logged;
 
         public static void Log(LogPriority priority, string message, string priorityTitle = null)
@@ -33,30 +31,12 @@ namespace imBMW.Tools
 
         public static void FreeMemory()
         {
-#if DebugOnRealDeviceOverFTDI
+#if DebugOnRealDeviceOverFTDI && !OnBoardMonitorEmulator
             if (System.Diagnostics.Debugger.IsAttached)
             {
-                Debug.Print("Free memory:" + Debug.GC(true).ToString());
+                Microsoft.SPOT.Debug.Print("Free memory:" + Microsoft.SPOT.Debug.GC(true).ToString());
             }
 #endif
-        }
-
-        public static void TryTrace(string message, string priorityTitle = null)
-        {
-            try
-            {
-                Trace(message, priorityTitle);
-            }
-            catch (Exception) { wasError = true; }
-        }
-
-        public static void TryTrace(Message message, string priorityTitle = null)
-        {
-            try
-            {
-                Trace(message, priorityTitle);
-            }
-            catch (Exception) { wasError = true; }
         }
 
         public static void Debug(string message, string priorityTitle = null)
@@ -89,45 +69,6 @@ namespace imBMW.Tools
             Log(LogPriority.Warning, message, priorityTitle);
         }
 
-        public static void Warning(Message message, string priorityTitle = null)
-        {
-            Log(LogPriority.Warning, message.ToPrettyString(true), priorityTitle);
-        }
-
-        public static void Warning(Exception exception, string message = null, string priorityTitle = null)
-        {
-            Log(LogPriority.Warning, exception, message, priorityTitle);
-        }
-
-        public static void TryError(string message, string priorityTitle = null)
-        {
-            try
-            {
-                Error(message, priorityTitle);
-            }
-            catch (Exception)
-            {
-                wasError = true;
-            }
-            finally
-            {
-                ShowErrorLed();
-            }
-        }
-
-        public static void TryError(Exception exception, string message = null, string priorityTitle = null)
-        {
-            try
-            {
-                Error(exception, message, priorityTitle);
-                ShowErrorLed();
-            }
-            catch (Exception)
-            {
-                wasError = true;
-            }
-        }
-
         public static void Error(string message, string priorityTitle = null)
         {
             Log(LogPriority.Error, message, priorityTitle);
@@ -140,10 +81,13 @@ namespace imBMW.Tools
             Radio.DisplayText(message);
         }
 
-        private static void ShowErrorLed()
+        public static void ErrorWithoutLogging(string message)
         {
-            var message = new Message(DeviceAddress.Telephone, DeviceAddress.FrontDisplay, "Set LEDs", 0x2B, 1);
-            Manager.Instance.EnqueueMessage(message);
+            Radio.DisplayText(message);
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                Microsoft.SPOT.Debug.Print(message);
+            }
         }
 
         public static void Print(string message)

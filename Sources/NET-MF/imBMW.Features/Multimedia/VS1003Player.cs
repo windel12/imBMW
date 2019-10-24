@@ -69,8 +69,9 @@ namespace imBMW.Features.Multimedia
 
         Thread playerThread;
 
-        private Stack backChangingHistory = new Stack();
-        private Stack nextChangingHistory = new Stack();
+        internal byte maxBackChangingHistoryCapacity = 10;
+        public ArrayList backChangingHistory = new ArrayList();
+        public Stack nextChangingHistory = new Stack();
 
         private static IDictionary StorageInfo = new Hashtable();
         private static IDictionary ErrorsInfo = new Hashtable();
@@ -95,11 +96,6 @@ namespace imBMW.Features.Multimedia
         }
 
         public bool ChangeTrack { get; set; }
-
-        public override MenuScreen Menu
-        {
-            get { return new MenuScreen("VS1003Player"); }
-        }
 
         public int CurrentPosition { get; set; } = 0;
 
@@ -142,7 +138,7 @@ namespace imBMW.Features.Multimedia
             SetVolume((byte)255);
 
             Logger.Trace("Getting files and folders:");
-            if (VolumeInfo.GetVolumes()[0].IsFormatted)
+            if (VolumeInfo.GetVolumes().Length > 0 && VolumeInfo.GetVolumes()[0].IsFormatted)
             {
                 //byte[] testBuffer = new byte[256];
                 //FileStream stream = null;
@@ -383,14 +379,13 @@ namespace imBMW.Features.Multimedia
             }
         }
 
-        public override void Pause()
-        {
-            base.Pause();
-        }
-
         public override void Next()
         {
-            backChangingHistory.Push(new DiskAndTrack(DiskNumber, TrackNumber, FileName));
+            if (backChangingHistory.Count >= maxBackChangingHistoryCapacity)
+            { 
+                backChangingHistory.RemoveAt(0);  
+            }
+            backChangingHistory.Add(new DiskAndTrack(DiskNumber, TrackNumber, FileName));
 
             if (nextChangingHistory.Count > 0)
             {
@@ -422,12 +417,13 @@ namespace imBMW.Features.Multimedia
             {
                 nextChangingHistory.Push(new DiskAndTrack(DiskNumber, TrackNumber, FileName));
 
-                var history = (DiskAndTrack)backChangingHistory.Pop();
+                byte lastIndex = (byte) (backChangingHistory.Count - 1);
+                var history = (DiskAndTrack) backChangingHistory[lastIndex];
+                backChangingHistory.RemoveAt(lastIndex);
                 DiskNumber = history.diskNumber;
                 TrackNumber = history.trackNumber;
                 FileName = history.fileName;
                 OnTrackChanged();
-
             }
         }
 
@@ -455,22 +451,6 @@ namespace imBMW.Features.Multimedia
             IsRandom = !IsRandom;
             GeneratePreparedNextTracks(newDiskNumber);
             return IsRandom;
-        }
-
-        public override void VoiceButtonLongPress()
-        {
-        }
-
-        public override void VoiceButtonPress()
-        {
-        }
-
-        public override void VolumeDown()
-        {
-        }
-
-        public override void VolumeUp()
-        {
         }
 
         private static byte[] buffer = new byte[256];

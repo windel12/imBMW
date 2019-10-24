@@ -24,143 +24,16 @@ namespace imBMW.Features.Menu
         public MenuBase(MediaEmulator mediaEmulator)
         {
             homeScreen = HomeScreen.Instance;
-            //CurrentScreen = homeScreen;
 
             this.mediaEmulator = mediaEmulator;
             mediaEmulator.IsEnabledChanged += mediaEmulator_IsEnabledChanged;
-            //mediaEmulator.PlayerIsPlayingChanged += ShowPlayerStatus;
-            //mediaEmulator.PlayerStatusChanged += ShowPlayerStatus;
-            //mediaEmulator.PlayerChanged += mediaEmulator_PlayerChanged;
-            //mediaEmulator_PlayerChanged(mediaEmulator.Player);
-
-            //Manager.AddMessageReceiverForSourceDevice(DeviceAddress.Radio, ProcessRadioMessage);
         }
-
-        #region Radio members
-
-        protected virtual void ProcessRadioMessage(Message m)
-        {
-            //if (!IsEnabled)
-            //{
-            //    return;
-            //}
-
-            //if (m.Data.Length == 3 && m.Data[0] == 0x38 && m.Data[1] == 0x0A)
-            //{
-            //    switch (m.Data[2])
-            //    {
-            //        case 0x00:
-            //            //mediaEmulator.Player.Next();
-            //            m.ReceiverDescription = "Next track";
-            //            break;
-            //        case 0x01:
-            //            //mediaEmulator.Player.Prev();
-            //            m.ReceiverDescription = "Prev track";
-            //            break;
-            //    }
-            //}
-        }
-
-        #endregion
 
         #region MediaEmulator members
 
         protected Timer displayStatusDelayTimer;
         protected const ushort displayStatusDelay = 900; // TODO make abstract
         protected Timer delayTimeout;
-
-        protected abstract byte StatusTextMaxlen { get; }
-
-        //protected abstract void ShowPlayerStatus(IAudioPlayer player, string status, PlayerEvent playerEvent);
-
-        //protected abstract void ShowPlayerStatus(IAudioPlayer player, bool isPlaying);
-
-        //protected void ShowPlayerStatus(IAudioPlayer player)
-        //{
-        //    // TODO move to player interface
-        //    #if !MF_FRAMEWORK_VERSION_V4_1
-        //    if (player is BluetoothWT32 && !((BluetoothWT32)player).IsConnected)
-        //    {
-        //        ShowPlayerStatus(player, Localization.Current.Disconnected, PlayerEvent.Wireless);
-        //    }
-        //    else
-        //    #endif
-        //    {
-        //        ShowPlayerStatus(player, player.IsPlaying);
-        //    }
-        //}
-
-        //protected void ShowPlayerStatus(IAudioPlayer player, string status)
-        //{
-            //if (!IsEnabled)
-            //{
-            //    //return;
-            //    Logger.Warning("Why shouldn't I set player status when menu is disabled?!");
-            //}
-            //if (displayStatusDelayTimer != null)
-            //{
-            //    displayStatusDelayTimer.Dispose();
-            //    displayStatusDelayTimer = null;
-            //}
-
-            //player.Menu.Status = status;
-        //}
-
-        protected void ShowPlayerStatusWithDelay(IAudioPlayer player)
-        {
-            if (displayStatusDelayTimer != null)
-            {
-                displayStatusDelayTimer.Dispose();
-                displayStatusDelayTimer = null;
-            }
-
-            //byte startIndex = 6; // remove path to SD card TODO: refactor this later.Length)
-            displayStatusDelayTimer = new Timer(delegate
-            {
-                //if (displayStatusDelayTimer == null)
-                //{
-                //    return;
-                //}
-                //string trimmedFileName = "";
-                //if (startIndex + 11 >= player.FileName.Length - 3)
-                //{
-                //    startIndex = 6;
-                //}
-                //trimmedFileName = player.FileName.Substring(startIndex++, 11);
-                //Bordmonitor.ShowText(trimmedFileName, BordmonitorFields.Title);
-            }, null, 400, displayStatusDelay);
-        }
-
-        protected string TextWithIcon(string icon, string text = null)
-        {
-            if (StringHelpers.IsNullOrEmpty(text))
-            {
-                return icon;
-            }
-            if (icon.Length + text.Length < StatusTextMaxlen)
-            {
-                return icon + " " + text;
-            }
-            return icon + text;
-        }
-
-        protected string TextWithIcon(char icon, string text = null)
-        {
-            if (StringHelpers.IsNullOrEmpty(text))
-            {
-                return icon + "";
-            }
-            if (text.Length + 1 < StatusTextMaxlen)
-            {
-                return icon + " " + text;
-            }
-            return icon + text;
-        }
-
-        void mediaEmulator_PlayerChanged(IAudioPlayer player)
-        {
-            //HomeScreen.Instance.PlayerScreen = player.Menu;
-        }
 
         void mediaEmulator_IsEnabledChanged(MediaEmulator emulator, bool isEnabled)
         {
@@ -191,16 +64,16 @@ namespace imBMW.Features.Menu
             ScreenNavigatedTo(CurrentScreen);
         }
 
-        public virtual void UpdateHeader(MenuScreenUpdateEventArgs args = null)
+        public virtual void UpdateHeader()
         {
             if (!IsEnabled)
             {
                 return;
             }
-            DrawHeader(/*args*/);
+            DrawHeader();
         }
 
-        public virtual void UpdateBody(/*MenuScreenUpdateEventArgs args*/)
+        public virtual void UpdateBody()
         {
             if (!IsEnabled)
             {
@@ -255,19 +128,12 @@ namespace imBMW.Features.Menu
             }, null, delayTime, 0);
         }
 
-        void currentScreen_UpdateHeader(MenuScreen screen, MenuScreenUpdateEventArgs args)
+        void currentScreen_UpdateHeader(MenuScreen screen)
         {
-            if (args.Reason == MenuScreenUpdateReason.RefreshWithDelay && args.Item != null)
-            {
-                UpdateHeaderWithDelay((ushort) args.Item);
-            }
-            else
-            {
-                UpdateHeader();
-            }
+            UpdateHeader();
         }
 
-        void currentScreen_UpdateBody(MenuScreen screen, MenuScreenUpdateEventArgs args)
+        void currentScreen_UpdateBody(MenuScreen screen)
         {
             UpdateBody();
         }
@@ -306,7 +172,7 @@ namespace imBMW.Features.Menu
         {
             if (screen == null)
             {
-                Logger.TryError("Navigation to null screen");
+                Logger.Error("Navigation to null screen");
                 return;
             }
             if (CurrentScreen == screen)

@@ -43,12 +43,14 @@ namespace imBMW.iBus.Devices.Emulators
         {
             return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Stopped D" + disk + "T" + track, 0x39, 0x00, 0x02, 0x00, disksMask, 0x00, disk, track); // try 39 00 0C ?
         }
-        Message StatusPlaying(byte disk, byte track)
-        {
-            //return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Paused D" + disk + "T" + track, 0x39, 0x00, 0x02, 0x00, 0x3F, 0x00, disk, track);
-            byte state = 0x09;// (byte)(Player.IsRandom ? (byte)PlayingType.Random : (byte)PlayingType.Normal);
-            return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Paused D" + disk + "T" + track, 0x39, 0x00, state, 0x00, disksMask, 0x00, disk, track);
-        }
+
+        //Message StatusPlaying(byte disk, byte track)
+        //{
+        //    //return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Paused D" + disk + "T" + track, 0x39, 0x00, 0x02, 0x00, 0x3F, 0x00, disk, track);
+        //    byte state = 0x09;// (byte)(Player.IsRandom ? (byte)PlayingType.Random : (byte)PlayingType.Normal);
+        //    return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Paused D" + disk + "T" + track, 0x39, 0x00, state, 0x00, disksMask, 0x00, disk, track);
+        //}
+
         Message StatusStartPlaying(byte disk, byte track)
         {
             byte state = 0x09;// (byte)(Player.IsRandom ? (byte)PlayingType.Random : (byte)PlayingType.Normal);
@@ -62,10 +64,10 @@ namespace imBMW.iBus.Devices.Emulators
             return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Playlist loaded" + disk + "T" + track, 0x39, status, ack, 0x00, disksMask, 0x00, disk, track);
         }
 
-        Message GetMessageCDCheck(byte disk, byte track)
-        {
-            return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Playlist loaded" + disk + "T" + track, 0x39, 0x09, 0x09, 0x00, disksMask, 0x00, disk, track);
-        }
+        //Message GetMessageCDCheck(byte disk, byte track)
+        //{
+        //    return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Playlist loaded" + disk + "T" + track, 0x39, 0x09, 0x09, 0x00, disksMask, 0x00, disk, track);
+        //}
 
         /// <summary>0x38, 0x00, 0x00 </summary>
         public static byte[] DataCurrentDiskTrackRequest = new byte[] { 0x38, 0x00, 0x00 };
@@ -145,11 +147,6 @@ namespace imBMW.iBus.Devices.Emulators
             base.Pause();
         }
 
-        protected override void PlayPauseToggle()
-        {
-            CancelStopDelay();
-            base.PlayPauseToggle();
-        }
 
         #endregion
 
@@ -166,7 +163,6 @@ namespace imBMW.iBus.Devices.Emulators
 
         protected override void OnIsEnabledChanged(bool isEnabled, bool fire = true)
         {
-            Player.PlayerHostState = isEnabled ? PlayerHostState.On : PlayerHostState.Off;
             if (isEnabled)
             {
                 BluetoothScreen.BluetoothChargingState = false;

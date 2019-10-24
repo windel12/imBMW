@@ -9,8 +9,6 @@ namespace imBMW.Multimedia
 {
     public abstract class AudioPlayerBase : IAudioPlayer
     {
-        bool isCurrentPlayer;
-        PlayerHostState playerHostState;
         bool isEnabled;
         TrackInfo nowPlaying;
         protected bool isPlaying;
@@ -30,11 +28,6 @@ namespace imBMW.Multimedia
             SetPlaying(false);
         }
 
-        public virtual void PlayPauseToggle()
-        {
-            SetPlaying(!IsPlaying);
-        }
-
         protected virtual void SetPlaying(bool value)
         {
             IsPlaying = value;
@@ -44,19 +37,9 @@ namespace imBMW.Multimedia
 
         public abstract void Prev();
 
-        public abstract void VoiceButtonPress();
-
-        public abstract void VoiceButtonLongPress();
-
         public abstract bool RandomToggle(byte diskNumber);
 
         public abstract void ChangeTrackTo(string fileName);
-
-        public abstract void VolumeUp();
-
-        public abstract void VolumeDown();
-
-        public abstract MenuScreen Menu { get; }
 
         public string Name { get; protected set; }
 
@@ -69,23 +52,6 @@ namespace imBMW.Multimedia
             get;
             protected set;
         }
-
-        //public TrackInfo NowPlaying
-        //{
-        //    get
-        //    {
-        //        if (nowPlaying == null)
-        //        {
-        //            nowPlaying = new TrackInfo();
-        //        }
-        //        return nowPlaying;
-        //    }
-        //    protected set
-        //    {
-        //        nowPlaying = value;
-        //        OnNowPlayingChanged(value);
-        //    }
-        //}
 
         public bool IsEnabled
         {
@@ -104,73 +70,13 @@ namespace imBMW.Multimedia
             }
         }
 
-        public PlayerHostState PlayerHostState
-        {
-            get
-            {
-                return playerHostState;
-            }
-            set
-            {
-                if (playerHostState == value)
-                {
-                    return;
-                }
-                playerHostState = value;
-                OnPlayerHostStateChanged(value);
-            }
-        }
-
-        public bool IsCurrentPlayer
-        {
-            get
-            {
-                return isCurrentPlayer;
-            }
-            set
-            {
-                if (isCurrentPlayer == value)
-                {
-                    return;
-                }
-                isCurrentPlayer = value;
-                OnIsCurrentPlayerChanged(value);
-            }
-        }
-
         protected virtual void OnIsEnabledChanged(bool isEnabled)
         {
         }
 
-        protected virtual void OnIsCurrentPlayerChanged(bool isCurrentPlayer)
-        {
-            CheckIsEnabled();
-            if (!isCurrentPlayer)
-            {
-                Pause();
-            }
-            else if (PlayerHostState == Multimedia.PlayerHostState.On)
-            {
-                Play();
-            }
-        }
-
-        protected virtual void OnPlayerHostStateChanged(PlayerHostState playerHostState)
-        {
-            CheckIsEnabled();
-        }
-
-        void CheckIsEnabled()
-        {
-            IsEnabled = PlayerHostState == Multimedia.PlayerHostState.On && IsCurrentPlayer;
-        }
-
         public event IsPlayingHandler IsPlayingChanging;
+
         public event IsPlayingHandler IsPlayingChanged;
-
-        public event PlayerStatusHandler StatusChanged;
-
-        public event NowPlayingHandler NowPlayingChanged;
 
         public event NowPlayingHandler TrackChanged;
 
@@ -189,29 +95,6 @@ namespace imBMW.Multimedia
             if (e != null)
             {
                 e.Invoke(this, isPlaying);
-            }
-        }
-
-        protected virtual void OnStatusChanged(PlayerEvent playerEvent)
-        {
-            OnStatusChanged(String.Empty, playerEvent);
-        }
-
-        protected virtual void OnStatusChanged(string status, PlayerEvent playerEvent)
-        {
-            var e = StatusChanged;
-            if (e != null)
-            {
-                e.Invoke(this, status, playerEvent);
-            }
-        }
-
-        protected virtual void OnNowPlayingChanged(TrackInfo nowPlaying)
-        {
-            var e = NowPlayingChanged;
-            if (e != null)
-            {
-                e.Invoke(this, nowPlaying);
             }
         }
 

@@ -23,7 +23,7 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
         public delegate void ShowOBCMessageEventHandler(string message);
         public static event ShowOBCMessageEventHandler OBCTextChanged;
 
-        private static IgnitionState _ignitionState;
+        private static IgnitionState _ignitionState = IgnitionState.Off;
         public static IgnitionState IgnitionState
         {
             get { return _ignitionState; }
@@ -47,30 +47,39 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
             TemperatureOutside = (byte)(new Random().Next(0, 40));
         }
 
-        public static void StartAnounce()
+        public static void StartAnnounce()
         {
-            rpmSpeedAnounceTimer = new Timer((state) =>
+            if (rpmSpeedAnounceTimer != null)
             {
-                var random = new Random();
-                CurrentSpeed++;// (byte)random.Next(0, 160);
-                CurrentRPM = (ushort)random.Next(800, 4400);
+                rpmSpeedAnounceTimer = new Timer((state) =>
+                    {
+                        var random = new Random();
+                        CurrentSpeed++; // (byte)random.Next(0, 160);
+                        CurrentRPM = (ushort) random.Next(800, 4400);
 
-                var rpmSpeedMessage = new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.GlobalBroadcastAddress, 0x18, (byte)(CurrentSpeed / 2), (byte)(CurrentRPM / 100));
-                Manager.Instance.EnqueueMessage(rpmSpeedMessage);
-                if (KBusManager.Instance.Inited)
-                    KBusManager.Instance.EnqueueMessage(rpmSpeedMessage);
-            }, null, 0, rpmSpeedAnounceTimerInterval * 1000);
+                        var rpmSpeedMessage = new Message(DeviceAddress.InstrumentClusterElectronics,
+                            DeviceAddress.GlobalBroadcastAddress, 0x18, (byte) (CurrentSpeed / 2),
+                            (byte) (CurrentRPM / 100));
+                        Manager.Instance.EnqueueMessage(rpmSpeedMessage);
+                        if (KBusManager.Instance.Inited)
+                            KBusManager.Instance.EnqueueMessage(rpmSpeedMessage);
+                    }, null, 0, rpmSpeedAnounceTimerInterval * 1000);
+            }
 
-            temperatureAnounceTimer = new Timer((state) =>
+            if (temperatureAnounceTimer != null)
             {
-                TemperatureCoolant += 5;
-                
-                var temperatureMessage = new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.GlobalBroadcastAddress, 0x19, TemperatureOutside, TemperatureCoolant, 0x00);
-                Manager.Instance.EnqueueMessage(temperatureMessage);
-                if(KBusManager.Instance.Inited)
-                    KBusManager.Instance.EnqueueMessage(temperatureMessage);
+                temperatureAnounceTimer = new Timer((state) =>
+                    {
+                        TemperatureCoolant += 5;
 
-            }, null, 0, temperatureAnounceTimerIterval * 1000);
+                        var temperatureMessage = new Message(DeviceAddress.InstrumentClusterElectronics,
+                            DeviceAddress.GlobalBroadcastAddress, 0x19, TemperatureOutside, TemperatureCoolant, 0x00);
+                        Manager.Instance.EnqueueMessage(temperatureMessage);
+                        if (KBusManager.Instance.Inited)
+                            KBusManager.Instance.EnqueueMessage(temperatureMessage);
+
+                    }, null, 0, temperatureAnounceTimerIterval * 1000);
+            }
         }
 
         public static void StopAnnounce()
@@ -107,13 +116,22 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
             }
             if (m.Data.Compare(InstrumentClusterElectronics.MessageRequestTime.Data))
             {
-                // 16:58
-                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.FrontDisplay, 0x24, 0x01, 0x00, 0x31, 0x36, 0x3A, 0x34, 0x38, 0x20, 0x20));
+                var hour = DateTime.Now.Hour.ToString("D2");
+                var minute = DateTime.Now.Minute.ToString("D2");
+                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.FrontDisplay, 0x24, 0x01, 0x00, 
+                    Convert.ToByte(hour[0]), Convert.ToByte(hour[1]), 0x3A,
+                    Convert.ToByte(minute[0]), Convert.ToByte(minute[1]), 0x20, 0x20));
             }
             if (m.Data.Compare(InstrumentClusterElectronics.MessageRequestDate.Data))
             {
                 // 06/26/2016"
-                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.FrontDisplay, 0x24, 0x02, 0x00, 0x30, 0x36, 0x2F, 0x32, 0x36, 0x2F, 0x32, 0x30, 0x31, 0x36));
+                var day = DateTime.Now.Day.ToString("D2");
+                var month = DateTime.Now.Month.ToString("D2");
+                var year = DateTime.Now.Year.ToString("D4");
+                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.FrontDisplay, 0x24, 0x02, 0x00,
+                    Convert.ToByte(month[0]), Convert.ToByte(month[1]), 0x2F,
+                    Convert.ToByte(day[0]), Convert.ToByte(day[1]), 0x2F,
+                    Convert.ToByte(year[0]), Convert.ToByte(year[1]), Convert.ToByte(year[2]), Convert.ToByte(year[3])));
             }
         }
 

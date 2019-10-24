@@ -97,12 +97,12 @@ namespace OnBoardMonitorEmulator
 
             InstrumentClusterElectronics.IgnitionStateChanged += (e) =>
             {
-                if (e.PreviousIgnitionState == IgnitionState.Off)
+                if (e.PreviousIgnitionState == IgnitionState.Acc && e.CurrentIgnitionState == IgnitionState.Ign)
                 {
-                    InstrumentClusterElectronicsEmulator.StartAnounce();
+                    InstrumentClusterElectronicsEmulator.StartAnnounce();
                 }
 
-                if (e.CurrentIgnitionState == IgnitionState.Off)
+                if (e.PreviousIgnitionState == IgnitionState.Ign && e.CurrentIgnitionState == IgnitionState.Acc)
                 {
                     InstrumentClusterElectronicsEmulator.StopAnnounce();
                 }
@@ -233,14 +233,14 @@ namespace OnBoardMonitorEmulator
 
         private void Knob1Button_Click(object sender, RoutedEventArgs e)
         {
-#if DEBUG
-            Radio.PressOnOffToggle();
-#else
+#if DebugOnRealDeviceOverFTDI
             Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, RadioEmulator.IsEnabled ? CDChanger.DataStop : CDChanger.DataPlay));
             if (RadioEmulator.IsEnabled)
                 DisableRadio();
             else
                 EnableRadio();
+#else
+            Radio.PressOnOffToggle();
 #endif
         }
 

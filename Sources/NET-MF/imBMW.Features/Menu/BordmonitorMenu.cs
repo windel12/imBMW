@@ -96,64 +96,6 @@ namespace imBMW.Features.Menu
             return instance;
         }
 
-        #region Player items
-
-        protected override byte StatusTextMaxlen { get { return 11; } }
-
-        //protected override void ShowPlayerStatus(IAudioPlayer player, bool isPlaying)
-        //{
-        //    string s = isPlaying ? Localization.Current.Playing : Localization.Current.Paused;
-        //    ShowPlayerStatus(player, s);
-        //}
-
-        //protected override void ShowPlayerStatus(IAudioPlayer player, string status, PlayerEvent playerEvent)
-        //{
-        //    if (!IsEnabled)
-        //    {
-        //        return;
-        //    }
-            //bool showAfterWithDelay = false;
-            //switch (playerEvent)
-            //{
-            //    case PlayerEvent.Next:
-            //        status = Localization.Current.Next;
-            //        showAfterWithDelay = true;
-            //        break;
-            //    case PlayerEvent.Prev:
-            //        status = Localization.Current.Previous;
-            //        showAfterWithDelay = true;
-            //        break;
-            //    case PlayerEvent.Playing:
-            //        status = TextWithIcon(">", status);
-            //        break;
-            //    case PlayerEvent.Current:
-            //        status = TextWithIcon("\x07", status);
-            //        break;
-            //    case PlayerEvent.Voice:
-            //        status = TextWithIcon("*", status);
-            //        break;
-            //    case PlayerEvent.Settings:
-            //        status = TextWithIcon("*", status);
-            //        showAfterWithDelay = true;
-            //        break;
-            //}
-            //ShowPlayerStatus(player, status);
-            //if (showAfterWithDelay)
-            //{
-            //    ShowPlayerStatusWithDelay(player);
-            //}
-        //}
-
-        void mediaEmulator_IsEnabledChanged(MediaEmulator emulator, bool isEnabled)
-        {
-            //if (!isEnabled)
-            //{
-            //    Bordmonitor.EnableRadioMenu();
-            //}
-        }
-
-        #endregion
-
         #region Screen items
 
         public bool FastMenuDrawing
@@ -161,23 +103,8 @@ namespace imBMW.Features.Menu
             get { return CurrentScreen.FastMenuDrawing; }
         }
 
-        protected override void ScreenWakeup()
-        {
-            base.ScreenWakeup();
-
-            //disableRadioMenu = true;
-        }
-
-        void Radio_OnOffChanged(bool turnedOn)
-        {
-            if (turnedOn)
-            {
-                //Bordmonitor.EnableRadioMenu(); // fixes disabled radio menu to update screen
-            }
-        }
-
-        protected override void ProcessRadioMessage(Message m)
-        {
+        //protected override void ProcessRadioMessage(Message m)
+        //{
             //base.ProcessRadioMessage(m);
 
             //if (!IsEnabled)
@@ -259,7 +186,7 @@ namespace imBMW.Features.Menu
             //    UpdateScreen(MenuScreenUpdateReason.Refresh);
             //    return;
             //}
-        }
+        //}
 
         protected void ProcessToRadioMessage(Message m)
         {

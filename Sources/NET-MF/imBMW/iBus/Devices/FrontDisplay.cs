@@ -49,10 +49,6 @@ namespace imBMW.iBus.Devices.Real
                 _currentLEDState = ledType;
             }
 
-            if (Logger.wasError)
-            {
-                _currentLEDState = _currentLEDState | LedType.Red;
-            }
             //if (blinkerOn)
             //{
             //    //b = b.AddBit(2);

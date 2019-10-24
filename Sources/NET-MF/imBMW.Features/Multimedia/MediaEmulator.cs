@@ -1,13 +1,10 @@
 using System;
-using Microsoft.SPOT;
 using imBMW.iBus.Devices.Real;
 using imBMW.Multimedia;
 
 namespace imBMW.iBus.Devices.Emulators
 {
     public delegate void MediaEmulatorEnabledEventHandler(MediaEmulator emulator, bool isEnabled);
-
-    public delegate void PlayerChangedHandler(IAudioPlayer sender);
 
     public abstract class MediaEmulator
     {
@@ -73,58 +70,11 @@ namespace imBMW.iBus.Devices.Emulators
                 {
                     throw new ArgumentNullException();
                 }
-                if (player != null)
-                {
-                    UnsetPlayer(player);
-                }
                 player = value;
-                SetupPlayer(value);
             }
         }
 
         public event IsPlayingHandler PlayerIsPlayingChanged;
-
-        public event PlayerStatusHandler PlayerStatusChanged;
-
-        public event PlayerChangedHandler PlayerChanged;
-
-        void SetupPlayer(IAudioPlayer player)
-        {
-            player.IsCurrentPlayer = true;
-            player.IsPlayingChanged += player_IsPlayingChanged;
-            player.StatusChanged += player_StatusChanged;
-
-            var e = PlayerChanged;
-            if (e != null)
-            {
-                e(player);
-            }
-        }
-
-        void UnsetPlayer(IAudioPlayer player)
-        {
-            player.IsCurrentPlayer = false;
-            player.IsPlayingChanged -= player_IsPlayingChanged;
-            player.StatusChanged -= player_StatusChanged;
-        }
-
-        void player_StatusChanged(IAudioPlayer sender, string status, PlayerEvent playerEvent)
-        {
-            var e = PlayerStatusChanged;
-            if (e != null)
-            {
-                e(sender, status, playerEvent);
-            }
-        }
-
-        void player_IsPlayingChanged(IAudioPlayer sender, bool isPlaying)
-        {
-            var e = PlayerIsPlayingChanged;
-            if (e != null)
-            {
-                e(sender, isPlaying);
-            }
-        }
 
         protected virtual void MultiFunctionSteeringWheel_ButtonPressed(MFLButton button)
         {
@@ -163,12 +113,6 @@ namespace imBMW.iBus.Devices.Emulators
                 Player.Pause();
         }
 
-        protected virtual void PlayPauseToggle()
-        {
-            if (Player.Inited)
-                Player.PlayPauseToggle();
-        }
-
         protected virtual void Next()
         {
             if (Player.Inited)
@@ -183,14 +127,10 @@ namespace imBMW.iBus.Devices.Emulators
 
         protected virtual void VoiceButtonPress()
         {
-            if (Player.Inited)
-                Player.VoiceButtonPress();
         }
 
         protected virtual void VoiceButtonLongPress()
         {
-            if (Player.Inited)
-                Player.VoiceButtonLongPress();
         }
 
         protected virtual void RandomToggle(byte diskNumber)

@@ -13,20 +13,23 @@ namespace imBMW.Tools
     {
         const byte flushLines = 5;
 
-        private static byte queueLimit = 100;
-        private static bool queueLimitExceeded = false;
+        static byte queueLimit = 100;
 
         static ushort unflushed = 0;
 
         static StreamWriter writer;
         static QueueThreadWorker queue;
-        public static Action FlushCallback;
+        static Action FlushCallback;
 
-        public static bool Inited = false;
+        private static bool queueLimitExceeded;
 
-        public static void BaseInit()
+        public static void Create()
         {
-            queue = new QueueThreadWorker(ProcessItem, "fileLoggerThread", ThreadPriority.Lowest, true);
+            if (queue == null)
+            {
+                queue = new QueueThreadWorker(ProcessItem, "fileLoggerThread", ThreadPriority.Lowest, true);
+            }
+
             Logger.Logged += Logger_Logged;
         }
 
@@ -51,7 +54,6 @@ namespace imBMW.Tools
                 writer = new StreamWriter(fullpath, append:true);
 
                 queue.Start();
-                Inited = true;
             }
             catch (Exception ex)
             {
@@ -62,21 +64,20 @@ namespace imBMW.Tools
 
         static void Logger_Logged(LoggerArgs args)
         {
-            if (queue.Count > queueLimit && args.Priority != LogPriority.Debug)
-            {
-                if (!queueLimitExceeded)
-                {
-                    queueLimitExceeded = true;
-                    Logger.Trace("Queue is full");
-                }
-                return;
-            }
-
-            if (args.Priority == LogPriority.Trace || args.Priority == LogPriority.Error || args.Priority == LogPriority.Debug)
+            if (queue.Count < queueLimit || args.Priority == LogPriority.Debug || args.Priority == LogPriority.Error)
             {
                 queue.Enqueue(args.LogString);
+
+                if (queue.Count < queueLimit - 10)
+                    queueLimitExceeded = false;
             }
-#if DebugOnRealDeviceOverFTDI
+            if(queue.Count == queueLimit && !queueLimitExceeded)
+            {
+                queueLimitExceeded = true;
+                Logger.Debug("Queue is full");
+            }
+            
+#if (NETMF || OnBoardMonitorEmulator) && DebugOnRealDeviceOverFTDI
             if (System.Diagnostics.Debugger.IsAttached)
             {
                 Debug.Print(args.LogString);
@@ -87,9 +88,6 @@ namespace imBMW.Tools
 
         static void ProcessItem(object o)
         {
-            if (!Inited)
-                return;
-
             try
             {
                 writer.WriteLine((string)o);
@@ -110,32 +108,28 @@ namespace imBMW.Tools
             catch (Exception ex)
             {
                 // don't use logger to prevent recursion
-                Logger.Log(LogPriority.Info, "Can't write log to sd: " + ex.Message);
+                Logger.ErrorWithoutLogging("Can't write log to sd: " + ex.Message);
             }
         }
 
-        public static void BaseDispose()
+        public static void Eject()
         {
             Logger.Logged -= Logger_Logged;
+            queue.Clear();
         }
 
-        public static void Dispose()
+        public static void Dispose(int waitTimeout = 2000)
         {
-            //#if DEBUG
-            //            if (Debugger.IsAttached)
-            //            {
-            //                // you should manually step over this line till queue count be more that 5
-            //                while (queue.Count < 5) ;
-            //            }
-            //#endif
             Logger.Logged -= Logger_Logged;
-            bool waitResult = queue.WaitTillQueueBeEmpty();
+            bool waitResult = queue.WaitTillQueueBeEmpty(waitTimeout);
 
             writer.Flush();
             if (FlushCallback != null)
             {
                 FlushCallback();
             }
+            Debug.GC(true);
+            unflushed = 0;
 
             writer.Dispose();
         }

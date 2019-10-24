@@ -112,6 +112,7 @@
     <Compile Include="Tools\QueueThreadWorker.cs" />
     <Compile Include="Tools\Settings.cs" />
     <Compile Include="Tools\SpinWaitTimer.cs" />
+    <Compile Include="Tools\UsbMountState.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
