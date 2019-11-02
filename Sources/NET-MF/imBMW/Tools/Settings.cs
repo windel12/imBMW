@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.IO;
 
 namespace imBMW.Tools
@@ -37,15 +38,64 @@ namespace imBMW.Tools
 
         public string MediaShield { get; set; }
 
-        public bool UnmountMassStorageOnChangingIgnitionToAcc { get; set; }
+        public int LightsBlinkerTimeout { get; set; } = 250;
+
+        private bool _unmountMassStorageOnChangingIgnitionToAcc = false;
+        public bool UnmountMassStorageOnChangingIgnitionToAcc
+        {
+            get { return _unmountMassStorageOnChangingIgnitionToAcc; }
+            set
+            {
+                if (_unmountMassStorageOnChangingIgnitionToAcc != value)
+                {
+                    SettingsChanged();
+                }
+                _unmountMassStorageOnChangingIgnitionToAcc = value;
+            }
+        }
+
+        private bool _forceMessageLog = false;
+        public bool ForceMessageLog
+        {
+            get { return _forceMessageLog; }
+            set
+            {
+                if (_forceMessageLog != value)
+                {
+                    _forceMessageLog = value;
+                    SettingsChanged();
+                }
+            }
+        }
+
+        private bool _suspendCDChangerResponseEmulation = false;
+        public bool SuspendCDChangerResponseEmulation
+        {
+            get { return _suspendCDChangerResponseEmulation; }
+            set
+            {
+                if (_suspendCDChangerResponseEmulation != value)
+                {
+                    _suspendCDChangerResponseEmulation = value;
+                    SettingsChanged();
+                }
+            }
+        }
 
         public static Settings Init(string path)
         {
             Instance = new Settings();
             Instance.InitDefault();
-            if (path != null && File.Exists(path))
+            if (path != null)
             {
-                Instance.InitFile(path);
+                if (File.Exists(path))
+                {
+                    Instance.InitFile(path);
+                }
+                else
+                {
+                    Instance.settingsPath = path;
+                }
             }
             else
             {
@@ -63,7 +113,6 @@ namespace imBMW.Tools
             NaviVersion = NaviVersion.MK4;
             MenuMode = MenuMode.BordmonitorCDC;
             BluetoothPin = "0000";
-            UnmountMassStorageOnChangingIgnitionToAcc = false;
         }
 
         protected virtual void InitFile(string path)
@@ -87,7 +136,27 @@ namespace imBMW.Tools
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, "reading settings from file");
+                Logger.Error(ex, "error in reading settings from file");
+            }
+        }
+
+        private void SettingsChanged()
+        {
+            if (settingsPath == null)
+                return;
+
+            try
+            {
+                using (var sw = new StreamWriter(settingsPath))
+                {
+                    sw.WriteLine(nameof(UnmountMassStorageOnChangingIgnitionToAcc) + "=" + UnmountMassStorageOnChangingIgnitionToAcc);
+                    sw.WriteLine(nameof(ForceMessageLog) + "=" + ForceMessageLog);
+                    sw.WriteLine(nameof(SuspendCDChangerResponseEmulation) + "=" + SuspendCDChangerResponseEmulation);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "error in writing settings file");
             }
         }
 
@@ -96,6 +165,7 @@ namespace imBMW.Tools
             try
             {
                 Logger.Info("Setting: " + name + " = " + (value ?? ""));
+                value = value.ToLower();
                 bool isTrue = value == "1" || value == "true" || value == "on" || value == "yes";
                 switch (name)
                 {
@@ -143,6 +213,18 @@ namespace imBMW.Tools
                         break;
                     case "MediaShield":
                         MediaShield = value; // TODO make enum
+                        break;
+                    case nameof(LightsBlinkerTimeout):
+                        LightsBlinkerTimeout = int.Parse(value);
+                        break;
+                    case nameof(UnmountMassStorageOnChangingIgnitionToAcc):
+                        _unmountMassStorageOnChangingIgnitionToAcc = isTrue;
+                        break;
+                    case nameof(ForceMessageLog):
+                        _forceMessageLog = isTrue;
+                        break;
+                    case nameof(SuspendCDChangerResponseEmulation):
+                        _suspendCDChangerResponseEmulation = isTrue;
                         break;
                     default:
                         Logger.Warning("  Unknown setting");

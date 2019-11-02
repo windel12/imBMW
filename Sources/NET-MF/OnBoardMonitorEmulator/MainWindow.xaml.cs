@@ -373,5 +373,17 @@ namespace OnBoardMonitorEmulator
             IgnitionStateLabel.Content = string.Format("Ignition status: {0}", ignitionState.ToString());
             InstrumentClusterElectronicsEmulator.IgnitionState = ignitionState;
         }
+
+        private void lockButton_Click(object sender, RoutedEventArgs e)
+        {
+            var message = new Message(DeviceAddress.BodyModule, DeviceAddress.GlobalBroadcastAddress, 0x72, 0x12);
+            KBusManager.Instance.EnqueueMessage(message);
+        }
+
+        private void unlockButton_Click(object sender, RoutedEventArgs e)
+        {
+            var message = new Message(DeviceAddress.BodyModule, DeviceAddress.GlobalBroadcastAddress, 0x72, 0x22);
+            KBusManager.Instance.EnqueueMessage(message);
+        }
     }
 }

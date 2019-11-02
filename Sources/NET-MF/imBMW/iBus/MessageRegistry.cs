@@ -14,7 +14,7 @@ namespace imBMW.iBus
             #if !MF_FRAMEWORK_VERSION_V4_1
             "DIAG Read identity",       // "0x00",
             "Device status request",    // "0x01",
-            "Device status ready",      // "0x02",
+             "Device status ready",      // "0x02",
             "Bus status request",       // "0x03",
             "Bus status",               // "0x04",
             "DIAG Clear fault memory",  // "0x05",
@@ -66,10 +66,10 @@ namespace imBMW.iBus
             "", // "0x33",
             "DSP Equalizer Button", // "0x34"
             "GT Car memory response", // "0x35",
-            "Audio_control", // "0x36",
+            "AudioControl", // "0x36",
             "GT: Select Menu", // "0x37",
-            "CD status request",
-            "CD status",
+            "CD status request", // "0x38",
+            "CD status", // "0x39",
             "Recirculating air control", // "0x3A",
             "MFL media buttons",
             "", // "0x3C",
@@ -83,8 +83,8 @@ namespace imBMW.iBus
             "", // "0x44",
             "Radio status request", // "0x45",
             "LCD Clear",
-            "BMBT buttons",
-            "BMBT buttons",
+            "BM buttons",
+            "BM SELECT/INFO buttons",
             "KNOB button",
             "Monitor CD/Tape control",
             "Monitor CD/Tape status",
@@ -303,8 +303,24 @@ namespace imBMW.iBus
             //messageDescriptions.Add(Radio.DataSwitchPressed.ToHex(' '), "BMBT Switch Pressed");
             //messageDescriptions.Add(Radio.DataSwitchReleased.ToHex(' '), "BMBT Switch Released");
 
-            //messageDescriptions.Add(new byte[] { 0x38, 0x0A, 00 }.ToHex(' '), "CD changer next track");
-            //messageDescriptions.Add(new byte[] { 0x38, 0x0A, 01 }.ToHex(' '), "CD changer prev track");
+            messageDescriptions.Add(new byte[] { 0x22, 0x00, 0x00 }.ToHex(' '), "Text display confirmation for T1-T6");
+            messageDescriptions.Add(new byte[] { 0x22, 0x10, 0xFF }.ToHex(' '), "Text display confirmation for shortcuts");
+
+            messageDescriptions.Add(new byte[] { 0x36, 0xA0 }.ToHex(' '), "AudioControl Source=CD???");
+            messageDescriptions.Add(new byte[] { 0x36, 0xA1 }.ToHex(' '), "AudioControl Source=Tuner/Tape");
+            messageDescriptions.Add(new byte[] { 0x36, 0xAF }.ToHex(' '), "AudioControl Source=Off");
+
+            messageDescriptions.Add(new byte[] { 0x38, 0x01, 00 }.ToHex(' '), "CD Stop");
+            messageDescriptions.Add(new byte[] { 0x38, 0x02, 00 }.ToHex(' '), "CD Pause");
+            messageDescriptions.Add(new byte[] { 0x38, 0x03, 00 }.ToHex(' '), "CD Play");
+            messageDescriptions.Add(new byte[] { 0x38, 0x04, 00 }.ToHex(' '), "CD Rewind");
+            messageDescriptions.Add(new byte[] { 0x38, 0x04, 01 }.ToHex(' '), "CD Fast Forward");
+            messageDescriptions.Add(new byte[] { 0x38, 0x07, 00 }.ToHex(' '), "CD Scan off");
+            messageDescriptions.Add(new byte[] { 0x38, 0x07, 01 }.ToHex(' '), "CD Scan on");
+            messageDescriptions.Add(new byte[] { 0x38, 0x08, 00 }.ToHex(' '), "CD Random off");
+            messageDescriptions.Add(new byte[] { 0x38, 0x08, 01 }.ToHex(' '), "CD Random on");
+            messageDescriptions.Add(new byte[] { 0x38, 0x0A, 00 }.ToHex(' '), "CD Next");
+            messageDescriptions.Add(new byte[] { 0x38, 0x0A, 01 }.ToHex(' '), "CD Prev");
 
             messageDescriptions.Add(new byte[] { 0x82, 0x83 }.ToHex(' '), "IHKA message after engine started, or after EngineRunning > Acc > Ign"); //  maybe for auxilary heater starting?
             messageDescriptions.Add(new byte[] { 0x82, 0x05 }.ToHex(' '), "IHKA turned on by webasto activation"); // after manual starting auxilary heater(by receiving command 92 00 22 from auxilary heater(key in ACC))

@@ -13,79 +13,91 @@ namespace imBMW.Features
         enum Command
         {
             FullCloseWindows,
-            FullOpenWindows
+            FullOpenWindows,
+            BlinkLamps
         }
         #endregion
 
-        //static QueueThreadWorker commands;
+        static QueueThreadWorker commands;
 
         static bool needLockDoors = false;
         static bool needUnlockDoors = false;
         static bool needComfortClose = false;
 
+        public static void Init()
+        {
+        }
+
         static Comfort()
         {
             // uncomment when will use comfort
-            //commands = new QueueThreadWorker(ProcessCommand);
+            commands = new QueueThreadWorker(ProcessCommand);
 
-            InstrumentClusterElectronics.SpeedRPMChanged += (e) =>
-            {
-                if (needLockDoors && e.Speed > DoorsLockSpeed)
-                {
-                    if (AutoLockDoors)
-                    {
-                        BodyModule.LockDoors();
-                    }
-                    needLockDoors = false;
-                    needUnlockDoors = true;
-                }
-                if (e.Speed == 0)
-                {
-                    needLockDoors = true;
-                }
-            };
-            InstrumentClusterElectronics.IgnitionStateChanged += (e) =>
-            {
-                if (!needComfortClose 
-                    && e.CurrentIgnitionState != IgnitionState.Off 
-                    && e.PreviousIgnitionState == IgnitionState.Off)
-                {
-                    needComfortClose = true;
-                }
-                if (needUnlockDoors && e.CurrentIgnitionState == IgnitionState.Off)
-                {
-                    if (AutoUnlockDoors)
-                    {
-                        BodyModule.UnlockDoors();
-                    }
-                    needUnlockDoors = false;
-                    needLockDoors = true;
-                }
-            };
+            //InstrumentClusterElectronics.SpeedRPMChanged += (e) =>
+            //{
+            //    if (needLockDoors && e.Speed > DoorsLockSpeed)
+            //    {
+            //        if (AutoLockDoors)
+            //        {
+            //            BodyModule.LockDoors();
+            //        }
+            //        needLockDoors = false;
+            //        needUnlockDoors = true;
+            //    }
+            //    if (e.Speed == 0)
+            //    {
+            //        needLockDoors = true;
+            //    }
+            //};
+            //InstrumentClusterElectronics.IgnitionStateChanged += (e) =>
+            //{
+            //    if (!needComfortClose 
+            //        && e.CurrentIgnitionState != IgnitionState.Off 
+            //        && e.PreviousIgnitionState == IgnitionState.Off)
+            //    {
+            //        needComfortClose = true;
+            //    }
+            //    if (needUnlockDoors && e.CurrentIgnitionState == IgnitionState.Off)
+            //    {
+            //        if (AutoUnlockDoors)
+            //        {
+            //            BodyModule.UnlockDoors();
+            //        }
+            //        needUnlockDoors = false;
+            //        needLockDoors = true;
+            //    }
+            //};
             BodyModule.RemoteKeyButtonPressed += (e) =>
             {
-                if (e.Button == RemoteKeyButton.Lock && needComfortClose)
+                if (e.Button == RemoteKeyButton.Lock)
                 {
-                    needComfortClose = false;
-                    if (AutoCloseWindows)
-                    {
-                        //commands.Enqueue(Command.FullCloseWindows);
-                    }
-                    if (AutoCloseSunroof)
-                    {
-                        BodyModule.CloseSunroof();
-                    }
-                    if (AutoFoldMirrors)
-                    {
-                        BodyModule.FoldMirrors();
-                    }
+                    //if (needComfortClose)
+                    //{
+                    //    needComfortClose = false;
+                    //    if (AutoCloseWindows)
+                    //    {
+                    //        //commands.Enqueue(Command.FullCloseWindows);
+                    //    }
+                    //    if (AutoCloseSunroof)
+                    //    {
+                    //        BodyModule.CloseSunroof();
+                    //    }
+                    //    if (AutoFoldMirrors)
+                    //    {
+                    //        BodyModule.FoldMirrors();
+                    //    }
+                    //}
+
+                    BlinkLamps();
                 }
                 if (e.Button == RemoteKeyButton.Unlock)
                 {
-                    if (AutoUnfoldMirrors)
-                    {
-                        BodyModule.UnfoldMirrors();
-                    }
+                    //if (AutoUnfoldMirrors)
+                    //{
+                    //    BodyModule.UnfoldMirrors();
+                    //}
+
+                    BlinkLamps();
                 }
             };
         }
@@ -96,33 +108,57 @@ namespace imBMW.Features
             switch (c)
             {
                 // TODO Fix windows closing: current commands close them just by half
-                case Command.FullCloseWindows:
-                    for (byte i = 0; i < 3; i++)
+                //case Command.FullCloseWindows:
+                //    for (byte i = 0; i < 3; i++)
+                //    {
+                //        Manager.Instance.EnqueueMessage(BodyModule.MessageCloseWindowDriverFront);
+                //        Thread.Sleep(750);
+                //        Manager.Instance.EnqueueMessage(BodyModule.MessageCloseWindowPassengerFront);
+                //        Thread.Sleep(750);
+                //        Manager.Instance.EnqueueMessage(BodyModule.MessageCloseWindowDriverRear);
+                //        Thread.Sleep(750);
+                //        Manager.Instance.EnqueueMessage(BodyModule.MessageCloseWindowPassengerRear);
+                //        Thread.Sleep(750);
+                //    }
+                //    break;
+                //case Command.FullOpenWindows:
+                //    for (byte i = 0; i < 3; i++)
+                //    {
+                //        Manager.Instance.EnqueueMessage(BodyModule.MessageOpenWindowDriverFront);
+                //        Thread.Sleep(750);
+                //        Manager.Instance.EnqueueMessage(BodyModule.MessageOpenWindowPassengerFront);
+                //        Thread.Sleep(750);
+                //        Manager.Instance.EnqueueMessage(BodyModule.MessageOpenWindowDriverRear);
+                //        Thread.Sleep(750);
+                //        Manager.Instance.EnqueueMessage(BodyModule.MessageOpenWindowPassengerRear);
+                //        Thread.Sleep(750);
+                //    }
+                //    break;
+                case Command.BlinkLamps:
+                    if (Settings.Instance.LightsBlinkerTimeout > 0)
                     {
-                        Manager.Instance.EnqueueMessage(BodyModule.MessageCloseWindowDriverFront);
-                        Thread.Sleep(750);
-                        Manager.Instance.EnqueueMessage(BodyModule.MessageCloseWindowPassengerFront);
-                        Thread.Sleep(750);
-                        Manager.Instance.EnqueueMessage(BodyModule.MessageCloseWindowDriverRear);
-                        Thread.Sleep(750);
-                        Manager.Instance.EnqueueMessage(BodyModule.MessageCloseWindowPassengerRear);
-                        Thread.Sleep(750);
-                    }
-                    break;
-                case Command.FullOpenWindows:
-                    for (byte i = 0; i < 3; i++)
-                    {
-                        Manager.Instance.EnqueueMessage(BodyModule.MessageOpenWindowDriverFront);
-                        Thread.Sleep(750);
-                        Manager.Instance.EnqueueMessage(BodyModule.MessageOpenWindowPassengerFront);
-                        Thread.Sleep(750);
-                        Manager.Instance.EnqueueMessage(BodyModule.MessageOpenWindowDriverRear);
-                        Thread.Sleep(750);
-                        Manager.Instance.EnqueueMessage(BodyModule.MessageOpenWindowPassengerRear);
-                        Thread.Sleep(750);
+                        LightControlModule.TurnOnLamps(Lights.FrontLeftFogLamp);
+                        Thread.Sleep(Settings.Instance.LightsBlinkerTimeout);
+                        LightControlModule.TurnOnLamps(Lights.FrontLeftBlinker);
+                        Thread.Sleep(Settings.Instance.LightsBlinkerTimeout);
+                        LightControlModule.TurnOnLamps(Lights.FrontLeftStandingLight);
+                        Thread.Sleep(Settings.Instance.LightsBlinkerTimeout);
+                        LightControlModule.TurnOnLamps(Lights.FrontRightStandingLight);
+                        Thread.Sleep(Settings.Instance.LightsBlinkerTimeout);
+                        LightControlModule.TurnOnLamps(Lights.FrontRightBlinker);
+                        Thread.Sleep(Settings.Instance.LightsBlinkerTimeout);
+                        LightControlModule.TurnOnLamps(Lights.FrontRightFogLamp);
+                        Thread.Sleep(Settings.Instance.LightsBlinkerTimeout);
+
+                        LightControlModule.TurnOnLamps(Lights.Off);
                     }
                     break;
             }
+        }
+
+        public static void BlinkLamps()
+        {
+            commands.Enqueue(Command.BlinkLamps);
         }
 
         /// <summary>

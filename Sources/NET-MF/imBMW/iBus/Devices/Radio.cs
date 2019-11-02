@@ -43,8 +43,9 @@ namespace imBMW.iBus.Devices.Real
         public static byte[] DataSwitchPressed = new byte[] { 0x48, 0x14 };
         public static byte[] DataSwitchReleased = new byte[] { 0x48, 0x94 };
 
-        //public static byte[] DataNaviKnobPressed = new byte[] { 0x48, 0x06 };
-        //public static byte[] DataNaviKnobReleased = new byte[] { 0x48, 0x86 };
+        //public static byte[] DataNaviKnobPressed = new byte[] { 0x48, 0x05 };
+        //public static byte[] DataNaviKnobHold = new byte[] { 0x48, 0x45 };
+        //public static byte[] DataNaviKnobReleased = new byte[] { 0x48, 0x85 };
 
 
         public const byte DisplayTextOnMIDMaxLen = 11;

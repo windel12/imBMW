@@ -60,9 +60,12 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
                         var rpmSpeedMessage = new Message(DeviceAddress.InstrumentClusterElectronics,
                             DeviceAddress.GlobalBroadcastAddress, 0x18, (byte) (CurrentSpeed / 2),
                             (byte) (CurrentRPM / 100));
+
                         Manager.Instance.EnqueueMessage(rpmSpeedMessage);
+
                         if (KBusManager.Instance.Inited)
                             KBusManager.Instance.EnqueueMessage(rpmSpeedMessage);
+
                     }, null, 0, rpmSpeedAnounceTimerInterval * 1000);
             }
 
@@ -74,7 +77,9 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
 
                         var temperatureMessage = new Message(DeviceAddress.InstrumentClusterElectronics,
                             DeviceAddress.GlobalBroadcastAddress, 0x19, TemperatureOutside, TemperatureCoolant, 0x00);
+
                         Manager.Instance.EnqueueMessage(temperatureMessage);
+
                         if (KBusManager.Instance.Inited)
                             KBusManager.Instance.EnqueueMessage(temperatureMessage);
 
@@ -124,7 +129,6 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
             }
             if (m.Data.Compare(InstrumentClusterElectronics.MessageRequestDate.Data))
             {
-                // 06/26/2016"
                 var day = DateTime.Now.Day.ToString("D2");
                 var month = DateTime.Now.Month.ToString("D2");
                 var year = DateTime.Now.Year.ToString("D4");

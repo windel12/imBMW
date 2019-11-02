@@ -45,6 +45,14 @@ namespace imBMW.Features.Menu.Screens
             {
                 IsChecked = Settings.Instance.UnmountMassStorageOnChangingIgnitionToAcc
             });
+            AddItem(new MenuItem(i => nameof(Settings.Instance.ForceMessageLog), i => Settings.Instance.ForceMessageLog = i.IsChecked, MenuItemType.Checkbox)
+            {
+                IsChecked = Settings.Instance.ForceMessageLog
+            });
+            AddItem(new MenuItem(i => nameof(Settings.Instance.SuspendCDChangerResponseEmulation), i => Settings.Instance.SuspendCDChangerResponseEmulation = i.IsChecked, MenuItemType.Checkbox)
+            {
+                IsChecked = Settings.Instance.SuspendCDChangerResponseEmulation
+            });
             this.AddBackButton();
         }
 

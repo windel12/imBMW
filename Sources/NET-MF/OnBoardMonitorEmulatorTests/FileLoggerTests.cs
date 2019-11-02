@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
-using System.Threading;
 using imBMW.iBus;
 using imBMW.Tools;
 using Microsoft.SPOT.IO;

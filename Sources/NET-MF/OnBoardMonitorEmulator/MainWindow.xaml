@@ -33,7 +33,7 @@
         <Button x:Name="ArrowsButton" Content="&lt;&gt;" HorizontalAlignment="Left" Margin="509,168,0,0" VerticalAlignment="Top" Width="40" Mouse.MouseUp="ArrowsButton_MouseUp"/>
         <Button x:Name="ClockButton" Content="Clock" HorizontalAlignment="Left" Margin="559,168,0,0" VerticalAlignment="Top" Width="40" Mouse.MouseUp="ClockButton_MouseUp"/>
         <Button x:Name="PhoneButton" Content="Phone" HorizontalAlignment="Left" Margin="509,143,0,0" VerticalAlignment="Top" Width="90" Click="PhoneButton_Click" MouseRightButtonUp="PhoneButton_MouseRightButtonUp"/>
-        <Button x:Name="EjectButton" Content="Eject" HorizontalAlignment="Left" Margin="554,118,0,0" VerticalAlignment="Top" Width="40"/>
+        <Button x:Name="EjectButton" Content="Eject" HorizontalAlignment="Left" Margin="555,118,0,0" VerticalAlignment="Top" Width="40"/>
 
         <Button x:Name="VolumeUp" Content="+" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="40" Click="MFLButton_VolumeUp"/>
         <Button x:Name="VolumeDown" Content="-" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Width="40" Click="MFLButton_VolumeDown"/>
@@ -120,7 +120,11 @@
         <TextBlock HorizontalAlignment="Left" Margin="105,39,0,0" TextWrapping="Wrap" Text="temperaturAnnounceInterval:" VerticalAlignment="Top"/>
         <Button x:Name="AC" Content="AC" HorizontalAlignment="Left" Margin="524,35,0,0" VerticalAlignment="Top" Width="75" Click="AC_Click"/>
 
-        <Label x:Name="IgnitionStateLabel" HorizontalAlignment="Left" Margin="334,4,0,0" VerticalAlignment="Top" Width="171" Height="26"/>
+        <Label x:Name="IgnitionStateLabel" HorizontalAlignment="Left" Margin="334,4,0,0" VerticalAlignment="Top" Width="171" Height="26">
+            
+        </Label>
         <Slider x:Name="IgnitionSlider" HorizontalAlignment="Left" Margin="334,41,0,0" VerticalAlignment="Top" Width="158" IsSnapToTickEnabled="True" Minimum="0" Maximum="3" Value="0" TickFrequency="1" ValueChanged="IgnitionSlider_ValueChanged" />
+        <Button x:Name="lockButton" Content="LOCK" Margin="337,8,198,289" Click="lockButton_Click"/>
+        <Button x:Name="unlockButton" Content="UNLOCK" Margin="417,8,118,289" Click="unlockButton_Click"/>
     </Grid>
 </Window>

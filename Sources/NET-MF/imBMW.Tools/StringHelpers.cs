@@ -330,6 +330,19 @@ namespace imBMW.Tools
         }
 #endif
 
+        public static bool StartsWith(this string s, string value)
+        {
+            for (int i = 0; i < value.Length; i++)
+            {
+                if (s[i] == value[i])
+                {
+                    continue;
+                }
+                return false;
+            }
+            return true;
+        }
+
         public static bool EndsWith(this string s, string value)
         {
             ushort j = 0;
@@ -340,10 +353,7 @@ namespace imBMW.Tools
                     j++;
                     continue;
                 }
-                else
-                {
-                    return false;
-                }
+                return false;
             }
             return true;
         }

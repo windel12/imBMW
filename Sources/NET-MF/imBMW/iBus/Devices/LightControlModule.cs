@@ -15,6 +15,42 @@ namespace imBMW.iBus.Devices.Real
         public bool ErrorFrontRightsLights;
     }
 
+    [Flags]
+    public enum Lights
+    {
+        Off = 0x00,
+
+        RearRightBlinker = 0x02,
+        RearLeftFogLamp =  0x04,
+        RearRightInnerStandingLight = 0x08,
+        RearRightStandingLight = 0x10,
+
+        FrontLeftBlinker = 0x40,
+
+
+
+        RightLicensePlate = 0x0400,
+        RearLeftStandingLight = 0x0800,
+        ThirdBrakeLight = 0x1000,
+        FrontRightStandingLight = 0x2000,
+        FrontRightBlinker = 0x4000,
+        FrontLeftStandingLight = 0x010000,
+        RearLeftInnerStandingLight = 0x020000,
+        FrontLeftFogLamp = 0x040000,
+
+        LeftHighBeam = 0x100000,
+        RightHighBeam = 0x200000,
+        FrontRightFogLamp = 0x400000,
+        RearRightFogLamp = 0x800000,
+
+
+        LeftLicensePlate = 0x04000000,
+        LeftBrakeLight = 0x08000000,
+        RightBrakeLight = 0x10000000,
+        RightLowBeam = 0x20000000,
+        LeftLowBeam = 0x40000000,
+    }
+
     public delegate void LightStatusEventHandler(Message message, LightStatusEventArgs args);
 
     #endregion
@@ -119,6 +155,20 @@ namespace imBMW.iBus.Devices.Real
             {
                 e(m, args);
             }
+        }
+
+        public static void TurnOnLamps(Lights lights)
+        {
+            var mask = BitConverter.GetBytes((int)lights);
+            byte[] data = new byte[13];
+            data[0] = 0x0C;
+            data[5] = mask[3];
+            data[6] = mask[2];
+            data[7] = mask[1];
+            data[8] = mask[0];
+
+            var message = new Message(DeviceAddress.Diagnostic, DeviceAddress.LightControlModule, data);
+            Manager.Instance.EnqueueMessage(message);
         }
 
         public static event LightStatusEventHandler LightStatusReceived;

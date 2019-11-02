@@ -1,6 +1,7 @@
 using GHI.Pins;
 using GHI.Usb.Host;
 using imBMW.Devices.V2.Hardware;
+using imBMW.Features;
 using imBMW.Features.Localizations;
 using imBMW.Features.Menu;
 using imBMW.Features.Menu.Screens;
@@ -109,6 +110,8 @@ namespace imBMW.Devices.V2
                 BluetoothScreen.BluetoothChargingState = true;
                 BluetoothScreen.AudioSource = AudioSource.Bluetooth;
 
+                Comfort.Init();
+
                 _resetCause = GHI.Processor.Watchdog.LastResetCause;
 
                 blueLed = new OutputPort(Pin.LED1, false);
@@ -133,10 +136,10 @@ namespace imBMW.Devices.V2
 
                 //SettingsScreen.Instance.Status = version.Length > 11 ? version.Replace(" ", "") : version;
                 //Localization.SetCurrent(RussianLocalization.SystemName); //Localization.SetCurrent(settings.Language);
-                //Features.Comfort.AutoLockDoors = settings.AutoLockDoors;
-                //Features.Comfort.AutoUnlockDoors = settings.AutoUnlockDoors;
-                //Features.Comfort.AutoCloseWindows = settings.AutoCloseWindows;
-                //Features.Comfort.AutoCloseSunroof = settings.AutoCloseSunroof;
+                //Comfort.AutoLockDoors = settings.AutoLockDoors;
+                //Comfort.AutoUnlockDoors = settings.AutoUnlockDoors;
+                //Comfort.AutoCloseWindows = settings.AutoCloseWindows;
+                //Comfort.AutoCloseSunroof = settings.AutoCloseSunroof;
 
                 #region UsbMassStorage
                 Controller.DeviceConnectFailed += (sss, eee) =>
@@ -203,6 +206,7 @@ namespace imBMW.Devices.V2
                 bool isSignalled = _removableMediaInsertedSync.WaitOne(Debugger.IsAttached ? 10000 : 10000, true);
                 if (!isSignalled) // No USB inserted
                 {
+                    // TODO: Change to CCM warning
                     Radio.DisplayText("USB:" + ControllerState.ToStringValue());
                     FrontDisplay.RefreshLEDs(LedType.RedBlinking, append: true);
                     LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(redLed, 3, 100));
@@ -457,17 +461,9 @@ namespace imBMW.Devices.V2
         {
             bool isMusicPlayed = emulator != null && emulator.IsEnabled;
             return
-                    //e.Message.SourceDevice == DeviceAddress.Radio && e.Message.DestinationDevice == DeviceAddress.GraphicsNavigationDriver && e.Message.Data.StartsWith(0x21, 0x60, 0x00)
-                    // ||
-                   // e.Message.SourceDevice == DeviceAddress.Radio && e.Message.DestinationDevice == DeviceAddress.CDChanger && e.Message.Data[0] == 0x01 
-                   //||
-                   // e.Message.SourceDevice == DeviceAddress.Radio &&
-                   //e.Message.DestinationDevice == DeviceAddress.CDChanger
-                   //||
+                   //e.Message.SourceDevice == DeviceAddress.Radio && e.Message.DestinationDevice == DeviceAddress.GraphicsNavigationDriver && e.Message.Data.StartsWith(0x21, 0x60, 0x00)
+                   // ||
                    //e.Message.SourceDevice == DeviceAddress.Radio && e.Message.Data.StartsWith(0x02, 0x00) // Radio poll response
-                   //||
-                   //e.Message.SourceDevice == DeviceAddress.CDChanger &&
-                   //e.Message.DestinationDevice == DeviceAddress.Radio
                    //||
                    //e.Message.SourceDevice == DeviceAddress.Radio &&
                    //e.Message.DestinationDevice == DeviceAddress.InstrumentClusterElectronics
@@ -486,7 +482,9 @@ namespace imBMW.Devices.V2
                    ||
                    InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Off
                    ||
-                   !isMusicPlayed
+                   settings.ForceMessageLog
+                   ||
+                   !isMusicPlayed 
                    ||
 #if DEBUG
                    true;

@@ -111,6 +111,7 @@
     <Compile Include="Tools\Logger.cs" />
     <Compile Include="Tools\QueueThreadWorker.cs" />
     <Compile Include="Tools\Settings.cs" />
+    <Compile Include="Tools\SettingsPropertyAttribute.cs" />
     <Compile Include="Tools\SpinWaitTimer.cs" />
     <Compile Include="Tools\UsbMountState.cs" />
   </ItemGroup>

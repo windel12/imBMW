@@ -14,18 +14,14 @@ namespace imBMW.iBus.Devices.Emulators
 {
     public class CDChanger : MediaEmulator
     {
-        enum PlayingType : byte
-        {
-            Normal = 0x09,
-            Random = 0x29
-        }
-
-        const ushort StopDelayMilliseconds = 1000;
+        //const ushort StopDelayMilliseconds = 1000;
 
         //Thread announceThread;
         Timer stopDelay;
 
         bool skipNextTrackMessage = false;
+
+        private static byte disksMask = 0x00; // 0x3F
 
         #region Messages
 
@@ -34,27 +30,15 @@ namespace imBMW.iBus.Devices.Emulators
         /// <summary> 02 01 </summary>
         public static Message MessageAnnounce = new Message(DeviceAddress.CDChanger, DeviceAddress.Broadcast, 0x02, 0x01);
 
-        //static Message MessageStoppedDisk1Track1 = new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Stopped D1 T1", 0x39, 0x00, 0x02, 0x00, 0x3F, 0x00, 0x01, 0x01); // try 39 00 0C ?
-        //static Message MessagePausedDisk1Track1  = new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Paused D1 T1",  0x39, 0x01, 0x0C, 0x00, 0x3F, 0x00, 0x01, 0x01);
-        //static Message MessagePlayingDisk1Track1 = new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Playing D1 T1", 0x39, 0x02, 0x09, 0x00, 0x3F, 0x00, 0x01, 0x01);
-
-        private static byte disksMask = 0x00; // 0x3F
         Message StatusStopped(byte disk, byte track)
         {
-            return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Stopped D" + disk + "T" + track, 0x39, 0x00, 0x02, 0x00, disksMask, 0x00, disk, track); // try 39 00 0C ?
+            return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Stop, Silence", 0x39, 0x00, 0x02, 0x00, disksMask, 0x00, disk, track); // try 39 00 0C ?
         }
-
-        //Message StatusPlaying(byte disk, byte track)
-        //{
-        //    //return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Paused D" + disk + "T" + track, 0x39, 0x00, 0x02, 0x00, 0x3F, 0x00, disk, track);
-        //    byte state = 0x09;// (byte)(Player.IsRandom ? (byte)PlayingType.Random : (byte)PlayingType.Normal);
-        //    return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Paused D" + disk + "T" + track, 0x39, 0x00, state, 0x00, disksMask, 0x00, disk, track);
-        //}
 
         Message StatusStartPlaying(byte disk, byte track)
         {
-            byte state = 0x09;// (byte)(Player.IsRandom ? (byte)PlayingType.Random : (byte)PlayingType.Normal);
-            return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Playing D" + disk + "T" + track, 0x39, 0x02, state, 0x00, disksMask, 0x00, disk, track);
+            byte state = 0x09;
+            return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Play, CommonPlayback", 0x39, 0x02, 0x09, 0x00, disksMask, 0x00, disk, track);
         }
 
         byte status = 0x08;
@@ -94,44 +78,46 @@ namespace imBMW.iBus.Devices.Emulators
 
         #endregion
 
-        public CDChanger(IAudioPlayer player)
-            : base(player)
+        public CDChanger(IAudioPlayer player) : base(player)
         {
-            Manager.Instance.AddMessageReceiverForDestinationDevice(DeviceAddress.CDChanger, ProcessCDCMessage);
-            Manager.Instance.AddMessageReceiverForDestinationDevice(DeviceAddress.Radio, ProcessToRadioMessage);
-
-            MultiFunctionSteeringWheel.ButtonPressed += button =>
+            if (!Settings.Instance.SuspendCDChangerResponseEmulation)
             {
-                if (button == MFLButton.VolumeDown)
+                Manager.Instance.AddMessageReceiverForDestinationDevice(DeviceAddress.CDChanger, ProcessCDCMessage);
+                Manager.Instance.AddMessageReceiverForDestinationDevice(DeviceAddress.Radio, ProcessToRadioMessage);
+
+                MultiFunctionSteeringWheel.ButtonPressed += button =>
                 {
-                    skipNextTrackMessage = true;
-
-                    CancelStopDelay();
-                    stopDelay = new Timer(delegate
+                    if (button == MFLButton.VolumeDown)
                     {
-                        skipNextTrackMessage = false;
+                        skipNextTrackMessage = true;
+
                         CancelStopDelay();
-                    }, null, 1000, 0);
-                }
-            };
+                        stopDelay = new Timer(delegate
+                        {
+                            skipNextTrackMessage = false;
+                            CancelStopDelay();
+                        }, null, 1000, 0);
+                    }
+                };
 
-            //Radio.OnOffChanged += Radio_OnOffChanged;
+                //Radio.OnOffChanged += Radio_OnOffChanged;
 
-            /*Player.TrackChanged += (s, e) => {
-                //Manager.Instance.EnqueueMessage(StatusPlayed(Player.DiskNumber, Player.TrackNumber));
-                Manager.Instance.EnqueueMessage(StatusStartPlaying(Player.DiskNumber, Player.TrackNumber));
-            };*/
+                /*Player.TrackChanged += (s, e) => {
+                    //Manager.Instance.EnqueueMessage(StatusPlayed(Player.DiskNumber, Player.TrackNumber));
+                    Manager.Instance.EnqueueMessage(StatusStartPlaying(Player.DiskNumber, Player.TrackNumber));
+                };*/
 
-            //announceThread = new Thread(announceCallback);
-            //announceThread.Start();
+                //announceThread = new Thread(announceCallback);
+                //announceThread.Start();
 
-            announce();
+                announce();
+            }
         }
 
-        private void Radio_OnOffChanged(bool turnedOn)
-        {
-            IsEnabled = turnedOn;
-        }
+        //private void Radio_OnOffChanged(bool turnedOn)
+        //{
+        //    IsEnabled = turnedOn;
+        //}
 
         #region Player control
 
@@ -202,42 +188,12 @@ namespace imBMW.iBus.Devices.Emulators
             }
         }
 
-        void ProcessToRadioMessage(Message m)
-        {
-            // BM buttons
-            if (m.Data.Length == 2 && m.Data[0] == 0x48)
-            {
-                if(m.Data[1] == 0x06 && IsEnabled) // radio knob off
-                {
-                    IsEnabled = false;
-                }
-
-                Action1 randomToggle = (newDiskNumber) => 
-                {
-                    RandomToggle(newDiskNumber);
-                };
-                if (m.Data[1] == 0x91 && IsEnabled) // 1
-                    randomToggle(1);
-                if (m.Data[1] == 0x81 && IsEnabled) // 2
-                    randomToggle(2);
-                if (m.Data[1] == 0x92 && IsEnabled) // 3
-                    randomToggle(3);
-                if (m.Data[1] == 0x82 && IsEnabled) // 4
-                    randomToggle(4);
-                if (m.Data[1] == 0x93 && IsEnabled) // 5
-                    randomToggle(5);
-                if (m.Data[1] == 0x83 && IsEnabled) // 6
-                    randomToggle(6);
-            }
-        }
-
         void ProcessCDCMessage(Message m)
         {
             if (m.Data.Compare(DataCurrentDiskTrackRequest))
             {
                 if (Player.IsPlaying && this.IsEnabled)
                 {
-                    //Manager.Instance.EnqueueMessage(StatusPlaying(Player.DiskNumber, Player.TrackNumber));
                     Manager.Instance.EnqueueMessage(StatusStartPlaying(Player.DiskNumber, Player.TrackNumber));
                 }
                 else
@@ -246,24 +202,24 @@ namespace imBMW.iBus.Devices.Emulators
                 }
                 //m.ReceiverDescription = "CD status request";
             }
-            if (m.Data.Compare(DataPlay))
-            {
-                IsEnabled = true;
-                Manager.Instance.EnqueueMessage(StatusStartPlaying(Player.DiskNumber, Player.TrackNumber));
-                m.ReceiverDescription = "Start playing";
-            }
-            else if (m.Data.Compare(DataStop))
+            if (m.Data.Compare(DataStop))
             {
                 IsEnabled = false;
                 Manager.Instance.EnqueueMessage(StatusStopped(Player.DiskNumber, Player.TrackNumber));
-                m.ReceiverDescription = "Stop playing";
+                //m.ReceiverDescription = "Stop playing";
             }
             else if (m.Data.Compare(DataPause))
             {
                 Pause();
                 Manager.Instance.EnqueueMessage(StatusStopped(Player.DiskNumber, Player.TrackNumber));
-                m.ReceiverDescription = "Pause";
-            }            
+                //m.ReceiverDescription = "Pause";
+            }
+            else if (m.Data.Compare(DataPlay))
+            {
+                IsEnabled = true;
+                Manager.Instance.EnqueueMessage(StatusStartPlaying(Player.DiskNumber, Player.TrackNumber));
+                //m.ReceiverDescription = "Start playing";
+            }
             else if(m.Data.Length == 3 && m.Data.StartsWith(0x38, 0x06)) // select disk
             {
                 if (Player.IsPlaying)
@@ -310,21 +266,44 @@ namespace imBMW.iBus.Devices.Emulators
             {
                 Manager.Instance.EnqueueMessage(MessagePollResponse);
             }
-            /*else if (m.Data[0] == 0x38)
-            {
-                // TODO remove
-                Logger.Warning("Need response!!!");
-            }*/
         }
 
-        static void announceCallback()
+        void ProcessToRadioMessage(Message m)
         {
-            while (true)
+            if (m.Data.Length == 2 && m.Data[0] == 0x48)
             {
-                Manager.Instance.EnqueueMessage(MessageAnnounce, MessagePollResponse);
-                Thread.Sleep(30000);
+                if (m.Data[1] == 0x06 && IsEnabled) // radio knob off
+                {
+                    IsEnabled = false;
+                }
+
+                Action1 randomToggle = (newDiskNumber) =>
+                {
+                    RandomToggle(newDiskNumber);
+                };
+                if (m.Data[1] == 0x91 && IsEnabled) // 1
+                    randomToggle(1);
+                if (m.Data[1] == 0x81 && IsEnabled) // 2
+                    randomToggle(2);
+                if (m.Data[1] == 0x92 && IsEnabled) // 3
+                    randomToggle(3);
+                if (m.Data[1] == 0x82 && IsEnabled) // 4
+                    randomToggle(4);
+                if (m.Data[1] == 0x93 && IsEnabled) // 5
+                    randomToggle(5);
+                if (m.Data[1] == 0x83 && IsEnabled) // 6
+                    randomToggle(6);
             }
         }
+
+        //static void announceCallback()
+        //{
+        //    while (true)
+        //    {
+        //        Manager.Instance.EnqueueMessage(MessageAnnounce, MessagePollResponse);
+        //        Thread.Sleep(30000);
+        //    }
+        //}
 
         static void announce()
         {

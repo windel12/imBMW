@@ -120,8 +120,14 @@ namespace imBMW.iBus.Devices.Real
                     case 0x01:
                         OnButtonPressed(m, MFLButton.Next);
                         break;
+                    case 0x21:
+                        OnButtonReleased(m, MFLButton.Next);
+                        break;
                     case 0x08:
                         OnButtonPressed(m, MFLButton.Prev);
+                        break;
+                    case 0x28:
+                        OnButtonReleased(m, MFLButton.Prev);
                         break;
 
                     case 0x40:
@@ -180,7 +186,12 @@ namespace imBMW.iBus.Devices.Real
             {
                 e(button);
             }
-            m.ReceiverDescription = "Button " + button.ToStringValue();
+            m.ReceiverDescription = "Button " + button.ToStringValue() + "pressed";
+        }
+
+        static void OnButtonReleased(Message m, MFLButton button)
+        {
+            m.ReceiverDescription = "Button " + button.ToStringValue() + "released";
         }
 
         public static event MFLEventHandler ButtonPressed;

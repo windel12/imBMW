@@ -574,7 +574,7 @@ namespace imBMW.iBus.Devices.Real
                 {
                     OnSpeedRPMChanged(CurrentSpeed, 0);
                 }
-                Logger.Trace("Ignition was changed: " + previous.ToStringValue() + " > " + currentIgnitionState.ToStringValue());
+                Logger.Trace("Ignition will be change: " + previous.ToStringValue() + " > " + currentIgnitionState.ToStringValue());
             }
         }
 
