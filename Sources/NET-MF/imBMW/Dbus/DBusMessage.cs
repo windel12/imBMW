@@ -17,8 +17,6 @@ namespace imBMW.Diagnostics
         /// <summary>0xB8</summary>
         public static byte formatByte = 0xB8;
 
-        public static int DBusPacketLengthMin { get { return 5; } }
-
         public DBusMessage(DeviceAddress source, DeviceAddress destination, params byte[] data)
             : base(source, destination, data)
         {
@@ -155,13 +153,13 @@ namespace imBMW.Diagnostics
                 length = packet.Length;
             }
 
-            if (length < DBusPacketLengthMin)
+            if (length < PacketLengthMin)
             {
                 return true;
             }
 
             byte packetLength = (byte)(packet[1] + 2);
-            if (packetLength < DBusPacketLengthMin)
+            if (packetLength < PacketLengthMin)
             {
                 return false;
             }
@@ -176,7 +174,7 @@ namespace imBMW.Diagnostics
 
         protected new static int ParsePacketLength(byte[] packet)
         {
-            if (packet.Length < DBusPacketLengthMin)
+            if (packet.Length < PacketLengthMin)
             {
                 return 0;
             }
@@ -185,7 +183,7 @@ namespace imBMW.Diagnostics
 
         protected new static int ParseDataLength(byte[] packet)
         {
-            if (packet.Length < DBusPacketLengthMin)
+            if (packet.Length < PacketLengthMin)
             {
                 return 0;
             }

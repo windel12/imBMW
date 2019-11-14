@@ -71,7 +71,7 @@ namespace imBMW.iBus
                     Array.Copy(data, 0, messageBuffer, messageBufferLength, data.Length);
                     messageBufferLength += data.Length;
                 }
-                while (messageBufferLength >= DBusMessage.DBusPacketLengthMin || messageBufferLength >= DS2Message.PacketLengthMin)
+                while (messageBufferLength >= DBusMessage.PacketLengthMin || messageBufferLength >= DS2Message.PacketLengthMin)
                 {
                     Message dBusMessage = DBusMessage.TryCreate(messageBuffer, messageBufferLength);
                     Message ds2Message = DS2Message.TryCreate(messageBuffer, messageBufferLength);
