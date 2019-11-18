@@ -12,6 +12,7 @@ namespace imBMW.Tools
         public string threadName;
         ProcessItem processItem;
         object lockObj = new object();
+        bool disposed = false;
 
         private ManualResetEvent ewt = new ManualResetEvent(false);
 
@@ -54,8 +55,14 @@ namespace imBMW.Tools
                 if (m == null)
                 {
                     queueThread.Suspend();
-                    //Thread.CurrentThread.Suspend();
-                    continue;
+                    if (disposed || queueThread.ThreadState == ThreadState.AbortRequested)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        continue;
+                    }
                 }
                 try
                 {
@@ -103,7 +110,14 @@ namespace imBMW.Tools
 
         public void Start()
         {
-            queueThread.Start();
+            if(queueThread.ThreadState == ThreadState.Unstarted)
+            {
+                queueThread.Start();
+            }
+            if (queueThread.ThreadState == ThreadState.Suspended || queueThread.ThreadState == ThreadState.SuspendRequested)
+            {
+                queueThread.Resume();
+            }
         }
 
         public void CheckRunning()
@@ -130,6 +144,24 @@ namespace imBMW.Tools
             }
             bool result = ewt.WaitOne(waitTimeout, true);
             return result;
+        }
+
+        public void Dispose()
+        {
+#if NETMF
+            queueThread.Abort();
+#else
+            try
+            {
+                queueThread.Abort();
+            }
+            catch (ThreadStateException ex)
+            {
+                disposed = true;
+                queueThread.Resume();
+            }
+#endif
+            queueThread = null;
         }
     }
 }

@@ -102,6 +102,10 @@ namespace imBMW.iBus.Devices.Real
                 {
                     OnRemoteKeyButton(m, RemoteKeyButton.Trunk);
                 }
+                else
+                {
+                    m.ReceiverDescription = "No button pressed";
+                }
             }
             else if (m.Data.Length == 3 && m.Data[0] == 0x7A)
             {
@@ -139,7 +143,7 @@ namespace imBMW.iBus.Devices.Real
             {
                 e(new RemoteKeyEventArgs(button));
             }
-            m.ReceiverDescription = "Remote key press " + button.ToStringValue() + " button";
+            m.ReceiverDescription = "Remote key pressed: " + button.ToStringValue() + " button";
             Logger.Info(m.ReceiverDescription);
         }
 

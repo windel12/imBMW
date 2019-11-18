@@ -150,14 +150,6 @@ namespace imBMW.iBus.Devices.Real
             Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Telephone, DeviceAddress.InstrumentClusterElectronics, "Show text \"" + s + "\" on IKE", data));
         }
 
-        public static Message GetDisplayTextRadioMessage2(string s, TextAlign align)
-        {
-            byte[] data = new byte[] { 0x23, 0x62, 0x30 };
-            data = data.PadRight(0xFF, DisplayTextOnIKEMaxLen);
-            data.PasteASCII(s.Translit(), 3, DisplayTextOnIKEMaxLen, align);
-            return new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Show text \"" + s + "\" on IKE", data);
-        }
-
         /// <summary>
         /// Turns radio on/off. Only for BM54/24.
         /// </summary>

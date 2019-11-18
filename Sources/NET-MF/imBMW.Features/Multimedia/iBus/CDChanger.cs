@@ -307,7 +307,7 @@ namespace imBMW.iBus.Devices.Emulators
 
         static void announce()
         {
-            Manager.Instance.EnqueueMessage(MessageAnnounce, MessageAnnounce, MessageAnnounce);
+            Manager.Instance.EnqueueMessage(MessageAnnounce/*, MessageAnnounce, MessageAnnounce*/);
         }
 
         #endregion

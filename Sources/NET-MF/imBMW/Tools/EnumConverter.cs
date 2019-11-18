@@ -45,6 +45,7 @@ namespace imBMW.Tools
         {
             switch (e)
             {
+                case IgnitionState.Unknown: return "Unknown";
                 case IgnitionState.Off: return "Off";
                 case IgnitionState.Acc: return "Acc";
                 case IgnitionState.Ign: return "Ign";

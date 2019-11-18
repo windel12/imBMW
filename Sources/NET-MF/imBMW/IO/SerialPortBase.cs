@@ -83,6 +83,8 @@ namespace System.IO.Ports
 
         public abstract void Open();
 
+        public abstract void Close();
+
         #region Writing
 
         protected abstract bool CanWrite { get; }

@@ -9,6 +9,7 @@ namespace GHI.Usb.Host
         public void Mount()
         {
             RemovableMedia.FireInserted();
+            Mounted = true;
         }
 
         public void Unmount()

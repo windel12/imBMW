@@ -72,18 +72,18 @@ namespace imBMW.Tools
         public static void Error(string message, string priorityTitle = null)
         {
             Log(LogPriority.Error, message, priorityTitle);
-            Radio.DisplayText(message);
+            InstrumentClusterElectronics.ShowTextWithGong(message);
         }
 
         public static void Error(Exception exception, string message = null, string priorityTitle = null)
         {
             Log(LogPriority.Error, exception, message, priorityTitle);
-            Radio.DisplayText(message);
+            InstrumentClusterElectronics.ShowTextWithGong(message);
         }
 
         public static void ErrorWithoutLogging(string message)
         {
-            Radio.DisplayText(message);
+            InstrumentClusterElectronics.ShowTextWithGong(message);
             if (System.Diagnostics.Debugger.IsAttached)
             {
                 Microsoft.SPOT.Debug.Print(message);

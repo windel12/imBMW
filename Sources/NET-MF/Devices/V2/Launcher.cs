@@ -45,17 +45,33 @@ namespace imBMW.Devices.V2
 
         private static ManualResetEvent _removableMediaInsertedSync = new ManualResetEvent(false);
 
+        private static object lockObj = new object();
+
         private static bool _useWatchdog;
 
         private static GHI.Processor.Watchdog.ResetCause _resetCause;
 
         /// <summary> 30 sec </summary>
         static ushort watchDogTimeoutInMilliseconds = 30000;
+
+        internal static MassStorage _massStorage;
+
+        internal static AppState State { get; set; }
+
         private static Timer requestIgnitionStateTimer;
 
-        private static MassStorage _massStorage;
+        internal static int idleTime = 0;
 
-        private static int sleepTimeInMilliseconds = 0;
+        internal static int requestIgnitionStateTimerPeriod = watchDogTimeoutInMilliseconds / 3;
+
+        // TODO: revert to 30 seconds, instead of 20 minutes
+        internal static int idleTimeout = GetTimeoutInMilliseconds(20, 00);
+
+#if DEBUG
+        internal static int sleepTimeout = GetTimeoutInMilliseconds(0, 30);
+#else
+        internal static int sleepTimeout = GetTimeoutInMilliseconds(15, 20);
+#endif
 
         public enum LaunchMode
         {
@@ -65,7 +81,7 @@ namespace imBMW.Devices.V2
 
         private static UsbMountState ControllerState { get; set; }
 
-        private static int GetTimeoutInMilliseconds(byte minutes, byte seconds)
+        internal static int GetTimeoutInMilliseconds(byte minutes, byte seconds)
         {
             return minutes * 60 * 1000 + seconds * 1000;
         }
@@ -86,14 +102,15 @@ namespace imBMW.Devices.V2
 
             requestIgnitionStateTimer.Dispose();
 
-            UnmountMassStorage();         
+            UnmountMassStorage();
+            FrontDisplay.RefreshLEDs(LedType.Empty);
 
 #if OnBoardMonitorEmulator
             System.Windows.MessageBox.Show("Board was resetted");
 #endif
 
 #if DEBUG || DebugOnRealDeviceOverFTDI
-            if(Debugger.IsAttached)
+            if (Debugger.IsAttached)
                 return;
 #endif
 
@@ -170,7 +187,7 @@ namespace imBMW.Devices.V2
  
                         string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
                         settings = Settings.Init(rootDirectory + "\\imBMW.ini");
-                        FileLogger.Init(rootDirectory, () => VolumeInfo.GetVolumes()[0].FlushAll());
+                        FileLogger.Init(rootDirectory + "\\logs", () => VolumeInfo.GetVolumes()[0].FlushAll());
                         Logger.Debug("Logger initialized.");
 
                         ControllerState = UsbMountState.Mounted;
@@ -206,8 +223,7 @@ namespace imBMW.Devices.V2
                 bool isSignalled = _removableMediaInsertedSync.WaitOne(Debugger.IsAttached ? 10000 : 10000, true);
                 if (!isSignalled) // No USB inserted
                 {
-                    // TODO: Change to CCM warning
-                    Radio.DisplayText("USB:" + ControllerState.ToStringValue());
+                    InstrumentClusterElectronics.ShowTextWithGong("USB:" + ControllerState.ToStringValue());
                     FrontDisplay.RefreshLEDs(LedType.RedBlinking, append: true);
                     LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(redLed, 3, 100));
                 }
@@ -215,7 +231,7 @@ namespace imBMW.Devices.V2
                 {
                     if (ControllerState == UsbMountState.DeviceConnectFailed || ControllerState == UsbMountState.UnknownDeviceConnected)
                     {
-                        Radio.DisplayText("USB:" + ControllerState.ToStringValue());
+                        InstrumentClusterElectronics.ShowTextWithGong("USB:" + ControllerState.ToStringValue());
                         FrontDisplay.RefreshLEDs(LedType.Red, append: true);
                         LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(redLed, 4, 100));
                         ResetBoard();
@@ -252,15 +268,11 @@ namespace imBMW.Devices.V2
                 };
                 BordmonitorMenu.PhoneButtonHold += () =>
                 {
+                    Logger.Trace("PhoneButtonHold");
                     UnmountMassStorage();
+                    _massStorage = null;
+                    InstrumentClusterElectronics.ShowNormalText("Unmounted");
                 };
-
-                int requestIgnitionStateTimerPeriod = watchDogTimeoutInMilliseconds / 4;
-#if DEBUG
-                int sleepTimeout = GetTimeoutInMilliseconds(0, 30);
-#else
-                int sleepTimeout = GetTimeoutInMilliseconds(15, 50);
-#endif
 
                 Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.InstrumentClusterElectronics, m =>
                 {
@@ -269,29 +281,9 @@ namespace imBMW.Devices.V2
                         GHI.Processor.Watchdog.ResetCounter();
                     }
                 });
-                requestIgnitionStateTimer = new Timer(obj =>
-                {
-                    if (InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Off)
-                    {
-#if NETMF || !OnBoardMonitorEmulator && DebugOnRealDeviceOverFTDI
-                        if (sleepTimeInMilliseconds < sleepTimeout)
-                        {
-                            Logger.Trace("sleepTimeInMilliseconds: " + GetTimeSpanFromMilliseconds(sleepTimeInMilliseconds));
-                        }
-                        sleepTimeInMilliseconds += requestIgnitionStateTimerPeriod;
-                        if (sleepTimeInMilliseconds == sleepTimeout)
-                        {
-                            Logger.Trace("Storage will be unmounted");
-                            UnmountMassStorage();
-                        }
-#endif
-                        GHI.Processor.Watchdog.ResetCounter();
-                    }
-                    else
-                    {
-                        InstrumentClusterElectronics.RequestIgnitionStatus();
-                    }
-                }, null, 0, requestIgnitionStateTimerPeriod);
+                requestIgnitionStateTimer = new Timer(RequestIgnitionStateTimerHandler, null, 0, requestIgnitionStateTimerPeriod);
+
+                imBMWTest();
 
                 Logger.Debug("Actions inited!");
 
@@ -305,6 +297,44 @@ namespace imBMW.Devices.V2
                 redLed.Write(true);
                 Logger.Error(ex, "while modules initialization");
                 ResetBoard();
+            }
+        }
+
+        internal static void RequestIgnitionStateTimerHandler(object obj)
+        {
+            if (InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Off)
+            {
+                Logger.Trace("idleTime: " + GetTimeSpanFromMilliseconds(idleTime));
+
+                if (idleTime >= idleTimeout)
+                {
+                    lock (lockObj)
+                    {
+                        if (State != AppState.Idle)
+                        {
+                            IdleMode();
+                        }
+                    }
+                }
+
+                if (idleTime >= sleepTimeout)
+                {
+                    lock (lockObj)
+                    {
+                        if (State != AppState.Sleep)
+                        {
+                            SleepMode();
+                        }
+                    }
+                }
+
+                idleTime += requestIgnitionStateTimerPeriod;
+
+                GHI.Processor.Watchdog.ResetCounter();
+            }
+            else
+            {
+                InstrumentClusterElectronics.RequestIgnitionStatus();
             }
         }
 
@@ -357,6 +387,23 @@ namespace imBMW.Devices.V2
             if (!iBusPort.IsOpen)
                 iBusPort.Open();
 #endif
+        }
+
+        private static void DisposeManagers()
+        {
+            Manager.Instance.BeforeMessageReceived -= Manager_BeforeMessageReceived;
+            Manager.Instance.AfterMessageReceived -= Manager_AfterMessageReceived;
+            Manager.Instance.BeforeMessageSent -= Manager_BeforeMessageSent;
+            Manager.Instance.AfterMessageSent -= Manager_AfterMessageSent;
+            Manager.Instance.Dispose();
+
+            KBusManager.Instance.BeforeMessageReceived -= KBusManager_BeforeMessageReceived;
+            KBusManager.Instance.BeforeMessageSent -= KBusManager_BeforeMessageSent;
+            KBusManager.Instance.Dispose();
+
+            DBusManager.Instance.BeforeMessageReceived -= DBusManager_BeforeMessageReceived;
+            DBusManager.Instance.BeforeMessageSent -= DBusManager_BeforeMessageSent;
+            DBusManager.Instance.Dispose();
         }
 
         public static void Init()
@@ -430,9 +477,37 @@ namespace imBMW.Devices.V2
             //prevButton.OnInterrupt += (p, s, t) => { };
         }
 
-        private static void UnmountMassStorage()
+        internal static void IdleMode()
         {
-            FrontDisplay.RefreshLEDs(LedType.Empty);
+            Logger.Trace("Going to idle");
+            UnmountMassStorage();
+
+            State = AppState.Idle;
+        }
+
+        internal static void SleepMode()
+        {
+            Logger.Trace("Going to sleep");
+            UnmountMassStorage();
+            DisposeManagers();
+
+            State = AppState.Sleep;
+        }
+
+
+        internal static void WakeUp()
+        {
+            if (_massStorage != null && !_massStorage.Mounted)
+            {
+                FileLogger.Create();
+                Logger.Trace("Waking up!");
+                _massStorage.Mount();
+            }
+        }
+
+        internal static void UnmountMassStorage()
+        {
+            Logger.Trace("Storage will be unmounted");
             if (_massStorage != null && _massStorage.Mounted)
             {
                 FileLogger.Dispose();
@@ -461,42 +536,42 @@ namespace imBMW.Devices.V2
         {
             bool isMusicPlayed = emulator != null && emulator.IsEnabled;
             return
-                   //e.Message.SourceDevice == DeviceAddress.Radio && e.Message.DestinationDevice == DeviceAddress.GraphicsNavigationDriver && e.Message.Data.StartsWith(0x21, 0x60, 0x00)
-                   // ||
-                   //e.Message.SourceDevice == DeviceAddress.Radio && e.Message.Data.StartsWith(0x02, 0x00) // Radio poll response
-                   //||
-                   //e.Message.SourceDevice == DeviceAddress.Radio &&
-                   //e.Message.DestinationDevice == DeviceAddress.InstrumentClusterElectronics
-                   //||
-                   //e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics &&
-                   //e.Message.DestinationDevice == DeviceAddress.FrontDisplay 
-                   //||
-                   //e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics &&
-                   //e.Message.DestinationDevice == DeviceAddress.GlobalBroadcastAddress &&
-                   //e.Message.Data[0] == 0x19
-                   //||
-                   //e.Message.SourceDevice == DeviceAddress.MultiFunctionSteeringWheel &&
-                   //e.Message.DestinationDevice == DeviceAddress.Radio
-                   //||
-                   InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Acc
-                   ||
-                   InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Off
-                   ||
-                   settings.ForceMessageLog
-                   ||
-                   !isMusicPlayed 
-                   ||
+                //e.Message.SourceDevice == DeviceAddress.Radio && e.Message.DestinationDevice == DeviceAddress.GraphicsNavigationDriver && e.Message.Data.StartsWith(0x21, 0x60, 0x00)
+                // ||
+                //e.Message.SourceDevice == DeviceAddress.Radio && e.Message.Data.StartsWith(0x02, 0x00) // Radio poll response
+                //||
+                //e.Message.SourceDevice == DeviceAddress.Radio &&
+                //e.Message.DestinationDevice == DeviceAddress.InstrumentClusterElectronics
+                //||
+                //e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics &&
+                //e.Message.DestinationDevice == DeviceAddress.FrontDisplay 
+                //||
+                //e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics &&
+                //e.Message.DestinationDevice == DeviceAddress.GlobalBroadcastAddress &&
+                //e.Message.Data[0] == 0x19
+                //||
+                //e.Message.SourceDevice == DeviceAddress.MultiFunctionSteeringWheel &&
+                //e.Message.DestinationDevice == DeviceAddress.Radio
+                //||
+                InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Acc
+                ||
+                InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Off
+                ||
+                settings.ForceMessageLog
+                ||
+                !isMusicPlayed
 #if DEBUG
-                   true;
-#else
-                   false;
+                || true
 #endif
+                ;
         }
 
-        private static void Manager_BeforeMessageReceived(MessageEventArgs e)
+        internal static void Manager_BeforeMessageReceived(MessageEventArgs e)
         {
             //blueLed.Write(Busy(true, 1));
-            sleepTimeInMilliseconds = 0;
+            idleTime = 0;
+
+            WakeUp();
         }
 
         private static void Manager_AfterMessageReceived(MessageEventArgs e)
@@ -533,7 +608,6 @@ namespace imBMW.Devices.V2
         private static void Manager_BeforeMessageSent(MessageEventArgs e)
         {
             blueLed.Write(Busy(true, 2));
-            sleepTimeInMilliseconds = 0;
         }
 
         private static void Manager_AfterMessageSent(MessageEventArgs e)
@@ -604,7 +678,7 @@ namespace imBMW.Devices.V2
 
         private static void KBusManager_BeforeMessageReceived(MessageEventArgs e)
         {
-            sleepTimeInMilliseconds = 0;
+            idleTime = 0;
 
             if (KBusLoggerPredicate(e))
             {
@@ -622,8 +696,6 @@ namespace imBMW.Devices.V2
 
         private static void KBusManager_BeforeMessageSent(MessageEventArgs e)
         {
-            sleepTimeInMilliseconds = 0;
-
             if (KBusLoggerPredicate(e))
             {
                 var logIco = "K > ";
@@ -686,6 +758,8 @@ namespace imBMW.Devices.V2
                 ledBlibkingItem.Led.Write(false);
                 Thread.Sleep(ledBlibkingItem.Interval);
             }
+
+            Thread.Sleep(500);
         }
 
         static byte busy = 0;
@@ -700,6 +774,17 @@ namespace imBMW.Devices.V2
                 Launcher.busy = Launcher.busy.RemoveBit(type);
             }
             return Launcher.busy > 0;
+        }
+
+        private static void imBMWTest()
+        {
+            Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.imBMWTest, m =>
+            {
+                if (m.Data[0] == 0x02)
+                {
+                    SleepMode();
+                }
+            });
         }
     }
 }

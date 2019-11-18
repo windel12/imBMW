@@ -83,9 +83,9 @@ namespace imBMW.iBus
             "", // "0x44",
             "Radio status request", // "0x45",
             "LCD Clear",
-            "BM buttons",
-            "BM SELECT/INFO buttons",
-            "KNOB button",
+            "BM SELECT/INFO buttons",               // "0x47"
+            "BM buttons",   // "0x48"
+            "Navi Knob button rotation",              // "0x49"
             "Monitor CD/Tape control",
             "Monitor CD/Tape status",
             "", // "0x4C",

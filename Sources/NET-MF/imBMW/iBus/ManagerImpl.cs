@@ -37,9 +37,20 @@ namespace imBMW.iBus
 
             _port = port;
             _portName = queueThreadWorkerName;
-            _port.DataReceived += new SerialDataReceivedEventHandler(bus_DataReceived);
+            _port.DataReceived += bus_DataReceived;
 
             Inited = true;
+        }
+
+        public void Dispose()
+        {
+            messageWriteQueue.Dispose();
+            _port.DataReceived -= bus_DataReceived;
+            if (_port.IsOpen)
+            {
+                _port.Close();
+            }
+            _port = null;
         }
 
         #region Message reading and processing

@@ -80,6 +80,11 @@ namespace System.IO.Ports
             _port.Open();
         }
 
+        public override void Close()
+        {
+            _port.Close();
+        }
+
         public override bool IsOpen
         {
             get { return _port.IsOpen; }

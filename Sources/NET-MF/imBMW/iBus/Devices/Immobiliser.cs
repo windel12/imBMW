@@ -43,15 +43,18 @@ namespace imBMW.iBus.Devices.Real
             {
                 if (m.Data[1] == 0x04)
                 {
-                    IsKeyInserted = true;
-                    LastKeyInserted = m.Data[2];
-                    var e = KeyInserted;
-                    if (e != null)
+                    if (!IsKeyInserted)
                     {
-                        e(new KeyEventArgs(LastKeyInserted));
+                        LastKeyInserted = m.Data[2];
+                        var e = KeyInserted;
+                        if (e != null)
+                        {
+                            e(new KeyEventArgs(LastKeyInserted));
+                        }
+                        Logger.Info(m.ReceiverDescription);
                     }
+                    IsKeyInserted = true;
                     m.ReceiverDescription = "Key " + LastKeyInserted + " inserted";
-                    Logger.Info(m.ReceiverDescription);
                 }
                 //if (m.Data[1] == 0x05)
                 //{
@@ -59,14 +62,17 @@ namespace imBMW.iBus.Devices.Real
                 //}
                 else if (m.Data[1] == 0x00)
                 {
-                    IsKeyInserted = false;
-                    var e = KeyRemoved;
-                    if (e != null)
+                    if (IsKeyInserted)
                     {
-                        e(new KeyEventArgs(LastKeyInserted));
+                        var e = KeyRemoved;
+                        if (e != null)
+                        {
+                            e(new KeyEventArgs(LastKeyInserted));
+                        }
+                        Logger.Info("Key " + LastKeyInserted + " removed");
                     }
-                    m.ReceiverDescription = "Key " + LastKeyInserted + " removed";
-                    Logger.Info(m.ReceiverDescription);
+                    IsKeyInserted = false;
+                    m.ReceiverDescription = "No key inserted";
                 }
             }
         }

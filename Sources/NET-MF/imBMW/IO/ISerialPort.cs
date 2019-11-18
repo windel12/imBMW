@@ -29,6 +29,8 @@ namespace System.IO.Ports
 
         void Open();
 
+        void Close();
+
         byte[] ReadAvailable();
 
         byte[] ReadAvailable(int maxCount);

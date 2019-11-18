@@ -1,7 +1,7 @@
 #if !MF_FRAMEWORK_VERSION_V4_1
 
 using System;
-using System.Diagnostics;
+using System.Collections;
 using System.IO;
 using System.Threading;
 using imBMW.iBus.Devices.Real;
@@ -33,24 +33,44 @@ namespace imBMW.Tools
             Logger.Logged += Logger_Logged;
         }
 
+        public static void Dispose(int waitTimeout = 2000)
+        {
+            Logger.Logged -= Logger_Logged;
+            bool waitResult = queue.WaitTillQueueBeEmpty(waitTimeout);
+
+            writer.Flush();
+            if (FlushCallback != null)
+            {
+                FlushCallback();
+            }
+            Debug.GC(true);
+            unflushed = 0;
+
+            writer.Dispose();
+
+            Thread.Sleep(1000);
+        }
+
         public static void Init(string path, Action flushCallback = null)
         {
             try
             {
                 FlushCallback = flushCallback;
-
+              
                 if (!Directory.Exists(path))
                 {
                     Directory.CreateDirectory(path);
                 }
+                IEnumerable filesEnumerator = Directory.EnumerateFiles(path);
 
                 string fullpath;
-                ushort i = 0;
-                do
+                int filesCount = 0;
+                foreach (object file in filesEnumerator)
                 {
-                    fullpath = path + @"\traceLog" + (i++ == 0 ? "" : i.ToString()) + ".log";
-                } while (File.Exists(fullpath));
+                    filesCount++;
+                }
 
+                fullpath = path + @"\traceLog" + filesCount + ".log";
                 writer = new StreamWriter(fullpath, append:true);
 
                 queue.Start();
@@ -95,10 +115,6 @@ namespace imBMW.Tools
                 if (++unflushed == flushLines)
                 {
                     writer.Flush();
-                    //if (FlushCallback != null)
-                    //{
-                    //    FlushCallback();
-                    //}
                     Debug.GC(true);
                     unflushed = 0;
                 }
@@ -116,22 +132,6 @@ namespace imBMW.Tools
         {
             Logger.Logged -= Logger_Logged;
             queue.Clear();
-        }
-
-        public static void Dispose(int waitTimeout = 2000)
-        {
-            Logger.Logged -= Logger_Logged;
-            bool waitResult = queue.WaitTillQueueBeEmpty(waitTimeout);
-
-            writer.Flush();
-            if (FlushCallback != null)
-            {
-                FlushCallback();
-            }
-            Debug.GC(true);
-            unflushed = 0;
-
-            writer.Dispose();
         }
     }
 }

@@ -167,7 +167,7 @@ namespace imBMW.iBus.Devices.Real
             data[7] = mask[1];
             data[8] = mask[0];
 
-            var message = new Message(DeviceAddress.Diagnostic, DeviceAddress.LightControlModule, data);
+            var message = new Message(DeviceAddress.Diagnostic, DeviceAddress.LightControlModule, "Turn lamps", data);
             Manager.Instance.EnqueueMessage(message);
         }
 

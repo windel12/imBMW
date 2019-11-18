@@ -253,8 +253,8 @@ namespace OnBoardMonitorEmulator
         {
 #if DebugOnRealDeviceOverFTDI
 
-            var showOBCTextMessage = Radio.GetDisplayTextRadioMessage2("CD 1-1", TextAlign.Center);
-            InstrumentClusterElectronicsEmulator.ProcessMessageToIKE(showOBCTextMessage);
+            //var showOBCTextMessage = Radio.GetDisplayTextRadioMessage("CD 1-1", TextAlign.Center);
+            //InstrumentClusterElectronicsEmulator.ProcessMessageToIKE(showOBCTextMessage);
             var message = new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, DataNext);
             WriteMessage(message);
 #else
@@ -384,6 +384,24 @@ namespace OnBoardMonitorEmulator
         {
             var message = new Message(DeviceAddress.BodyModule, DeviceAddress.GlobalBroadcastAddress, 0x72, 0x22);
             KBusManager.Instance.EnqueueMessage(message);
+        }
+
+        private void idleButton_Click(object sender, RoutedEventArgs e)
+        {
+            var message = new Message(DeviceAddress.imBMWTest, DeviceAddress.GlobalBroadcastAddress, 0x01);
+            Manager.Instance.EnqueueMessage(message);
+        }
+
+        private void sleepButton_Click(object sender, RoutedEventArgs e)
+        {
+            var message = new Message(DeviceAddress.imBMWTest, DeviceAddress.GlobalBroadcastAddress, 0x02);
+            Manager.Instance.EnqueueMessage(message);
+        }
+
+        private void wakeUpButton_Click(object sender, RoutedEventArgs e)
+        {
+            var message = new Message(DeviceAddress.imBMWTest, DeviceAddress.GlobalBroadcastAddress, 0x03);
+            Manager.Instance.EnqueueMessage(message);
         }
     }
 }

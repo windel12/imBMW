@@ -188,15 +188,17 @@ namespace imBMW.iBus.Devices.Real
         internal static readonly Message MessageResetAverageSpeed = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Reset Average Speed", 0x41, 0x0A, 0x10);
         /// <summary> 41 0E 01 </summary>
         internal static readonly Message MessageRequestTimer = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, "Request Timer", 0x41, 0x0E, 0x01);
-        
-        static readonly Message MessageNormalDisplay = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Normal Display", 0x23, 0x62, 0x30, 0x35, 0x01);
-        static readonly Message MessageTextBetweenTwoRedTriangles = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Text Between Two Red Triangles", 0x23, 0x62, 0x30, 0x37, 0x01);
-        static readonly Message MessageTextBetweenTwoRedFlashingTriangles = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Text Between Two Red Flashing Triangles", 0x23, 0x62, 0x30, 0x37, 0x03);
-        static readonly Message MessageTextAndGongBetweenTwoRedFlashingTriangles = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Text And Gong Between Two Red Flashing Triangles", 0x23, 0x62, 0x30, 0x37, 0x04);
-        static readonly Message MessageTextAndGong = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Text And Gong", 0x23, 0x62, 0x30, 0x37, 0x05);
+
+        //static readonly Message MessageNormalDisplay = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Normal Display", 0x23, 0x62, 0x30, 0x35, 0x01);
+        //static readonly Message MessageTextBetweenTwoRedTriangles = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Text Between Two Red Triangles", 0x23, 0x62, 0x30, 0x37, 0x01);
+        //static readonly Message MessageTextBetweenTwoRedFlashingTriangles = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Text Between Two Red Flashing Triangles", 0x23, 0x62, 0x30, 0x37, 0x03);
+        //static readonly Message MessageTextAndGongBetweenTwoRedFlashingTriangles = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Text And Gong Between Two Red Flashing Triangles", 0x23, 0x62, 0x30, 0x37, 0x04);
+        //static readonly Message MessageTextAndGong = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Text And Gong", 0x23, 0x62, 0x30, 0x37, 0x05);
         static readonly Message MessageGong1 = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Gong 1", 0x23, 0x62, 0x30, 0x37, 0x08);
         static readonly Message MessageGong2 = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Gong 2", 0x23, 0x62, 0x30, 0x37, 0x10);
-        
+
+        public const byte DisplayTextOnIKEMaxLen = 20;
+
         private static bool _timeIsSet, _dateIsSet;
         private static byte _timeHour, _timeMinute, _dateDay, _dateMonth;
         private static ushort _dateYear;
@@ -394,23 +396,35 @@ namespace imBMW.iBus.Devices.Real
             else if (m.DestinationDevice == DeviceAddress.FrontDisplay && m.Data.Compare(0x2A, 0x00, 0x00))
             {
                 OnSpeedLimitChanged(0);
-                m.ReceiverDescription = "Speed limit turned off";
+                m.ReceiverDescription = "Speed limit turned off | Aux_Heating_LED = Off";
             }
             else if (m.DestinationDevice == DeviceAddress.FrontDisplay && m.Data.Compare(0x2A, 0x02, 0x00))
             {
                 OnSpeedLimitChanged(_lastSpeedLimit);
-                m.ReceiverDescription = "Speed limit turned on";
+                m.ReceiverDescription = "Speed limit turned on | Aux_Heating_LED = Off";
             }
-            else if (m.DestinationDevice == DeviceAddress.FrontDisplay && m.Data.Compare(0x2A, 0x02, 0x00, 0x4A)) // On-board computer special indicators: Aux_Heating_LED = Off 
+            else if (m.DestinationDevice == DeviceAddress.FrontDisplay && m.Data.Compare(0x2A, 0x02, 0x00/*, 0x4A*/)) // On-board computer special indicators: Aux_Heating_LED = Off 
             {
                 
             }
             // TODO arrive time, arrive distance, timers
         }
 
-        public static void ShowNormalText(string text)
+        public static void ShowNormalText(string text, TextAlign align = TextAlign.Left)
         {
-            
+            ShowText(text, align, new byte[] {0x1A, 0x35, 0x00});
+        }
+
+        public static void ShowTextWithGong(string text, TextAlign align = TextAlign.Left)
+        {
+            ShowText(text, align, new byte[] { 0x1A, 0x37, 0x05 });
+        }
+
+        private static void ShowText(string text, TextAlign align, byte[] data)
+        {
+            data = data.PadRight(0x20, DisplayTextOnIKEMaxLen);
+            data.PasteASCII(text.Translit(), 3, DisplayTextOnIKEMaxLen, align);
+            Manager.Instance.EnqueueMessage(new Message(DeviceAddress.CheckControlModule, DeviceAddress.InstrumentClusterElectronics, "Show text \"" + text + "\" on IKE", data));
         }
 
         public static void Gong1()
@@ -557,7 +571,7 @@ namespace imBMW.iBus.Devices.Real
             {
                 return currentIgnitionState;
             }
-            private set
+            internal set
             {
                 if (currentIgnitionState == value)
                 {

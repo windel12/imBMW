@@ -20,7 +20,7 @@ namespace OnBoardMonitorEmulatorTests
             Settings.Init(path);
             Assert.AreEqual(Settings.Instance.UnmountMassStorageOnChangingIgnitionToAcc, false);
             Assert.AreEqual(Settings.Instance.ForceMessageLog, false);
-            Assert.AreEqual(Settings.Instance.LightsBlinkerTimeout, 150);
+            Assert.AreEqual(Settings.Instance.LightsBlinkerTimeout, 250);
 
 
             using (StreamWriter sw = new StreamWriter(path))

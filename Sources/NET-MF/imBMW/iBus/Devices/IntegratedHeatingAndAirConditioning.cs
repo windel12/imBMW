@@ -99,29 +99,40 @@ namespace imBMW.iBus.Devices.Real
                     if (AuxilaryHeaterStatus == AuxilaryHeaterStatus.Unknown)
                     {
                         AuxilaryHeaterStatus = AuxilaryHeaterStatus.Started;
-                        Logger.Trace("Auxilary Heater, previous state was restored.");
+                        Logger.Debug("Auxilary Heater, previous state was restored.");
                         // without return!!! for answering
                     }
 
                     if (AuxilaryHeaterStatus == AuxilaryHeaterStatus.StartPending)
                     {
-                        Logger.Trace("Auxilary heater started");
+                        Logger.Debug("Auxilary heater started");
                         AuxilaryHeaterStatus = AuxilaryHeaterStatus.Started;
                         Manager.Instance.EnqueueMessage(FrontDisplay.AuxHeaterIndicatorBlinkingMessage);
                         return;
                     }
                     if (AuxilaryHeaterStatus == AuxilaryHeaterStatus.Started)
                     {
-                        KBusManager.Instance.EnqueueMessage(ContinueWorkingAuxilaryHeater);
-                        Logger.Trace("Coolant Temperature: " + InstrumentClusterElectronics.TemperatureCoolant);
-                        Manager.Instance.EnqueueMessage(FrontDisplay.AuxHeaterIndicatorBlinkingMessage);
+                        Logger.Debug("Coolant Temperature: " + InstrumentClusterElectronics.TemperatureCoolant);
 
-                        bool stoppingByReachingNeededTemperature = InstrumentClusterElectronics.TemperatureCoolant >= 75;
-                        if (stoppingByReachingNeededTemperature)
+                        if (InstrumentClusterElectronics.TemperatureCoolant >= 72)
                         {
-                            Logger.Trace("Turning off Auxilary heater by reaching needed temperature.");
+                            Logger.Debug("Turning off Auxilary heater by reaching needed temperature.");
                             StopAuxilaryHeaterInternal();
                         }
+                        else
+                        {
+                            var respondMessage = ContinueWorkingAuxilaryHeater;
+                            respondMessage.ReceiverDescription = "Coolant Temperature: " + InstrumentClusterElectronics.TemperatureCoolant;
+                            KBusManager.Instance.EnqueueMessage(respondMessage);
+                            Manager.Instance.EnqueueMessage(FrontDisplay.AuxHeaterIndicatorBlinkingMessage);
+                        }
+                        return;
+                    }
+
+                    if (AuxilaryHeaterStatus == AuxilaryHeaterStatus.Stopping)
+                    {
+                        Logger.Error("Auxilary heater was requested to stop, but it still working. Trying to stop again.");
+                        StopAuxilaryHeaterInternal();
                         return;
                     }
                 }

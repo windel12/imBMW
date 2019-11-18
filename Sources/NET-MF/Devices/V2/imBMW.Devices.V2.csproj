@@ -60,6 +60,7 @@
   </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
+    <Compile Include="AppState.cs" />
     <Compile Include="Hardware\Pin.cs" />
     <Compile Include="Launcher.cs" />
     <Compile Include="LedBlinkingItem.cs" />

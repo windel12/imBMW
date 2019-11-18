@@ -105,7 +105,7 @@ namespace imBMW.Features.Multimedia
 
         public VS1003Player(Cpu.Pin MP3_DREQ, Cpu.Pin MP3_CS, Cpu.Pin MP3_DCS, Cpu.Pin MP3_RST)
         {
-            generateNextTrackQueue = new QueueThreadWorker(GenerateNextTrack, "generateNextTrackQueue", ThreadPriority.Highest);
+            generateNextTrackQueue = new QueueThreadWorker(GenerateNextTrack, "generateNextTrackQueue", ThreadPriority.Lowest);
 
 #region prepare
             dataConfig = new SPI.Configuration(MP3_DCS, false, 0, 0, false, true, 1000, SPI.SPI_module.SPI2);
