@@ -41,7 +41,22 @@ namespace imBMW.iBus.Devices.Real
         {
             if (m.Data.Length == 3 && m.Data[0] == 0x74)
             {
-                if (m.Data[1] == 0x04)
+                if (m.Data[1] == 0x00) // No key in ignition switch
+                {
+                    if (IsKeyInserted)
+                    {
+                        var e = KeyRemoved;
+                        if (e != null)
+                        {
+                            e(new KeyEventArgs(LastKeyInserted));
+                        }
+                        m.ReceiverDescription = "Key" + LastKeyInserted + " removed";
+                        IsKeyInserted = false;
+                        return;
+                    }
+                    m.ReceiverDescription = "No key inserted";
+                }
+                else if (m.Data[1] == 0x04) // Key in ignition switch
                 {
                     if (!IsKeyInserted)
                     {
@@ -51,28 +66,15 @@ namespace imBMW.iBus.Devices.Real
                         {
                             e(new KeyEventArgs(LastKeyInserted));
                         }
-                        Logger.Info(m.ReceiverDescription);
+                        m.ReceiverDescription = "Key" + LastKeyInserted + " inserted";
+                        IsKeyInserted = true;
+                        return;
                     }
-                    IsKeyInserted = true;
-                    m.ReceiverDescription = "Key " + LastKeyInserted + " inserted";
+                    m.ReceiverDescription = "Key" + LastKeyInserted + " into ignition switch";
                 }
-                //if (m.Data[1] == 0x05)
-                //{
-                //    //"Immobilisation_deactivated Valid_key_detected Key#" + m.Data[2];
-                //}
-                else if (m.Data[1] == 0x00)
+                else if (m.Data[1] == 0x05)
                 {
-                    if (IsKeyInserted)
-                    {
-                        var e = KeyRemoved;
-                        if (e != null)
-                        {
-                            e(new KeyEventArgs(LastKeyInserted));
-                        }
-                        Logger.Info("Key " + LastKeyInserted + " removed");
-                    }
-                    IsKeyInserted = false;
-                    m.ReceiverDescription = "No key inserted";
+                    m.ReceiverDescription = "Key" + LastKeyInserted + "immobilisation deactivated";
                 }
             }
         }

@@ -68,7 +68,7 @@
             <TextBlock Grid.Row="5" Grid.Column="1" Text="Monitor Off" Foreground="White" FontSize="20"/>
         </Grid>
 
-        <StackPanel Name="CDChangerPanel" Orientation="Vertical" Visibility="Hidden" Margin="105,118,105,10">
+        <StackPanel Name="CDChangerPanel" Orientation="Vertical" Visibility="Hidden" Margin="105,222,105,10">
             <Grid Name="HeaderGrid" Height="46">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="0.5*" />

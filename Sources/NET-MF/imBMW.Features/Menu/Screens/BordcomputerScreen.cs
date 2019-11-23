@@ -218,7 +218,7 @@ namespace imBMW.Features.Menu.Screens
             //    GoToScreenCallback = () => { return SpeedLimitScreen.Instance; }
             //});
             AddItem(new MenuItem(i => 
-                "Компрессор: " 
+                Localization.Current.Compressor + ": " 
                 + IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_FirstByte.ToString("X")                              
                 + " "               
                 + IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatus_SecondByte.ToString("X")));

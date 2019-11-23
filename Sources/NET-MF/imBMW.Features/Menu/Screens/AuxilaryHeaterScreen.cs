@@ -3,6 +3,7 @@ using imBMW.Features.Localizations;
 using imBMW.iBus;
 using imBMW.iBus.Devices.Real;
 using imBMW.Tools;
+using imBMW.Enums;
 
 namespace imBMW.Features.Menu.Screens
 {
@@ -17,14 +18,13 @@ namespace imBMW.Features.Menu.Screens
         protected AuxilaryHeaterScreen()
         {
             TitleCallback = s => Localization.Current.AuxilaryHeater;
-            StatusCallback = s => IntegratedHeatingAndAirConditioning.AuxilaryHeaterStatus.ToStringValue();
+            StatusCallback = s => AuxilaryHeater.Status.ToStringValue();
 
             SetItems();
         }
 
         protected virtual void SetItems()
         {
-            ClearItems();
             //AddItem(new MenuItem(i => i.IsChecked ? Localization.Current.TurnOff : Localization.Current.TurnOn,
             //    i =>
             //    {
@@ -55,25 +55,23 @@ namespace imBMW.Features.Menu.Screens
             string label1 = "W>IHKA: 93 00 22";
             AddItem(new MenuItem(i => label1, i =>
             {
-                Logger.Trace("Pressed: " + label1);
+                Logger.Debug("Pressed: " + label1);
                 KBusManager.Instance.EnqueueMessage(AuxilaryHeater.AuxilaryHeaterWorkingResponse);
             }, MenuItemType.Button, MenuItemAction.None));
 
             string label2 = "IHKA>W: 92 00 21";
             AddItem(new MenuItem(i => label2, i =>
             {
-                Logger.Trace("Pressed: " + label2);
+                Logger.Debug("Pressed: " + label2);
                 KBusManager.Instance.EnqueueMessage(IntegratedHeatingAndAirConditioning.StopAuxilaryHeater1);
             }, MenuItemType.Button, MenuItemAction.None));
 
             string label3 = "IHKA>W: 92 00 11";
             AddItem(new MenuItem(i => label3, i =>
             {
-                Logger.Trace("Pressed: " + label3);
+                Logger.Debug("Pressed: " + label3);
                 KBusManager.Instance.EnqueueMessage(IntegratedHeatingAndAirConditioning.StopAuxilaryHeater2);
             }, MenuItemType.Button, MenuItemAction.None));
-
-
 
             AddItem(new MenuItem(i => "StartAuxilaryHeater", i =>
             {
@@ -92,7 +90,7 @@ namespace imBMW.Features.Menu.Screens
         {
             if (base.OnNavigatedTo(menu))
             {
-                IntegratedHeatingAndAirConditioning.AuxilaryHeaterStatusChanged += IntegratedHeatingAndAirConditioning_AuxilaryHeaterStatusChanged;
+                AuxilaryHeater.StatusChanged += IntegratedHeatingAndAirConditioning_AuxilaryHeaterStatusChanged;
                 IntegratedHeatingAndAirConditioning.AuxilaryHeaterWorkingRequestsCounterChanged += IntegratedHeatingAndAirConditioning_AuxilaryHeaterWorkingRequestsCounterChanged;
                 return true;
             }
@@ -103,7 +101,7 @@ namespace imBMW.Features.Menu.Screens
         {
             if (base.OnNavigatedFrom(menu))
             {
-                IntegratedHeatingAndAirConditioning.AuxilaryHeaterStatusChanged -= IntegratedHeatingAndAirConditioning_AuxilaryHeaterStatusChanged;
+                AuxilaryHeater.StatusChanged -= IntegratedHeatingAndAirConditioning_AuxilaryHeaterStatusChanged;
                 IntegratedHeatingAndAirConditioning.AuxilaryHeaterWorkingRequestsCounterChanged -= IntegratedHeatingAndAirConditioning_AuxilaryHeaterWorkingRequestsCounterChanged;
                 return true;
             }

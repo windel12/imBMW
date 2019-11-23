@@ -3,31 +3,37 @@ using System.Threading;
 using imBMW.iBus;
 using imBMW.iBus.Devices.Real;
 using imBMW.Tools;
+using imBMW.Enums;
 
 namespace OnBoardMonitorEmulator.DevicesEmulation
 {
     public static class AuxilaryHeaterEmulator
     {
-        public static void Init() { }
+        private static int announceTimeout;
+
+        public static void Init(int timeout = 10000)
+        {
+            announceTimeout = timeout;
+        }
 
         static Thread announceThread;
 
         static AuxilaryHeaterEmulator()
         {
-            Manager.Instance.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.Diagnostic, DeviceAddress.AuxilaryHeater, ProcessDiagnosticMessageToAuxilaryHeater);
+            //Manager.Instance.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.Diagnostic, DeviceAddress.AuxilaryHeater, ProcessDiagnosticMessageToAuxilaryHeater);
             KBusManager.Instance.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.AuxilaryHeater, ProcessMessageFromIHKA);
         }
 
-        static void ProcessDiagnosticMessageToAuxilaryHeater(Message m)
-        {
-            if (m.Data.StartsWith(AuxilaryHeater.DiagnoseStart.Data) || 
-                m.Data.StartsWith(AuxilaryHeater.SteuernZuheizerOn.Data) ||
-                m.Data.StartsWith(AuxilaryHeater.SteuernZuheizerOff.Data))
-            {
-                Thread.Sleep(100);
-                Manager.Instance.EnqueueMessage(AuxilaryHeater.DiagnoseOk_KBus);
-            }
-        }
+        //static void ProcessDiagnosticMessageToAuxilaryHeater(Message m)
+        //{
+        //    if (m.Data.StartsWith(AuxilaryHeater.DiagnoseStart.Data) || 
+        //        m.Data.StartsWith(AuxilaryHeater.SteuernZuheizerOn.Data) ||
+        //        m.Data.StartsWith(AuxilaryHeater.SteuernZuheizerOff.Data))
+        //    {
+        //        Thread.Sleep(100);
+        //        Manager.Instance.EnqueueMessage(AuxilaryHeater.DiagnoseOk_KBus);
+        //    }
+        //}
 
         static void ProcessMessageFromIHKA(Message message)
         {
@@ -39,7 +45,7 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
 
             if (message.Data.StartsWith(IntegratedHeatingAndAirConditioning.StartAuxilaryHeaterMessage.Data))
             {
-                if (IntegratedHeatingAndAirConditioning.AuxilaryHeaterStatus == AuxilaryHeaterStatus.StartPending)
+                if (AuxilaryHeater.Status == AuxilaryHeaterStatus.StartPending)
                 {
                     Thread.Sleep(100);
                     KBusManager.Instance.EnqueueMessage(AuxilaryHeater.AuxilaryHeaterWorkingResponse);
@@ -67,7 +73,7 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
         {
             while (true)
             {
-                Thread.Sleep(10000);
+                Thread.Sleep(announceTimeout);
                 KBusManager.Instance.EnqueueMessage(AuxilaryHeater.AuxilaryHeaterWorkingResponse);
             }
         }

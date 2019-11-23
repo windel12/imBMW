@@ -201,6 +201,9 @@
     <Compile Include="..\imBMW.Features\Menu\Screens\HomeScreen.cs">
       <Link>imBMW.Features\Menu\Screens\HomeScreen.cs</Link>
     </Compile>
+    <Compile Include="..\imBMW.Features\Menu\Screens\IntegratedHeatingAndAirConditioningScreen.cs">
+      <Link>imBMW.Features\Menu\Screens\IntegratedHeatingAndAirConditioningScreen.cs</Link>
+    </Compile>
     <Compile Include="..\imBMW.Features\Menu\Screens\MusicListScreen.cs">
       <Link>imBMW.Features\Menu\Screens\MusicListScreen.cs</Link>
     </Compile>
@@ -284,6 +287,24 @@
     </Compile>
     <Compile Include="..\imBMW\DBus\DS2Message.cs">
       <Link>imBMW\DBus\DS2Message.cs</Link>
+    </Compile>
+    <Compile Include="..\imBMW\Enums\AirConditioningCompressorStatus.cs">
+      <Link>imBMW\Enums\AirConditioningCompressorStatus.cs</Link>
+    </Compile>
+    <Compile Include="..\imBMW\Enums\AudioSource.cs">
+      <Link>imBMW\Enums\AudioSource.cs</Link>
+    </Compile>
+    <Compile Include="..\imBMW\Enums\AuxilaryHeaterActivationMode.cs">
+      <Link>imBMW\Enums\AuxilaryHeaterActivationMode.cs</Link>
+    </Compile>
+    <Compile Include="..\imBMW\Enums\AuxilaryHeaterStatus.cs">
+      <Link>imBMW\Enums\AuxilaryHeaterStatus.cs</Link>
+    </Compile>
+    <Compile Include="..\imBMW\Enums\FlapPosition.cs">
+      <Link>imBMW\Enums\FlapPosition.cs</Link>
+    </Compile>
+    <Compile Include="..\imBMW\Enums\TemperatureUnit.cs">
+      <Link>imBMW\Enums\TemperatureUnit.cs</Link>
     </Compile>
     <Compile Include="..\imBMW\iBus\DeviceAddress.cs">
       <Link>imBMW\iBus\DeviceAddress.cs</Link>

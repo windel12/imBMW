@@ -160,6 +160,12 @@ namespace imBMW.Features.Localizations
 
         public abstract string Activate { get; }
 
+        public abstract string Compressor { get; }
+
+        public abstract string MusicList { get; }
+
+        public abstract string AirConditioning { get; }
+
         /*
         
         public abstract string  { get; }

@@ -9,6 +9,7 @@ using GHI.Pins;
 using imBMW.Features.Menu.Screens;
 using imBMW.Features.Multimedia;
 using imBMW.iBus;
+using imBMW.Enums;
 
 namespace imBMW.iBus.Devices.Emulators
 {
@@ -87,7 +88,7 @@ namespace imBMW.iBus.Devices.Emulators
 
                 MultiFunctionSteeringWheel.ButtonPressed += button =>
                 {
-                    if (button == MFLButton.VolumeDown)
+                    if (button == MFLButton.VolumeDown || button == MFLButton.VolumeUp)
                     {
                         skipNextTrackMessage = true;
 
@@ -253,9 +254,7 @@ namespace imBMW.iBus.Devices.Emulators
                 else
                 {
                     skipNextTrackMessage = false;
-                    FrontDisplay.RefreshLEDs(LedType.Orange, append:true);
                     Logger.Warning("Errorneous 'Next' command was successfully skipped");
-                    FrontDisplay.RefreshLEDs(LedType.Orange, remove:true);
                 }
             }
             else if (m.Data.Compare(DataPrev))

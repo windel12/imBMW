@@ -308,7 +308,7 @@ namespace imBMW.iBus
         }
 
         /// <summary>
-        /// Description of the message set by a receiver or by MessageRegistry
+        /// { Description of the message set by a receiver in curly brackets }
         /// </summary>
         public string ReceiverDescription { get; set; }
 

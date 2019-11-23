@@ -1,19 +1,12 @@
 using System;
 using GHI.Pins;
-using imBMW.Features.Localizations;
-using imBMW.iBus;
-using imBMW.Tools;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
+using imBMW.Tools;
+using imBMW.Enums;
 
 namespace imBMW.Features.Menu.Screens
 {
-    public enum AudioSource
-    {
-        SDCard,
-        Bluetooth
-    }
-
     public class BluetoothScreen : MenuScreen
     {
         protected static BluetoothScreen instance;
@@ -27,12 +20,12 @@ namespace imBMW.Features.Menu.Screens
         {
             ClearItems();
 
-            AddItem(new MenuItem(i => "Источник: " + AudioSource.ToStringValue(), i =>
+            AddItem(new MenuItem(i => "Source: " + AudioSource.ToStringValue(), i =>
             {
                 AudioSource = AudioSource == AudioSource.SDCard ? AudioSource.Bluetooth : AudioSource.SDCard;
             }, MenuItemType.Button, MenuItemAction.Refresh));
 
-            AddItem(new MenuItem(i => "Зарядка", i => BluetoothChargingState = i.IsChecked, MenuItemType.Checkbox)
+            AddItem(new MenuItem(i => "Power", i => BluetoothChargingState = i.IsChecked, MenuItemType.Checkbox)
             {
                 IsChecked = BluetoothChargingState
             });

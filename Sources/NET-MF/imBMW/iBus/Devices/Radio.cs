@@ -14,6 +14,7 @@ namespace imBMW.iBus.Devices.Real
     {
         public static byte[] DataRadioOn = new byte[] { 0x4A, 0xFF };
         public static byte[] DataRadioOff = new byte[] { 0x4A, 0x00 };
+        public static byte[] DataRadioUnknow = new byte[] { 0x4A, 0x90 };
 
         public static byte[] DataRadioKnobPressed = new byte[] { 0x48, 0x06 };
         public static byte[] DataRadioKnobHold = new byte[] { 0x48, 0x46 };
@@ -88,6 +89,17 @@ namespace imBMW.iBus.Devices.Real
                     radioOnOffChanged(false);
                     m.ReceiverDescription = "Radio Off";
                     return;
+                }
+            }
+            if (m.Data[0] == 0x36 && m.Data.Length == 2)
+            {
+                if (m.Data[1] >= 0x50 && m.Data[1] <= 0x6F)
+                {
+                    m.ReceiverDescription = "Configuring Bass";
+                }
+                if (m.Data[1] >= 0xB0 && m.Data[1] <= 0xCF)
+                {
+                    m.ReceiverDescription = "Configuring Tremble";
                 }
             }
         }

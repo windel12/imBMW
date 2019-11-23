@@ -309,5 +309,20 @@ namespace imBMW.Features.Localizations
         {
             get { return "Activate"; }
         }
+
+        public override string Compressor
+        {
+            get { return "Compressor"; }
+        }
+
+        public override string MusicList
+        {
+            get { return "Music list"; }
+        }
+
+        public override string AirConditioning
+        {
+            get { return "Air Conditioning"; }
+        }
     }
 }

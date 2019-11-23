@@ -25,16 +25,16 @@ namespace OnBoardMonitorEmulatorTests
         [TestMethod]
         public void Should_StartApp_AndAcquireDateTime()
         {
-            ManualResetEvent waitHandler = new ManualResetEvent(false);
+            ManualResetEvent waitHandle = new ManualResetEvent(false);
 
             InstrumentClusterElectronicsEmulator.Init();
 
-            InstrumentClusterElectronics.DateTimeChanged += (e) => { waitHandler.Set(); };
+            InstrumentClusterElectronics.DateTimeChanged += (e) => { waitHandle.Set(); };
 
             var now = DateTime.Now;
             Launcher.Launch(Launcher.LaunchMode.WPF);
 
-            waitHandler.WaitOne(Debugger.IsAttached ? 30000 : 1000);
+            waitHandle.WaitOne(Debugger.IsAttached ? 30000 : 1000);
 
             Assert.AreEqual(Utility.CurrentDateTime.Year, now.Year);
             Assert.AreEqual(Utility.CurrentDateTime.Month, now.Month);

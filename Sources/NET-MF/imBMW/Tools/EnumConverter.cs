@@ -1,3 +1,4 @@
+using imBMW.Enums;
 using imBMW.iBus;
 using imBMW.iBus.Devices.Real;
 
@@ -108,10 +109,10 @@ namespace imBMW.Tools
                 case DeviceAddress.MirrorMemorySecond: return "MirrorMemorySecond";
                 case DeviceAddress.MirrorMemoryThird: return "MirrorMemoryThird";
                 case DeviceAddress.RearMultiInfoDisplay: return "RearMID";
-                case DeviceAddress.AirBagModule: return "AirBagModule";
+                case DeviceAddress.AirBagModule: return "SRS";
                 case DeviceAddress.CruiseControlUnit: return "CruiseControlUnit";
                 case DeviceAddress.RearIntegratedHeatingAndAirConditioning: return "RearIHKA";
-                case DeviceAddress.NavigationChina: return "NAVCh";
+                case DeviceAddress.NavigationChina: return "NavigationChina";
                 case DeviceAddress.EHC: return "EHC";
                 case DeviceAddress.SpeedRecognitionSystem: return "SpeedRecognitionSystem";
                 case DeviceAddress.NavigationJapan: return "NAVJ";
@@ -122,7 +123,7 @@ namespace imBMW.Tools
                 case DeviceAddress.LightControlModule: return "LCM";
                 case DeviceAddress.SeatMemorySecond: return "SeatMemorySecond";
                 case DeviceAddress.IntegratedRadioInformationSystem: return "IntegratedRadioInformationSystem";
-                case DeviceAddress.FrontDisplay: return "FrontDisplay";
+                case DeviceAddress.FrontDisplay: return "LCD";
                 case DeviceAddress.RainLightSensor: return "RLS";
                 case DeviceAddress.Television: return "TV";
                 case DeviceAddress.OnBoardMonitor: return "OBM";
@@ -137,6 +138,74 @@ namespace imBMW.Tools
                 
                 case DeviceAddress.Unset: return "Unset";
                 case DeviceAddress.Unknown: return "Unknown";
+            }
+            return "NotSpecified(" + e.ToString() + ")";
+        }
+
+        public static string ToStringValue(this AudioSource e)
+        {
+            switch (e)
+            {
+                case AudioSource.SDCard: return "SDCard";
+                case AudioSource.Bluetooth: return "Bluetooth";
+            }
+            return "NotSpecified(" + e.ToString() + ")";
+        }
+
+        public static string ToStringValue(this AuxilaryHeaterStatus e)
+        {
+            switch (e)
+            {
+                case AuxilaryHeaterStatus.Unknown: return "Unknown";
+                case AuxilaryHeaterStatus.Present: return "Present";
+                case AuxilaryHeaterStatus.StopPending: return "StopPending";
+                case AuxilaryHeaterStatus.Stopping: return "Stopping";
+                case AuxilaryHeaterStatus.Stopped: return "Stopped";
+                case AuxilaryHeaterStatus.StartRequested: return "StartRequested";
+                case AuxilaryHeaterStatus.StartPending: return "StartPending";
+                case AuxilaryHeaterStatus.Starting: return "Starting";
+                case AuxilaryHeaterStatus.Started: return "Started";
+                case AuxilaryHeaterStatus.Working: return "Working";
+            }
+            return "NotSpecified(" + e.ToString() + ")";
+        }
+
+        public static string ToStringValue(this AirConditioningCompressorStatus e)
+        {
+            switch (e)
+            {
+                case AirConditioningCompressorStatus.Off: return "Off";
+                case AirConditioningCompressorStatus.On: return "On";
+            }
+            return "NotSpecified(" + e.ToString() + ")";
+        }
+
+        public static string ToStringValue(this AuxilaryHeaterActivationMode e)
+        {
+            switch (e)
+            {
+                case AuxilaryHeaterActivationMode.Normal: return "Normal";
+                case AuxilaryHeaterActivationMode.Kbus: return "Kbus";
+            }
+            return "NotSpecified(" + e.ToString() + ")";
+        }
+
+        public static string ToStringValue(this TemperatureUnit e)
+        {
+            switch (e)
+            {
+                case TemperatureUnit.Celsius: return "Celsius";
+                case TemperatureUnit.Fahrenheit: return "Fahrenheit";
+            }
+            return "NotSpecified(" + e.ToString() + ")";
+        }
+
+        public static string ToStringValue(this FlapPosition e)
+        {
+            switch (e)
+            {
+                case FlapPosition.y_fahrer: return "y_fahrer";
+                case FlapPosition.y_fahrer_beifahrer: return "y_fahrer_beifahrer";
             }
             return "NotSpecified(" + e.ToString() + ")";
         }

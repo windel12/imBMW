@@ -1,6 +1,7 @@
 using GHI.Pins;
 using GHI.Usb.Host;
 using imBMW.Devices.V2.Hardware;
+using imBMW.Enums;
 using imBMW.Features;
 using imBMW.Features.Localizations;
 using imBMW.Features.Menu;
@@ -368,8 +369,8 @@ namespace imBMW.Devices.V2
             KBusManager.Init(kBusPort, ThreadPriority.Normal);
             Logger.Debug("KBusManager inited");
 
-            KBusManager.Instance.BeforeMessageReceived += KBusManager_BeforeMessageReceived;
-            KBusManager.Instance.BeforeMessageSent += KBusManager_BeforeMessageSent;
+            KBusManager.Instance.AfterMessageReceived += KBusManager_AfterMessageReceived;
+            KBusManager.Instance.AfterMessageSent += KBusManager_AfterMessageSent;
 #endif
 
 #if NETMF || (OnBoardMonitorEmulator && DEBUG)
@@ -378,8 +379,8 @@ namespace imBMW.Devices.V2
             DBusManager.Init(dBusPort, ThreadPriority.Highest);
             Logger.Debug("DBusManager inited");
 
-            DBusManager.Instance.BeforeMessageReceived += DBusManager_BeforeMessageReceived;
-            DBusManager.Instance.BeforeMessageSent += DBusManager_BeforeMessageSent;
+            DBusManager.Instance.AfterMessageReceived += DBusManager_AfterMessageReceived;
+            DBusManager.Instance.AfterMessageSent += DBusManager_AfterMessageSent;
 #endif
 
 
@@ -397,12 +398,12 @@ namespace imBMW.Devices.V2
             Manager.Instance.AfterMessageSent -= Manager_AfterMessageSent;
             Manager.Instance.Dispose();
 
-            KBusManager.Instance.BeforeMessageReceived -= KBusManager_BeforeMessageReceived;
-            KBusManager.Instance.BeforeMessageSent -= KBusManager_BeforeMessageSent;
+            KBusManager.Instance.AfterMessageReceived -= KBusManager_AfterMessageReceived;
+            KBusManager.Instance.AfterMessageSent -= KBusManager_AfterMessageSent;
             KBusManager.Instance.Dispose();
 
-            DBusManager.Instance.BeforeMessageReceived -= DBusManager_BeforeMessageReceived;
-            DBusManager.Instance.BeforeMessageSent -= DBusManager_BeforeMessageSent;
+            DBusManager.Instance.AfterMessageReceived -= DBusManager_AfterMessageReceived;
+            DBusManager.Instance.AfterMessageSent -= DBusManager_AfterMessageSent;
             DBusManager.Instance.Dispose();
         }
 
@@ -568,7 +569,6 @@ namespace imBMW.Devices.V2
 
         internal static void Manager_BeforeMessageReceived(MessageEventArgs e)
         {
-            //blueLed.Write(Busy(true, 1));
             idleTime = 0;
 
             WakeUp();
@@ -576,8 +576,6 @@ namespace imBMW.Devices.V2
 
         private static void Manager_AfterMessageReceived(MessageEventArgs e)
         {
-            //blueLed.Write(Busy(false, 1));
-
             if (IBusLoggerPredicate(e))
             {
                 // Show only messages which are described
@@ -589,13 +587,6 @@ namespace imBMW.Devices.V2
                 var logIco = "I < ";
                 if (settings.LogMessageToASCII)
                 {
-                    //object[] messages = StringHelpers.WholeChunks(e.Message.ToPrettyString(false, false), 10).ToArray();
-                    //foreach (string message in messages)
-                    //{
-                    //    Logger.Trace(message, logIco);
-                    //}
-                    //Logger.Trace("/n");
-
                     Logger.Trace(e.Message.ToPrettyString(false, false), logIco);
                 }
                 else
@@ -676,7 +667,7 @@ namespace imBMW.Devices.V2
                    InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Off; 
         }
 
-        private static void KBusManager_BeforeMessageReceived(MessageEventArgs e)
+        private static void KBusManager_AfterMessageReceived(MessageEventArgs e)
         {
             idleTime = 0;
 
@@ -694,7 +685,7 @@ namespace imBMW.Devices.V2
             }
         }
 
-        private static void KBusManager_BeforeMessageSent(MessageEventArgs e)
+        private static void KBusManager_AfterMessageSent(MessageEventArgs e)
         {
             if (KBusLoggerPredicate(e))
             {
@@ -716,7 +707,7 @@ namespace imBMW.Devices.V2
             return true;
         }
 
-        private static void DBusManager_BeforeMessageReceived(MessageEventArgs e)
+        private static void DBusManager_AfterMessageReceived(MessageEventArgs e)
         {
             if (DBusLoggerPredicate(e))
             {
@@ -732,7 +723,7 @@ namespace imBMW.Devices.V2
             }
         }
 
-        private static void DBusManager_BeforeMessageSent(MessageEventArgs e)
+        private static void DBusManager_AfterMessageSent(MessageEventArgs e)
         {
             if (DBusLoggerPredicate(e))
             {

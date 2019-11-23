@@ -16,7 +16,7 @@ namespace imBMW.Features.Menu.Screens
         protected MenuItem bluetoothItem;
         protected MenuItem activateItem;
         protected MenuItem musicListItem;
-        protected MenuItem test1Item;
+        protected MenuItem integratedHeatingAndAirConditioningItem;
         protected MenuItem test2Item;
         protected MenuItem test3Item;
 
@@ -50,12 +50,13 @@ namespace imBMW.Features.Menu.Screens
             {
                 GoToScreenCallback = () => ActivateScreen.Instance
             };
-            musicListItem = new MenuItem(i => "Music list", MenuItemType.Button, MenuItemAction.GoToScreen)
+            musicListItem = new MenuItem(i => Localization.Current.MusicList, MenuItemType.Button, MenuItemAction.GoToScreen)
             {
                 GoToScreenCallback = () => MusicListScreen.Instance
             };
-            test1Item = new MenuItem(i => "-", MenuItemType.Button, MenuItemAction.Refresh)
+            integratedHeatingAndAirConditioningItem = new MenuItem(i => Localization.Current.AirConditioning, MenuItemType.Button, MenuItemAction.GoToScreen)
             {
+                GoToScreenCallback = () => IntegratedHeatingAndAirConditioningScreen.Instance
             };
             test2Item = new MenuItem(i => "-", MenuItemType.Button, MenuItemAction.Refresh)
             {
@@ -78,7 +79,7 @@ namespace imBMW.Features.Menu.Screens
             AddItem(bluetoothItem);
             AddItem(activateItem);
             AddItem(musicListItem);
-            AddItem(test1Item);
+            AddItem(integratedHeatingAndAirConditioningItem);
             AddItem(test2Item);
             AddItem(test3Item);
         }

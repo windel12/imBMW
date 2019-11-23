@@ -188,7 +188,7 @@ namespace System.IO.Ports
 #endregion
 
 
-#region Reading
+        #region Reading
 
         protected abstract int ReadDirect(byte[] data, int offset, int length);
 
@@ -421,7 +421,7 @@ namespace System.IO.Ports
 #endregion
 
 
-#region DataReceived event stuff
+        #region DataReceived event stuff
 
         protected object _bufferSync;                 // Sync root object for manipulation with the _incomingBuffer and/or its position/valid length fields.
         protected bool _continueReading;              // A soft way to end the reading thread.

@@ -143,8 +143,7 @@ namespace imBMW.iBus.Devices.Real
             {
                 e(new RemoteKeyEventArgs(button));
             }
-            m.ReceiverDescription = "Remote key pressed: " + button.ToStringValue() + " button";
-            Logger.Info(m.ReceiverDescription);
+            m.ReceiverDescription = "Remote key: '" + button.ToStringValue() + "' was pressed";
         }
 
         private static void InstrumentClusterElectronics_IgnitionStateChanged(IgnitionEventArgs e)

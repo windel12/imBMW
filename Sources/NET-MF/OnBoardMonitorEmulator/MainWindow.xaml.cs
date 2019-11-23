@@ -92,6 +92,7 @@ namespace OnBoardMonitorEmulator
             DigitalDieselElectronicsEmulator.Init();
             FrontDisplayEmulator.Init();
             HeadlightVerticalAimControlEmulator.Init();
+            IntegratedHeatingAndAirConditioningEmulator.Init();
 
             Launcher.Launch(Launcher.LaunchMode.WPF);
 
@@ -119,11 +120,11 @@ namespace OnBoardMonitorEmulator
             {
                 this.Dispatcher.Invoke(() =>
                 {
-                    if (m.Data[0] == 0x4A && m.Data[1] == 0xFF)
+                    if (m.Data.StartsWith(Radio.DataRadioOn))
                     {
                         EnableRadio();
                     }
-                    if (m.Data[0] == 0x4A && m.Data[1] == 0x00)
+                    if (m.Data.StartsWith(Radio.DataRadioOff))
                     {
                         DisableRadio();
                     }

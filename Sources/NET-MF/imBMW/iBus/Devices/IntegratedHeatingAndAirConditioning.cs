@@ -1,15 +1,11 @@
 using System;
 using imBMW.Tools;
 using System.Threading;
+using imBMW.Enums;
+using System.Collections;
 
 namespace imBMW.iBus.Devices.Real
 {
-    public enum AirConditioningCompressorStatus
-    {
-        Off,
-        On
-    }
-
     public static class IntegratedHeatingAndAirConditioning
     {
         private static Timer delay;
@@ -17,34 +13,14 @@ namespace imBMW.iBus.Devices.Real
 
         private static byte[] startOrContinueWorkingAuxilaryHeater = {0x92, 0x00, 0x22};
 
-        /// <summary> 5B 05 6B 92 00 22 ?? </summary>
+        /// <summary> IHKA > ZUH: 92 00 22 </summary>
         public static Message StartAuxilaryHeaterMessage = new Message(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.AuxilaryHeater, startOrContinueWorkingAuxilaryHeater);
-        /// <summary> 5B 05 6B 92 00 22 ?? </summary>
+        /// <summary> IHKA > ZUH: 92 00 22 </summary>
         public static Message ContinueWorkingAuxilaryHeater = new Message(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.AuxilaryHeater, startOrContinueWorkingAuxilaryHeater);
-        /// <summary> 5B 05 6B 92 00 21 ?? </summary>
+        /// <summary> IHKA > ZUH: 92 00 21 </summary>
         public static Message StopAuxilaryHeater1 = new Message(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.AuxilaryHeater, 0x92, 0x00, 0x21);
-        /// <summary> 5B 05 6B 92 00 11 ?? </summary>
+        /// <summary> IHKA > ZUH: 92 00 11 </summary>
         public static Message StopAuxilaryHeater2 = new Message(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.AuxilaryHeater, 0x92, 0x00, 0x11);
-
-        private static AuxilaryHeaterStatus _auxilaryHeaterStatus;
-        public static AuxilaryHeaterStatus AuxilaryHeaterStatus
-        {
-            get { return _auxilaryHeaterStatus; }
-            private set
-            {
-                var previousStatus = _auxilaryHeaterStatus;
-                _auxilaryHeaterStatus = value;
-
-                if (value != previousStatus)
-                {
-                    var e = AuxilaryHeaterStatusChanged;
-                    if (e != null)
-                    {
-                        e(value);
-                    }
-                }
-            }
-        }
 
         private static byte _auxilaryHeaterWorkingRequestsCounter = 0;
         public static byte AuxilaryHeaterWorkingRequestsCounter
@@ -66,20 +42,31 @@ namespace imBMW.iBus.Devices.Real
         public static byte AirConditioningCompressorStatus_FirstByte = 0x00;
         public static byte AirConditioningCompressorStatus_SecondByte = 0x00;
 
+        public static void Init() { }
+
         static IntegratedHeatingAndAirConditioning()
         {
             KBusManager.Instance.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.AuxilaryHeater, DeviceAddress.IntegratedHeatingAndAirConditioning, ProcessAuxilaryHeaterMessage);
             KBusManager.Instance.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.InstrumentClusterElectronics, ProcessMessageToIKE);
+            KBusManager.Instance.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.Diagnostic, ProcessIHKAMessage);
+
+            //InstrumentClusterElectronics.IgnitionStateChanged += (e) =>
+            //{
+            //    if (e.PreviousIgnitionState == IgnitionState.Acc && e.CurrentIgnitionState == IgnitionState.Off)
+            //    {
+            //        KBusManager.Instance.EnqueueMessage(StopAuxilaryHeater2);
+            //    }
+            //};
         }
 
-        public static void ProcessAuxilaryHeaterMessage(Message message)
+        public static void ProcessAuxilaryHeaterMessage(Message m)
         {
             lock (_sync)
             {
-                if (message.Data.StartsWith(MessageRegistry.DataPollResponse))
+                if (m.Data.StartsWith(MessageRegistry.DataPollResponse))
                 {
-                    Logger.Trace("Auxilary heater responded.");
-                    AuxilaryHeaterStatus = AuxilaryHeaterStatus.Present;
+                    Logger.Debug("Auxilary heater responded.");
+                    AuxilaryHeater.Status = AuxilaryHeaterStatus.Present;
                     delay = new Timer(delegate
                     {
                         StartAuxilaryHeaterInternal();
@@ -93,27 +80,25 @@ namespace imBMW.iBus.Devices.Real
                     return;
                 }
 
-                if (message.Data.StartsWith(AuxilaryHeater.AuxilaryHeaterWorkingResponse.Data))
+                if (m.Data.StartsWith(AuxilaryHeater.AuxilaryHeaterWorkingResponse.Data))
                 {
                     // this happens, if we restart imBMW during webasto working
-                    if (AuxilaryHeaterStatus == AuxilaryHeaterStatus.Unknown)
+                    if (AuxilaryHeater.Status == AuxilaryHeaterStatus.Unknown)
                     {
-                        AuxilaryHeaterStatus = AuxilaryHeaterStatus.Started;
+                        AuxilaryHeater.Status = AuxilaryHeaterStatus.Working;
                         Logger.Debug("Auxilary Heater, previous state was restored.");
                         // without return!!! for answering
                     }
 
-                    if (AuxilaryHeaterStatus == AuxilaryHeaterStatus.StartPending)
+                    if (AuxilaryHeater.Status == AuxilaryHeaterStatus.StartPending)
                     {
                         Logger.Debug("Auxilary heater started");
-                        AuxilaryHeaterStatus = AuxilaryHeaterStatus.Started;
+                        AuxilaryHeater.Status = AuxilaryHeaterStatus.Started;
                         Manager.Instance.EnqueueMessage(FrontDisplay.AuxHeaterIndicatorBlinkingMessage);
                         return;
                     }
-                    if (AuxilaryHeaterStatus == AuxilaryHeaterStatus.Started)
+                    if (AuxilaryHeater.Status == AuxilaryHeaterStatus.Started || AuxilaryHeater.Status == AuxilaryHeaterStatus.Working)
                     {
-                        Logger.Debug("Coolant Temperature: " + InstrumentClusterElectronics.TemperatureCoolant);
-
                         if (InstrumentClusterElectronics.TemperatureCoolant >= 72)
                         {
                             Logger.Debug("Turning off Auxilary heater by reaching needed temperature.");
@@ -121,23 +106,26 @@ namespace imBMW.iBus.Devices.Real
                         }
                         else
                         {
+                            AuxilaryHeater.Status = AuxilaryHeaterStatus.Working;
+                            m.ReceiverDescription = "AuxilaryHeater is working. Coolant Temperature: " + InstrumentClusterElectronics.TemperatureCoolant;
+
                             var respondMessage = ContinueWorkingAuxilaryHeater;
-                            respondMessage.ReceiverDescription = "Coolant Temperature: " + InstrumentClusterElectronics.TemperatureCoolant;
+                            respondMessage.ReceiverDescription = "Continue working.";
                             KBusManager.Instance.EnqueueMessage(respondMessage);
                             Manager.Instance.EnqueueMessage(FrontDisplay.AuxHeaterIndicatorBlinkingMessage);
                         }
                         return;
                     }
 
-                    if (AuxilaryHeaterStatus == AuxilaryHeaterStatus.Stopping)
+                    if (AuxilaryHeater.Status == AuxilaryHeaterStatus.Stopping)
                     {
-                        Logger.Error("Auxilary heater was requested to stop, but it still working. Trying to stop again.");
+                        Logger.Warning("Auxilary heater was requested to stop, but it still working. Trying to stop again.");
                         StopAuxilaryHeaterInternal();
                         return;
                     }
                 }
 
-                if (message.Data.StartsWith(AuxilaryHeater.AuxilaryHeaterStopped1.Data))
+                if (AuxilaryHeater.Status == AuxilaryHeaterStatus.Stopping && m.Data.StartsWith(AuxilaryHeater.AuxilaryHeaterStopped1.Data))
                 {
                     delay = new Timer(delegate
                     {
@@ -150,18 +138,20 @@ namespace imBMW.iBus.Devices.Real
                         }
                     }, null, 1000, 0);
                 }
-                if (message.Data.StartsWith(AuxilaryHeater.AuxilaryHeaterStopped2.Data))
+
+                if (m.Data.StartsWith(AuxilaryHeater.AuxilaryHeaterStopped2.Data))
                 {
-                    AuxilaryHeaterStatus = AuxilaryHeaterStatus.Stopped;
+                    AuxilaryHeater.Status = AuxilaryHeaterStatus.Stopped;
+                    Manager.Instance.EnqueueMessage(FrontDisplay.AuxHeaterIndicatorTurnOffMessage);
                 }
             }
         }
 
-        public static void ProcessMessageToIKE(Message message)
+        public static void ProcessMessageToIKE(Message m)
         {
-            if (message.Data[0] == 0x83 && message.Data.Length == 3)
+            if (m.Data[0] == 0x83 && m.Data.Length == 3)
             {
-                if (message.Data[1] == 0x80)
+                if (m.Data[1] == 0x80)
                 {
                     AirConditioningCompressorStatus = AirConditioningCompressorStatus.Off;
                 }
@@ -170,8 +160,8 @@ namespace imBMW.iBus.Devices.Real
                     AirConditioningCompressorStatus = AirConditioningCompressorStatus.On;
                 }
 
-                AirConditioningCompressorStatus_FirstByte = message.Data[1];
-                AirConditioningCompressorStatus_SecondByte = message.Data[2];
+                AirConditioningCompressorStatus_FirstByte = m.Data[1];
+                AirConditioningCompressorStatus_SecondByte = m.Data[2];
 
                 var e = AirConditioningCompressorStatusChanged;
                 if (e != null)
@@ -181,61 +171,130 @@ namespace imBMW.iBus.Devices.Real
             }
         }
 
-        /// <summary> IntegratedHeatingAndAirConditioning > AuxilaryHeater: 01 </summary>
+        public static void ProcessIHKAMessage(Message m)
+        {
+            if (m.Data.StartsWith(0xA0) && m.Data.Length == 5) // Coding data
+            {
+                CodingData1 = m.Data[1];
+                CodingData2 = m.Data[2];
+                CodingData3 = m.Data[3];
+                CodingData4 = m.Data[4];
+
+                var e = CodingDataAcquired;
+                if (e != null)
+                {
+                    e();
+                }
+            }
+        }
+
+        /// <summary> IHKA > ZUH: 01 </summary>
         private static void PollAuxilaryHeater()
         {
-            Logger.Trace("Poll auxilary heater before start");
+            Logger.Debug("Poll auxilary heater before start");
             var pollAuxilaryHeaterMessage = new Message(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.AuxilaryHeater, MessageRegistry.DataPollRequest);
             KBusManager.Instance.EnqueueMessage(pollAuxilaryHeaterMessage);
         }
 
-        /// <summary> IntegratedHeatingAndAirConditioning > AuxilaryHeater: 92 00 22 </summary>
+        /// <summary> IHKA > ZUH: 92 00 22 </summary>
         private static void StartAuxilaryHeaterInternal()
         {
             lock (_sync)
             {
-                Logger.Trace("Auxilary heater start pending: 92 00 22");
+                Logger.Debug("Auxilary heater start pending: 92 00 22");
                 KBusManager.Instance.EnqueueMessage(StartAuxilaryHeaterMessage);
-                AuxilaryHeaterStatus = AuxilaryHeaterStatus.StartPending;
+                AuxilaryHeater.Status = AuxilaryHeaterStatus.StartPending;
             }
         }
 
-        /// <summary> IntegratedHeatingAndAirConditioning > AuxilaryHeater: 92 00 21 </summary>
+        /// <summary> IHKA > ZUH:92 00 21 </summary>
         private static void StopAuxilaryHeaterInternal()
         {
             lock (_sync)
             {
-                Logger.Trace("Manual stopping of auxilary heater");
+                Logger.Debug("Manual stopping of auxilary heater");
                 KBusManager.Instance.EnqueueMessage(StopAuxilaryHeater1);
-                AuxilaryHeaterStatus = AuxilaryHeaterStatus.Stopping;
-                Manager.Instance.EnqueueMessage(FrontDisplay.AuxHeaterIndicatorTurnOffMessage);
+                AuxilaryHeater.Status = AuxilaryHeaterStatus.Stopping;
             }
         }
 
         public static void StartAuxilaryHeater()
         {
-            Logger.Trace("Manual start of auxilary heater");
+            Logger.Debug("Manual start of auxilary heater");
             PollAuxilaryHeater();
             Manager.Instance.EnqueueMessage(FrontDisplay.AuxHeaterIndicatorTurnOnMessage);
-            //AuxilaryHeaterStatus = AuxilaryHeaterStatus.Unknown;
+            AuxilaryHeater.Status = AuxilaryHeaterStatus.StartRequested;
         }
 
         public static void StopAuxilaryHeater()
         {
-            if (AuxilaryHeaterStatus == AuxilaryHeaterStatus.Started)
+            if (AuxilaryHeater.Status == AuxilaryHeaterStatus.Started || AuxilaryHeater.Status == AuxilaryHeaterStatus.Working)
             {
-                Logger.Trace("Manual stop of auxilary heater request");
+                Logger.Debug("Manual stop of auxilary heater request");
                 StopAuxilaryHeaterInternal();
+                Manager.Instance.EnqueueMessage(FrontDisplay.AuxHeaterIndicatorTurnOnMessage);
             }
         }
 
-        public static void Init() { }
+        public static void ReadCodingData()
+        {
+            KBusManager.Instance.EnqueueMessage(new Message(DeviceAddress.Diagnostic, DeviceAddress.IntegratedHeatingAndAirConditioning, 
+                0x08, 0x00, 0x00, 0x00, 0x00, 0x00));
+        }
 
-        public static event AuxilaryHeater.AuxilaryHeaterStatusEventHandler AuxilaryHeaterStatusChanged;
+        public static void WriteCodingData()
+        {
+            KBusManager.Instance.EnqueueMessage(new Message(DeviceAddress.Diagnostic, DeviceAddress.IntegratedHeatingAndAirConditioning, 
+                0x09, 0x00, 0x00, 0x00, 0x00, 0x00, CodingData1, CodingData2, CodingData3, CodingData4));
+        }
+
+        public static FlapPosition FlapPosition { get; set; }
+        public static TemperatureUnit TemperatureUnit { get; set; }
+        public static AuxilaryHeaterActivationMode AuxilaryHeaterActivationMode { get; set; }
+        public static bool AuxilaryHeating { get; set; }
+        public static bool CarKeyMemoryEnabled { get; set; }
+        public static bool TemperatureAdjustmentRear { get; set; }
+        public static bool ElectricFan { get; set; }
+        public static bool AirConditioningBlowerRearSeats { get; set; }
+
+        public static byte[] CodingData => new byte[] { CodingData1, CodingData2, CodingData3, CodingData4 };
+
+        internal static byte CodingData1
+        {
+            get
+            {
+                int data = 0x00;
+                data |= FlapPosition == FlapPosition.y_fahrer_beifahrer ? 0x01 : 0x00;
+                data |= TemperatureUnit == TemperatureUnit.Fahrenheit ? 0x02 : 0x00;
+                data |= AuxilaryHeaterActivationMode == AuxilaryHeaterActivationMode.Kbus ? 0x04 : 0x00;
+                data |= AuxilaryHeating ? 0x08 : 0x00;
+                data |= CarKeyMemoryEnabled ? 0x10 : 0x00;
+                data |= TemperatureAdjustmentRear ? 0x20 : 0x00;
+                data |= ElectricFan ? 0x40 : 0x00;
+                data |= AirConditioningBlowerRearSeats ? 0x80 : 0x00;
+                return (byte)data;
+            }
+            set
+            {
+                FlapPosition = value.HasBit(0) ? FlapPosition.y_fahrer_beifahrer : FlapPosition.y_fahrer;
+                TemperatureUnit = value.HasBit(1) ? TemperatureUnit.Fahrenheit : TemperatureUnit.Celsius;
+                AuxilaryHeaterActivationMode = value.HasBit(2) ? AuxilaryHeaterActivationMode.Kbus : AuxilaryHeaterActivationMode.Normal;
+                AuxilaryHeating = value.HasBit(3);
+                CarKeyMemoryEnabled = value.HasBit(4);
+                TemperatureAdjustmentRear = value.HasBit(5);
+                ElectricFan = value.HasBit(6);
+                AirConditioningBlowerRearSeats = value.HasBit(7);
+            }
+        }
+
+        internal static byte CodingData2 { get; set; }
+        internal static byte CodingData3 { get; set; }
+        internal static byte CodingData4 { get; set; }
 
         public delegate void AuxilaryHeaterWorkingRequestsCounterEventHandler(byte counter);
-        public static event AuxilaryHeaterWorkingRequestsCounterEventHandler AuxilaryHeaterWorkingRequestsCounterChanged;
 
+        public static event AuxilaryHeaterWorkingRequestsCounterEventHandler AuxilaryHeaterWorkingRequestsCounterChanged;
         public static event Action AirConditioningCompressorStatusChanged;
+        public static event Action CodingDataAcquired;
     }
 }

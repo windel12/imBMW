@@ -197,13 +197,13 @@ namespace imBMW.Features.Menu
                 {
                     // 'Phone' button
                     case 0x08:
-                        m.ReceiverDescription = "BM button Phone - draw bordmonitor menu";
-                        IsEnabled = true;
                         break;
                     case 0x48:
                         OnPhoneButtonHold();
                         break;
                     case 0x88:
+                        m.ReceiverDescription = "BM button Phone - draw bordmonitor menu";
+                        IsEnabled = true;
                         break;
 
                     // 'AuxilaryHeater/Clock' button
@@ -224,13 +224,13 @@ namespace imBMW.Features.Menu
 
                     // Menu
                     case 0x34: // pressed
-                        m.ReceiverDescription = "BM button Menu";
-                        IsEnabled = false;
                         break;
                     case 0x74: // hold > 1s
                         OnMenuButtonHold();
                         break;
                     case 0xB4: // released
+                        m.ReceiverDescription = "BM button Menu";
+                        IsEnabled = false;
                         break;
                 }
             }

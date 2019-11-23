@@ -1,4 +1,6 @@
 ﻿
+using System;
+
 namespace imBMW.Features.Localizations
 {
     public class RussianLocalization : Localization
@@ -308,6 +310,21 @@ namespace imBMW.Features.Localizations
         public override string Activate
         {
             get { return "Активировать"; }
+        }
+
+        public override string Compressor
+        {
+            get { return "Компрессор"; }
+        }
+
+        public override string MusicList
+        {
+            get { return "Список музыки"; }
+        }
+
+        public override string AirConditioning
+        {
+            get { return "Блок климата"; }
         }
     }
 }

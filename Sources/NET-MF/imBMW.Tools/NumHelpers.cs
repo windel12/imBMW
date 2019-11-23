@@ -43,6 +43,11 @@ namespace imBMW.Tools
             return (byte)(b | bits);
         }
 
+        public static byte AddBits(this byte b, int bits)
+        {
+            return AddBits(b, (byte) bits);
+        }
+
         public static byte AddBit(this byte b, byte bitIndex)
         {
             checkByteBitIndex(bitIndex);

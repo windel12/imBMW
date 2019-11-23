@@ -78,6 +78,7 @@
     <Compile Include="Menu\Screens\DDEScreen.cs" />
     <Compile Include="Menu\Screens\HomeScreen.cs" />
     <Compile Include="Menu\Screens\AuxilaryHeaterScreen.cs" />
+    <Compile Include="Menu\Screens\IntegratedHeatingAndAirConditioningScreen.cs" />
     <Compile Include="Menu\Screens\MusicListScreen.cs" />
     <Compile Include="Menu\Screens\SettingsScreen.cs" />
     <Compile Include="Menu\Screens\SpeedLimitScreen.cs" />

@@ -23,7 +23,7 @@ namespace imBMW.Features.Menu.Screens
             AuxilaryHeater.Init();
         }
 
-        private void AddItems()
+        protected virtual void SetItems()
         {
             AddItem(new MenuItem(i => "Increase delay: " + DBusManager.Port.AfterWriteDelay, x =>
             {
@@ -147,7 +147,7 @@ namespace imBMW.Features.Menu.Screens
         {
             if (base.OnNavigatedTo(menu))
             {
-                AddItems();
+                SetItems();
 
                 NavigationModule.BatteryVoltageChanged += NavigationModule_BatteryVoltageChanged;
                 IntegratedHeatingAndAirConditioning.AirConditioningCompressorStatusChanged += IntegratedHeatingAndAirConditioning_AirConditioningCompressorStatusChanged;
@@ -209,17 +209,17 @@ namespace imBMW.Features.Menu.Screens
             }
         }
 
-        void OnDisableWatchdogCounterReset()
-        {
-            var e = DisableWatchdogCounterReset;
-            if (e != null)
-            {
-                Logger.Trace("OnDisableWatchdogCounterReset was called");
-                e();
-            }
-        }
+        //void OnDisableWatchdogCounterReset()
+        //{
+        //    var e = DisableWatchdogCounterReset;
+        //    if (e != null)
+        //    {
+        //        Logger.Trace("OnDisableWatchdogCounterReset was called");
+        //        e();
+        //    }
+        //}
 
-        public delegate void DisableWatchdogCounterResetHanlder();
-        public static event DisableWatchdogCounterResetHanlder DisableWatchdogCounterReset;
+        //public delegate void DisableWatchdogCounterResetHanlder();
+        //public static event DisableWatchdogCounterResetHanlder DisableWatchdogCounterReset;
     }
 }

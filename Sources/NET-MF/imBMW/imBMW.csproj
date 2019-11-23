@@ -68,6 +68,12 @@
     <Compile Include="DBus\DBusMessageParser.cs" />
     <Compile Include="DBus\DS2Message.cs" />
     <Compile Include="DebuggerBrowsableState.cs" />
+    <Compile Include="Enums\AirConditioningCompressorStatus.cs" />
+    <Compile Include="Enums\AudioSource.cs" />
+    <Compile Include="Enums\AuxilaryHeaterActivationMode.cs" />
+    <Compile Include="Enums\AuxilaryHeaterStatus.cs" />
+    <Compile Include="Enums\FlapPosition.cs" />
+    <Compile Include="Enums\TemperatureUnit.cs" />
     <Compile Include="iBus\DeviceAddress.cs" />
     <Compile Include="iBus\Devices\AuxilaryHeater.cs" />
     <Compile Include="iBus\Devices\BodyModule.cs" />

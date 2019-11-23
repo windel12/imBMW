@@ -39,17 +39,17 @@ namespace imBMW.Tools
 #endif
         }
 
-        public static void Debug(string message, string priorityTitle = null)
+        public static void Debug(string message, string priorityTitle = "DEBUG")
         {
             Log(LogPriority.Debug, message, priorityTitle);
         }
 
-        public static void Trace(string message, string priorityTitle = null)
+        public static void Trace(string message, string priorityTitle = "TRACE")
         {
             Log(LogPriority.Trace, message, priorityTitle);
         }
 
-        public static void Trace(Message message, string priorityTitle = null)
+        public static void Trace(Message message, string priorityTitle = "TRACE")
         {
             Log(LogPriority.Trace, message.ToPrettyString(true), priorityTitle);
         }
@@ -64,18 +64,19 @@ namespace imBMW.Tools
             Log(LogPriority.Info, message.ToPrettyString(true), priorityTitle);
         }
 
-        public static void Warning(string message, string priorityTitle = null)
+        public static void Warning(string message, string priorityTitle = "WARN ")
         {
             Log(LogPriority.Warning, message, priorityTitle);
+            InstrumentClusterElectronics.ShowNormalText(message);
         }
 
-        public static void Error(string message, string priorityTitle = null)
+        public static void Error(string message, string priorityTitle = "ERROR")
         {
             Log(LogPriority.Error, message, priorityTitle);
             InstrumentClusterElectronics.ShowTextWithGong(message);
         }
 
-        public static void Error(Exception exception, string message = null, string priorityTitle = null)
+        public static void Error(Exception exception, string message = null, string priorityTitle = "ERROR")
         {
             Log(LogPriority.Error, exception, message, priorityTitle);
             InstrumentClusterElectronics.ShowTextWithGong(message);
