@@ -67,7 +67,8 @@ namespace imBMW.Tools
         public static void Warning(string message, string priorityTitle = "WARN ")
         {
             Log(LogPriority.Warning, message, priorityTitle);
-            InstrumentClusterElectronics.ShowNormalText(message);
+            //InstrumentClusterElectronics.ShowNormalText(message); -shows always
+            Radio.DisplayText(message);
         }
 
         public static void Error(string message, string priorityTitle = "ERROR")

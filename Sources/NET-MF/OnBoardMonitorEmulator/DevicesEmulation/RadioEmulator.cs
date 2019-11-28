@@ -60,6 +60,7 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
             {
                 Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.Broadcast, IsEnabled ? Radio.DataRadioOff : Radio.DataRadioOn));
                 Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, IsEnabled ? CDChanger.DataStop : CDChanger.DataPlay));
+                IsEnabled = !IsEnabled;
             }
             if (m.Data.Length == 2 && m.Data.StartsWith(Radio.DataNextPressed))
             {

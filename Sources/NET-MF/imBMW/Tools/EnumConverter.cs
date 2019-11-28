@@ -161,7 +161,6 @@ namespace imBMW.Tools
                 case AuxilaryHeaterStatus.StopPending: return "StopPending";
                 case AuxilaryHeaterStatus.Stopping: return "Stopping";
                 case AuxilaryHeaterStatus.Stopped: return "Stopped";
-                case AuxilaryHeaterStatus.StartRequested: return "StartRequested";
                 case AuxilaryHeaterStatus.StartPending: return "StartPending";
                 case AuxilaryHeaterStatus.Starting: return "Starting";
                 case AuxilaryHeaterStatus.Started: return "Started";

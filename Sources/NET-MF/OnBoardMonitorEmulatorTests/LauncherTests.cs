@@ -10,6 +10,7 @@ using imBMW.iBus.Devices.Real;
 using imBMW.Tools;
 using OnBoardMonitorEmulator.DevicesEmulation;
 using OnBoardMonitorEmulatorTests.Helpers;
+using System.Threading.Tasks;
 
 namespace OnBoardMonitorEmulatorTests
 {
@@ -25,16 +26,16 @@ namespace OnBoardMonitorEmulatorTests
         [TestMethod]
         public void Should_StartApp_AndAcquireDateTime()
         {
-            ManualResetEvent waitHandle = new ManualResetEvent(false);
+            ManualResetEvent dateTimeChangedWaitHandler = new ManualResetEvent(false);
 
             InstrumentClusterElectronicsEmulator.Init();
 
-            InstrumentClusterElectronics.DateTimeChanged += (e) => { waitHandle.Set(); };
+            InstrumentClusterElectronics.DateTimeChanged += (e) => { dateTimeChangedWaitHandler.Set(); };
 
             var now = DateTime.Now;
             Launcher.Launch(Launcher.LaunchMode.WPF);
 
-            waitHandle.WaitOne(Debugger.IsAttached ? 30000 : 1000);
+            dateTimeChangedWaitHandler.WaitOne(Debugger.IsAttached ? 30000 : 1000);
 
             Assert.AreEqual(Utility.CurrentDateTime.Year, now.Year);
             Assert.AreEqual(Utility.CurrentDateTime.Month, now.Month);
@@ -47,6 +48,38 @@ namespace OnBoardMonitorEmulatorTests
         public void Should_StartApp_AndAcquireBordComputerData()
         {
             
+        }
+
+        // TODO: check that ResetBoard called correctly
+        [TestMethod]
+        public void Should_TurnOffRadio_AndResetBoard_WhenMenuRadioOnHold()
+        {
+            RadioEmulator.Init();
+
+            Launcher.Launch(Launcher.LaunchMode.WPF);
+
+            ManualResetEvent emulatorOnIsEnabledChangedWaitHandle = new ManualResetEvent(false);
+            Launcher.Emulator.IsEnabledChanged += (s, e) => { emulatorOnIsEnabledChangedWaitHandle.Set(); };
+            Radio.PressOnOffToggle();
+            bool radioEnabledResult = emulatorOnIsEnabledChangedWaitHandle.Wait();
+
+
+            ManualResetEvent emulatorOnIsPlayingChangedWaitHandle = new ManualResetEvent(false);
+            Launcher.Emulator.PlayerIsPlayingChanged += (sender, isPlayingChangedValue) =>
+            {
+                if (!isPlayingChangedValue)
+                {
+                    emulatorOnIsPlayingChangedWaitHandle.Set();
+                }
+            };
+            Manager.Instance.EnqueueMessage(
+                new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Broadcast, 0x48, 0x34),
+                new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Broadcast, 0x48, 0x74));
+            bool radioDisabledResult = emulatorOnIsPlayingChangedWaitHandle.Wait();
+
+            Assert.IsTrue(radioEnabledResult);
+            Assert.IsTrue(radioDisabledResult);
+            Assert.IsTrue(!Launcher.Emulator.IsEnabled);
         }
 
         [TestMethod]
@@ -142,11 +175,16 @@ namespace OnBoardMonitorEmulatorTests
 
         private EventWaitHandle AppStateChangedWaitHandle(AppState state)
         {
+            return ConditionWaitHandle(() => Launcher.State == state);
+        }
+
+        private EventWaitHandle ConditionWaitHandle(Func<bool> predicate)
+        {
             var waitHandle = new ManualResetEvent(false);
 
             var checkAppStateThread = new Thread(() =>
             {
-                while (Launcher.State != state)
+                while (!predicate())
                 {
                     Thread.Sleep(100);
                 }

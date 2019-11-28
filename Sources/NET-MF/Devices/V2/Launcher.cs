@@ -38,8 +38,8 @@ namespace imBMW.Devices.V2
         static OutputPort resetPin;
 
         static Settings settings;
-        public static MediaEmulator emulator;
-        public static IAudioPlayer player;
+        public static MediaEmulator Emulator { get; set; }
+        public static IAudioPlayer Player { get; set; }
 
         //static InterruptPort nextButton;
         //static InterruptPort prevButton;
@@ -69,7 +69,7 @@ namespace imBMW.Devices.V2
         internal static int idleTimeout = GetTimeoutInMilliseconds(20, 00);
 
 #if DEBUG
-        internal static int sleepTimeout = GetTimeoutInMilliseconds(0, 30);
+        internal static int sleepTimeout = GetTimeoutInMilliseconds(15, 20);
 #else
         internal static int sleepTimeout = GetTimeoutInMilliseconds(15, 20);
 #endif
@@ -250,9 +250,9 @@ namespace imBMW.Devices.V2
                 {
                     FrontDisplay.RefreshLEDs(LedType.Empty);
 
-                    if (emulator.IsEnabled)
+                    if (Emulator.IsEnabled)
                     {
-                        emulator.PlayerIsPlayingChanged += (s, isPlayingChangedValue) =>
+                        Emulator.PlayerIsPlayingChanged += (s, isPlayingChangedValue) =>
                         {
                             if (!isPlayingChangedValue)
                             {
@@ -260,7 +260,7 @@ namespace imBMW.Devices.V2
                             }
                         };
                         Radio.PressOnOffToggle();
-                        emulator.IsEnabled = false;
+                        //Emulator.IsEnabled = false;
                     }
                     else
                     {
@@ -412,7 +412,7 @@ namespace imBMW.Devices.V2
             //player = new iPodViaHeadset(Cpu.Pin.GPIO_NONE);
             //player = new BluetoothOVC3860(Serial.COM2/*, sd != null ? sd + @"\contacts.vcf" : null*/);
             Logger.Debug("Prepare creating VS1003Player");
-            player = new VS1003Player(FEZPandaIII.Gpio.D25, FEZPandaIII.Gpio.D27, FEZPandaIII.Gpio.D24, FEZPandaIII.Gpio.D26);
+            Player = new VS1003Player(FEZPandaIII.Gpio.D25, FEZPandaIII.Gpio.D27, FEZPandaIII.Gpio.D24, FEZPandaIII.Gpio.D26);
             Logger.Debug("VS1003Player created");
             FrontDisplay.RefreshLEDs(LedType.GreenBlinking);
             if (settings.MenuMode != Tools.MenuMode.RadioCDC/* || Manager.FindDevice(DeviceAddress.OnBoardMonitor, 10000)*/)
@@ -423,7 +423,7 @@ namespace imBMW.Devices.V2
                 //}
                 if (settings.MenuMode == MenuMode.BordmonitorCDC)
                 {
-                    emulator = new CDChanger(player);
+                    Emulator = new CDChanger(Player);
                     Logger.Debug("CDChanger media emulator created");
                     if (settings.NaviVersion == NaviVersion.MK2)
                     {
@@ -432,7 +432,7 @@ namespace imBMW.Devices.V2
                     }
                     Bordmonitor.NaviVersion = settings.NaviVersion;
                     //BordmonitorMenu.FastMenuDrawing = settings.NaviVersion == NaviVersion.MK4;
-                    BordmonitorMenu.Init(emulator);
+                    BordmonitorMenu.Init(Emulator);
                     Logger.Debug("BordmonitorMenu inited");
                     BluetoothScreen.Init();
                     Logger.Debug("BluetoothScreen inited");
@@ -535,7 +535,7 @@ namespace imBMW.Devices.V2
         // Log just needed message
         private static bool IBusLoggerPredicate(MessageEventArgs e)
         {
-            bool isMusicPlayed = emulator != null && emulator.IsEnabled;
+            bool isMusicPlayed = Emulator != null && Emulator.IsEnabled;
             return
                 //e.Message.SourceDevice == DeviceAddress.Radio && e.Message.DestinationDevice == DeviceAddress.GraphicsNavigationDriver && e.Message.Data.StartsWith(0x21, 0x60, 0x00)
                 // ||

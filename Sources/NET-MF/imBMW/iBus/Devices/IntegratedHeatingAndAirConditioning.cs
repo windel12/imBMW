@@ -61,12 +61,19 @@ namespace imBMW.iBus.Devices.Real
 
         public static void ProcessAuxilaryHeaterMessage(Message m)
         {
+            if(Settings.Instance.SuspendAuxilaryHeaterResponseEmulation)
+            {
+                m.ReceiverDescription = "AuxilaryHeater is working. Coolant Temperature: " + InstrumentClusterElectronics.TemperatureCoolant;
+                return;
+            }
+
             lock (_sync)
             {
                 if (m.Data.StartsWith(MessageRegistry.DataPollResponse))
                 {
                     Logger.Debug("Auxilary heater responded.");
                     AuxilaryHeater.Status = AuxilaryHeaterStatus.Present;
+                    
                     delay = new Timer(delegate
                     {
                         StartAuxilaryHeaterInternal();
@@ -77,6 +84,7 @@ namespace imBMW.iBus.Devices.Real
                             delay = null;
                         }
                     }, null, 2000, 0);
+
                     return;
                 }
 
@@ -223,7 +231,6 @@ namespace imBMW.iBus.Devices.Real
             Logger.Debug("Manual start of auxilary heater");
             PollAuxilaryHeater();
             Manager.Instance.EnqueueMessage(FrontDisplay.AuxHeaterIndicatorTurnOnMessage);
-            AuxilaryHeater.Status = AuxilaryHeaterStatus.StartRequested;
         }
 
         public static void StopAuxilaryHeater()

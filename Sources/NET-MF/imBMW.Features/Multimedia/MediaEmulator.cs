@@ -71,6 +71,16 @@ namespace imBMW.iBus.Devices.Emulators
                     throw new ArgumentNullException();
                 }
                 player = value;
+                player.IsPlayingChanged += player_IsPlayingChanged;
+            }
+        }
+
+        void player_IsPlayingChanged(IAudioPlayer sender, bool isPlaying)
+        {
+            var e = PlayerIsPlayingChanged;
+            if (e != null)
+            {
+                e(sender, isPlaying);
             }
         }
 

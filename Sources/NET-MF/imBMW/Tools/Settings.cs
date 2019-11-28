@@ -82,6 +82,20 @@ namespace imBMW.Tools
             }
         }
 
+        private bool _suspendAuxilaryHeaterResponseEmulation = true;
+        public bool SuspendAuxilaryHeaterResponseEmulation
+        {
+            get { return _suspendAuxilaryHeaterResponseEmulation; }
+            set
+            {
+                if (_suspendAuxilaryHeaterResponseEmulation != value)
+                {
+                    _suspendAuxilaryHeaterResponseEmulation = value;
+                    SettingsChanged();
+                }
+            }
+        }
+
         public static Settings Init(string path)
         {
             Instance = new Settings();
@@ -152,6 +166,7 @@ namespace imBMW.Tools
                     sw.WriteLine(nameof(UnmountMassStorageOnChangingIgnitionToAcc) + "=" + UnmountMassStorageOnChangingIgnitionToAcc);
                     sw.WriteLine(nameof(ForceMessageLog) + "=" + ForceMessageLog);
                     sw.WriteLine(nameof(SuspendCDChangerResponseEmulation) + "=" + SuspendCDChangerResponseEmulation);
+                    sw.WriteLine(nameof(SuspendAuxilaryHeaterResponseEmulation) + "=" + SuspendAuxilaryHeaterResponseEmulation);
                 }
             }
             catch (Exception ex)
@@ -225,6 +240,9 @@ namespace imBMW.Tools
                         break;
                     case nameof(SuspendCDChangerResponseEmulation):
                         _suspendCDChangerResponseEmulation = isTrue;
+                        break;
+                    case nameof(SuspendAuxilaryHeaterResponseEmulation):
+                        _suspendAuxilaryHeaterResponseEmulation = isTrue;
                         break;
                     default:
                         Logger.Warning("  Unknown setting");

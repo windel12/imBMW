@@ -10,7 +10,6 @@ namespace imBMW.Enums
         StopPending,
         Stopping,
         Stopped,
-        StartRequested,
         StartPending,
         Starting,
         Started,

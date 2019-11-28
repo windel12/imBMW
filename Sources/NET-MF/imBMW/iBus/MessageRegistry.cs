@@ -47,7 +47,7 @@ namespace imBMW.iBus
             "LOC: Display status", // "0x20",
             "Radio Short cuts",
             "Text display confirmation",
-            "Display Title",
+            "Display Title", // "0x23"
             "Update ANZV",
             "", // "0x25",
             "", // "0x26",

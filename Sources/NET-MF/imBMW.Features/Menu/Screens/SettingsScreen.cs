@@ -49,9 +49,13 @@ namespace imBMW.Features.Menu.Screens
             {
                 IsChecked = Settings.Instance.ForceMessageLog
             });
-            AddItem(new MenuItem(i => nameof(Settings.Instance.SuspendCDChangerResponseEmulation), i => Settings.Instance.SuspendCDChangerResponseEmulation = i.IsChecked, MenuItemType.Checkbox)
+            AddItem(new MenuItem(i => "Suspend CDC", i => Settings.Instance.SuspendCDChangerResponseEmulation = i.IsChecked, MenuItemType.Checkbox)
             {
                 IsChecked = Settings.Instance.SuspendCDChangerResponseEmulation
+            });
+            AddItem(new MenuItem(i => "Suspend ZUH", i => Settings.Instance.SuspendAuxilaryHeaterResponseEmulation = i.IsChecked, MenuItemType.Checkbox)
+            {
+                IsChecked = Settings.Instance.SuspendAuxilaryHeaterResponseEmulation
             });
             this.AddBackButton();
         }

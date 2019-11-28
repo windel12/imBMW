@@ -48,6 +48,7 @@ namespace OnBoardMonitorEmulator
 
         public static byte[] PhoneButtonClick = { 0x48, 0x08 };
         public static byte[] PhoneButtonHold = { 0x48, 0x48 };
+        public static byte[] MenuButonClick = { 0x48, 0x34 };
         public static byte[] MenuButonHold = { 0x48, 0x74 };
 
         //private bool _isEnabled = false;
@@ -276,7 +277,7 @@ namespace OnBoardMonitorEmulator
         private void MenuButton_Click(object sender, RoutedEventArgs e)
         {
             State = GraphicsNavigationDriverState.BordComputer;
-            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Broadcast, 0x48, 0x34);
+            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Broadcast, MenuButonClick);
             WriteMessage(message);
         }
 
