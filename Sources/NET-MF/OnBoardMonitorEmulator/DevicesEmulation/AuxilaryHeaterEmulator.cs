@@ -45,7 +45,7 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
 
             if (message.Data.StartsWith(IntegratedHeatingAndAirConditioning.StartAuxilaryHeaterMessage.Data))
             {
-                if (AuxilaryHeater.Status == AuxilaryHeaterStatus.StartPending)
+                if (AuxilaryHeater.Status == AuxilaryHeaterStatus.Starting)
                 {
                     Thread.Sleep(100);
                     KBusManager.Instance.EnqueueMessage(AuxilaryHeater.AuxilaryHeaterWorkingResponse);
@@ -59,15 +59,23 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
                 Thread.Sleep(100);
                 KBusManager.Instance.EnqueueMessage(AuxilaryHeater.AuxilaryHeaterStopped1);
 
-                if (announceThread.ThreadState != ThreadState.Suspended)
+                if (announceThread != null && announceThread.ThreadState != ThreadState.Suspended)
                     announceThread.Suspend();
             }
             if (message.Data.StartsWith(IntegratedHeatingAndAirConditioning.StopAuxilaryHeater2.Data))
             {
                 Thread.Sleep(100);
                 KBusManager.Instance.EnqueueMessage(AuxilaryHeater.AuxilaryHeaterStopped2);
+
+                if (announceThread != null && announceThread.ThreadState != ThreadState.Suspended)
+                    announceThread.Suspend();
             }
         }
+
+        //public static void FirstMessageAfterWakeup()
+        //{
+        //    KBusManager.Instance.EnqueueMessage(AuxilaryHeater.AuxilaryHeaterStopped2);
+        //}
 
         static void announce()
         {

@@ -158,12 +158,11 @@ namespace imBMW.Tools
             {
                 case AuxilaryHeaterStatus.Unknown: return "Unknown";
                 case AuxilaryHeaterStatus.Present: return "Present";
-                case AuxilaryHeaterStatus.StopPending: return "StopPending";
                 case AuxilaryHeaterStatus.Stopping: return "Stopping";
                 case AuxilaryHeaterStatus.Stopped: return "Stopped";
-                case AuxilaryHeaterStatus.StartPending: return "StartPending";
                 case AuxilaryHeaterStatus.Starting: return "Starting";
                 case AuxilaryHeaterStatus.Started: return "Started";
+                case AuxilaryHeaterStatus.WorkPending: return "WorkPending";
                 case AuxilaryHeaterStatus.Working: return "Working";
             }
             return "NotSpecified(" + e.ToString() + ")";

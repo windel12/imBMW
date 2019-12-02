@@ -2,11 +2,15 @@
 using imBMW.iBus;
 using imBMW.Tools;
 using imBMW.Enums;
+using imBMW.iBus.Devices.Real;
+using System.Threading;
 
 namespace OnBoardMonitorEmulator.DevicesEmulation
 {
     public static class IntegratedHeatingAndAirConditioningEmulator
     {
+        private static Timer delay;
+
         internal static byte CodingData1 { get; set; } = 0x78;
         internal static byte CodingData2 { get; set; } = 0x8C;
         internal static byte CodingData3 { get; set; } = 0x28;
@@ -19,6 +23,7 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
         static IntegratedHeatingAndAirConditioningEmulator()
         {
             KBusManager.Instance.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.Diagnostic, DeviceAddress.IntegratedHeatingAndAirConditioning, ProcessMessageFromDiagnostic);
+            //KBusManager.Instance.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.AuxilaryHeater, DeviceAddress.IntegratedHeatingAndAirConditioning, ProcessMessageFromAuxliaryHeater);
         }
 
         public static void ProcessMessageFromDiagnostic(Message m)
@@ -36,6 +41,27 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
                 CodingData4 = m.Data[9];
             }
         }
+
+        //public static void ProcessMessageFromAuxliaryHeater(Message m)
+        //{
+        //    if (m.Data.StartsWith(AuxilaryHeater.AuxilaryHeaterStopped2.Data))
+        //    {
+        //        IntegratedHeatingAndAirConditioning.StopAuxilaryHeater();
+
+        //        delay = new Timer(obj =>
+        //        {
+        //            IntegratedHeatingAndAirConditioning.PollAuxilaryHeater();
+        //        }, null, 3000, 0);
+        //    }
+
+        //    if (m.Data.StartsWith(MessageRegistry.DataPollResponse))
+        //    {
+        //        delay = new Timer(obj =>
+        //        {
+        //            IntegratedHeatingAndAirConditioning.StopAuxilaryHeater();
+        //        }, null, 2000, 0);
+        //    }
+        //}
 
         public static Message GetAirConditioningCompressorStatusMessage(byte firstByte, byte secondByte)
         {

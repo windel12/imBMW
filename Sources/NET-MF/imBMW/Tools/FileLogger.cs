@@ -13,7 +13,7 @@ namespace imBMW.Tools
     {
         const byte flushLines = 5;
 
-        static byte queueLimit = 100;
+        internal static byte queueLimit = 130;
 
         static ushort unflushed = 0;
 

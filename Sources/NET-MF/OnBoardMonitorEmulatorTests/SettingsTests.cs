@@ -41,7 +41,7 @@ namespace OnBoardMonitorEmulatorTests
             lines = File.ReadLines(path).ToArray();
             var line0 = string.Format("{0}={1}", nameof(Settings.Instance.UnmountMassStorageOnChangingIgnitionToAcc), "True");
             var line1 = string.Format("{0}={1}", nameof(Settings.Instance.ForceMessageLog), "True");
-            Assert.AreEqual(lines.Length, 3);
+            Assert.AreEqual(lines.Length, 4);
             Assert.AreEqual(lines[0], line0);
             Assert.AreEqual(lines[1], line1);
 

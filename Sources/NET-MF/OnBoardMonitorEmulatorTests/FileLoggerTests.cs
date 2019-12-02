@@ -36,7 +36,7 @@ namespace OnBoardMonitorEmulatorTests
         {
             FileLogger.Create();
 
-            for (byte i = 0; i <120; i++)
+            for (byte i = 0; i < FileLogger.queueLimit+20; i++)
             {
                 Logger.Trace(new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.GlobalBroadcastAddress, i));
             }
@@ -51,15 +51,15 @@ namespace OnBoardMonitorEmulatorTests
             var files = Directory.GetFiles(rootDirectory, "traceLog*").OrderBy(x => x, new NaturalStringComparer()).ToArray();
             var lastTraceLog = files[files.Length - 1];
             var logData = File.ReadLines(lastTraceLog).ToArray();
-            Assert.AreEqual(logData.Length, 103);
-            for (int i = 0; i < 100; i++)
+            Assert.AreEqual(logData.Length, FileLogger.queueLimit + 3);
+            for (int i = 0; i < FileLogger.queueLimit; i++)
             {
                 string testValue = "IKE > GLO: " + i.ToString("X2");
                 Assert.IsTrue(logData[i].Contains(testValue));
             }
-            Assert.IsTrue(logData[100].Contains("Queue is full"));
-            Assert.IsTrue(logData[101].Contains("test1"));
-            Assert.IsTrue(logData[102].Contains("test2"));
+            Assert.IsTrue(logData[FileLogger.queueLimit].Contains("Queue is full"));
+            Assert.IsTrue(logData[FileLogger.queueLimit + 1].Contains("test1"));
+            Assert.IsTrue(logData[FileLogger.queueLimit + 2].Contains("test2"));
         }
     }
 }

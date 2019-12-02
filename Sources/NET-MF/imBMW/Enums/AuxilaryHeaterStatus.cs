@@ -7,12 +7,11 @@ namespace imBMW.Enums
     {
         Unknown,
         Present,
-        StopPending,
         Stopping,
         Stopped,
-        StartPending,
         Starting,
         Started,
+        WorkPending,
         Working
     }
 }

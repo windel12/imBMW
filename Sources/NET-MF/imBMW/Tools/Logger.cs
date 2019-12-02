@@ -67,19 +67,22 @@ namespace imBMW.Tools
         public static void Warning(string message, string priorityTitle = "WARN ")
         {
             Log(LogPriority.Warning, message, priorityTitle);
-            InstrumentClusterElectronics.ShowNormalTextWithoutGong(message, timeout: 5000);
+            if (Manager.Instance.Inited)
+                InstrumentClusterElectronics.ShowNormalTextWithoutGong(message, timeout: 5000);
         }
 
         public static void Error(string message, string priorityTitle = "ERROR")
         {
             Log(LogPriority.Error, message, priorityTitle);
-            InstrumentClusterElectronics.ShowNormalTextWithGong(message, timeout: 10000);
+            if (Manager.Instance.Inited)
+                InstrumentClusterElectronics.ShowNormalTextWithGong(message, timeout: 10000);
         }
 
         public static void Error(Exception exception, string message = null, string priorityTitle = "ERROR")
         {
             Log(LogPriority.Error, exception, message, priorityTitle);
-            InstrumentClusterElectronics.ShowNormalTextWithGong(message, timeout: 10000);
+            if (Manager.Instance.Inited)
+                InstrumentClusterElectronics.ShowNormalTextWithGong(message, timeout: 10000);
         }
 
         public static void ErrorWithoutLogging(string message)

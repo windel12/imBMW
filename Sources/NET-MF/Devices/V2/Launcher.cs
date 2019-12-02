@@ -129,6 +129,7 @@ namespace imBMW.Devices.V2
                 BluetoothScreen.AudioSource = AudioSource.Bluetooth;
 
                 Comfort.Init();
+                IntegratedHeatingAndAirConditioning.Init();
 
                 _resetCause = GHI.Processor.Watchdog.LastResetCause;
 

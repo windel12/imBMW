@@ -102,6 +102,8 @@ namespace OnBoardMonitorEmulator
 
             Launcher.Launch(Launcher.LaunchMode.WPF);
 
+            //AuxilaryHeaterEmulator.FirstMessageAfterWakeup();
+
             InstrumentClusterElectronics.IgnitionStateChanged += (e) =>
             {
                 if (e.PreviousIgnitionState == IgnitionState.Acc && e.CurrentIgnitionState == IgnitionState.Ign)
