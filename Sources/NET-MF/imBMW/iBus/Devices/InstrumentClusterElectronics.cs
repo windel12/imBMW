@@ -1,10 +1,22 @@
 using System;
 using imBMW.Tools;
 using System.Threading;
+using System.Text;
 
 namespace imBMW.iBus.Devices.Real
 {
     #region Enums, delegales and event args
+
+    [Flags]
+    public enum TextMode
+    {
+        Normal = 0x00,
+        BetweenTwoArrow = 0x01,
+        BlinkingArrows = 0x02,
+        WithGong1 = 0x04,
+        WithGong2 = 0x08,
+        WithGong3 = 0x10,
+    }
 
     public enum IgnitionState
     {
@@ -60,7 +72,7 @@ namespace imBMW.iBus.Devices.Real
             Value = value;
         }
     }
-    
+
     public class ConsumptionEventArgs
     {
         public float Value { get; private set; }
@@ -118,7 +130,7 @@ namespace imBMW.iBus.Devices.Real
     public delegate void TemperatureEventHandler(TemperatureEventArgs e);
 
     public delegate void VinEventHandler(VinEventArgs e);
-    
+
     public delegate void ConsumptionEventHandler(ConsumptionEventArgs e);
 
     public delegate void AverageSpeedEventHandler(AverageSpeedEventArgs e);
@@ -135,7 +147,7 @@ namespace imBMW.iBus.Devices.Real
     public static class InstrumentClusterElectronics
     {
         static IgnitionState currentIgnitionState = IgnitionState.Unknown;
-        
+
         public static ushort CurrentRPM { get; private set; }
         public static ushort CurrentSpeed { get; private set; }
 
@@ -194,8 +206,8 @@ namespace imBMW.iBus.Devices.Real
         //static readonly Message MessageTextBetweenTwoRedFlashingTriangles = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Text Between Two Red Flashing Triangles", 0x23, 0x62, 0x30, 0x37, 0x03);
         //static readonly Message MessageTextAndGongBetweenTwoRedFlashingTriangles = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Text And Gong Between Two Red Flashing Triangles", 0x23, 0x62, 0x30, 0x37, 0x04);
         //static readonly Message MessageTextAndGong = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Text And Gong", 0x23, 0x62, 0x30, 0x37, 0x05);
-        static readonly Message MessageGong1 = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Gong 1", 0x23, 0x62, 0x30, 0x37, 0x08);
-        static readonly Message MessageGong2 = new Message(DeviceAddress.Radio, DeviceAddress.InstrumentClusterElectronics, "Gong 2", 0x23, 0x62, 0x30, 0x37, 0x10);
+        static readonly Message MessageGong1 = new Message(DeviceAddress.CheckControlModule, DeviceAddress.InstrumentClusterElectronics, "Gong 1", 0x1A, 0x37, 0x08);
+        static readonly Message MessageGong2 = new Message(DeviceAddress.CheckControlModule, DeviceAddress.InstrumentClusterElectronics, "Gong 2", 0x1A, 0x37, 0x10);
 
         public const byte DisplayTextOnIKEMaxLen = 20;
 
@@ -203,6 +215,17 @@ namespace imBMW.iBus.Devices.Real
         private static byte _timeHour, _timeMinute, _dateDay, _dateMonth;
         private static ushort _dateYear;
         private static ushort _lastSpeedLimit;
+
+        private static Timer delayTimer;
+
+        private static void CancelDelay()
+        {
+            if (delayTimer != null)
+            {
+                delayTimer.Dispose();
+                delayTimer = null;
+            }
+        }
 
         static InstrumentClusterElectronics()
         {
@@ -242,7 +265,7 @@ namespace imBMW.iBus.Devices.Real
                 else if (ign == 0x00)       // 00h = 0000b
                 {
                     CurrentIgnitionState = IgnitionState.Off;
-                } 
+                }
                 else
                 {
                     m.ReceiverDescription = "Ignition unknown " + ign.ToHex();
@@ -250,15 +273,23 @@ namespace imBMW.iBus.Devices.Real
                 }
                 m.ReceiverDescription = "Ignition " + CurrentIgnitionState.ToStringValue();
             }
+            else if (m.Data[0] == 0x13 && m.Data.Length == 8) // IKE sensor status
+            {
+                if (m.Data[1].HasBit(0)) m.ReceiverDescription += "Handbrake";
+                if (m.Data[1].HasBit(1)) m.ReceiverDescription += "Oil pressure low";
+
+                if (m.Data[2].HasBit(0)) m.ReceiverDescription += "Motor running";
+                if (m.Data[2].HasBit(1)) m.ReceiverDescription += "Vehile driving";
+                if (m.Data[2].HasBit(4)) m.ReceiverDescription += "Gear R";
+
+                if (m.Data[3].HasBit(2)) m.ReceiverDescription += "Aux. heat ON";
+                if (m.Data[3].HasBit(3)) m.ReceiverDescription += "Aux. vent ON";
+                if (m.Data[3].HasBit(6)) m.ReceiverDescription += "Temp F";
+            }
             else if (m.Data[0] == 0x17 && m.Data.Length == 8) // odometer
             {
                 OnOdometerChanged((uint)(m.Data[3] << 16 + m.Data[2] << 8 + m.Data[1]));
                 m.ReceiverDescription = "Odometer " + Odometer + " km";
-            }
-            else if (m.Data[0] == 0x54 && m.Data.Length == 14) // Vehile status data
-            {
-                OnVinChanged("" + (char)m.Data[1] + (char)m.Data[2] + m.Data[3].ToHex() + m.Data[4].ToHex() + m.Data[5].ToHex()[0]);
-                m.ReceiverDescription = "VIN " + VIN;
             }
             else if (m.Data[0] == 0x19 && m.Data.Length == 4) // Temperature
             {
@@ -319,7 +350,7 @@ namespace imBMW.iBus.Devices.Real
                         }
                         break;
                     case 0x03: // 24 03 outside temperature
-                        if (m.Data.Length == 10/*8*/) 
+                        if (m.Data.Length == 10/*8*/)
                         {
                             float temperature;
                             if (m.Data.ParseFloat(out temperature, 3, 5))
@@ -351,10 +382,10 @@ namespace imBMW.iBus.Devices.Real
                         }
                         break;
                     case 0x07: // 24 07 distance
-                        m.ReceiverDescription = "Distance ";
+                        m.ReceiverDescription = "Distance: " + ASCIIEncoding.GetString(m.Data.Skip(3));
                         break;
                     case 0x08: // 24 08 arrival
-                        m.ReceiverDescription = "Arrival ";
+                        m.ReceiverDescription = "Arrival: " + ASCIIEncoding.GetString(m.Data.Skip(3));
                         break;
                     case 0x09: // 24 09 speed limit
                         if (m.Data.Length == 11/*7*/)
@@ -377,55 +408,153 @@ namespace imBMW.iBus.Devices.Real
                         }
                         break;
                     case 0x0D:
-                        m.ReceiverDescription = "Code?";
+                        m.ReceiverDescription = "Code: " + ASCIIEncoding.GetString(m.Data.Skip(3));
                         break;
-                    case 0x0E: 
-                        m.ReceiverDescription = "Swopwatch";
+                    case 0x0E:
+                        m.ReceiverDescription = "Swopwatch: " + ASCIIEncoding.GetString(m.Data.Skip(3));
                         break;
                     case 0x0F:
-                        m.ReceiverDescription = "Timer1: ";
+                        m.ReceiverDescription = "Timer1: " + ASCIIEncoding.GetString(m.Data.Skip(3));
                         break;
                     case 0x10:
-                        m.ReceiverDescription = "Timer2: ";
+                        m.ReceiverDescription = "Timer2: " + ASCIIEncoding.GetString(m.Data.Skip(3));
                         break;
                     case 0x1A:
-                        m.ReceiverDescription = "Interim Time?";
+                        m.ReceiverDescription = "Interim Time: " + ASCIIEncoding.GetString(m.Data.Skip(3));
                         break;
                 }
             }
-            else if (m.DestinationDevice == DeviceAddress.FrontDisplay && m.Data.Compare(0x2A, 0x00, 0x00))
+            else if (m.Data[0] == 0x2A)
             {
-                OnSpeedLimitChanged(0);
-                m.ReceiverDescription = "Speed limit turned off | Aux_Heating_LED = Off";
+                if (m.Data[1] == 0x00)
+                {
+                    OnSpeedLimitChanged(0);
+                    m.ReceiverDescription += "Speed limit turned off";
+                }
+                else if (m.Data[1] == 0x02)
+                {
+                    OnSpeedLimitChanged(_lastSpeedLimit);
+                    m.ReceiverDescription += "Speed limit turned on";
+                }
+                else
+                {
+                    if (m.Data[2].HasBit(2)) m.ReceiverDescription += "Aux. heat indicator ON";
+                    if (m.Data[2].HasBit(3) || m.Data[2].HasBit(5)) m.ReceiverDescription += "Aux. heat indicator Blinking";
+                }
             }
-            else if (m.DestinationDevice == DeviceAddress.FrontDisplay && m.Data.Compare(0x2A, 0x02, 0x00))
+            else if (m.Data[0] == 0x40) // Set OBC data
             {
-                OnSpeedLimitChanged(_lastSpeedLimit);
-                m.ReceiverDescription = "Speed limit turned on | Aux_Heating_LED = Off";
+                switch (m.Data[1])
+                {
+                    case 0x0F:
+                        m.ReceiverDescription = "Set Timer1: " + m.Data[2] + ":" + m.Data[3]; break;
+                    case 0x10:
+                        m.ReceiverDescription = "set Timer2: " + m.Data[2] + ":" + m.Data[3]; break;
+                }
             }
-            else if (m.DestinationDevice == DeviceAddress.FrontDisplay && m.Data.Compare(0x2A, 0x02, 0x00/*, 0x4A*/)) // On-board computer special indicators: Aux_Heating_LED = Off 
+            else if (m.Data[0] == 0x41) // OBC Data request
             {
-                
+                switch (m.Data[1])
+                {
+                    case 0x01:
+                        m.ReceiverDescription = "Request Time"; break;
+                    case 0x02:
+                        m.ReceiverDescription = "Request Date"; break;
+                    case 0x03:
+                        m.ReceiverDescription = "Request Outside temp"; break;
+                    case 0x04:
+                        m.ReceiverDescription = "Request Cons1"; break;
+                    case 0x05:
+                        m.ReceiverDescription = "Request Cons2"; break;
+                    case 0x06:
+                        m.ReceiverDescription = "Request Range"; break;
+                    case 0x07:
+                        m.ReceiverDescription = "Request Distance"; break;
+                    case 0x08:
+                        m.ReceiverDescription = "Request Arrival"; break;
+                    case 0x09:
+                        m.ReceiverDescription = "Request Limit"; break;
+                    case 0x0A:
+                        m.ReceiverDescription = "Request Average speed"; break;
+                    case 0x0D:
+                        m.ReceiverDescription = "Request Code"; break;
+                    case 0x0E:
+                        m.ReceiverDescription = "Request Stopwatch"; break;
+                    case 0x0F:
+                        m.ReceiverDescription = (m.Data[2] == 0x08 ? "Activate" : "Deactivate") + " Timer1"; break;
+                    case 0x10:
+                        m.ReceiverDescription = (m.Data[2] == 0x08 ? "Activate" : "Deactivate") + " Timer2"; break;
+                    case 0x11:
+                        m.ReceiverDescription = "Turn Aux heating off"; break;
+                    case 0x12:
+                        m.ReceiverDescription = "Turn Aux heating on"; break;
+                    case 0x13:
+                        m.ReceiverDescription = "Turn Aux vent off"; break;
+                    case 0x14:
+                        m.ReceiverDescription = "Turn Aux vent on"; break;
+                    case 0x1A:
+                        m.ReceiverDescription = "Request interim time"; break;
+                }
             }
-            // TODO arrive time, arrive distance, timers
+            else if (m.Data[0] == 0x54 && m.Data.Length == 14) // Vehile status data
+            {
+                OnVinChanged("" + (char)m.Data[1] + (char)m.Data[2] + m.Data[3].ToHex() + m.Data[4].ToHex() + m.Data[5].ToHex()[0]);
+                m.ReceiverDescription = "VIN " + VIN;
+            }
+            else if (m.Data[0] == 0x1A) // Check control message
+            {
+                m.ReceiverDescription = "Displaying error:" + ASCIIEncoding.GetString(m.Data.Skip(3));
+            }
         }
 
-        public static void ShowNormalText(string text, TextAlign align = TextAlign.Left)
+        public static void ClearText()
         {
-            ShowText(text, align, new byte[] {0x1A, 0x35, 0x00});
+            Manager.Instance.EnqueueMessage(new Message(DeviceAddress.CheckControlModule, DeviceAddress.InstrumentClusterElectronics, 0x1A, 0x30, 00));
         }
 
-        public static void ShowTextWithGong(string text, TextAlign align = TextAlign.Left)
+        public static void ShowNormalTextWithoutGong(string text, TextAlign align = TextAlign.Left, int timeout = 2000)
         {
-            ShowText(text, align, new byte[] { 0x1A, 0x37, 0x05 });
+            ShowTextForSomePeriodOfTime(text, align, TextMode.Normal, timeout);
         }
 
-        private static void ShowText(string text, TextAlign align, byte[] data)
+        public static void ShowNormalTextWithGong(string text, TextAlign align = TextAlign.Left, int timeout = 5000)
         {
+            ShowTextForSomePeriodOfTime(text, align, TextMode.WithGong1, timeout);
+        }
+
+        private static void ShowTextForSomePeriodOfTime(string text, TextAlign align, TextMode mode, int timeout)
+        {
+            ShowText(text, align, mode);
+
+            CancelDelay();
+            delayTimer = new Timer(delegate
+            {
+                CancelDelay();
+                RefreshOBCDisplay();
+            }, null, timeout, 0);
+        }
+
+        private static void ShowText(string text, TextAlign align, TextMode mode = TextMode.Normal)
+        {
+            var data = new byte[] {0x1A, 0x37, (byte)mode };
             data = data.PadRight(0x20, DisplayTextOnIKEMaxLen);
             data.PasteASCII(text.Translit(), 3, DisplayTextOnIKEMaxLen, align);
             Manager.Instance.EnqueueMessage(new Message(DeviceAddress.CheckControlModule, DeviceAddress.InstrumentClusterElectronics, "Show text \"" + text + "\" on IKE", data));
         }
+
+        private static void RefreshOBCDisplay()
+        {
+            if (delayTimer == null && CurrentIgnitionState >= IgnitionState.Acc)
+            {
+                ShowText(GetDataForOBCDisplay(), TextAlign.Left);
+            }
+        }
+
+        private static string GetDataForOBCDisplay()
+        {
+            return "CONS: " + (Consumption1 == 0 ? "-" : Consumption1.ToString("F1")) + "/" + (Consumption2 == 0 ? "-" : Consumption2.ToString("F1"));
+        }
+
 
         public static void Gong1()
         {
@@ -589,6 +718,7 @@ namespace imBMW.iBus.Devices.Real
                     OnSpeedRPMChanged(CurrentSpeed, 0);
                 }
                 Logger.Trace("Ignition will be change: " + previous.ToStringValue() + " > " + currentIgnitionState.ToStringValue());
+                RefreshOBCDisplay();
             }
         }
 
@@ -721,6 +851,7 @@ namespace imBMW.iBus.Devices.Real
             {
                 e(new ConsumptionEventArgs(value));
             }
+            RefreshOBCDisplay();
         }
 
         private static void OnTimeChanged(byte hour, byte minute)
@@ -779,7 +910,7 @@ namespace imBMW.iBus.Devices.Real
         /// IKE sends temperature every TBD sec
         /// </summary>
         public static event TemperatureEventHandler TemperatureChanged;
-        
+
         /// <summary>
         /// IKE sends VIN every TBD sec
         /// </summary>

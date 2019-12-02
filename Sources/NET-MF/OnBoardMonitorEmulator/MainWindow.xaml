@@ -130,5 +130,8 @@
         <Button x:Name="idleButton" Content="Idle" HorizontalAlignment="Left" Margin="10,60,0,0" VerticalAlignment="Top" Width="90" Click="idleButton_Click"/>
         <Button x:Name="sleepButton" Content="Sleep" HorizontalAlignment="Left" Margin="10,85,0,0" VerticalAlignment="Top" Width="90" Click="sleepButton_Click"/>
         <Button x:Name="wakeUpButton" Content="Wake Up" HorizontalAlignment="Left" Margin="10,110,0,0" VerticalAlignment="Top" Width="90" Click="wakeUpButton_Click" />
+
+        <TextBox x:Name="Consumption1" Text="{Binding Consumption1, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="23" Margin="265,71,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="45"/>
+        <TextBox x:Name="Consumption2" Text="{Binding Consumption2, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="23" Margin="265,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="45"/>
     </Grid>
 </Window>

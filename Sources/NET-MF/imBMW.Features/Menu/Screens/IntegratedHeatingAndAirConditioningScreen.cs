@@ -38,7 +38,7 @@ namespace imBMW.Features.Menu.Screens
                 IsCodingDataReaded = false;
             }, MenuItemType.Text, MenuItemAction.None);
 
-            item3 = new MenuItem(i => "Aux Heater: " + IntegratedHeatingAndAirConditioning.AuxilaryHeaterActivationMode.ToString(), item =>
+            item3 = new MenuItem(i => "Aux Heater: " + IntegratedHeatingAndAirConditioning.AuxilaryHeaterActivationMode.ToStringValue(), item =>
             {
                 IntegratedHeatingAndAirConditioning.AuxilaryHeaterActivationMode = 
                     IntegratedHeatingAndAirConditioning.AuxilaryHeaterActivationMode == AuxilaryHeaterActivationMode.Normal 

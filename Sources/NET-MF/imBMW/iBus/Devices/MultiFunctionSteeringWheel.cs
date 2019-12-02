@@ -28,7 +28,7 @@ namespace imBMW.iBus.Devices.Real
         static bool wasDialLongPressed;
         static bool needSkipRT;
 
-        static Message MessagePhoneResponse = new Message(DeviceAddress.Telephone, DeviceAddress.Broadcast, 0x02, 0x00);
+        static Message MessagePhoneResponse = new Message(DeviceAddress.Telephone, DeviceAddress.LocalBroadcastAddress, 0x02, 0x00);
 
         /// <summary> 
         /// Emulate phone for right RT button commands

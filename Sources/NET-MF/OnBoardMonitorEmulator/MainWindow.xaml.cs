@@ -82,9 +82,14 @@ namespace OnBoardMonitorEmulator
             }
         }
 
+        private readonly ViewModel _viewModel;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            _viewModel = new ViewModel();
+            DataContext = _viewModel;
 
             InstrumentClusterElectronicsEmulator.Init();
             NavigationModuleEmulator.Init();
@@ -277,25 +282,25 @@ namespace OnBoardMonitorEmulator
         private void MenuButton_Click(object sender, RoutedEventArgs e)
         {
             State = GraphicsNavigationDriverState.BordComputer;
-            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Broadcast, MenuButonClick);
+            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, MenuButonClick);
             WriteMessage(message);
         }
 
         private void MenuButton_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
-            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Broadcast, MenuButonHold);
+            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, MenuButonHold);
             WriteMessage(message);
         }
 
         private void PhoneButton_Click(object sender, RoutedEventArgs e)
         {
-            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Broadcast, PhoneButtonClick);
+            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, PhoneButtonClick);
             WriteMessage(message);
         }
 
         private void PhoneButton_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
-            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Broadcast, PhoneButtonHold);
+            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, PhoneButtonHold);
             WriteMessage(message);
         }
 
@@ -326,7 +331,7 @@ namespace OnBoardMonitorEmulator
 
         private void ClockButton_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Broadcast, 0x48, 0x87);
+            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, 0x48, 0x87);
             WriteMessage(message);
         }
 
@@ -338,7 +343,7 @@ namespace OnBoardMonitorEmulator
 
         private void imBMWTest_Click(object sender, RoutedEventArgs e)
         {
-            var message = new Message(DeviceAddress.imBMWTest, DeviceAddress.Broadcast, 0xEE, 0x00);
+            var message = new Message(DeviceAddress.imBMWTest, DeviceAddress.LocalBroadcastAddress, 0xEE, 0x00);
             WriteMessage(message);
         }
 

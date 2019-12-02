@@ -54,7 +54,7 @@ namespace imBMW.Features.Menu
                         }
                         return string.Empty;
                     };
-                    Radio.DisplayText(trackInfo.Title);
+                    InstrumentClusterElectronics.ShowNormalTextWithoutGong(trackInfo.Title);
                 }
             };
             mediaEmulator.Player.TrackChanged += (s, e) =>
@@ -64,7 +64,7 @@ namespace imBMW.Features.Menu
                 trackInfo = mediaEmulator.Player.CurrentTrack;
                 //UpdateScreenWitDelay(500);
                 UpdateHeaderWithDelay(500);
-                Radio.DisplayText(trackInfo.Title);
+                InstrumentClusterElectronics.ShowNormalTextWithoutGong(trackInfo.Title);
             };
             //mediaEmulator.IsEnabledChanged += mediaEmulator_IsEnabledChanged;
             //Radio.OnOffChanged += Radio_OnOffChanged;
@@ -437,7 +437,7 @@ namespace imBMW.Features.Menu
                 }
                 else
                 {
-                    Logger.Info("Screen switched back to radio", "BM");
+                    Logger.Debug("Screen switched back to radio", "BM");
                     ScreenWakeup();
                 }
             }

@@ -224,7 +224,7 @@ namespace imBMW.Devices.V2
                 bool isSignalled = _removableMediaInsertedSync.WaitOne(Debugger.IsAttached ? 10000 : 10000, true);
                 if (!isSignalled) // No USB inserted
                 {
-                    InstrumentClusterElectronics.ShowTextWithGong("USB:" + ControllerState.ToStringValue());
+                    InstrumentClusterElectronics.ShowNormalTextWithGong("USB:" + ControllerState.ToStringValue());
                     FrontDisplay.RefreshLEDs(LedType.RedBlinking, append: true);
                     LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(redLed, 3, 100));
                 }
@@ -232,7 +232,7 @@ namespace imBMW.Devices.V2
                 {
                     if (ControllerState == UsbMountState.DeviceConnectFailed || ControllerState == UsbMountState.UnknownDeviceConnected)
                     {
-                        InstrumentClusterElectronics.ShowTextWithGong("USB:" + ControllerState.ToStringValue());
+                        InstrumentClusterElectronics.ShowNormalTextWithGong("USB:" + ControllerState.ToStringValue());
                         FrontDisplay.RefreshLEDs(LedType.Red, append: true);
                         LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(redLed, 4, 100));
                         ResetBoard();
@@ -272,7 +272,7 @@ namespace imBMW.Devices.V2
                     Logger.Trace("PhoneButtonHold");
                     UnmountMassStorage();
                     _massStorage = null;
-                    InstrumentClusterElectronics.ShowNormalText("Unmounted");
+                    InstrumentClusterElectronics.ShowNormalTextWithGong("Unmounted");
                 };
 
                 Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.InstrumentClusterElectronics, m =>

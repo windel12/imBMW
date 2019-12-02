@@ -123,13 +123,13 @@ namespace imBMW.Tools
                 case DeviceAddress.LightControlModule: return "LCM";
                 case DeviceAddress.SeatMemorySecond: return "SeatMemorySecond";
                 case DeviceAddress.IntegratedRadioInformationSystem: return "IntegratedRadioInformationSystem";
-                case DeviceAddress.FrontDisplay: return "LCD";
+                case DeviceAddress.FrontDisplay: return "ANZV";
                 case DeviceAddress.RainLightSensor: return "RLS";
                 case DeviceAddress.Television: return "TV";
                 case DeviceAddress.OnBoardMonitor: return "OBM";
                 case DeviceAddress.OBD: return "OBD";
                 case DeviceAddress.CentralSwitchControlUnit: return "CentralSwitchControlUnit";
-                case DeviceAddress.Broadcast: return "LOC";
+                case DeviceAddress.LocalBroadcastAddress: return "LOC";
 
                 case DeviceAddress.imBMWTest: return "imBMWTest";
                 case DeviceAddress.imBMWMenu: return "imBMWMenu";

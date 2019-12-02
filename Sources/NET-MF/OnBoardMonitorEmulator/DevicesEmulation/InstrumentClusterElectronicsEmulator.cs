@@ -20,6 +20,42 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
         private static byte TemperatureOutside = 15;
         private static byte TemperatureCoolant = 5;
 
+        private static float _consumption1;
+        public static float Consumption1
+        {
+            get { return _consumption1; }
+            set
+            {
+                if (_consumption1 == 0)
+                {
+                    _consumption1 = value;
+                }
+                else
+                {
+                    _consumption1 = value;
+                    SendConsumption1();
+                }
+            }
+        }
+
+        private static float _consumption2;
+        public static float Consumption2
+        {
+            get { return _consumption2; }
+            set
+            {
+                if (_consumption2 == 0)
+                {
+                    _consumption2 = value;
+                }
+                else
+                {
+                    _consumption2 = value;
+                    SendConsumption2();
+                }
+            }
+        }
+
         public delegate void ShowOBCMessageEventHandler(string message);
         public static event ShowOBCMessageEventHandler OBCTextChanged;
 
@@ -55,11 +91,11 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
                     {
                         var random = new Random();
                         CurrentSpeed++; // (byte)random.Next(0, 160);
-                        CurrentRPM = (ushort) random.Next(800, 4400);
+                        CurrentRPM = (ushort)random.Next(800, 4400);
 
                         var rpmSpeedMessage = new Message(DeviceAddress.InstrumentClusterElectronics,
-                            DeviceAddress.GlobalBroadcastAddress, 0x18, (byte) (CurrentSpeed / 2),
-                            (byte) (CurrentRPM / 100));
+                            DeviceAddress.GlobalBroadcastAddress, 0x18, (byte)(CurrentSpeed / 2),
+                            (byte)(CurrentRPM / 100));
 
                         Manager.Instance.EnqueueMessage(rpmSpeedMessage);
 
@@ -89,26 +125,17 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
 
         public static void StopAnnounce()
         {
-            rpmSpeedAnounceTimer.Dispose();
-            temperatureAnounceTimer.Dispose();
+            if (rpmSpeedAnounceTimer != null)
+                rpmSpeedAnounceTimer.Dispose();
+            if (temperatureAnounceTimer != null)
+                temperatureAnounceTimer.Dispose();
         }
 
         public static void ProcessMessageToIKE(Message m)
         {
-            if (m.SourceDevice == DeviceAddress.Radio && m.Data.StartsWith(0x23, 0x62, 0x30))
+            if (m.Data[0] == 0x1A || m.Data[0] == 0x23)
             {
-                byte[] messageData = m.Data.Skip(3);
-                string message = System.Text.ASCIIEncoding.GetString(messageData);
-                var e = OBCTextChanged;
-                if (e != null)
-                {
-                    e(message);
-                }
-            }
-            if (m.SourceDevice == DeviceAddress.Telephone && m.Data.StartsWith(0x23, 0x42, 0x30))
-            {
-                byte[] messageData = m.Data.Skip(3);
-                string message = System.Text.ASCIIEncoding.GetString(messageData);
+                string message = ASCIIEncoding.GetString(m.Data.Skip(3));
                 var e = OBCTextChanged;
                 if (e != null)
                 {
@@ -123,7 +150,7 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
             {
                 var hour = DateTime.Now.Hour.ToString("D2");
                 var minute = DateTime.Now.Minute.ToString("D2");
-                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.FrontDisplay, 0x24, 0x01, 0x00, 
+                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.FrontDisplay, 0x24, 0x01, 0x00,
                     Convert.ToByte(hour[0]), Convert.ToByte(hour[1]), 0x3A,
                     Convert.ToByte(minute[0]), Convert.ToByte(minute[1]), 0x20, 0x20));
             }
@@ -136,6 +163,14 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
                     Convert.ToByte(month[0]), Convert.ToByte(month[1]), 0x2F,
                     Convert.ToByte(day[0]), Convert.ToByte(day[1]), 0x2F,
                     Convert.ToByte(year[0]), Convert.ToByte(year[1]), Convert.ToByte(year[2]), Convert.ToByte(year[3])));
+            }
+            if (m.Data.Compare(InstrumentClusterElectronics.MessageRequestConsumtion1.Data))
+            {
+                SendConsumption1();
+            }
+            if (m.Data.Compare(InstrumentClusterElectronics.MessageRequestConsumtion2.Data))
+            {
+                SendConsumption2();
             }
         }
 
@@ -177,6 +212,22 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
                 default:
                     return 0x00;
             }
+        }
+
+        private static void SendConsumption1()
+        {
+            var cons1MessageData = new byte[] { 0x24, 0x04, 0x00 };
+            var value = (Consumption1 < 10 ? "0" : "") + $"{Consumption1:F1} l/100";
+            var cons1 = Encoding.ASCII.GetBytes(string.Format("{000:000}", value));
+            Manager.Instance.EnqueueMessage(new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.FrontDisplay, cons1MessageData.Combine(cons1)));
+        }
+
+        private static void SendConsumption2()
+        {
+            var cons2MessageData = new byte[] { 0x24, 0x05, 0x00 };
+            var value = (Consumption2 < 10 ? "0" : "") + $"{Consumption2:F1} l/100";
+            var cons2 = Encoding.ASCII.GetBytes(string.Format("{000:000}", value));
+            Manager.Instance.EnqueueMessage(new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.FrontDisplay, cons2MessageData.Combine(cons2)));
         }
     }
 }

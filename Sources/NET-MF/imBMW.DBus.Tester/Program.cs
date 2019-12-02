@@ -107,7 +107,6 @@ namespace imBMW.DBus.Tester
             LED.Write(Busy(true, 1));
         }
 
-        static bool restrictOutput = true;
         private static void Manager_AfterMessageReceived(MessageEventArgs e)
         {
             LED.Write(Busy(false, 1));
@@ -121,13 +120,6 @@ namespace imBMW.DBus.Tester
 
             // Show only messages which are described
             if (e.Message.Describe() == null) { return; }
-            if (!restrictOutput)
-            {
-                var logIco = "< ";
-                Logger.Info(e.Message.ToPrettyString(true, true), logIco);
-                //Logger.Info(e.Message, logIco);
-                return;
-            }
 
             if ((
                     e.Message.SourceDevice == DeviceAddress.Radio && e.Message.DestinationDevice == DeviceAddress.CDChanger ||
@@ -144,13 +136,13 @@ namespace imBMW.DBus.Tester
                 //&& e.Message.DestinationDevice != DeviceAddress.OnBoardMonitor
                 //&& e.Message.SourceDevice != DeviceAddress.CDChanger
                 //&& e.Message.DestinationDevice != DeviceAddress.CDChanger
-                && e.Message.DestinationDevice != DeviceAddress.Broadcast
+                && e.Message.DestinationDevice != DeviceAddress.LocalBroadcastAddress
                 //&& e.Message.SourceDevice != DeviceAddress.Diagnostic
                 //&& e.Message.DestinationDevice != DeviceAddress.Diagnostic
             )
             {
                 var logIco = "< ";
-                Logger.Info(e.Message.ToPrettyString(true, true), logIco);
+                Logger.Trace(e.Message.ToPrettyString(true, true), logIco);
                 //Logger.Info(e.Message, logIco);
             }
         }
@@ -163,7 +155,7 @@ namespace imBMW.DBus.Tester
         private static void Manager_AfterMessageSent(MessageEventArgs e)
         {
             LED.Write(Busy(false, 2));
-            Logger.Info(e.Message, " >");
+            Logger.Trace(e.Message, " >");
         }
 
         static bool Busy(bool busy, byte type)

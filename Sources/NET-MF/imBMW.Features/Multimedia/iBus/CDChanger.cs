@@ -27,9 +27,9 @@ namespace imBMW.iBus.Devices.Emulators
         #region Messages
 
         /// <summary> 02 00 </summary>
-        public static imBMW.iBus. Message MessagePollResponse = new Message(DeviceAddress.CDChanger, DeviceAddress.Broadcast, 0x02, 0x00);
+        public static imBMW.iBus. Message MessagePollResponse = new Message(DeviceAddress.CDChanger, DeviceAddress.LocalBroadcastAddress, 0x02, 0x00);
         /// <summary> 02 01 </summary>
-        public static Message MessageAnnounce = new Message(DeviceAddress.CDChanger, DeviceAddress.Broadcast, 0x02, 0x01);
+        public static Message MessageAnnounce = new Message(DeviceAddress.CDChanger, DeviceAddress.LocalBroadcastAddress, 0x02, 0x01);
 
         Message StatusStopped(byte disk, byte track)
         {

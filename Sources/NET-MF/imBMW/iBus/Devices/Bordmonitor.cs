@@ -364,6 +364,7 @@ namespace imBMW.iBus.Devices.Real
             {
                 s = s.Translit();
             }
+            string receiverDescription = "Show message on BM (" + index.ToHex() + "): ";
             switch (field)
             {
                 case BordmonitorFields.Title:
@@ -440,11 +441,12 @@ namespace imBMW.iBus.Devices.Real
             {
                 data[data.Length - 2] = 0x2A;
             }
-            if (field == BordmonitorFields.Item && NaviVersion < Tools.NaviVersion.MK4)
+            if (field == BordmonitorFields.Item && NaviVersion < NaviVersion.MK4)
             {
                 data[data.Length - 1] = 0x06;
             }
-            var m = new Message(iBus.DeviceAddress.Radio, iBus.DeviceAddress.GraphicsNavigationDriver, "Show message on BM (" + index.ToHex() + "): " + s, data);
+            var m = new Message(DeviceAddress.Radio, DeviceAddress.GraphicsNavigationDriver, data);
+            m.ReceiverDescription += s;
             if (send)
             {
                 Manager.Instance.EnqueueMessage(m);

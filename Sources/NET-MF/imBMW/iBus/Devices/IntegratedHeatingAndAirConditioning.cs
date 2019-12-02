@@ -63,7 +63,7 @@ namespace imBMW.iBus.Devices.Real
         {
             if(Settings.Instance.SuspendAuxilaryHeaterResponseEmulation)
             {
-                m.ReceiverDescription = "AuxilaryHeater is working. Coolant Temperature: " + InstrumentClusterElectronics.TemperatureCoolant;
+                m.ReceiverDescription = "Auxilary heater is working. Coolant Temperature: " + InstrumentClusterElectronics.TemperatureCoolant;
                 return;
             }
 
@@ -94,7 +94,7 @@ namespace imBMW.iBus.Devices.Real
                     if (AuxilaryHeater.Status == AuxilaryHeaterStatus.Unknown)
                     {
                         AuxilaryHeater.Status = AuxilaryHeaterStatus.Working;
-                        Logger.Debug("Auxilary Heater, previous state was restored.");
+                        Logger.Debug("Auxilary heater, previous state was restored.");
                         // without return!!! for answering
                     }
 
@@ -115,7 +115,7 @@ namespace imBMW.iBus.Devices.Real
                         else
                         {
                             AuxilaryHeater.Status = AuxilaryHeaterStatus.Working;
-                            m.ReceiverDescription = "AuxilaryHeater is working. Coolant Temperature: " + InstrumentClusterElectronics.TemperatureCoolant;
+                            m.ReceiverDescription = "Auxilary heater is working. Coolant Temperature: " + InstrumentClusterElectronics.TemperatureCoolant;
 
                             var respondMessage = ContinueWorkingAuxilaryHeater;
                             respondMessage.ReceiverDescription = "Continue working.";

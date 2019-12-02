@@ -113,7 +113,7 @@ namespace imBMW.Tools
             }
             else
             {
-                Logger.Info("No settings file");
+                Logger.Warning("No settings file");
             }
             return Instance;
         }
@@ -179,7 +179,7 @@ namespace imBMW.Tools
         {
             try
             {
-                Logger.Info("Setting: " + name + " = " + (value ?? ""));
+                Logger.Debug("Setting: " + name + " = " + (value ?? ""));
                 value = value.ToLower();
                 bool isTrue = value == "1" || value == "true" || value == "on" || value == "yes";
                 switch (name)

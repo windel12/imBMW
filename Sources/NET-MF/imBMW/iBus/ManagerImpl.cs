@@ -68,7 +68,7 @@ namespace imBMW.iBus
                 byte[] data = port.ReadAvailable();
                 if (messageBufferLength + data.Length > messageBuffer.Length)
                 {
-                    Logger.Info("Buffer overflow. Extending it. " + _portName);
+                    Logger.Warning("Buffer overflow. Extending it. " + _portName);
                     byte[] newBuffer = new byte[messageBuffer.Length * 2];
                     Array.Copy(messageBuffer, newBuffer, messageBufferLength);
                     messageBuffer = newBuffer;

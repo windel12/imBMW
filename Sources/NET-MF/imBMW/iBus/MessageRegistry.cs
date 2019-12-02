@@ -45,10 +45,10 @@ namespace imBMW.iBus
             "", // "0x1E",
             "UTC time and date",// "0x1F
             "LOC: Display status", // "0x20",
-            "Radio Short cuts",
+            "Navi menu items",
             "Text display confirmation",
             "Display Title", // "0x23"
-            "Update ANZV",
+            "Update ANZV", // "0x24"
             "", // "0x25",
             "", // "0x26",
             "MID display request", // "0x27",
@@ -94,7 +94,7 @@ namespace imBMW.iBus
             "Monitor Control", // "0x4F"
             "", // "0x50",
             "Check control messages", // "0x51",
-            "?Some message to CheckControlModule?", // "0x52",
+            "IKE sending error to CCM", // "0x52",
             "Vehicle data request",
             "Vehicle data status",
             "LCM Service Interval Display ", // "0x55",
@@ -326,9 +326,6 @@ namespace imBMW.iBus
             messageDescriptions.Add(new byte[] { 0x82, 0x05 }.ToHex(' '), "IHKA turned on by webasto activation"); // after manual starting auxilary heater(by receiving command 92 00 22 from auxilary heater(key in ACC))
             messageDescriptions.Add(new byte[] { 0x82, 0x03 }.ToHex(' '), "IHKA turned off"); //    after changing Ign > Acc
                                                                                               // or after manual stopping auxilary heater(by receiving command 92 00 11 from auxilary heater(key in ACC))
-            messageDescriptions.Add(new byte[] { 0x2A, 0x00, 0x00 }.ToHex(' '), "Aux. heater indicator turn off ");
-            messageDescriptions.Add(new byte[] { 0x2A, 0x00, 0x04 }.ToHex(' '), "Aux. heater indicator turn on");
-            messageDescriptions.Add(new byte[] { 0x2A, 0x00, 0x08 }.ToHex(' '), "Aux. heater indicator blinking");
 
             messageDescriptions.Add(new byte[] { 0x0C, 0x10 }.ToHex(' '), "Get DDE params");
             /*messageDescriptions.Add(new byte[] { 0x0C, 0x10, 0x0F, 0x60 }.ToHex(' '), "Get anmPWG");

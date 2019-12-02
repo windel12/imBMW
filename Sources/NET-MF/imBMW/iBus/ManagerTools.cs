@@ -64,7 +64,7 @@ namespace imBMW.iBus
                     break;
                 case MessageReceiverRegistration.MatchType.Destination:
                     if (Destination == m.DestinationDevice
-                        || m.DestinationDevice == DeviceAddress.Broadcast
+                        || m.DestinationDevice == DeviceAddress.LocalBroadcastAddress
                         || m.DestinationDevice == DeviceAddress.GlobalBroadcastAddress)
                     {
                         return true;
@@ -73,7 +73,7 @@ namespace imBMW.iBus
                 case MessageReceiverRegistration.MatchType.SourceAndDestination:
                     if (Source == m.SourceDevice
                         && (Destination == m.DestinationDevice
-                            || m.DestinationDevice == DeviceAddress.Broadcast
+                            || m.DestinationDevice == DeviceAddress.LocalBroadcastAddress
                             || m.DestinationDevice == DeviceAddress.GlobalBroadcastAddress))
                     {
                         return true;
@@ -82,7 +82,7 @@ namespace imBMW.iBus
                 case MessageReceiverRegistration.MatchType.SourceOrDestination:
                     if (Source == m.SourceDevice
                         || Destination == m.DestinationDevice
-                        || m.DestinationDevice == DeviceAddress.Broadcast
+                        || m.DestinationDevice == DeviceAddress.LocalBroadcastAddress
                         || m.DestinationDevice == DeviceAddress.GlobalBroadcastAddress)
                     {
                         return true;

@@ -66,7 +66,7 @@ namespace imBMW.iBus
         OnBoardMonitor = 0xF0,
         OBD = 0xF1,
         CentralSwitchControlUnit = 0xF5,
-        Broadcast = 0xFF,
+        LocalBroadcastAddress = 0xFF,
 
         imBMWTest = 0xFB,
         imBMWMenu = 0xFC,

@@ -73,8 +73,8 @@ namespace OnBoardMonitorEmulatorTests
                 }
             };
             Manager.Instance.EnqueueMessage(
-                new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Broadcast, 0x48, 0x34),
-                new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Broadcast, 0x48, 0x74));
+                new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, 0x48, 0x34),
+                new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, 0x48, 0x74));
             bool radioDisabledResult = emulatorOnIsPlayingChangedWaitHandle.Wait();
 
             Assert.IsTrue(radioEnabledResult);
