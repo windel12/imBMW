@@ -152,7 +152,7 @@ namespace imBMW.iBus.Devices.Emulators
         {
             if (isEnabled)
             {
-                BluetoothScreen.BluetoothChargingState = false;
+                //BluetoothScreen.BluetoothChargingState = false;
                 BluetoothScreen.AudioSource = AudioSource.SDCard;
                 if (Player.IsPlaying)
                 {
