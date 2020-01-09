@@ -25,47 +25,47 @@ namespace imBMW.Features.Menu
             //CurrentScreen = HomeScreen.Instance;
             // TODO: Refactor this!!!
             BordcomputerScreen.Instance.MediaEmulator = mediaEmulator;
-            MusicListScreen.GetMediaEmulator = () => mediaEmulator;
+            //MusicListScreen.GetMediaEmulator = () => mediaEmulator;
 
             CurrentScreen = BordcomputerScreen.Instance;
 
             byte titleStartIndex = 0;
             byte statusStartIndex = 0;
-            var trackInfo = mediaEmulator.Player.CurrentTrack;
+            //var trackInfo = mediaEmulator.Player.CurrentTrack;
 
             // TODO: Refactor this!!!
-            mediaEmulator.Player.IsPlayingChanged += (s, e) =>
-            {
-                if (s.IsPlaying)
-                {
-                    /*DDEScreen.Instance.TitleCallback = */BordcomputerScreen.Instance.TitleCallback = x =>
-                    {
-                        //if (trackInfo.Title != null && trackInfo.Title != "")
-                        //{
-                            return TrimTextToLength(trackInfo.Title, ref titleStartIndex, 10);
-                        //}
-                        //return TrimTextToLength(trackInfo.FileName, ref titleStartIndex, 10);
-                    };
-                    /*DDEScreen.Instance.StatusCallback = */BordcomputerScreen.Instance.StatusCallback = x =>
-                    {
-                        if (trackInfo.Artist != null && trackInfo.Artist != "")
-                        {
-                            return TrimTextToLength(trackInfo.Artist, ref statusStartIndex, 10);
-                        }
-                        return string.Empty;
-                    };
-                    InstrumentClusterElectronics.ShowNormalTextWithoutGong(trackInfo.Title);
-                }
-            };
-            mediaEmulator.Player.TrackChanged += (s, e) =>
-            {
-                titleStartIndex = 0;
-                statusStartIndex = 0;
-                trackInfo = mediaEmulator.Player.CurrentTrack;
-                //UpdateScreenWitDelay(500);
-                UpdateHeaderWithDelay(500);
-                InstrumentClusterElectronics.ShowNormalTextWithoutGong(trackInfo.Title);
-            };
+            //mediaEmulator.Player.IsPlayingChanged += (s, e) =>
+            //{
+            //    if (s.IsPlaying)
+            //    {
+            //        /*DDEScreen.Instance.TitleCallback = */BordcomputerScreen.Instance.TitleCallback = x =>
+            //        {
+            //            //if (trackInfo.Title != null && trackInfo.Title != "")
+            //            //{
+            //                return TrimTextToLength(trackInfo.Title, ref titleStartIndex, 10);
+            //            //}
+            //            //return TrimTextToLength(trackInfo.FileName, ref titleStartIndex, 10);
+            //        };
+            //        /*DDEScreen.Instance.StatusCallback = */BordcomputerScreen.Instance.StatusCallback = x =>
+            //        {
+            //            if (trackInfo.Artist != null && trackInfo.Artist != "")
+            //            {
+            //                return TrimTextToLength(trackInfo.Artist, ref statusStartIndex, 10);
+            //            }
+            //            return string.Empty;
+            //        };
+            //        InstrumentClusterElectronics.ShowNormalTextWithoutGong(trackInfo.Title);
+            //    }
+            //};
+            //mediaEmulator.Player.TrackChanged += (s, e) =>
+            //{
+            //    titleStartIndex = 0;
+            //    statusStartIndex = 0;
+            //    trackInfo = mediaEmulator.Player.CurrentTrack;
+            //    //UpdateScreenWitDelay(500);
+            //    UpdateHeaderWithDelay(500);
+            //    InstrumentClusterElectronics.ShowNormalTextWithoutGong(trackInfo.Title);
+            //};
             //mediaEmulator.IsEnabledChanged += mediaEmulator_IsEnabledChanged;
             //Radio.OnOffChanged += Radio_OnOffChanged;
             Manager.Instance.AddMessageReceiverForDestinationDevice(DeviceAddress.Radio, ProcessToRadioMessage);

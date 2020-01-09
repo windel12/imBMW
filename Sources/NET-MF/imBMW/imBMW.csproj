@@ -63,13 +63,12 @@
   </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
-    <Compile Include="DBus\DBusManager.cs" />
-    <Compile Include="DBus\DBusMessage.cs" />
-    <Compile Include="DBus\DBusMessageParser.cs" />
-    <Compile Include="DBus\DS2Message.cs" />
+    <None Include="DBus\DBusManager.cs" />
+    <None Include="DBus\DBusMessage.cs" />
+    <None Include="DBus\DBusMessageParser.cs" />
+    <None Include="DBus\DS2Message.cs" />
     <Compile Include="DebuggerBrowsableState.cs" />
     <Compile Include="Enums\AirConditioningCompressorStatus.cs" />
-    <Compile Include="Enums\AudioSource.cs" />
     <Compile Include="Enums\AuxilaryHeaterActivationMode.cs" />
     <Compile Include="Enums\AuxilaryHeaterStatus.cs" />
     <Compile Include="Enums\FlapPosition.cs" />
@@ -78,7 +77,7 @@
     <Compile Include="iBus\Devices\AuxilaryHeater.cs" />
     <Compile Include="iBus\Devices\BodyModule.cs" />
     <Compile Include="iBus\Devices\Bordmonitor.cs" />
-    <Compile Include="iBus\Devices\DigitalDieselElectronics.cs" />
+    <None Include="iBus\Devices\DigitalDieselElectronics.cs" />
     <Compile Include="iBus\Devices\FrontDisplay.cs" />
     <Compile Include="iBus\Devices\Immobiliser.cs" />
     <Compile Include="iBus\Devices\InstrumentClusterElectronics.cs" />
@@ -87,11 +86,12 @@
     <Compile Include="iBus\Devices\MultiFunctionSteeringWheel.cs" />
     <Compile Include="iBus\Devices\NavigationModule.cs" />
     <Compile Include="iBus\Devices\Radio.cs" />
-    <Compile Include="iBus\InternalMessage.cs" />
+    <None Include="iBus\InternalMessage.cs" />
     <Compile Include="iBus\KBusManager.cs" />
     <Compile Include="iBus\ManagerImpl.cs" />
     <Compile Include="iBus\ManagerTools.cs" />
-    <Compile Include="iBus\MessageParser.cs" />
+    <None Include="iBus\MessageParser.cs" />
+    <Compile Include="Tools\FEZPandaIII.cs" />
     <Compile Include="IO\ISerialPort.cs" />
     <Compile Include="IO\SerialInterruptPort.cs" />
     <Compile Include="IO\SerialInterruptPortBase.cs" />
@@ -102,13 +102,13 @@
     <Compile Include="IO\SerialPortOptoPair.cs" />
     <Compile Include="IO\SerialPortTH3122.cs" />
     <Compile Include="IO\SerialTimerInterruptPort.cs" />
-    <Compile Include="iBus\Devices\HeadlightVerticalAimControl.cs" />
+    <None Include="iBus\Devices\HeadlightVerticalAimControl.cs" />
     <Compile Include="Shields\BluetoothOVC3860Shield.cs" />
     <Compile Include="Shields\ShieldBase.cs" />
     <Compile Include="Shields\ShieldManager.cs" />
     <Compile Include="Shields\ShieldPort.cs" />
     <Compile Include="Tools\FileLogger.cs" />
-    <Compile Include="Tools\EnumConverter.cs" />
+    <Compile Include="Enums\EnumConverter.cs" />
     <Compile Include="iBus\Manager.cs" />
     <Compile Include="iBus\Message.cs" />
     <Compile Include="iBus\MessageRegistry.cs" />
@@ -119,7 +119,7 @@
     <Compile Include="Tools\Settings.cs" />
     <Compile Include="Tools\SettingsPropertyAttribute.cs" />
     <Compile Include="Tools\SpinWaitTimer.cs" />
-    <Compile Include="Tools\UsbMountState.cs" />
+    <Compile Include="Enums\MassStorageMountState.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
@@ -128,7 +128,6 @@
   <ItemGroup>
     <Reference Include="Microsoft.SPOT.Hardware" />
     <Reference Include="Microsoft.SPOT.Hardware.SerialPort" />
-    <Reference Include="Microsoft.SPOT.IO" />
     <Reference Include="Microsoft.SPOT.Native" />
     <Reference Include="System.IO" />
   </ItemGroup>

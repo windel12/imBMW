@@ -96,15 +96,15 @@ namespace imBMW.Features.Menu.Screens
             return false;
         }
 
-        private void TrackChanged(IAudioPlayer sender, TrackInfo nowPlaying)
-        {
-            refreshTimer.Change(timeoutBeforeStart, refreshInterval);
-        }
+        //private void TrackChanged(IAudioPlayer sender, TrackInfo nowPlaying)
+        //{
+        //    refreshTimer.Change(timeoutBeforeStart, refreshInterval);
+        //}
 
-        private void IntegratedHeatingAndAirConditioning_AuxilaryHeaterWorkingRequestsCounterChanged(byte counter)
-        {
-            OnUpdateHeader(MenuScreenUpdateReason.Refresh);
-        }
+        //private void IntegratedHeatingAndAirConditioning_AuxilaryHeaterWorkingRequestsCounterChanged(byte counter)
+        //{
+        //    OnUpdateHeader(MenuScreenUpdateReason.Refresh);
+        //}
 
         private void InstrumentClusterElectronics_SpeedLimitChanged(SpeedLimitEventArgs e)
         {

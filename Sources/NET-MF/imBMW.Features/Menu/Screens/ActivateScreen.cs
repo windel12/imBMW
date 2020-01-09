@@ -1,9 +1,6 @@
-using System;
-using imBMW.Diagnostics;
 using imBMW.Features.Localizations;
 using imBMW.iBus;
 using imBMW.iBus.Devices.Real;
-using imBMW.Tools;
 
 namespace imBMW.Features.Menu.Screens
 {

@@ -1,5 +1,4 @@
 ﻿using System;
-using imBMW.Diagnostics;
 using imBMW.iBus;
 
 namespace OnBoardMonitorEmulator.DevicesEmulation

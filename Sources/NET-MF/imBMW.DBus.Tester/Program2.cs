@@ -5,8 +5,6 @@ using GHI.Usb.Host;
 using imBMW.Tools;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
-using GHI.Pins;
-using imBMW.Diagnostics;
 
 namespace imBMW.DBus.Tester
 {
@@ -30,8 +28,8 @@ namespace imBMW.DBus.Tester
             {
                 if (usbSerialDevice != null)
                 {
-                    DBusMessage test = new DBusMessage(iBus.DeviceAddress.OBD, iBus.DeviceAddress.DDE, 0x2C, 0x10, 0x0F, 0x00);
-                    usbSerialDevice.Write(test.Packet);
+                    //DBusMessage test = new DBusMessage(iBus.DeviceAddress.OBD, iBus.DeviceAddress.DDE, 0x2C, 0x10, 0x0F, 0x00);
+                    //usbSerialDevice.Write(test.Packet);
                 }
                 Thread.Sleep(1000);
             }

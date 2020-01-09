@@ -9,7 +9,7 @@ namespace imBMW.Diagnostics.DME
     {
         public MS43JMGAnalogValues() { }
 
-        public MS43JMGAnalogValues(DBusMessage message)
+        public MS43JMGAnalogValues(Message message)
             : base(message)
         { }
 
@@ -28,13 +28,13 @@ namespace imBMW.Diagnostics.DME
             IntakePressure = d[31] * 10; // 0..2550 hPa
         }
 
-        public static DBusMessage ModifyMS43Message(DMEAnalogValues av, Message message)
+        public static Message ModifyMS43Message(DMEAnalogValues av, Message message)
         {
             var data = message.Data.Skip(0);
             data[30] = ToByte((av.WideBandLambda - 0.5) * 255); // TODO why not? TBD with JMG
             data[31] = ToByte(av.IntakePressure / 10);
             //return new DBusMessage(DeviceAddress.DME, message.ReceiverDescription, data);
-            return new DBusMessage(DeviceAddress.OBD, DeviceAddress.DME,/* message.ReceiverDescription,*/ data);
+            return new Message(DeviceAddress.OBD, DeviceAddress.DME,/* message.ReceiverDescription,*/ data);
         }
 
         static byte ToByte(double d)

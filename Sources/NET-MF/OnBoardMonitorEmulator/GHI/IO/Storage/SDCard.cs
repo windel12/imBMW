@@ -20,7 +20,15 @@ namespace GHI.IO.Storage
         public void Mount()
         {
             RemovableMedia.FireInserted();
+            Mounted = true;
         }
+
+        public void Unmount()
+        {
+            Mounted = false;
+        }
+
+        public bool Mounted { get; private set; }
 
         public void Dispose() { }
 

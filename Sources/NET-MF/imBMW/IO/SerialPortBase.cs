@@ -48,7 +48,7 @@ namespace System.IO.Ports
 
         protected AutoResetEvent _readToEvent;        // Handles the thread synchronization when both DataReceived event is being requested and user calls ReadTo().
 
-        public static SpinWaitTimer SPIN_WAIT_TIMER;
+        //public static SpinWaitTimer SPIN_WAIT_TIMER;
 
         public SerialPortBase() : this(0, 1) { }
 
@@ -68,16 +68,16 @@ namespace System.IO.Ports
             //SPIN_WAIT_TIMER.Calibrate();
         }
 
-        private void Wait(long microseconds)
-        {
-            var then = Utility.GetMachineTime().Ticks;
-            var ticksToWait = microseconds * TimeSpan.TicksPerMillisecond / 1000;
-            while (true)
-            {
-                var now = Utility.GetMachineTime().Ticks;
-                if ((now - then) > ticksToWait) break;
-            }
-        }
+        //private void Wait(long microseconds)
+        //{
+        //    var then = Utility.GetMachineTime().Ticks;
+        //    var ticksToWait = microseconds * TimeSpan.TicksPerMillisecond / 1000;
+        //    while (true)
+        //    {
+        //        var now = Utility.GetMachineTime().Ticks;
+        //        if ((now - then) > ticksToWait) break;
+        //    }
+        //}
 
         public abstract bool IsOpen { get; }
 
@@ -130,26 +130,16 @@ namespace System.IO.Ports
             {
                 WriteDirect(data, i, _writeBufferSize);                         // send it out
                 if (AfterWriteDelay > 0)
-                    //SPIN_WAIT_TIMER.WaitMilliseconds(AfterWriteDelay);
-#if OnBoardMonitorEmulator
                     Thread.Sleep(AfterWriteDelay);         // and include pause after chunk
-#endif
-#if NETMF
-                    Wait(AfterWriteDelay * 1000);
-#endif
+
             }
 
             if (modulus > 0)                                                    // If any data left which do not fill whole _writeBuferSize chunk,
             {
                 WriteDirect(data, offset + length, modulus);                    // send it out as well
                 if (AfterWriteDelay > 0)
-                    //SPIN_WAIT_TIMER.WaitMilliseconds(AfterWriteDelay);
-#if OnBoardMonitorEmulator
                     Thread.Sleep(AfterWriteDelay);         // and pause for case consecutive calls to any write method.
-#endif
-#if NETMF
-                    Wait(AfterWriteDelay * 1000);
-#endif
+
             }
 
             _writeThread = null;                                                // release current thread so that the _busy signal does not affect external code execution

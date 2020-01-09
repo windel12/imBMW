@@ -72,16 +72,16 @@
     <Compile Include="Menu\MenuItem.cs" />
     <Compile Include="Menu\MenuScreen.cs" />
     <Compile Include="Menu\RadioMenu.cs" />
-    <Compile Include="Menu\Screens\ActivateScreen.cs" />
-    <Compile Include="Menu\Screens\BluetoothScreen.cs" />
+    <None Include="Menu\Screens\ActivateScreen.cs" />
+    <None Include="Menu\Screens\BluetoothScreen.cs" />
     <Compile Include="Menu\Screens\BordcomputerScreen.cs" />
-    <Compile Include="Menu\Screens\DDEScreen.cs" />
+    <None Include="Menu\Screens\DDEScreen.cs" />
     <Compile Include="Menu\Screens\HomeScreen.cs" />
     <Compile Include="Menu\Screens\AuxilaryHeaterScreen.cs" />
     <Compile Include="Menu\Screens\IntegratedHeatingAndAirConditioningScreen.cs" />
-    <Compile Include="Menu\Screens\MusicListScreen.cs" />
+    <None Include="Menu\Screens\MusicListScreen.cs" />
     <Compile Include="Menu\Screens\SettingsScreen.cs" />
-    <Compile Include="Menu\Screens\SpeedLimitScreen.cs" />
+    <None Include="Menu\Screens\SpeedLimitScreen.cs" />
     <Compile Include="Multimedia\AudioPlayerBase.cs" />
     <Compile Include="Multimedia\BluetoothOVC3860.cs" />
     <Compile Include="Multimedia\IAudioPlayer.cs" />
@@ -92,23 +92,19 @@
     <Compile Include="Multimedia\MediaEmulator.cs" />
     <Compile Include="Multimedia\Models\DiskAndTrack.cs" />
     <Compile Include="Multimedia\Models\ModelHelpers.cs" />
-    <Compile Include="Multimedia\Models\TrackInfo.cs" />
+    <None Include="Multimedia\Models\TrackInfo.cs" />
     <Compile Include="Multimedia\MultiplexorTDA7313.cs" />
-    <Compile Include="Multimedia\VS1003Player.cs" />
+    <Compile Include="Multimedia\VolumioRestApiPlayer.cs" />
+    <None Include="Multimedia\VS1003Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="GHI.Hardware, Version=4.3.8.1, Culture=neutral, processorArchitecture=MSIL" />
-    <Reference Include="GHI.Pins, Version=4.3.8.1, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="GHI.Networking, Version=4.3.8.1, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.SPOT.Hardware" />
-    <Reference Include="Microsoft.SPOT.IO" />
+    <Reference Include="System.Http" />
     <Reference Include="System.IO" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\imBMW.Diagnostics\imBMW.Diagnostics.csproj">
-      <Project>{CDF5C231-E043-40CF-960B-10AC26355B96}</Project>
-      <Name>imBMW.Diagnostics</Name>
-    </ProjectReference>
     <ProjectReference Include="..\imBMW.Tools\imBMW.Tools.csproj">
       <Project>{76B622B3-B9D7-41DF-8A7C-627F32AABEB3}</Project>
       <Name>imBMW.Tools</Name>

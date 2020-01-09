@@ -29,15 +29,5 @@ namespace imBMW.Features
         //    }
         //    return "NotSpecified(" + e.ToString() + ")";
         //}
-
-        public static string ToStringValue(this GHI.Processor.Watchdog.ResetCause e)
-        {
-            switch (e)
-            {
-                case GHI.Processor.Watchdog.ResetCause.Normal: return "Normal";
-                case GHI.Processor.Watchdog.ResetCause.Watchdog: return "Watchdog";
-            }
-            return "NotSpecified(" + e.ToString() + ")";
-        }
     }
 }

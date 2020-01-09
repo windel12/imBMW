@@ -1,9 +1,5 @@
-using System;
-using GHI.Pins;
-using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 using imBMW.Tools;
-using imBMW.Enums;
 
 namespace imBMW.Features.Menu.Screens
 {
@@ -20,10 +16,10 @@ namespace imBMW.Features.Menu.Screens
         {
             ClearItems();
 
-            AddItem(new MenuItem(i => "Source: " + AudioSource.ToStringValue(), i =>
-            {
-                AudioSource = AudioSource == AudioSource.SDCard ? AudioSource.Bluetooth : AudioSource.SDCard;
-            }, MenuItemType.Button, MenuItemAction.Refresh));
+            //AddItem(new MenuItem(i => "Source: " + AudioSource.ToStringValue(), i =>
+            //{
+            //    AudioSource = AudioSource == AudioSource.SDCard ? AudioSource.Bluetooth : AudioSource.SDCard;
+            //}, MenuItemType.Button, MenuItemAction.Refresh));
 
             AddItem(new MenuItem(i => "Power", i => BluetoothChargingState = i.IsChecked, MenuItemType.Checkbox)
             {
@@ -33,25 +29,25 @@ namespace imBMW.Features.Menu.Screens
             this.AddBackButton();
         }
 
-        public static AudioSource AudioSource
-        {
-            get { return leftAudioChannelRelay.Read() ? AudioSource.SDCard : AudioSource.Bluetooth; }
-            set
-            {
-                if (value == AudioSource.SDCard)
-                {
-                    leftAudioChannelRelay.Write(true);
-                    groundAudioRelay.Write(true);
-                    rightAudioChannelRelay.Write(true);
-                }
-                else
-                {
-                    leftAudioChannelRelay.Write(false);
-                    groundAudioRelay.Write(false);
-                    rightAudioChannelRelay.Write(false);
-                }
-            }
-        }
+        //public static AudioSource AudioSource
+        //{
+        //    get { return leftAudioChannelRelay.Read() ? AudioSource.SDCard : AudioSource.Bluetooth; }
+        //    set
+        //    {
+        //        if (value == AudioSource.SDCard)
+        //        {
+        //            leftAudioChannelRelay.Write(true);
+        //            groundAudioRelay.Write(true);
+        //            rightAudioChannelRelay.Write(true);
+        //        }
+        //        else
+        //        {
+        //            leftAudioChannelRelay.Write(false);
+        //            groundAudioRelay.Write(false);
+        //            rightAudioChannelRelay.Write(false);
+        //        }
+        //    }
+        //}
 
         public static bool BluetoothChargingState
         {

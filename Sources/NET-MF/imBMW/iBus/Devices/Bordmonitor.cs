@@ -1,6 +1,7 @@
 using System;
 using imBMW.Tools;
 using System.Text;
+using imBMW.Enums;
 
 namespace imBMW.iBus.Devices.Real
 {

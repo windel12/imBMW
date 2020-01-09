@@ -1,7 +1,6 @@
 using System;
 using System.IO.Ports;
 using System.Threading;
-using imBMW.Diagnostics;
 using imBMW.Tools;
 
 namespace imBMW.iBus

@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO.Ports;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using imBMW.iBus;
 using imBMW.iBus.Devices.Real;
 using imBMW.Tools;
 using System.Threading;
-using imBMW.Diagnostics;
 
 namespace AuxilaryHeaterEmulator
 {
@@ -57,14 +53,14 @@ namespace AuxilaryHeaterEmulator
             Message receivedMessage = Message.TryCreate(data);
             if (receivedMessage == null)
             {
-                DS2Message ds2Message = DS2Message.TryCreate(data);
-                if (ds2Message == null)
-                {
-                    var value = string.Concat(data.Select(x => x.ToString("X2") + " "));
-                    Console.WriteLine(value);
-                    return;
-                }
-                receivedMessage = ds2Message.ToIKBusMessage();
+                //DS2Message ds2Message = DS2Message.TryCreate(data);
+                //if (ds2Message == null)
+                //{
+                //    var value = string.Concat(data.Select(x => x.ToString("X2") + " "));
+                //    Console.WriteLine(value);
+                //    return;
+                //}
+                //receivedMessage = ds2Message.ToIKBusMessage();
             }
             
             Console.WriteLine(receivedMessage.ToString());

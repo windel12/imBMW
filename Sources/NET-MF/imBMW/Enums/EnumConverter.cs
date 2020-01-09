@@ -1,8 +1,7 @@
-using imBMW.Enums;
 using imBMW.iBus;
 using imBMW.iBus.Devices.Real;
 
-namespace imBMW.Tools
+namespace imBMW.Enums
 {
     public static class EnumConverter
     {
@@ -10,7 +9,7 @@ namespace imBMW.Tools
         * :) Sorry, it's .NET MF,
         * so there is no pretty way to print enums
         */
-
+#if OnBoardMonitorEmulator
         public static BordmonitorFields GetBordmonitorFieldFromIndex(byte index)
         {
             switch (index)
@@ -24,6 +23,7 @@ namespace imBMW.Tools
             }
             return BordmonitorFields.Title;
         }
+#endif
 
         public static string ToStringValue(this MFLButton e)
         {
@@ -142,16 +142,6 @@ namespace imBMW.Tools
             return "NotSpecified(" + e.ToString() + ")";
         }
 
-        public static string ToStringValue(this AudioSource e)
-        {
-            switch (e)
-            {
-                case AudioSource.SDCard: return "SDCard";
-                case AudioSource.Bluetooth: return "Bluetooth";
-            }
-            return "NotSpecified(" + e.ToString() + ")";
-        }
-
         public static string ToStringValue(this AuxilaryHeaterStatus e)
         {
             switch (e)
@@ -168,15 +158,15 @@ namespace imBMW.Tools
             return "NotSpecified(" + e.ToString() + ")";
         }
 
-        public static string ToStringValue(this AirConditioningCompressorStatus e)
-        {
-            switch (e)
-            {
-                case AirConditioningCompressorStatus.Off: return "Off";
-                case AirConditioningCompressorStatus.On: return "On";
-            }
-            return "NotSpecified(" + e.ToString() + ")";
-        }
+        //public static string ToStringValue(this AirConditioningCompressorStatus e)
+        //{
+        //    switch (e)
+        //    {
+        //        case AirConditioningCompressorStatus.Off: return "Off";
+        //        case AirConditioningCompressorStatus.On: return "On";
+        //    }
+        //    return "NotSpecified(" + e.ToString() + ")";
+        //}
 
         public static string ToStringValue(this AuxilaryHeaterActivationMode e)
         {
@@ -188,36 +178,36 @@ namespace imBMW.Tools
             return "NotSpecified(" + e.ToString() + ")";
         }
 
-        public static string ToStringValue(this TemperatureUnit e)
-        {
-            switch (e)
-            {
-                case TemperatureUnit.Celsius: return "Celsius";
-                case TemperatureUnit.Fahrenheit: return "Fahrenheit";
-            }
-            return "NotSpecified(" + e.ToString() + ")";
-        }
+        //public static string ToStringValue(this TemperatureUnit e)
+        //{
+        //    switch (e)
+        //    {
+        //        case TemperatureUnit.Celsius: return "Celsius";
+        //        case TemperatureUnit.Fahrenheit: return "Fahrenheit";
+        //    }
+        //    return "NotSpecified(" + e.ToString() + ")";
+        //}
 
-        public static string ToStringValue(this FlapPosition e)
-        {
-            switch (e)
-            {
-                case FlapPosition.y_fahrer: return "y_fahrer";
-                case FlapPosition.y_fahrer_beifahrer: return "y_fahrer_beifahrer";
-            }
-            return "NotSpecified(" + e.ToString() + ")";
-        }
+        //public static string ToStringValue(this FlapPosition e)
+        //{
+        //    switch (e)
+        //    {
+        //        case FlapPosition.y_fahrer: return "y_fahrer";
+        //        case FlapPosition.y_fahrer_beifahrer: return "y_fahrer_beifahrer";
+        //    }
+        //    return "NotSpecified(" + e.ToString() + ")";
+        //}
 
-        public static string ToStringValue(this UsbMountState e)
+        public static string ToStringValue(this MassStorageMountState e)
         {
             switch (e)
             {
-                case UsbMountState.NotInitialized: return "NotInitialized";
-                case UsbMountState.DeviceConnectFailed: return "DeviceConnectFailed";
-                case UsbMountState.UnknownDeviceConnected: return "UnknownDeviceConnected";
-                case UsbMountState.MassStorageConnected: return "MassStorageConnected";
-                case UsbMountState.Mounted: return "Mounted";
-                case UsbMountState.Unmounted: return "Unmounted";
+                case MassStorageMountState.NotInitialized: return "NotInitialized";
+                case MassStorageMountState.DeviceConnectFailed: return "DeviceConnectFailed";
+                case MassStorageMountState.UnknownDeviceConnected: return "UnknownDeviceConnected";
+                case MassStorageMountState.MassStorageConnected: return "MassStorageConnected";
+                case MassStorageMountState.Mounted: return "Mounted";
+                case MassStorageMountState.Unmounted: return "Unmounted";
             }
             return "NotSpecified(" + e.ToString() + ")";
         }

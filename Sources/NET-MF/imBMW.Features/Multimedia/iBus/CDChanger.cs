@@ -5,7 +5,6 @@ using System.Threading;
 using imBMW.Tools;
 using imBMW.iBus.Devices.Real;
 using imBMW.Multimedia;
-using GHI.Pins;
 using imBMW.Features.Menu.Screens;
 using imBMW.Features.Multimedia;
 using imBMW.iBus;
@@ -122,13 +121,13 @@ namespace imBMW.iBus.Devices.Emulators
 
         #region Player control
 
-        protected override void Play()
+        public override void Play()
         {
             CancelStopDelay();
             base.Play();
         }
 
-        protected override void Pause()
+        public override void Pause()
         {
             CancelStopDelay();
             base.Pause();
@@ -152,8 +151,6 @@ namespace imBMW.iBus.Devices.Emulators
         {
             if (isEnabled)
             {
-                //BluetoothScreen.BluetoothChargingState = false;
-                BluetoothScreen.AudioSource = AudioSource.SDCard;
                 if (Player.IsPlaying)
                 {
                     // Already playing - CDC turning off cancelled
@@ -249,7 +246,8 @@ namespace imBMW.iBus.Devices.Emulators
             {
                 if (!skipNextTrackMessage)
                 {
-                    Next();
+                    string value = Next();
+                    InstrumentClusterElectronics.ShowNormalTextWithoutGong(value);
                 }
                 else
                 {

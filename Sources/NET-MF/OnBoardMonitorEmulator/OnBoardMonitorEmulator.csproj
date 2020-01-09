@@ -134,6 +134,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="..\imBMW.Features\Multimedia\VolumioRestApiPlayer.cs">
+      <Link>imBMW.Features\Multimedia\VolumioRestApiPlayer.cs</Link>
+    </Compile>
+    <Compile Include="..\imBMW\Enums\EnumConverter.cs">
+      <Link>imBMW\Enums\EnumConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\imBMW\Enums\MassStorageMountState.cs">
+      <Link>imBMW\Enums\MassStorageMountState.cs</Link>
+    </Compile>
+    <Compile Include="..\imBMW\Tools\FEZPandaIII.cs">
+      <Link>imBMW\Tools\FEZPandaIII.cs</Link>
+    </Compile>
+    <Compile Include="GHI\Networking\EthernetENC28J60.cs" />
     <Compile Include="ViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -244,9 +257,9 @@
     <Compile Include="..\imBMW.Features\Multimedia\MultiplexorTDA7313.cs">
       <Link>imBMW.Features\Multimedia\MultiplexorTDA7313.cs</Link>
     </Compile>
-    <Compile Include="..\imBMW.Features\Multimedia\VS1003Player.cs">
+    <None Include="..\imBMW.Features\Multimedia\VS1003Player.cs">
       <Link>imBMW.Features\Multimedia\VS1003Player.cs</Link>
-    </Compile>
+    </None>
     <Compile Include="..\imBMW.Tools\ArrayHelpers.cs">
       <Link>imBMW.Tools\ArrayHelpers.cs</Link>
     </Compile>
@@ -291,9 +304,6 @@
     </Compile>
     <Compile Include="..\imBMW\Enums\AirConditioningCompressorStatus.cs">
       <Link>imBMW\Enums\AirConditioningCompressorStatus.cs</Link>
-    </Compile>
-    <Compile Include="..\imBMW\Enums\AudioSource.cs">
-      <Link>imBMW\Enums\AudioSource.cs</Link>
     </Compile>
     <Compile Include="..\imBMW\Enums\AuxilaryHeaterActivationMode.cs">
       <Link>imBMW\Enums\AuxilaryHeaterActivationMode.cs</Link>
@@ -370,9 +380,6 @@
     <Compile Include="..\imBMW\IO\SerialPortConfiguration.cs">
       <Link>imBMW\IO\SerialPortConfiguration.cs</Link>
     </Compile>
-    <Compile Include="..\imBMW\Tools\EnumConverter.cs">
-      <Link>imBMW\Tools\EnumConverter.cs</Link>
-    </Compile>
     <Compile Include="..\imBMW\Tools\FileLogger.cs">
       <Link>imBMW\Tools\FileLogger.cs</Link>
     </Compile>
@@ -412,9 +419,6 @@
     <Compile Include="..\Devices\V2\Launcher.cs">
       <Link>imBMW.Devices.V2\Launcher.cs</Link>
     </Compile>
-    <Compile Include="..\imBMW\Tools\UsbMountState.cs">
-      <Link>imBMW\Tools\UsbMountState.cs</Link>
-    </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -427,7 +431,6 @@
     <Compile Include="DevicesEmulation\DigitalDieselElectronicsEmulator.cs" />
     <Compile Include="DevicesEmulation\FrontDisplayEmulator.cs" />
     <Compile Include="GHI\IO\Storage\SDCard.cs" />
-    <Compile Include="GHI\Pins\FEZPandaIII.cs" />
     <Compile Include="DevicesEmulation\RadioEmulator.cs" />
     <Compile Include="GHI\Processor\Watchdog.cs" />
     <Compile Include="GHI\Usb\Host\Controller.cs" />

@@ -1,8 +1,6 @@
 using System;
 using System.IO.Ports;
 using System.Threading;
-using GHI.Pins;
-using imBMW.Diagnostics;
 using imBMW.iBus;
 using imBMW.Tools;
 using Microsoft.SPOT;
@@ -23,25 +21,25 @@ namespace imBMW.DBus.Tester
             led4 = new OutputPort((Cpu.Pin)73, false);
 
             //KWP2000Init();
-            DBusMessage motor_temperatur = new DBusMessage(DeviceAddress.OBD, DeviceAddress.DDE, 0x2C, 0x10, 0x0F, 0x00);
+            //DBusMessage motor_temperatur = new DBusMessage(DeviceAddress.OBD, DeviceAddress.DDE, 0x2C, 0x10, 0x0F, 0x00);
             //serial.Write(motor_temperatur.Packet, 0, motor_temperatur.Packet.Length);
 
             ISerialPort dBusPort = new SerialInterruptPort(new SerialPortConfiguration("COM4", 9600, Parity.Even, 8, StopBits.One), Cpu.Pin.GPIO_NONE, 1, 258); // d31, d33
             dBusPort.AfterWriteDelay = 4;
-            DBusManager.Init(dBusPort);
+            //DBusManager.Init(dBusPort);
 
-            DBusManager.Instance.BeforeMessageReceived += Manager_BeforeMessageReceived;
-            DBusManager.Instance.AfterMessageReceived += Manager_AfterMessageReceived;
-            DBusManager.Instance.BeforeMessageSent += Manager_BeforeMessageSent;
-            DBusManager.Instance.AfterMessageSent += Manager_AfterMessageSent;
+            //DBusManager.Instance.BeforeMessageReceived += Manager_BeforeMessageReceived;
+            //DBusManager.Instance.AfterMessageReceived += Manager_AfterMessageReceived;
+            //DBusManager.Instance.BeforeMessageSent += Manager_BeforeMessageSent;
+            //DBusManager.Instance.AfterMessageSent += Manager_AfterMessageSent;
 
             bool b = true;
-            while (true)
-            {
-                if(b)
-                    DBusManager.Instance.EnqueueMessage(motor_temperatur);
-                Thread.Sleep(500);
-            }
+            //while (true)
+            //{
+            //    if(b)
+            //        DBusManager.Instance.EnqueueMessage(motor_temperatur);
+            //    Thread.Sleep(500);
+            //}
         }
 
         private static void KWP2000Init()

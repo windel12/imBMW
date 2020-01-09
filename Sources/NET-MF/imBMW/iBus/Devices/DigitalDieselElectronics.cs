@@ -1,7 +1,4 @@
-using System;
-using imBMW.Diagnostics;
 using imBMW.Tools;
-using Microsoft.SPOT;
 
 namespace imBMW.iBus.Devices.Real
 {

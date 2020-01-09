@@ -1,9 +1,7 @@
-using System;
-using Microsoft.SPOT;
 
-namespace imBMW.Tools
+namespace imBMW.Enums
 {
-    public enum UsbMountState
+    public enum MassStorageMountState
     {
         NotInitialized,
         DeviceConnectFailed,

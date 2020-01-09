@@ -1,5 +1,5 @@
-using System;
 using imBMW.Tools;
+using imBMW.Enums;
 
 namespace imBMW.iBus.Devices.Real
 {

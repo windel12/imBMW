@@ -14,10 +14,10 @@ namespace imBMW.iBus.Devices.Real
     {
         public static byte[] DataRadioOn = new byte[] { 0x4A, 0xFF };
         public static byte[] DataRadioOff = new byte[] { 0x4A, 0x00 };
-        public static byte[] DataRadioUnknow = new byte[] { 0x4A, 0x90 };
+        //public static byte[] DataRadioUnknow = new byte[] { 0x4A, 0x90 };
 
         public static byte[] DataRadioKnobPressed = new byte[] { 0x48, 0x06 };
-        public static byte[] DataRadioKnobHold = new byte[] { 0x48, 0x46 };
+        //public static byte[] DataRadioKnobHold = new byte[] { 0x48, 0x46 };
         public static byte[] DataRadioKnobReleased = new byte[] { 0x48, 0x86 };
 
         public static byte[] DataNextPressed = new byte[] { 0x48, 0x00 };
@@ -38,30 +38,30 @@ namespace imBMW.iBus.Devices.Real
         //public static byte[] DataAMPressed = new byte[] { 0x48, 0x21 };
         //public static byte[] DataAMReleased = new byte[] { 0x48, 0xA1 };
 
-        public static byte[] DataModePressed = new byte[] { 0x48, 0x23 };
-        public static byte[] DataModeReleased = new byte[] { 0x48, 0xA3 };
+        //public static byte[] DataModePressed = new byte[] { 0x48, 0x23 };
+        //public static byte[] DataModeReleased = new byte[] { 0x48, 0xA3 };
 
-        public static byte[] DataSwitchPressed = new byte[] { 0x48, 0x14 };
-        public static byte[] DataSwitchReleased = new byte[] { 0x48, 0x94 };
+        //public static byte[] DataSwitchPressed = new byte[] { 0x48, 0x14 };
+        //public static byte[] DataSwitchReleased = new byte[] { 0x48, 0x94 };
 
         //public static byte[] DataNaviKnobPressed = new byte[] { 0x48, 0x05 };
         //public static byte[] DataNaviKnobHold = new byte[] { 0x48, 0x45 };
         //public static byte[] DataNaviKnobReleased = new byte[] { 0x48, 0x85 };
 
 
-        public const byte DisplayTextOnMIDMaxLen = 11;
+        //public const byte DisplayTextOnMIDMaxLen = 11;
         public const byte DisplayTextOnIKEMaxLen = 18; // maybe 20?
 
-        const int displayTextDelay = 200;
+        //const int displayTextDelay = 200;
 
         static Timer displayTextDelayTimer;
 
-        public static bool HasMID { get; set; }
+        //public static bool HasMID { get; set; }
 
         /// <summary>
         /// Fires on radio on/off. Only for BM54/24.
         /// </summary>
-        public static event RadioOnOffHandler OnOffChanged;
+        //public static event RadioOnOffHandler OnOffChanged;
 
         static Radio()
         {
@@ -75,33 +75,33 @@ namespace imBMW.iBus.Devices.Real
 
         static void ProcessRadioMessage(Message m)
         {
-            var radioOnOffChanged = OnOffChanged;
-            if (radioOnOffChanged != null)
-            {
-                if (m.Data.Compare(DataRadioOn))
-                {
-                    radioOnOffChanged(true);
-                    m.ReceiverDescription = "Radio On";
-                    return;
-                }
-                if (m.Data.Compare(DataRadioOff))
-                {
-                    radioOnOffChanged(false);
-                    m.ReceiverDescription = "Radio Off";
-                    return;
-                }
-            }
-            if (m.Data[0] == 0x36 && m.Data.Length == 2)
-            {
-                if (m.Data[1] >= 0x50 && m.Data[1] <= 0x6F)
-                {
-                    m.ReceiverDescription = "Configuring Bass";
-                }
-                if (m.Data[1] >= 0xB0 && m.Data[1] <= 0xCF)
-                {
-                    m.ReceiverDescription = "Configuring Tremble";
-                }
-            }
+            //var radioOnOffChanged = OnOffChanged;
+            //if (radioOnOffChanged != null)
+            //{
+            //    if (m.Data.Compare(DataRadioOn))
+            //    {
+            //        radioOnOffChanged(true);
+            //        m.ReceiverDescription = "Radio On";
+            //        return;
+            //    }
+            //    if (m.Data.Compare(DataRadioOff))
+            //    {
+            //        radioOnOffChanged(false);
+            //        m.ReceiverDescription = "Radio Off";
+            //        return;
+            //    }
+            //}
+            //if (m.Data[0] == 0x36 && m.Data.Length == 2)
+            //{
+            //    if (m.Data[1] >= 0x50 && m.Data[1] <= 0x6F)
+            //    {
+            //        m.ReceiverDescription = "Configuring Bass";
+            //    }
+            //    if (m.Data[1] >= 0xB0 && m.Data[1] <= 0xCF)
+            //    {
+            //        m.ReceiverDescription = "Configuring Tremble";
+            //    }
+            //}
         }
 
         static void ClearTimer()
@@ -113,10 +113,10 @@ namespace imBMW.iBus.Devices.Real
             }
         }
 
-        public static void DisplayTextWithDelay(string s, TextAlign align = TextAlign.Left, Message[] messageSendAfter = null)
-        {
-            DisplayTextWithDelay(s, displayTextDelay, align, messageSendAfter);
-        }
+        //public static void DisplayTextWithDelay(string s, TextAlign align = TextAlign.Left, Message[] messageSendAfter = null)
+        //{
+        //    DisplayTextWithDelay(s, displayTextDelay, align, messageSendAfter);
+        //}
 
         public static void DisplayTextWithDelay(string s, ushort delay, TextAlign align = TextAlign.Left, Message[] messageSendAfter = null)
         {
@@ -136,23 +136,23 @@ namespace imBMW.iBus.Devices.Real
         {
             ClearTimer();
 
-            if (HasMID)
-            {
-                DisplayTextMID(s, align);
-            }
-            else
+            //if (HasMID)
+            //{
+            //    DisplayTextMID(s, align);
+            //}
+            //else
             {
                 DisplayTextRadio(s, align);
             }
         }
 
-        private static void DisplayTextMID(string s, TextAlign align)
-        {
-            byte[] data = new byte[] { 0x23, 0x40, 0x20 };
-            data = data.PadRight(0x20, DisplayTextOnMIDMaxLen);
-            data.PasteASCII(s.Translit(), 3, DisplayTextOnMIDMaxLen, align);
-            Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.MultiInfoDisplay, "Show text \"" + s + "\" on MID", data));
-        }
+        //private static void DisplayTextMID(string s, TextAlign align)
+        //{
+        //    byte[] data = new byte[] { 0x23, 0x40, 0x20 };
+        //    data = data.PadRight(0x20, DisplayTextOnMIDMaxLen);
+        //    data.PasteASCII(s.Translit(), 3, DisplayTextOnMIDMaxLen, align);
+        //    Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.MultiInfoDisplay, "Show text \"" + s + "\" on MID", data));
+        //}
 
         private static void DisplayTextRadio(string s, TextAlign align)
         {

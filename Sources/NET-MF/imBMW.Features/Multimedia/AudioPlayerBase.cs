@@ -3,47 +3,40 @@ using Microsoft.SPOT;
 using imBMW.iBus.Devices.Real;
 using imBMW.Features.Menu;
 using imBMW.Features.Multimedia.Models;
-using imBMW.Multimedia.Models;
 
 namespace imBMW.Multimedia
 {
     public abstract class AudioPlayerBase : IAudioPlayer
     {
         bool isEnabled;
-        TrackInfo nowPlaying;
+        //TrackInfo nowPlaying;
         protected bool isPlaying;
 
         public byte TrackNumber { get; set; } = 1;
         public byte DiskNumber { get; set; } = 1;
-        public string FileName { get; set; } = "";
+        //public string FileName { get; set; } = "";
         public bool IsRandom { get; set; } = true;
 
-        public virtual void Play()
-        {
-            SetPlaying(true);
-        }
+        public abstract string Play();
 
-        public virtual void Pause()
-        {
-            SetPlaying(false);
-        }
+        public abstract string Pause();
 
-        protected virtual void SetPlaying(bool value)
+        protected void SetPlaying(bool value)
         {
             IsPlaying = value;
         }
 
-        public abstract void Next();
+        public abstract string Next();
 
-        public abstract void Prev();
+        public abstract string Prev();
 
         public abstract bool RandomToggle(byte diskNumber);
 
-        public abstract void ChangeTrackTo(string fileName);
+        public abstract string ChangeTrackTo(string fileName);
 
         public string Name { get; protected set; }
 
-        public TrackInfo CurrentTrack { get; set; }
+        //public TrackInfo CurrentTrack { get; set; }
 
         public abstract bool Inited { get; set; }
 
@@ -74,37 +67,37 @@ namespace imBMW.Multimedia
         {
         }
 
-        public event IsPlayingHandler IsPlayingChanging;
+        //public event IsPlayingHandler IsPlayingChanging;
 
         public event IsPlayingHandler IsPlayingChanged;
 
-        public event NowPlayingHandler TrackChanged;
+        //public event NowPlayingHandler TrackChanged;
 
-        protected virtual void OnIsPlayingChanging(bool isPlaying)
-        {
-            var e = IsPlayingChanging;
-            if (e != null)
-            {
-                e.Invoke(this, isPlaying);
-            }
-        }
+        //protected virtual void OnIsPlayingChanging(bool isPlaying)
+        //{
+        //    var e = IsPlayingChanging;
+        //    if (e != null)
+        //    {
+        //        e.Invoke(this, isPlaying);
+        //    }
+        //}
 
-        protected virtual void OnIsPlayingChanged(bool isPlaying)
-        {
-            var e = IsPlayingChanged;
-            if (e != null)
-            {
-                e.Invoke(this, isPlaying);
-            }
-        }
+        //protected virtual void OnIsPlayingChanged(bool isPlaying)
+        //{
+        //    var e = IsPlayingChanged;
+        //    if (e != null)
+        //    {
+        //        e.Invoke(this, isPlaying);
+        //    }
+        //}
 
-        protected virtual void OnTrackChanged()
-        {
-            var e = TrackChanged;
-            if (e != null)
-            {
-                e.Invoke(this, nowPlaying);
-            }
-        }
+        //protected virtual void OnTrackChanged()
+        //{
+        //    var e = TrackChanged;
+        //    if (e != null)
+        //    {
+        //        e.Invoke(this, nowPlaying);
+        //    }
+        //}
     }
 }

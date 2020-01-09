@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using Microsoft.SPOT;
 using imBMW.Tools;
-using Microsoft.SPOT.IO;
+//using Microsoft.SPOT.IO;
 
 namespace imBMW.Features.Multimedia.Models
 {

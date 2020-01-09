@@ -1,8 +1,7 @@
-using System;
-using imBMW.Tools;
 using System.Collections;
 using System.Text;
-using imBMW.iBus.Devices.Real;
+using imBMW.Tools;
+using imBMW.Enums;
 
 namespace imBMW.iBus
 {
@@ -146,7 +145,7 @@ namespace imBMW.iBus
             "Air conditioning compressor status", // "0x83", (00 00 - Off; 80 00 - On?; 80 08 - On?)
             "", // "0x84",
             "", // "0x85",
-            "?IHKA tell something to NavigationEurope?", // "0x86", (86 00   or   81 01)
+            "Rear defroster", // "0x86", (86 00   or   81 01)
             "", // "0x87",
             "", // "0x88",
             "", // "0x89",
@@ -423,13 +422,13 @@ namespace imBMW.iBus
 
         public static string ToPrettyString(this Message message, bool withPerformanceInfo = false, bool withBytesAsAscii = false)
         {
-            #if !MF_FRAMEWORK_VERSION_V4_1
-            if (message is InternalMessage)
-            {
-                var m = (InternalMessage)message;
-                return m.Device.ToStringValue() + ": " + (m.ReceiverDescription ?? m.DataDump);
-            }
-            #endif
+            //#if !MF_FRAMEWORK_VERSION_V4_1
+            //if (message is InternalMessage)
+            //{
+            //    var m = (InternalMessage)message;
+            //    return m.Device.ToStringValue() + ": " + (m.ReceiverDescription ?? m.DataDump);
+            //}
+            //#endif
 
             string description = message.Describe();
             if (description == null)

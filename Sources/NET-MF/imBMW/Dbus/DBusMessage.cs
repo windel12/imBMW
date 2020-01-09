@@ -3,7 +3,7 @@ using imBMW.Tools;
 using System.Text;
 using imBMW.iBus;
 
-namespace imBMW.Diagnostics
+namespace imBMW.iBus
 {
     /// <summary>
     /// BMW DS2 Diagnostic Bus (DBus) message packet
@@ -81,9 +81,9 @@ namespace imBMW.Diagnostics
 
                 byte[] packet = new byte[PacketLength];
                 packet[0] = formatByte;
-                packet[1] = (byte) DestinationDevice;
-                packet[2] = (byte) SourceDevice;
-                packet[3] = (byte) Data.Length;
+                packet[1] = (byte)DestinationDevice;
+                packet[2] = (byte)SourceDevice;
+                packet[3] = (byte)Data.Length;
                 Data.CopyTo(packet, 4);
                 packet[PacketLength - 1] = CRC;
 

@@ -1,5 +1,4 @@
-using GHI.Pins;
-using GHI.Usb.Host;
+using GHI.IO.Storage;
 using imBMW.Devices.V2.Hardware;
 using imBMW.Enums;
 using imBMW.Features;
@@ -16,9 +15,9 @@ using Microsoft.SPOT.Hardware;
 using Microsoft.SPOT.IO;
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.IO.Ports;
 using System.Threading;
+//using GHI.Usb.Host;
 using Debug = Microsoft.SPOT.Debug;
 using Localization = imBMW.Features.Localizations.Localization;
 
@@ -41,8 +40,8 @@ namespace imBMW.Devices.V2
         public static MediaEmulator Emulator { get; set; }
         public static IAudioPlayer Player { get; set; }
 
-        //static InterruptPort nextButton;
-        //static InterruptPort prevButton;
+        static InterruptPort nextButton;
+        static InterruptPort prevButton;
 
         private static ManualResetEvent _removableMediaInsertedSync = new ManualResetEvent(false);
 
@@ -55,7 +54,7 @@ namespace imBMW.Devices.V2
         /// <summary> 30 sec </summary>
         static ushort watchDogTimeoutInMilliseconds = 30000;
 
-        internal static MassStorage _massStorage;
+        internal static SDCard _massStorage;
 
         internal static AppState State { get; set; }
 
@@ -80,7 +79,7 @@ namespace imBMW.Devices.V2
             WPF
         }
 
-        private static UsbMountState ControllerState { get; set; }
+        private static MassStorageMountState MassStorageMountState { get; set; }
 
         internal static int GetTimeoutInMilliseconds(byte minutes, byte seconds)
         {
@@ -101,7 +100,7 @@ namespace imBMW.Devices.V2
             FrontDisplay.RefreshLEDs(LedType.RedBlinking, append: true);
             LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(orangeLed, 2, 200));
 
-            requestIgnitionStateTimer.Dispose();
+            requestIgnitionStateTimer?.Dispose();
 
             UnmountMassStorage();
             FrontDisplay.RefreshLEDs(LedType.Empty);
@@ -125,18 +124,15 @@ namespace imBMW.Devices.V2
         {
             try
             {
-                BluetoothScreen.BluetoothChargingState = true;
-                BluetoothScreen.AudioSource = AudioSource.Bluetooth;
-
                 Comfort.Init();
                 IntegratedHeatingAndAirConditioning.Init();
 
                 _resetCause = GHI.Processor.Watchdog.LastResetCause;
 
-                blueLed = new OutputPort(Pin.LED1, false);
-                greenLed = new OutputPort(Pin.LED2, false);
-                orangeLed = new OutputPort(Pin.LED3, _resetCause == GHI.Processor.Watchdog.ResetCause.Watchdog);
-                redLed = new OutputPort(Pin.LED4, false);
+                blueLed = new OutputPort(FEZPandaIII.Gpio.Led1, false);
+                greenLed = new OutputPort(FEZPandaIII.Gpio.Led2, false);
+                orangeLed = new OutputPort(FEZPandaIII.Gpio.Led3, _resetCause == GHI.Processor.Watchdog.ResetCause.Watchdog);
+                redLed = new OutputPort(FEZPandaIII.Gpio.Led4, false);
 
 #if (NETMF && RELEASE) || (OnBoardMonitorEmulator && !DebugOnRealDeviceOverFTDI)
                 _useWatchdog = true;
@@ -151,7 +147,7 @@ namespace imBMW.Devices.V2
 
                 InstrumentClusterElectronics.DateTimeChanged += DateTimeChanged;
 
-                Logger.Debug("Watchdog.ResetCause: " + _resetCause.ToStringValue());
+                Logger.Debug("Watchdog.ResetCause: " + (_resetCause == GHI.Processor.Watchdog.ResetCause.Normal ? "Normal" : "Watchdog"));
 
                 //SettingsScreen.Instance.Status = version.Length > 11 ? version.Replace(" ", "") : version;
                 //Localization.SetCurrent(RussianLocalization.SystemName); //Localization.SetCurrent(settings.Language);
@@ -161,38 +157,38 @@ namespace imBMW.Devices.V2
                 //Comfort.AutoCloseSunroof = settings.AutoCloseSunroof;
 
                 #region UsbMassStorage
-                Controller.DeviceConnectFailed += (sss, eee) =>
-                {
-                    Logger.Error("DeviceConnectFailed!");
-                    LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(redLed, 1, 100));
+                //Controller.DeviceConnectFailed += (sss, eee) =>
+                //{
+                //    Logger.Error("DeviceConnectFailed!");
+                //    LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(redLed, 1, 100));
 
-                    ControllerState = UsbMountState.DeviceConnectFailed;
-                    _removableMediaInsertedSync.Set();
-                };
-                Controller.UnknownDeviceConnected += (ss, ee) =>
-                {
-                    Logger.Error("UnknownDeviceConnected!");
-                    LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(redLed, 2, 100));
+                //    ControllerState = UsbMountState.DeviceConnectFailed;
+                //    _removableMediaInsertedSync.Set();
+                //};
+                //Controller.UnknownDeviceConnected += (ss, ee) =>
+                //{
+                //    Logger.Error("UnknownDeviceConnected!");
+                //    LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(redLed, 2, 100));
 
-                    ControllerState = UsbMountState.UnknownDeviceConnected;
-                    _removableMediaInsertedSync.Set();
-                };
-                Controller.MassStorageConnected += (sender, massStorage) =>
-                {
-                    Logger.Debug("Controller MassStorageConnected!");
-                    LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(orangeLed, 2, 100));
-                    ControllerState = UsbMountState.MassStorageConnected;
+                //    ControllerState = UsbMountState.UnknownDeviceConnected;
+                //    _removableMediaInsertedSync.Set();
+                //};
+                //Controller.MassStorageConnected += (sender, massStorage) =>
+                //{
+                //    Logger.Debug("Controller MassStorageConnected!");
+                //    LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(orangeLed, 2, 100));
+                //    ControllerState = UsbMountState.MassStorageConnected;
 
                     RemovableMedia.Insert += (s, e) =>
                     {
                         LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(orangeLed, 3, 100));
- 
+
                         string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
                         settings = Settings.Init(rootDirectory + "\\imBMW.ini");
                         FileLogger.Init(rootDirectory + "\\logs", () => VolumeInfo.GetVolumes()[0].FlushAll());
                         Logger.Debug("Logger initialized.");
 
-                        ControllerState = UsbMountState.Mounted;
+                        MassStorageMountState = MassStorageMountState.Mounted;
                         _removableMediaInsertedSync.Set();
                     };
 
@@ -201,45 +197,45 @@ namespace imBMW.Devices.V2
                         FileLogger.Eject();
                         Logger.Print("RemovableMedia Ejected!");
                         LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(greenLed, 3, 100));
-                        ControllerState = UsbMountState.Unmounted;
+                        MassStorageMountState = MassStorageMountState.Unmounted;
                     };
 
-                    _massStorage = massStorage;
-                    massStorage.Mount();
-                };
+                    //_massStorage = massStorage;
+                    _massStorage = new SDCard(SDCard.SDInterface.SPI);
+                    _massStorage.Mount();
+                //};
 #if RELEASE
-                Controller.Start();
+                //Controller.Start();
 #else
-
 #if NETMF
                 // WARNING! Be aware, without this line you can get 'Controller -> DeviceConnectFailed' each time when you start debugging...
                 if (Debugger.IsAttached)
 #endif
                 {
-                    Controller.Start();
+                    //Controller.Start();
                 }
 #endif
                 #endregion
 
-                LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(orangeLed, 1, 100));
+                LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(orangeLed, 1, 200));
                 bool isSignalled = _removableMediaInsertedSync.WaitOne(Debugger.IsAttached ? 10000 : 10000, true);
-                if (!isSignalled) // No USB inserted
+                if (!isSignalled) // No Storage inserted
                 {
-                    InstrumentClusterElectronics.ShowNormalTextWithGong("USB:" + ControllerState.ToStringValue());
+                    InstrumentClusterElectronics.ShowNormalTextWithGong("USB:" + MassStorageMountState.ToStringValue());
                     FrontDisplay.RefreshLEDs(LedType.RedBlinking, append: true);
                     LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(redLed, 3, 100));
                 }
                 else
                 {
-                    if (ControllerState == UsbMountState.DeviceConnectFailed || ControllerState == UsbMountState.UnknownDeviceConnected)
+                    if (MassStorageMountState == MassStorageMountState.DeviceConnectFailed || MassStorageMountState == MassStorageMountState.UnknownDeviceConnected)
                     {
-                        InstrumentClusterElectronics.ShowNormalTextWithGong("USB:" + ControllerState.ToStringValue());
+                        InstrumentClusterElectronics.ShowNormalTextWithGong("USB:" + MassStorageMountState.ToStringValue());
                         FrontDisplay.RefreshLEDs(LedType.Red, append: true);
                         LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(redLed, 4, 100));
                         ResetBoard();
                     }
                 }
-                Logger.Debug("Controller state: " + ControllerState.ToStringValue());
+                Logger.Debug("Controller state: " + MassStorageMountState.ToStringValue());
 
                 InstrumentClusterElectronics.RequestDateTime();
 
@@ -294,7 +290,7 @@ namespace imBMW.Devices.V2
             }
             catch (Exception ex)
             {
-                LedBlinking(new LedBlinkingItem(redLed, 5, 100));
+                LedBlinking(new LedBlinkingItem(redLed, 5, 200));
                 Thread.Sleep(200);
                 redLed.Write(true);
                 Logger.Error(ex, "while modules initialization");
@@ -375,13 +371,13 @@ namespace imBMW.Devices.V2
 #endif
 
 #if NETMF || (OnBoardMonitorEmulator && DEBUG)
-            ISerialPort dBusPort = new SerialPortTH3122("COM4", Cpu.Pin.GPIO_NONE, writeBufferSize: 1); // d31, d33
-            dBusPort.AfterWriteDelay = 4;
-            DBusManager.Init(dBusPort, ThreadPriority.Highest);
-            Logger.Debug("DBusManager inited");
+            //ISerialPort dBusPort = new SerialPortTH3122("COM4", Cpu.Pin.GPIO_NONE, writeBufferSize: 1); // d31, d33
+            //dBusPort.AfterWriteDelay = 4;
+            //DBusManager.Init(dBusPort, ThreadPriority.Highest);
+            //Logger.Debug("DBusManager inited");
 
-            DBusManager.Instance.AfterMessageReceived += DBusManager_AfterMessageReceived;
-            DBusManager.Instance.AfterMessageSent += DBusManager_AfterMessageSent;
+            //DBusManager.Instance.AfterMessageReceived += DBusManager_AfterMessageReceived;
+            //DBusManager.Instance.AfterMessageSent += DBusManager_AfterMessageSent;
 #endif
 
 
@@ -403,18 +399,21 @@ namespace imBMW.Devices.V2
             KBusManager.Instance.AfterMessageSent -= KBusManager_AfterMessageSent;
             KBusManager.Instance.Dispose();
 
-            DBusManager.Instance.AfterMessageReceived -= DBusManager_AfterMessageReceived;
-            DBusManager.Instance.AfterMessageSent -= DBusManager_AfterMessageSent;
-            DBusManager.Instance.Dispose();
+            //DBusManager.Instance.AfterMessageReceived -= DBusManager_AfterMessageReceived;
+            //DBusManager.Instance.AfterMessageSent -= DBusManager_AfterMessageSent;
+            //DBusManager.Instance.Dispose();
         }
 
         public static void Init()
         {
             //player = new iPodViaHeadset(Cpu.Pin.GPIO_NONE);
             //player = new BluetoothOVC3860(Serial.COM2/*, sd != null ? sd + @"\contacts.vcf" : null*/);
-            Logger.Debug("Prepare creating VS1003Player");
-            Player = new VS1003Player(FEZPandaIII.Gpio.D25, FEZPandaIII.Gpio.D27, FEZPandaIII.Gpio.D24, FEZPandaIII.Gpio.D26);
-            Logger.Debug("VS1003Player created");
+            Logger.Debug("Prepare creating VolumioRestApiPlayer");
+            Cpu.Pin chipSelect_RT = FEZPandaIII.Gpio.D27;
+            Cpu.Pin externalInterrupt_WS = FEZPandaIII.Gpio.D24;
+            Cpu.Pin reset_BR = FEZPandaIII.Gpio.D26;
+            Player = new VolumioRestApiPlayer(chipSelect_RT, externalInterrupt_WS, reset_BR);
+            Logger.Debug("VolumioRestApiPlayer created");
             FrontDisplay.RefreshLEDs(LedType.GreenBlinking);
             if (settings.MenuMode != Tools.MenuMode.RadioCDC/* || Manager.FindDevice(DeviceAddress.OnBoardMonitor, 10000)*/)
             {
@@ -435,7 +434,7 @@ namespace imBMW.Devices.V2
                     //BordmonitorMenu.FastMenuDrawing = settings.NaviVersion == NaviVersion.MK4;
                     BordmonitorMenu.Init(Emulator);
                     Logger.Debug("BordmonitorMenu inited");
-                    BluetoothScreen.Init();
+                    //BluetoothScreen.Init();
                     Logger.Debug("BluetoothScreen inited");
                 }
                 else
@@ -472,11 +471,26 @@ namespace imBMW.Devices.V2
             //nextButton = new InterruptPort((Cpu.Pin)FEZPandaIII.Gpio.Ldr1, true, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeHigh);
             //nextButton.OnInterrupt += (p, s, t) =>
             //{
-            //    if (!emulator.IsEnabled) { emulator.IsEnabled = true; }
-            //    else { emulator.Player.Next(); }
+            //    Emulator.Player.Next();
             //};
             //prevButton = new InterruptPort((Cpu.Pin)FEZPandaIII.Gpio.Ldr0, true, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeHigh);
-            //prevButton.OnInterrupt += (p, s, t) => { };
+            //prevButton.OnInterrupt += (p, s, t) =>
+            //{
+            //    if (!Emulator.IsEnabled)
+            //    {
+            //        Emulator.IsEnabled = true;
+            //        return;
+            //    }
+
+            //    if (Emulator.Player.IsPlaying)
+            //    {
+            //        Emulator.Pause();
+            //    }
+            //    else
+            //    {
+            //        Emulator.Play();
+            //    }
+            //};
         }
 
         internal static void IdleMode()
@@ -492,19 +506,9 @@ namespace imBMW.Devices.V2
             Logger.Trace("Going to sleep");
             UnmountMassStorage();
             DisposeManagers();
+            VolumioRestApiPlayer.Shutdown();
 
             State = AppState.Sleep;
-        }
-
-
-        internal static void WakeUp()
-        {
-            if (_massStorage != null && !_massStorage.Mounted)
-            {
-                FileLogger.Create();
-                Logger.Trace("Waking up!");
-                _massStorage.Mount();
-            }
         }
 
         internal static void UnmountMassStorage()
@@ -522,7 +526,7 @@ namespace imBMW.Devices.V2
                 });
                 unmountThread.Start();
 
-                bool waitResult = waitHandle.WaitOne(3000, true);
+                waitHandle.WaitOne(3000, true);
             }
         }
 
@@ -536,7 +540,16 @@ namespace imBMW.Devices.V2
         // Log just needed message
         private static bool IBusLoggerPredicate(MessageEventArgs e)
         {
-            bool isMusicPlayed = Emulator != null && Emulator.IsEnabled;
+            bool isMusicPlayed = false;//Emulator != null && Emulator.IsEnabled;
+            if (e.Message.Data[0] == 0x21
+                || e.Message.Data[0] == 0x22
+				|| e.Message.Data[0] == 0x23
+                || e.Message.Data[0] == 0x18 // rpm
+                || e.Message.Data[0] == 0x19 // temp
+                || e.Message.Data[0] == 0xA5)
+            {
+                return false;
+            }
             return
                 //e.Message.SourceDevice == DeviceAddress.Radio && e.Message.DestinationDevice == DeviceAddress.GraphicsNavigationDriver && e.Message.Data.StartsWith(0x21, 0x60, 0x00)
                 // ||
@@ -571,8 +584,6 @@ namespace imBMW.Devices.V2
         internal static void Manager_BeforeMessageReceived(MessageEventArgs e)
         {
             idleTime = 0;
-
-            WakeUp();
         }
 
         private static void Manager_AfterMessageReceived(MessageEventArgs e)
@@ -703,42 +714,42 @@ namespace imBMW.Devices.V2
         }
 
         // Log just needed message
-        private static bool DBusLoggerPredicate(MessageEventArgs e)
-        {
-            return true;
-        }
+        //private static bool DBusLoggerPredicate(MessageEventArgs e)
+        //{
+        //    return true;
+        //}
 
-        private static void DBusManager_AfterMessageReceived(MessageEventArgs e)
-        {
-            if (DBusLoggerPredicate(e))
-            {
-                var logIco = "D < ";
-                if (settings.LogMessageToASCII)
-                {
-                    Logger.Trace(e.Message.ToPrettyString(false, false), logIco);
-                }
-                else
-                {
-                    Logger.Trace(e.Message, logIco);
-                }
-            }
-        }
+        //private static void DBusManager_AfterMessageReceived(MessageEventArgs e)
+        //{
+        //    if (DBusLoggerPredicate(e))
+        //    {
+        //        var logIco = "D < ";
+        //        if (settings.LogMessageToASCII)
+        //        {
+        //            Logger.Trace(e.Message.ToPrettyString(false, false), logIco);
+        //        }
+        //        else
+        //        {
+        //            Logger.Trace(e.Message, logIco);
+        //        }
+        //    }
+        //}
 
-        private static void DBusManager_AfterMessageSent(MessageEventArgs e)
-        {
-            if (DBusLoggerPredicate(e))
-            {
-                var logIco = "D > ";
-                if (settings.LogMessageToASCII)
-                {
-                    Logger.Trace(e.Message.ToPrettyString(false, false), logIco);
-                }
-                else
-                {
-                    Logger.Trace(e.Message, logIco);
-                }
-            }
-        }
+        //private static void DBusManager_AfterMessageSent(MessageEventArgs e)
+        //{
+        //    if (DBusLoggerPredicate(e))
+        //    {
+        //        var logIco = "D > ";
+        //        if (settings.LogMessageToASCII)
+        //        {
+        //            Logger.Trace(e.Message.ToPrettyString(false, false), logIco);
+        //        }
+        //        else
+        //        {
+        //            Logger.Trace(e.Message, logIco);
+        //        }
+        //    }
+        //}
 
         static void LedBlinking(object item)
         {

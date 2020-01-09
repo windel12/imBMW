@@ -7,21 +7,21 @@ namespace imBMW.Multimedia
 {
     public delegate void IsPlayingHandler(IAudioPlayer sender, bool isPlaying);
 
-    public delegate void NowPlayingHandler(IAudioPlayer sender, TrackInfo nowPlaying);
+    //public delegate void NowPlayingHandler(IAudioPlayer sender, TrackInfo nowPlaying);
 
     public interface IAudioPlayer
     {
-        void Next();
+        string Next();
 
-        void Prev();
+        string Prev();
 
-        void Play();
+        string Play();
 
-        void Pause();
+        string Pause();
 
         bool RandomToggle(byte diskNumber);
 
-        void ChangeTrackTo(string fileName);
+        string ChangeTrackTo(string fileName);
 
         bool IsPlaying { get; }
 
@@ -33,12 +33,12 @@ namespace imBMW.Multimedia
 
         string Name { get; }
 
-        TrackInfo CurrentTrack { get; set; }
+        //TrackInfo CurrentTrack { get; set; }
 
         bool Inited { get; set; }
 
         event IsPlayingHandler IsPlayingChanged;
 
-        event NowPlayingHandler TrackChanged;
+        //event NowPlayingHandler TrackChanged;
     }
 }

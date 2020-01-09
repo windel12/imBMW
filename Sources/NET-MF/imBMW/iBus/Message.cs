@@ -329,10 +329,12 @@ namespace imBMW.iBus
             }
         }
 
+#if OnBoardMonitorEmulator
         public DS2Message ToDS2MessageResponse()
         {
             return new DS2Message(SourceDevice, Data);
         }
+#endif
 
         public override string ToString()
         {

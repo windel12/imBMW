@@ -1,7 +1,7 @@
 using System;
 using imBMW.iBus;
 
-namespace imBMW.Diagnostics
+namespace imBMW.iBus
 {
     public class DBusMessageParser : MessageParser
     {
