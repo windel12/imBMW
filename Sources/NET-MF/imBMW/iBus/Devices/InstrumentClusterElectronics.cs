@@ -276,16 +276,16 @@ namespace imBMW.iBus.Devices.Real
             }
             else if (m.Data[0] == 0x13 && m.Data.Length == 8) // IKE sensor status
             {
-                if (m.Data[1].HasBit(0)) m.ReceiverDescription += "Handbrake";
-                if (m.Data[1].HasBit(1)) m.ReceiverDescription += "Oil pressure low";
+                if (m.Data[1].HasBit(0)) m.ReceiverDescription += "Handbrake;";
+                if (m.Data[1].HasBit(1)) m.ReceiverDescription += "Oil pressure low;";
 
-                if (m.Data[2].HasBit(0)) m.ReceiverDescription += "Motor running";
-                if (m.Data[2].HasBit(1)) m.ReceiverDescription += "Vehile driving";
-                if (m.Data[2].HasBit(4)) m.ReceiverDescription += "Gear R";
+                if (m.Data[2].HasBit(0)) m.ReceiverDescription += "Motor running;";
+                if (m.Data[2].HasBit(1)) m.ReceiverDescription += "Vehile driving;";
+                if (m.Data[2].HasBit(4)) m.ReceiverDescription += "Gear R;";
 
-                if (m.Data[3].HasBit(2)) m.ReceiverDescription += "Aux. heat ON";
-                if (m.Data[3].HasBit(3)) m.ReceiverDescription += "Aux. vent ON";
-                if (m.Data[3].HasBit(6)) m.ReceiverDescription += "Temp F";
+                if (m.Data[3].HasBit(2)) m.ReceiverDescription += "Aux. heat ON;";
+                if (m.Data[3].HasBit(3)) m.ReceiverDescription += "Aux. vent ON;";
+                if (m.Data[3].HasBit(6)) m.ReceiverDescription += "Temp F;";
             }
             else if (m.Data[0] == 0x17 && m.Data.Length == 8) // odometer
             {
@@ -502,7 +502,8 @@ namespace imBMW.iBus.Devices.Real
                 OnVinChanged("" + (char)m.Data[1] + (char)m.Data[2] + m.Data[3].ToHex() + m.Data[4].ToHex() + m.Data[5].ToHex()[0]);
                 m.ReceiverDescription = "VIN " + VIN;
             }
-            else if (m.Data[0] == 0x1A) // Check control message
+            // TODO: in this case - IKE is Destination device, not Source as defined for callback. + Implement handling of 0x23 message!!!!
+            else if (m.Data[0] == 0x1A) // Check control message 
             {
                 m.ReceiverDescription = "Displaying error:" + ASCIIEncoding.GetString(m.Data.Skip(3));
             }

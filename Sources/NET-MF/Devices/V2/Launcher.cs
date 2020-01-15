@@ -138,7 +138,9 @@ namespace imBMW.Devices.V2
                 _useWatchdog = true;
 #endif
                 if (_useWatchdog)
+                {
                     GHI.Processor.Watchdog.Enable(watchDogTimeoutInMilliseconds);
+                }
 
                 settings = Settings.Instance;
 
@@ -148,6 +150,10 @@ namespace imBMW.Devices.V2
                 InstrumentClusterElectronics.DateTimeChanged += DateTimeChanged;
 
                 Logger.Debug("Watchdog.ResetCause: " + (_resetCause == GHI.Processor.Watchdog.ResetCause.Normal ? "Normal" : "Watchdog"));
+				if (_useWatchdog)
+				{
+					Logger.Debug("Watchdog enabled with timeout: " + watchDogTimeoutInMilliseconds);
+				}
 
                 //SettingsScreen.Instance.Status = version.Length > 11 ? version.Replace(" ", "") : version;
                 //Localization.SetCurrent(RussianLocalization.SystemName); //Localization.SetCurrent(settings.Language);
@@ -156,7 +162,7 @@ namespace imBMW.Devices.V2
                 //Comfort.AutoCloseWindows = settings.AutoCloseWindows;
                 //Comfort.AutoCloseSunroof = settings.AutoCloseSunroof;
 
-                #region UsbMassStorage
+                #region MassStorage
                 //Controller.DeviceConnectFailed += (sss, eee) =>
                 //{
                 //    Logger.Error("DeviceConnectFailed!");
@@ -221,7 +227,7 @@ namespace imBMW.Devices.V2
                 bool isSignalled = _removableMediaInsertedSync.WaitOne(Debugger.IsAttached ? 10000 : 10000, true);
                 if (!isSignalled) // No Storage inserted
                 {
-                    InstrumentClusterElectronics.ShowNormalTextWithGong("USB:" + MassStorageMountState.ToStringValue());
+                    InstrumentClusterElectronics.ShowNormalTextWithGong(MassStorageMountState.ToStringValue());
                     FrontDisplay.RefreshLEDs(LedType.RedBlinking, append: true);
                     LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(redLed, 3, 100));
                 }
@@ -229,13 +235,13 @@ namespace imBMW.Devices.V2
                 {
                     if (MassStorageMountState == MassStorageMountState.DeviceConnectFailed || MassStorageMountState == MassStorageMountState.UnknownDeviceConnected)
                     {
-                        InstrumentClusterElectronics.ShowNormalTextWithGong("USB:" + MassStorageMountState.ToStringValue());
+                        InstrumentClusterElectronics.ShowNormalTextWithGong(MassStorageMountState.ToStringValue());
                         FrontDisplay.RefreshLEDs(LedType.Red, append: true);
                         LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(redLed, 4, 100));
                         ResetBoard();
                     }
                 }
-                Logger.Debug("Controller state: " + MassStorageMountState.ToStringValue());
+                Logger.Debug("MassStorage state: " + MassStorageMountState.ToStringValue());
 
                 InstrumentClusterElectronics.RequestDateTime();
 
@@ -266,10 +272,14 @@ namespace imBMW.Devices.V2
                 };
                 BordmonitorMenu.PhoneButtonHold += () =>
                 {
-                    Logger.Trace("PhoneButtonHold");
+                    VolumioRestApiPlayer.Reboot();
+                    Logger.Warning("REBOOTED");
+                };
+                BordmonitorMenu.EjectButtonHold += () =>
+                {
                     UnmountMassStorage();
                     _massStorage = null;
-                    InstrumentClusterElectronics.ShowNormalTextWithGong("Unmounted");
+                    Logger.Warning("UNMOUNTED");
                 };
 
                 Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.InstrumentClusterElectronics, m =>
@@ -408,12 +418,12 @@ namespace imBMW.Devices.V2
         {
             //player = new iPodViaHeadset(Cpu.Pin.GPIO_NONE);
             //player = new BluetoothOVC3860(Serial.COM2/*, sd != null ? sd + @"\contacts.vcf" : null*/);
-            Logger.Debug("Prepare creating VolumioRestApiPlayer");
+            Logger.Debug("Creating VolumioRestApiPlayer.");
             Cpu.Pin chipSelect_RT = FEZPandaIII.Gpio.D27;
             Cpu.Pin externalInterrupt_WS = FEZPandaIII.Gpio.D24;
             Cpu.Pin reset_BR = FEZPandaIII.Gpio.D26;
             Player = new VolumioRestApiPlayer(chipSelect_RT, externalInterrupt_WS, reset_BR);
-            Logger.Debug("VolumioRestApiPlayer created");
+            Logger.Debug("VolumioRestApiPlayer created.");
             FrontDisplay.RefreshLEDs(LedType.GreenBlinking);
             if (settings.MenuMode != Tools.MenuMode.RadioCDC/* || Manager.FindDevice(DeviceAddress.OnBoardMonitor, 10000)*/)
             {
@@ -434,19 +444,11 @@ namespace imBMW.Devices.V2
                     //BordmonitorMenu.FastMenuDrawing = settings.NaviVersion == NaviVersion.MK4;
                     BordmonitorMenu.Init(Emulator);
                     Logger.Debug("BordmonitorMenu inited");
-                    //BluetoothScreen.Init();
-                    Logger.Debug("BluetoothScreen inited");
                 }
                 else
                 {
                     //emulator = new BordmonitorAUX(player);
                 }
-
-                //Bordmonitor.NaviVersion = settings.NaviVersion;
-                //BordmonitorMenu.FastMenuDrawing = settings.NaviVersion == NaviVersion.MK4;
-                //BordmonitorMenu.Init(emulator);
-
-                Logger.Debug("Bordmonitor menu inited");
             }
             else
             {
@@ -459,14 +461,10 @@ namespace imBMW.Devices.V2
                 //Logger.Info("Radio menu inited" + (Radio.HasMID ? " with MID" : ""));
             }
 
-            greenLed.Write(true);
+            Thread.Sleep(200);
+            FrontDisplay.RefreshLEDs(LedType.Green);
 
-            short getDateTimeTimeout = 1500;
-#if OnBoardMonitorEmulator
-            getDateTimeTimeout = 0;
-#endif
-            FrontDisplay.RefreshLEDs(LedType.Green);
-            FrontDisplay.RefreshLEDs(LedType.Green);
+            greenLed.Write(true);
 
             //nextButton = new InterruptPort((Cpu.Pin)FEZPandaIII.Gpio.Ldr1, true, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeHigh);
             //nextButton.OnInterrupt += (p, s, t) =>
@@ -541,44 +539,18 @@ namespace imBMW.Devices.V2
         private static bool IBusLoggerPredicate(MessageEventArgs e)
         {
             bool isMusicPlayed = false;//Emulator != null && Emulator.IsEnabled;
-            if (e.Message.Data[0] == 0x21
-                || e.Message.Data[0] == 0x22
-				|| e.Message.Data[0] == 0x23
-                || e.Message.Data[0] == 0x18 // rpm
-                || e.Message.Data[0] == 0x19 // temp
-                || e.Message.Data[0] == 0xA5)
+            if (false
+                || e.Message.Data[0] == 0x18    // rpm
+                || e.Message.Data[0] == 0x19    // temp
+                || e.Message.Data[0] == 0x21    // radio shortcuts
+                || e.Message.Data[0] == 0x22    // text display confirmation
+				|| e.Message.Data[0] == 0x23    // display text
+                || e.Message.Data[0] == 0xA5    // display title
+                )   
             {
                 return false;
             }
-            return
-                //e.Message.SourceDevice == DeviceAddress.Radio && e.Message.DestinationDevice == DeviceAddress.GraphicsNavigationDriver && e.Message.Data.StartsWith(0x21, 0x60, 0x00)
-                // ||
-                //e.Message.SourceDevice == DeviceAddress.Radio && e.Message.Data.StartsWith(0x02, 0x00) // Radio poll response
-                //||
-                //e.Message.SourceDevice == DeviceAddress.Radio &&
-                //e.Message.DestinationDevice == DeviceAddress.InstrumentClusterElectronics
-                //||
-                //e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics &&
-                //e.Message.DestinationDevice == DeviceAddress.FrontDisplay 
-                //||
-                //e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics &&
-                //e.Message.DestinationDevice == DeviceAddress.GlobalBroadcastAddress &&
-                //e.Message.Data[0] == 0x19
-                //||
-                //e.Message.SourceDevice == DeviceAddress.MultiFunctionSteeringWheel &&
-                //e.Message.DestinationDevice == DeviceAddress.Radio
-                //||
-                InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Acc
-                ||
-                InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Off
-                ||
-                settings.ForceMessageLog
-                ||
-                !isMusicPlayed
-#if DEBUG
-                || true
-#endif
-                ;
+            return true;
         }
 
         internal static void Manager_BeforeMessageReceived(MessageEventArgs e)
@@ -634,49 +606,22 @@ namespace imBMW.Devices.V2
         // Log just needed message
         private static bool KBusLoggerPredicate(MessageEventArgs e)
         {
-            if (
-                e.Message.SourceDevice == DeviceAddress.IntegratedHeatingAndAirConditioning && e.Message.Data[0] == 0x83 // Air conditioning compressor status
-                || 
-                //e.Message.SourceDevice == DeviceAddress.IntegratedHeatingAndAirConditioning && e.Message.Data[0] == 0x86 // Some info for NavigationEurope
-                //||
-                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x02 // Poll response
-                ||
-                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x11 // Ignition status
-                ||
-                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x13 // IKE Sensor status
-                ||
-                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x15 // Country coding status
-                ||
-                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x17 // Odometer
-                ||
-                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x18 // Speed/RPM
-                ||
-                e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics && e.Message.Data[0] == 0x19 // Temperature
-                //||
-                //e.Message.SourceDevice == DeviceAddress.IntegratedHeatingAndAirConditioning && e.Message.Data.StartsWith(0x92, 0x00, 0x22) // IntegratedHeatingAndAirConditioning > AuxilaryHeater: 92 00 22 (Command for auxilary heater)
-                //||
-                //e.Message.SourceDevice == DeviceAddress.AuxilaryHeater && e.Message.Data.StartsWith(0x93, 0x00, 0x22) // AuxilaryHeater > IntegratedHeatingAndAirConditioning: 93 00 22 (Auxilary heater status)
+            if (false 
+                || e.Message.Data[0] == 0x11    // Ignition status
+                || e.Message.Data[0] == 0x13    // IKE Sensor status
+                || e.Message.Data[0] == 0x15    // Country coding status
+                || e.Message.Data[0] == 0x17    // Odometer
+                || e.Message.Data[0] == 0x18    // Speed/RPM
+                || e.Message.Data[0] == 0x19    // Temperature
+                || e.Message.Data[0] == 0x83    // Air conditioning compressor status
+                //|| e.Message.Data[0] == 0x92  // IHKA > ZUH: 92 00 22 (Command for auxilary heater)
+                //|| e.Message.Data[0] == 0x93  // ZUH > IHKA: 93 00 22 (Auxilary heater status)
                 ) 
             {
                 return false;
             }
 
-            return
-                   e.Message.SourceDevice == DeviceAddress.InstrumentClusterElectronics ||
-
-                   e.Message.SourceDevice == DeviceAddress.AuxilaryHeater ||
-                   e.Message.DestinationDevice == DeviceAddress.AuxilaryHeater ||
-
-                   e.Message.SourceDevice == DeviceAddress.IntegratedHeatingAndAirConditioning ||
-                   e.Message.DestinationDevice == DeviceAddress.IntegratedHeatingAndAirConditioning ||
-
-                   e.Message.SourceDevice == DeviceAddress.HeadlightVerticalAimControl ||
-                   e.Message.DestinationDevice == DeviceAddress.HeadlightVerticalAimControl ||
-
-                   e.Message.SourceDevice == DeviceAddress.Diagnostic ||
-                   e.Message.DestinationDevice == DeviceAddress.Diagnostic || 
-
-                   InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Off; 
+            return true;
         }
 
         private static void KBusManager_AfterMessageReceived(MessageEventArgs e)

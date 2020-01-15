@@ -55,7 +55,7 @@ namespace imBMW.iBus
             "", // "0x29",
             "On-Board Computer State Update", // "0x2A"
             "Phone LEDs", // "0x2B"
-            "Phone symbol", // "0x2C",
+            "Phone status", // "0x2C",  C8 04 50 2C xx chk - Bit6 0 = telephone adapter not installed, 1 = telephone adapter installed, example 1: C8 04 E7 2C 10 17 see byte 5 hex 10 is binary 0001 0000 which means: handsfree off \, telephone off
             "", // "0x2D",
             "", // "0x2E",
             "", // "0x2F",
@@ -65,7 +65,7 @@ namespace imBMW.iBus
             "", // "0x33",
             "DSP Equalizer Button", // "0x34"
             "GT Car memory response", // "0x35",
-            "AudioControl", // "0x36",
+            "AudioControl", // "0x36",              RAD > DSP: 36 68  ;  RAD > DSP: 36 C4
             "GT: Select Menu", // "0x37",
             "CD status request", // "0x38",
             "CD status", // "0x39",
@@ -129,7 +129,7 @@ namespace imBMW.iBus
             "EWS Status request", // "0x73",
             "EWS key status", // "0x74"
             "Wiper status request", // "0x75",
-            "External lights(Crash Alarm)", // "0x76",
+            "External lights(Crash Alarm)", // "0x76",  Bit 1 = hazard lights, Bit 2 = low beam, Bit 3 = flash. The bits can be combined. e.g. low beam and hazard lights = 0 0 0 0 0 1 1 0 = $ 06 (hex)
             "Wiper status", // "0x77",
             "Seat Memory", // "0x78",
             "Doors/windows status request", // "0x79"
@@ -309,6 +309,7 @@ namespace imBMW.iBus
             messageDescriptions.Add(new byte[] { 0x36, 0xA1 }.ToHex(' '), "AudioControl Source=Tuner/Tape");
             messageDescriptions.Add(new byte[] { 0x36, 0xAF }.ToHex(' '), "AudioControl Source=Off");
 
+            //messageDescriptions.Add(new byte[] { 0x38, 0x00, 00 }.ToHex(' '), "CD StatusRequest");
             messageDescriptions.Add(new byte[] { 0x38, 0x01, 00 }.ToHex(' '), "CD Stop");
             messageDescriptions.Add(new byte[] { 0x38, 0x02, 00 }.ToHex(' '), "CD Pause");
             messageDescriptions.Add(new byte[] { 0x38, 0x03, 00 }.ToHex(' '), "CD Play");

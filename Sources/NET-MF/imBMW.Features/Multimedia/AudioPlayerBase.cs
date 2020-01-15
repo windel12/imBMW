@@ -17,18 +17,19 @@ namespace imBMW.Multimedia
         //public string FileName { get; set; } = "";
         public bool IsRandom { get; set; } = true;
 
-        public abstract string Play();
 
-        public abstract string Pause();
+        public abstract void Play();
+
+        public abstract void Pause();
 
         protected void SetPlaying(bool value)
         {
             IsPlaying = value;
         }
 
-        public abstract string Next();
+        public abstract void Next();
 
-        public abstract string Prev();
+        public abstract void Prev();
 
         public abstract bool RandomToggle(byte diskNumber);
 
@@ -38,9 +39,9 @@ namespace imBMW.Multimedia
 
         //public TrackInfo CurrentTrack { get; set; }
 
-        public abstract bool Inited { get; set; }
+        public bool Inited { get; set; }
 
-        public abstract bool IsPlaying
+        public bool IsPlaying
         {
             get;
             protected set;

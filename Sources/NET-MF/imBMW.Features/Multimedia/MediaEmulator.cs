@@ -123,20 +123,16 @@ namespace imBMW.iBus.Devices.Emulators
                 Player.Pause();
         }
 
-        protected virtual string Next()
+        protected virtual void Next()
         {
             if (Player.Inited)
-                return Player.Next();
-
-            return "";
+                Player.Next();
         }
 
-        protected virtual string Prev()
+        protected virtual void Prev()
         {
             if (Player.Inited)
-                return Player.Prev();
-
-            return "";
+                Player.Prev();
         }
 
         protected virtual void VoiceButtonPress()

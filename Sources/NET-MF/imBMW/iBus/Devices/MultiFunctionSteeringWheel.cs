@@ -186,12 +186,12 @@ namespace imBMW.iBus.Devices.Real
             {
                 e(button);
             }
-            m.ReceiverDescription = "Button " + button.ToStringValue() + "pressed";
+            m.ReceiverDescription = "MFL " + button.ToStringValue() + " pressed";
         }
 
         static void OnButtonReleased(Message m, MFLButton button)
         {
-            m.ReceiverDescription = "Button " + button.ToStringValue() + "released";
+            m.ReceiverDescription = "MFL " + button.ToStringValue() + " released";
         }
 
         public static event MFLEventHandler ButtonPressed;

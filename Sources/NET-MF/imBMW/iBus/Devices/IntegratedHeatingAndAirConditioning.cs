@@ -99,6 +99,7 @@ namespace imBMW.iBus.Devices.Real
                     {
                         Logger.Debug("First working response acquired successfully.");
                         AuxilaryHeater.Status = AuxilaryHeaterStatus.Working;
+                        return;
                     }
 
                     if (AuxilaryHeater.Status == AuxilaryHeaterStatus.Working)

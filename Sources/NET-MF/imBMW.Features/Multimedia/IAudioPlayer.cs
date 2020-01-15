@@ -11,13 +11,13 @@ namespace imBMW.Multimedia
 
     public interface IAudioPlayer
     {
-        string Next();
+        void Next();
 
-        string Prev();
+        void Prev();
 
-        string Play();
+        void Play();
 
-        string Pause();
+        void Pause();
 
         bool RandomToggle(byte diskNumber);
 

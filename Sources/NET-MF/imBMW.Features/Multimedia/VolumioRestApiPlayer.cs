@@ -1,19 +1,35 @@
-using imBMW.Multimedia;
-using Microsoft.SPOT.Hardware;
-using GHI.Networking;
 using System.Net;
-using imBMW.Tools;
 using System.Text;
 using System;
+using System.Threading;
+using Microsoft.SPOT.Hardware;
+using GHI.Networking;
+using imBMW.Multimedia;
+using imBMW.Tools;
+using imBMW.iBus.Devices.Real;
+using imBMW.Features.Multimedia.Models;
 
 namespace imBMW.Features.Multimedia
 {
     public class VolumioRestApiPlayer : AudioPlayerBase
     {
+        private static QueueThreadWorker commands;
+
         private static string path = "http://169.254.194.94/api/v1/";
+        public static bool Ready = false;
+        public static Thread ReadinessThread = new Thread(CheckStatus);
+
+        private HttpRequestCommand pauseCommand = new HttpRequestCommand("commands/?cmd=pause", 500);
+        private HttpRequestCommand nextCommand = new HttpRequestCommand("commands/?cmd=next", response =>
+        {
+            InstrumentClusterElectronics.ShowNormalTextWithoutGong(response);
+            Bordmonitor.ShowText(response, BordmonitorFields.Title);
+        });
 
         public VolumioRestApiPlayer(Cpu.Pin chipSelect, Cpu.Pin externalInterrupt, Cpu.Pin reset)
         {
+            commands = new QueueThreadWorker(ProcessCommand, "httpRequestsThread", ThreadPriority.Lowest);
+
             var netif = new EthernetENC28J60(SPI.SPI_module.SPI2, chipSelect, externalInterrupt/*, reset*/);
             netif.Open();
             ////netif.EnableDhcp();
@@ -25,37 +41,51 @@ namespace imBMW.Features.Multimedia
                 System.Threading.Thread.Sleep(250);
             }
             Inited = true;
+
+            ReadinessThread.Start();
         }
 
-        public override bool Inited
+        private static void ProcessCommand(object o)
         {
-            get;set;
+            var httpRequestCommand = (HttpRequestCommand) o;
+            string result = Execute(httpRequestCommand.Param);
+            if (httpRequestCommand.Callback != null)
+            {
+                httpRequestCommand.Callback(result);
+            }
+            if (httpRequestCommand.AfterSendTimeout > 0)
+            {
+                Thread.Sleep(httpRequestCommand.AfterSendTimeout);
+            }
         }
 
-        public override bool IsPlaying
+        private static string Execute(string param)
         {
-            get; protected set;
-        }
-
-        public static string Execute(string param)
-        {
-            string result = string.Empty;
-            var request = WebRequest.Create(path + param) as HttpWebRequest;
+            HttpWebRequest request = WebRequest.Create(path + param) as HttpWebRequest;
             request.Timeout = 3000;
+            request.KeepAlive = false;
             HttpWebResponse response = null;
             try
             {
+                Logger.Trace("Sending request: " + path );
                 response = request?.GetResponse() as HttpWebResponse;
+                Logger.Trace("Responded successfull.");
                 using (var stream = response?.GetResponseStream())
                 {
                     byte[] bytes = new byte[stream.Length];
                     stream.Read(bytes, 0, bytes.Length);
-                    result = ASCIIEncoding.GetString(bytes, 0, bytes.Length);//.ASCIIToUTF8();
+                    var result = ASCIIEncoding.GetString(bytes, 0, bytes.Length);
+                    return result;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Logger.Error(ex, "REST:" + param + "failed");
+                if (param == "ping")
+                    throw;
+
+                var webException = ex as WebException;
+                var status = webException != null ? (int) webException.Status : -1;
+                Logger.Error(ex, "status: " + status);
             }
             finally
             {
@@ -64,39 +94,46 @@ namespace imBMW.Features.Multimedia
                 request?.Dispose();
 #endif
             }
-            return result;
+            return string.Empty;
         }
 
         public static void Reboot()
         {
-            Execute("reboot");
+            commands.Enqueue(new HttpRequestCommand("reboot", response =>
+            {
+                if (ReadinessThread.ThreadState == ThreadState.Suspended || ReadinessThread.ThreadState == ThreadState.SuspendRequested)
+                {
+                    ReadinessThread.Resume();
+                }
+            }));
         }
 
         public static void Shutdown()
         {
-            Execute("shutdown");
+            commands.Enqueue(new HttpRequestCommand("shutdown"));
         }
 
-        public override string Play()
+        public override void Play()
         {
             SetPlaying(true);
-            return Execute("commands/?cmd=play");
+            commands.Enqueue(new HttpRequestCommand("commands/?cmd=play"));
         }
 
-        public override string Pause()
+        public override void Pause()
         {
             SetPlaying(false);
-            return Execute("commands/?cmd=pause");
+            commands.Enqueue(pauseCommand);
         }
 
-        public override string Next()
+        public override void Next()
         {
-            return Execute("commands/?cmd=next");
+            commands.Enqueue(pauseCommand);
+            commands.Enqueue(nextCommand);
         }
 
-        public override string Prev()
+        public override void Prev()
         {
-            return Execute("commands/?cmd=prev");
+            commands.Enqueue(new HttpRequestCommand("commands/?cmd=prev"));
         }
 
         public override string ChangeTrackTo(string fileName)
@@ -107,6 +144,26 @@ namespace imBMW.Features.Multimedia
         public override bool RandomToggle(byte diskNumber)
         {
             return true;
+        }
+
+        public static void CheckStatus()
+        {
+            while (true)
+            {
+                try
+                {
+                    Execute("ping");
+                    Ready = true;
+                    FrontDisplay.RefreshLEDs(LedType.Green);
+                    ReadinessThread.Suspend();
+                }
+                catch (Exception ex)
+                {
+                    FrontDisplay.RefreshLEDs(LedType.OrangeBlinking, append: true);
+                    Logger.Info("CheckStatus: Volumio isn't ready yet.");
+                    Thread.Sleep(1000);
+                }
+            }
         }
     }
 }

@@ -17,12 +17,12 @@
         <Button x:Name="SwitchButton" Content="Switch" HorizontalAlignment="Left" Margin="60,346,0,0" VerticalAlignment="Top" Width="40"/>
         <Button x:Name="FMButton" Content="FM" HorizontalAlignment="Left" Margin="10,321,0,0" VerticalAlignment="Top" Width="40"/>
         <Button x:Name="AMButton" Content="AM" HorizontalAlignment="Left" Margin="60,321,0,0" VerticalAlignment="Top" Width="40"/>
-        <Button x:Name="FirstDiskButton" Content="1" HorizontalAlignment="Left" Margin="10,247,0,0" VerticalAlignment="Top" Width="40" Mouse.MouseUp="DiskButton_MouseUp"/>
-        <Button x:Name="SecondDiskButton" Content="2" HorizontalAlignment="Left" Margin="10,272,0,0" VerticalAlignment="Top" Width="40" Mouse.MouseUp="DiskButton_MouseUp"/>
-        <Button x:Name="ThirdDiskButton" Content="3" HorizontalAlignment="Left" Margin="10,297,0,0" VerticalAlignment="Top" Width="40" Mouse.MouseUp="DiskButton_MouseUp"/>
-        <Button x:Name="FourthDiskButton" Content="4" HorizontalAlignment="Left" Margin="60,247,0,0" VerticalAlignment="Top" Width="40" Mouse.MouseUp="DiskButton_MouseUp"/>
-        <Button x:Name="FifthDiskButton" Content="5" HorizontalAlignment="Left" Margin="60,272,0,0" VerticalAlignment="Top" Width="40" Mouse.MouseUp="DiskButton_MouseUp"/>
-        <Button x:Name="SixDiskButton" Content="6" HorizontalAlignment="Left" Margin="60,297,0,0" VerticalAlignment="Top" Width="40" Mouse.MouseUp="DiskButton_MouseUp" />
+        <Button x:Name="FirstDiskButton" Content="1" HorizontalAlignment="Left" Margin="10,247,0,0" VerticalAlignment="Top" Width="40" MouseRightButtonUp="DiskButton_MouseUp"/>
+        <Button x:Name="SecondDiskButton" Content="2" HorizontalAlignment="Left" Margin="10,272,0,0" VerticalAlignment="Top" Width="40" MouseRightButtonUp="DiskButton_MouseUp"/>
+        <Button x:Name="ThirdDiskButton" Content="3" HorizontalAlignment="Left" Margin="10,297,0,0" VerticalAlignment="Top" Width="40" MouseRightButtonUp="DiskButton_MouseUp"/>
+        <Button x:Name="FourthDiskButton" Content="4" HorizontalAlignment="Left" Margin="60,247,0,0" VerticalAlignment="Top" Width="40" MouseRightButtonUp="DiskButton_MouseUp"/>
+        <Button x:Name="FifthDiskButton" Content="5" HorizontalAlignment="Left" Margin="60,272,0,0" VerticalAlignment="Top" Width="40" MouseRightButtonUp="DiskButton_MouseUp"/>
+        <Button x:Name="SixDiskButton" Content="6" HorizontalAlignment="Left" Margin="60,297,0,0" VerticalAlignment="Top" Width="40" MouseRightButtonUp="DiskButton_MouseUp" />
         <Button x:Name="InfoButton" Content="Info" HorizontalAlignment="Left" Margin="10,222,0,0" VerticalAlignment="Top" Width="90"/>
 
         <Button x:Name="MenuButton" Content="Menu" HorizontalAlignment="Left" Margin="513,346,0,0" VerticalAlignment="Top" Width="90" Click="MenuButton_Click" MouseRightButtonUp="MenuButton_MouseRightButtonUp"></Button>
@@ -30,10 +30,10 @@
         <Button x:Name="NextButton" Content="&gt;" HorizontalAlignment="Left" Margin="563,321,0,0" VerticalAlignment="Top" Width="40" Click="NextButton_Click"/>
         <Button x:Name="ToneButton" Content="Tone" HorizontalAlignment="Left" Margin="513,297,0,0" VerticalAlignment="Top" Width="40"/>
         <Button x:Name="SelectButton" Content="Select" HorizontalAlignment="Left" Margin="563,297,0,0" VerticalAlignment="Top" Width="40"/>
-        <Button x:Name="ArrowsButton" Content="&lt;&gt;" HorizontalAlignment="Left" Margin="513,272,0,0" VerticalAlignment="Top" Width="40" Mouse.MouseUp="ArrowsButton_MouseUp"/>
-        <Button x:Name="ClockButton" Content="Clock" HorizontalAlignment="Left" Margin="563,272,0,0" VerticalAlignment="Top" Width="40" Mouse.MouseUp="ClockButton_MouseUp"/>
+        <Button x:Name="ArrowsButton" Content="&lt;&gt;" HorizontalAlignment="Left" Margin="513,272,0,0" VerticalAlignment="Top" Width="40" MouseRightButtonUp="ArrowsButton_MouseUp"/>
+        <Button x:Name="ClockButton" Content="Clock" HorizontalAlignment="Left" Margin="563,272,0,0" VerticalAlignment="Top" Width="40" MouseRightButtonUp="ClockButton_MouseUp"/>
         <Button x:Name="PhoneButton" Content="Phone" HorizontalAlignment="Left" Margin="513,247,0,0" VerticalAlignment="Top" Width="90" Click="PhoneButton_Click" MouseRightButtonUp="PhoneButton_MouseRightButtonUp"/>
-        <Button x:Name="EjectButton" Content="Eject" HorizontalAlignment="Left" Margin="559,222,0,0" VerticalAlignment="Top" Width="40"/>
+        <Button x:Name="EjectButton" Content="Eject" HorizontalAlignment="Left" Margin="559,222,0,0" VerticalAlignment="Top" Width="40" Click="EjectButton_Click" MouseRightButtonUp="EjectButton_MouseRightButtonUp"/>
 
         <Button x:Name="VolumeUp" Content="+" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="40" Click="MFLButton_VolumeUp"/>
         <Button x:Name="VolumeDown" Content="-" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Width="40" Click="MFLButton_VolumeDown"/>

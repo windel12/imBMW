@@ -48,8 +48,10 @@ namespace OnBoardMonitorEmulator
 
         public static byte[] PhoneButtonClick = { 0x48, 0x08 };
         public static byte[] PhoneButtonHold = { 0x48, 0x48 };
-        public static byte[] MenuButonClick = { 0x48, 0x34 };
-        public static byte[] MenuButonHold = { 0x48, 0x74 };
+        public static byte[] MenuButtonClick = { 0x48, 0x34 };
+        public static byte[] MenuButtonHold = { 0x48, 0x74 };
+        public static byte[] EjectButtonClick = { 0x48, 0x24 };
+        public static byte[] EjectButtonHold = { 0x48, 0x64 };
 
         //private bool _isEnabled = false;
         //public bool IsEnabled
@@ -284,13 +286,13 @@ namespace OnBoardMonitorEmulator
         private void MenuButton_Click(object sender, RoutedEventArgs e)
         {
             State = GraphicsNavigationDriverState.BordComputer;
-            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, MenuButonClick);
+            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, MenuButtonClick);
             WriteMessage(message);
         }
 
         private void MenuButton_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
-            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, MenuButonHold);
+            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, MenuButtonHold);
             WriteMessage(message);
         }
 
@@ -303,6 +305,18 @@ namespace OnBoardMonitorEmulator
         private void PhoneButton_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
             var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, PhoneButtonHold);
+            WriteMessage(message);
+        }
+
+        private void EjectButton_Click(object sender, RoutedEventArgs e)
+        {
+            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, EjectButtonClick);
+            WriteMessage(message);
+        }
+
+        private void EjectButton_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, EjectButtonHold);
             WriteMessage(message);
         }
 

@@ -14,8 +14,6 @@ namespace imBMW.iBus.Devices.Emulators
 {
     public class CDChanger : MediaEmulator
     {
-        //const ushort StopDelayMilliseconds = 1000;
-
         //Thread announceThread;
         Timer stopDelay;
 
@@ -35,10 +33,20 @@ namespace imBMW.iBus.Devices.Emulators
             return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Stop, Silence", 0x39, 0x00, 0x02, 0x00, disksMask, 0x00, disk, track); // try 39 00 0C ?
         }
 
-        Message StatusStartPlaying(byte disk, byte track)
+        /// <summary>
+        /// 39 02 09
+        /// </summary>
+        Message StatusPlaying(byte disk, byte track)
         {
-            byte state = 0x09;
             return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Play, CommonPlayback", 0x39, 0x02, 0x09, 0x00, disksMask, 0x00, disk, track);
+        }
+
+        /// <summary>
+        /// 39 07 09
+        /// </summary>
+        Message StatusEndTrack(byte disk, byte track)
+        {
+            return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "End, CommonPlayback", 0x39, 0x07, 0x09, 0x00, disksMask, 0x00, disk, track);
         }
 
         byte status = 0x08;
@@ -70,8 +78,8 @@ namespace imBMW.iBus.Devices.Emulators
         public static byte[] DataScanPlaylistOff = new byte[] { 0x38, 0x07, 0x00 };
         public static byte[] DataScanPlaylistOn = new byte[] { 0x38, 0x07, 0x01 };
 
-        /// <summary>0x38, 0x08, 0x01 </summary>
-        public static byte[] DataRandomPlay = new byte[] { 0x38, 0x08, 0x01 };
+        /// <summary>0x38, 0x08 </summary>
+        public static byte[] DataSetRandom = new byte[] { 0x38, 0x08 };
 
         public static byte[] DataNext = new byte[] { 0x38, 0x0A, 0x00 };
         public static byte[] DataPrev = new byte[] { 0x38, 0x0A, 0x01 };
@@ -123,13 +131,13 @@ namespace imBMW.iBus.Devices.Emulators
 
         public override void Play()
         {
-            CancelStopDelay();
+            //CancelStopDelay();
             base.Play();
         }
 
         public override void Pause()
         {
-            CancelStopDelay();
+            //CancelStopDelay();
             base.Pause();
         }
 
@@ -171,10 +179,10 @@ namespace imBMW.iBus.Devices.Emulators
 
             if (!isEnabled)
             {
-                CancelStopDelay();
+                //CancelStopDelay();
                 // Don't pause immediately - the radio can send "start play" command soon
-                stopDelay = new Timer(delegate
-                {
+                //stopDelay = new Timer(delegate
+                //{
                     FireIsEnabledChanged();
                     Pause();
 
@@ -182,7 +190,7 @@ namespace imBMW.iBus.Devices.Emulators
                     //{
                         //announceThread.Resume();
                     //}
-                }, null, 0/*StopDelayMilliseconds*/, 0);
+                //}, null, 1000, 0);
             }
         }
 
@@ -192,7 +200,7 @@ namespace imBMW.iBus.Devices.Emulators
             {
                 if (Player.IsPlaying && this.IsEnabled)
                 {
-                    Manager.Instance.EnqueueMessage(StatusStartPlaying(Player.DiskNumber, Player.TrackNumber));
+                    Manager.Instance.EnqueueMessage(StatusPlaying(Player.DiskNumber, Player.TrackNumber));
                 }
                 else
                 {
@@ -215,25 +223,25 @@ namespace imBMW.iBus.Devices.Emulators
             else if (m.Data.Compare(DataPlay))
             {
                 IsEnabled = true;
-                Manager.Instance.EnqueueMessage(StatusStartPlaying(Player.DiskNumber, Player.TrackNumber));
+                Manager.Instance.EnqueueMessage(StatusPlaying(Player.DiskNumber, Player.TrackNumber));
                 //m.ReceiverDescription = "Start playing";
             }
             else if(m.Data.Length == 3 && m.Data.StartsWith(0x38, 0x06)) // select disk
             {
                 if (Player.IsPlaying)
                 {
-                    Manager.Instance.EnqueueMessage(StatusStartPlaying(Player.DiskNumber, Player.TrackNumber));
+                    Manager.Instance.EnqueueMessage(StatusPlaying(Player.DiskNumber, Player.TrackNumber));
                 }
                 else
                 {
                     Manager.Instance.EnqueueMessage(StatusStopped(Player.DiskNumber, Player.TrackNumber));
                 }
             }
-            else if (m.Data.Compare(DataRandomPlay))
+            else if (m.Data.StartsWith(DataSetRandom))
             {
-                RandomToggle(Player.DiskNumber);
-                Manager.Instance.EnqueueMessage(StatusStartPlaying(Player.DiskNumber, Player.TrackNumber));
-                m.ReceiverDescription = "Random toggle";
+                Player.IsRandom = m.Data[2] == 0x01;
+                //RandomToggle(Player.DiskNumber);
+                //Manager.Instance.EnqueueMessage(StatusPlaying(Player.DiskNumber, Player.TrackNumber));
             }
             else if (m.Data.Compare(DataScanPlaylistOff) || m.Data.Compare(DataScanPlaylistOn))
             {
@@ -246,8 +254,9 @@ namespace imBMW.iBus.Devices.Emulators
             {
                 if (!skipNextTrackMessage)
                 {
-                    string value = Next();
-                    InstrumentClusterElectronics.ShowNormalTextWithoutGong(value);
+                    Next();
+                    //Manager.Instance.EnqueueMessage(StatusEndTrack(Player.DiskNumber, Player.TrackNumber));
+                    Manager.Instance.EnqueueMessage(StatusPlaying(Player.DiskNumber, /*++*/Player.TrackNumber));
                 }
                 else
                 {

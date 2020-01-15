@@ -202,7 +202,6 @@ namespace imBMW.Features.Menu
                         OnPhoneButtonHold();
                         break;
                     case 0x88:
-                        m.ReceiverDescription = "BM button Phone - draw bordmonitor menu";
                         IsEnabled = true;
                         break;
 
@@ -222,14 +221,52 @@ namespace imBMW.Features.Menu
                         IntegratedHeatingAndAirConditioning.StopAuxilaryHeater();
                         break;
 
-                    // Menu
+                    // 'Tone' button
+                    case 0x04:
+                        IsEnabled = false;
+                        break;
+                    case 0x44:
+                        // DSP2.PRG -> JOBNAME:RESET 
+                        Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Diagnostic, DeviceAddress.DigitalSignalProcessingAudioAmplifier, 0x1C, 0x00));
+                        break;
+                    case 0x84:
+                        break;
+
+                    // 'Select' button
+                    case 0x20: 
+                        IsEnabled = false;
+                        break;
+                    case 0x60:
+                        // DSP2.PRG -> JOBNAME:DSP_SELBSTTEST 
+                        Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Diagnostic, DeviceAddress.DigitalSignalProcessingAudioAmplifier, 0x30));
+                        break;
+                    case 0xA0:
+                        break;
+
+                    // 'Mode' button
+                    case 0x23:
+                    case 0x63:
+                        break;
+                    case 0xA3:
+                        m.ReceiverDescription = "Mode button released.";
+                        break;
+
+                    // 'Eject' button
+                    case 0x24:
+                        break;
+                    case 0x64:
+                        OnEjectButtonHold();
+                        break;
+                    case 0xA4:
+                        break;
+
+                    // 'Menu' button
                     case 0x34: // pressed
                         break;
                     case 0x74: // hold > 1s
                         OnMenuButtonHold();
                         break;
                     case 0xB4: // released
-                        m.ReceiverDescription = "BM button Menu";
                         IsEnabled = false;
                         break;
                 }
@@ -268,38 +305,6 @@ namespace imBMW.Features.Menu
                         item.Click();
                     }
                     return;
-                }
-
-                // BM buttons
-                if (m.Data[0] == 0x48 && m.Data.Length == 2)
-                {
-                    switch (m.Data[1])
-                    {
-                        case 0x14: // <>
-                            m.ReceiverDescription = "BM button <> - navigate home";
-                            //NavigateHome();
-                            break;
-                        case 0x07:
-                            m.ReceiverDescription = "BM button Clock - navigate BC";
-                            //NavigateAfterHome(BordcomputerScreen.Instance);
-                            break;
-                        case 0x20: // Select
-                            m.ReceiverDescription = "BM button Select";
-                            IsEnabled = false;
-                            // TODO fix in cdc mode
-                            //NavigateAfterHome(HomeScreen.Instance.PlayerScreen);
-                            break;
-                        case 0x04:
-                            m.ReceiverDescription = "BM button Tone";
-                            IsEnabled = false;
-                            //Bordmonitor.EnableRadioMenu(); // TODO test [and remove]
-                            break;
-                        case 0x23: // Mode
-                            m.ReceiverDescription = "BM button Mode";
-                            //IsEnabled = false;
-                            //Bordmonitor.EnableRadioMenu(); // TODO test [and remove]
-                            break;
-                    }
                 }
             }
         }
@@ -476,8 +481,18 @@ namespace imBMW.Features.Menu
             }
         }
 
+        static void OnEjectButtonHold()
+        {
+            var e = EjectButtonHold;
+            if (e != null)
+            {
+                e();
+            }
+        }
+
         public delegate void ButtonPressedHanlder();
         public static event ButtonPressedHanlder MenuButtonHold;
         public static event ButtonPressedHanlder PhoneButtonHold;
+        public static event ButtonPressedHanlder EjectButtonHold;
     }
 }

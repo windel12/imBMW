@@ -79,7 +79,7 @@
     <Compile Include="iBus\Devices\Bordmonitor.cs" />
     <None Include="iBus\Devices\DigitalDieselElectronics.cs" />
     <Compile Include="iBus\Devices\FrontDisplay.cs" />
-    <Compile Include="iBus\Devices\Immobiliser.cs" />
+    <None Include="iBus\Devices\Immobiliser.cs" />
     <Compile Include="iBus\Devices\InstrumentClusterElectronics.cs" />
     <Compile Include="iBus\Devices\IntegratedHeatingAndAirConditioning.cs" />
     <Compile Include="iBus\Devices\LightControlModule.cs" />
@@ -117,7 +117,6 @@
     <Compile Include="Tools\Logger.cs" />
     <Compile Include="Tools\QueueThreadWorker.cs" />
     <Compile Include="Tools\Settings.cs" />
-    <Compile Include="Tools\SettingsPropertyAttribute.cs" />
     <Compile Include="Tools\SpinWaitTimer.cs" />
     <Compile Include="Enums\MassStorageMountState.cs" />
   </ItemGroup>
@@ -132,12 +131,12 @@
     <Reference Include="System.IO" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="iBusMessages.txt" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\imBMW.Tools\imBMW.Tools.csproj">
       <Project>{76B622B3-B9D7-41DF-8A7C-627F32AABEB3}</Project>
       <Name>imBMW.Tools</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="iBusMessages.txt" />
   </ItemGroup>
 </Project>
