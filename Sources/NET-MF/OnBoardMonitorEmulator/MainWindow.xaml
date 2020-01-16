@@ -133,5 +133,8 @@
 
         <TextBox x:Name="Consumption1" Text="{Binding Consumption1, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="23" Margin="265,71,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="45"/>
         <TextBox x:Name="Consumption2" Text="{Binding Consumption2, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="23" Margin="265,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="45"/>
+        <CheckBox x:Name="VolumioReadinessCheckbox" IsChecked="{Binding VolumioReadiness}" Margin="10,135,475,266">
+            Volumio readiness
+        </CheckBox>
     </Grid>
 </Window>

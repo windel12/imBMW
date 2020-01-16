@@ -101,6 +101,7 @@ namespace OnBoardMonitorEmulator
             FrontDisplayEmulator.Init();
             HeadlightVerticalAimControlEmulator.Init();
             IntegratedHeatingAndAirConditioningEmulator.Init();
+            VolumioEmulator.Init(_viewModel);
 
             Launcher.Launch(Launcher.LaunchMode.WPF);
 

@@ -17,14 +17,9 @@ namespace imBMW.Features.Multimedia
 
         private static string path = "http://169.254.194.94/api/v1/";
         public static bool Ready = false;
-        public static Thread ReadinessThread = new Thread(CheckStatus);
+        public static Thread CheckStatusThread = new Thread(CheckStatus);
 
-        private HttpRequestCommand pauseCommand = new HttpRequestCommand("commands/?cmd=pause", 500);
-        private HttpRequestCommand nextCommand = new HttpRequestCommand("commands/?cmd=next", response =>
-        {
-            InstrumentClusterElectronics.ShowNormalTextWithoutGong(response);
-            Bordmonitor.ShowText(response, BordmonitorFields.Title);
-        });
+        private HttpRequestCommand pauseCommand = new HttpRequestCommand("commands/?cmd=pause", x => Thread.Sleep(500));
 
         public VolumioRestApiPlayer(Cpu.Pin chipSelect, Cpu.Pin externalInterrupt, Cpu.Pin reset)
         {
@@ -42,7 +37,7 @@ namespace imBMW.Features.Multimedia
             }
             Inited = true;
 
-            ReadinessThread.Start();
+            CheckStatusThread.Start();
         }
 
         private static void ProcessCommand(object o)
@@ -53,21 +48,23 @@ namespace imBMW.Features.Multimedia
             {
                 httpRequestCommand.Callback(result);
             }
-            if (httpRequestCommand.AfterSendTimeout > 0)
-            {
-                Thread.Sleep(httpRequestCommand.AfterSendTimeout);
-            }
         }
 
         private static string Execute(string param)
         {
-            HttpWebRequest request = WebRequest.Create(path + param) as HttpWebRequest;
+            string fullPath = path + param;
+            HttpWebRequest request = WebRequest.Create(fullPath) as HttpWebRequest;
             request.Timeout = 3000;
             request.KeepAlive = false;
             HttpWebResponse response = null;
             try
             {
-                Logger.Trace("Sending request: " + path );
+                Logger.Trace("Sending request: " + fullPath);
+
+#if OnBoardMonitorEmulator
+                return OnBoardMonitorEmulator.DevicesEmulation.VolumioEmulator.MakeHttpRequest(param);
+#endif
+
                 response = request?.GetResponse() as HttpWebResponse;
                 Logger.Trace("Responded successfull.");
                 using (var stream = response?.GetResponseStream())
@@ -80,12 +77,9 @@ namespace imBMW.Features.Multimedia
             }
             catch (Exception ex)
             {
-                if (param == "ping")
-                    throw;
-
                 var webException = ex as WebException;
                 var status = webException != null ? (int) webException.Status : -1;
-                Logger.Error(ex, "status: " + status);
+                throw new Exception("WebExStatus: " + status, ex);
             }
             finally
             {
@@ -101,9 +95,11 @@ namespace imBMW.Features.Multimedia
         {
             commands.Enqueue(new HttpRequestCommand("reboot", response =>
             {
-                if (ReadinessThread.ThreadState == ThreadState.Suspended || ReadinessThread.ThreadState == ThreadState.SuspendRequested)
+                Logger.Warning("REBOOTED.");
+                Thread.Sleep(1000);
+                if (CheckStatusThread.ThreadState == ThreadState.Suspended || CheckStatusThread.ThreadState == ThreadState.SuspendRequested)
                 {
-                    ReadinessThread.Resume();
+                    CheckStatusThread.Resume();
                 }
             }));
         }
@@ -128,7 +124,7 @@ namespace imBMW.Features.Multimedia
         public override void Next()
         {
             commands.Enqueue(pauseCommand);
-            commands.Enqueue(nextCommand);
+            commands.Enqueue(new HttpRequestCommand("commands/?cmd=next", OnTrackChanged));
         }
 
         public override void Prev()
@@ -152,15 +148,14 @@ namespace imBMW.Features.Multimedia
             {
                 try
                 {
-                    Execute("ping");
-                    Ready = true;
+                    Execute("ping");                  
                     FrontDisplay.RefreshLEDs(LedType.Green);
-                    ReadinessThread.Suspend();
+                    CheckStatusThread.Suspend();
                 }
                 catch (Exception ex)
                 {
                     FrontDisplay.RefreshLEDs(LedType.OrangeBlinking, append: true);
-                    Logger.Info("CheckStatus: Volumio isn't ready yet.");
+                    Logger.Trace("CheckStatus: Volumio isn't ready yet.");
                     Thread.Sleep(1000);
                 }
             }

@@ -57,15 +57,14 @@ namespace imBMW.Features.Menu
             //        InstrumentClusterElectronics.ShowNormalTextWithoutGong(trackInfo.Title);
             //    }
             //};
-            //mediaEmulator.Player.TrackChanged += (s, e) =>
-            //{
-            //    titleStartIndex = 0;
-            //    statusStartIndex = 0;
-            //    trackInfo = mediaEmulator.Player.CurrentTrack;
-            //    //UpdateScreenWitDelay(500);
-            //    UpdateHeaderWithDelay(500);
-            //    InstrumentClusterElectronics.ShowNormalTextWithoutGong(trackInfo.Title);
-            //};
+            mediaEmulator.Player.TrackChanged += (audioPlayer, trackName) =>
+            {
+                //titleStartIndex = 0;
+                //statusStartIndex = 0;
+                InstrumentClusterElectronics.ShowNormalTextWithoutGong(trackName);
+                if (IsEnabled)
+                    Bordmonitor.ShowText(trackName, BordmonitorFields.Title);
+            };
             //mediaEmulator.IsEnabledChanged += mediaEmulator_IsEnabledChanged;
             //Radio.OnOffChanged += Radio_OnOffChanged;
             Manager.Instance.AddMessageReceiverForDestinationDevice(DeviceAddress.Radio, ProcessToRadioMessage);

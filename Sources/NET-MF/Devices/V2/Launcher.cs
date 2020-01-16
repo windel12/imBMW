@@ -273,13 +273,13 @@ namespace imBMW.Devices.V2
                 BordmonitorMenu.PhoneButtonHold += () =>
                 {
                     VolumioRestApiPlayer.Reboot();
-                    Logger.Warning("REBOOTED");
+                    Logger.Warning("Reboot request sent.");
                 };
                 BordmonitorMenu.EjectButtonHold += () =>
                 {
                     UnmountMassStorage();
                     _massStorage = null;
-                    Logger.Warning("UNMOUNTED");
+                    Logger.Warning("UNMOUNTED!");
                 };
 
                 Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.InstrumentClusterElectronics, m =>

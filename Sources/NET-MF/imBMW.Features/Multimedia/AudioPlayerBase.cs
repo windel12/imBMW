@@ -72,7 +72,7 @@ namespace imBMW.Multimedia
 
         public event IsPlayingHandler IsPlayingChanged;
 
-        //public event NowPlayingHandler TrackChanged;
+        public event NowPlayingHandler TrackChanged;
 
         //protected virtual void OnIsPlayingChanging(bool isPlaying)
         //{
@@ -92,13 +92,13 @@ namespace imBMW.Multimedia
         //    }
         //}
 
-        //protected virtual void OnTrackChanged()
-        //{
-        //    var e = TrackChanged;
-        //    if (e != null)
-        //    {
-        //        e.Invoke(this, nowPlaying);
-        //    }
-        //}
+        protected virtual void OnTrackChanged(string trackName)
+        {
+            var e = TrackChanged;
+            if (e != null)
+            {
+                e.Invoke(this, trackName);
+            }
+        }
     }
 }

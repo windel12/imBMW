@@ -28,22 +28,19 @@ namespace imBMW.iBus.Devices.Emulators
         /// <summary> 02 01 </summary>
         public static Message MessageAnnounce = new Message(DeviceAddress.CDChanger, DeviceAddress.LocalBroadcastAddress, 0x02, 0x01);
 
+        /// <summary>0x39, 0x00, 0x02 </summary>
         Message StatusStopped(byte disk, byte track)
         {
             return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Stop, Silence", 0x39, 0x00, 0x02, 0x00, disksMask, 0x00, disk, track); // try 39 00 0C ?
         }
 
-        /// <summary>
-        /// 39 02 09
-        /// </summary>
+        /// <summary>0x39, 0x02, 0x09 </summary>
         Message StatusPlaying(byte disk, byte track)
         {
             return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Play, CommonPlayback", 0x39, 0x02, 0x09, 0x00, disksMask, 0x00, disk, track);
         }
 
-        /// <summary>
-        /// 39 07 09
-        /// </summary>
+        /// <summary>0x39, 0x07, 0x09 </summary>
         Message StatusEndTrack(byte disk, byte track)
         {
             return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "End, CommonPlayback", 0x39, 0x07, 0x09, 0x00, disksMask, 0x00, disk, track);
@@ -110,10 +107,11 @@ namespace imBMW.iBus.Devices.Emulators
 
                 //Radio.OnOffChanged += Radio_OnOffChanged;
 
-                /*Player.TrackChanged += (s, e) => {
-                    //Manager.Instance.EnqueueMessage(StatusPlayed(Player.DiskNumber, Player.TrackNumber));
-                    Manager.Instance.EnqueueMessage(StatusStartPlaying(Player.DiskNumber, Player.TrackNumber));
-                };*/
+                Player.TrackChanged += (s, e) =>
+                {
+                    //Manager.Instance.EnqueueMessage(StatusEndTrack(Player.DiskNumber, Player.TrackNumber));
+                    Manager.Instance.EnqueueMessage(StatusPlaying(Player.DiskNumber, ++Player.TrackNumber));
+                };
 
                 //announceThread = new Thread(announceCallback);
                 //announceThread.Start();
@@ -255,8 +253,6 @@ namespace imBMW.iBus.Devices.Emulators
                 if (!skipNextTrackMessage)
                 {
                     Next();
-                    //Manager.Instance.EnqueueMessage(StatusEndTrack(Player.DiskNumber, Player.TrackNumber));
-                    Manager.Instance.EnqueueMessage(StatusPlaying(Player.DiskNumber, /*++*/Player.TrackNumber));
                 }
                 else
                 {

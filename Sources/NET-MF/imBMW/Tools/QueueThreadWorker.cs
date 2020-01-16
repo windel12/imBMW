@@ -70,7 +70,7 @@ namespace imBMW.Tools
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error(ex, "while processing QueueThreadWorker item '" + m.ToString() + "'");
+                    Logger.Error(ex, StringHelpers.IsNullOrEmpty(ex.Message) ? "while processing QueueThreadWorker item '" + m.ToString() + "'" : ex.Message);
                 }
             }
         }

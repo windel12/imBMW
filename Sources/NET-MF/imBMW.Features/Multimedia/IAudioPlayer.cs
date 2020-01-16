@@ -7,7 +7,7 @@ namespace imBMW.Multimedia
 {
     public delegate void IsPlayingHandler(IAudioPlayer sender, bool isPlaying);
 
-    //public delegate void NowPlayingHandler(IAudioPlayer sender, TrackInfo nowPlaying);
+    public delegate void NowPlayingHandler(IAudioPlayer sender, string trackName);
 
     public interface IAudioPlayer
     {
@@ -39,6 +39,6 @@ namespace imBMW.Multimedia
 
         event IsPlayingHandler IsPlayingChanged;
 
-        //event NowPlayingHandler TrackChanged;
+        event NowPlayingHandler TrackChanged;
     }
 }

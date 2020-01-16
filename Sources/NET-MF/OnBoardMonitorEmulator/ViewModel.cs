@@ -9,6 +9,7 @@ namespace OnBoardMonitorEmulator
         {
             Consumption1 = (float)9.9;
             Consumption2 = (float)12.1;
+            //VolumioReadiness = true;
         }
 
         public float Consumption1
@@ -19,7 +20,7 @@ namespace OnBoardMonitorEmulator
                 if (InstrumentClusterElectronicsEmulator.Consumption1 != value)
                 {
                     InstrumentClusterElectronicsEmulator.Consumption1 = value;
-                    OnPropertyChange("Consumption1");
+                    OnPropertyChanged(nameof(Consumption1));
                 }
             }
         }
@@ -32,14 +33,25 @@ namespace OnBoardMonitorEmulator
                 if (InstrumentClusterElectronicsEmulator.Consumption2 != value)
                 {
                     InstrumentClusterElectronicsEmulator.Consumption2 = value;
-                    OnPropertyChange("Consumption2");
+                    OnPropertyChanged(nameof(Consumption2));
                 }
+            }
+        }
+
+        private bool _volumioReadiness;
+        public bool VolumioReadiness
+        {
+            get { return _volumioReadiness; }
+            set
+            {
+                _volumioReadiness = value;
+                OnPropertyChanged(nameof(VolumioReadiness));
             }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected void OnPropertyChange(string propertyName)
+        protected void OnPropertyChanged(string propertyName)
         {
             if (PropertyChanged != null)
             {
