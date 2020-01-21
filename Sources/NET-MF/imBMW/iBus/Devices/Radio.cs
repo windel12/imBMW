@@ -1,6 +1,7 @@
 using System;
 using imBMW.Tools;
 using System.Threading;
+using imBMW.Enums;
 
 namespace imBMW.iBus.Devices.Real
 {
@@ -56,6 +57,8 @@ namespace imBMW.iBus.Devices.Real
 
         static Timer displayTextDelayTimer;
 
+        public static AudioSource AudioSource;
+
         //public static bool HasMID { get; set; }
 
         /// <summary>
@@ -91,17 +94,38 @@ namespace imBMW.iBus.Devices.Real
             //        return;
             //    }
             //}
-            //if (m.Data[0] == 0x36 && m.Data.Length == 2)
-            //{
-            //    if (m.Data[1] >= 0x50 && m.Data[1] <= 0x6F)
-            //    {
-            //        m.ReceiverDescription = "Configuring Bass";
-            //    }
-            //    if (m.Data[1] >= 0xB0 && m.Data[1] <= 0xCF)
-            //    {
-            //        m.ReceiverDescription = "Configuring Tremble";
-            //    }
-            //}
+            if (m.Data[0] == 0x36 && m.Data.Length == 2)
+            {
+                if (m.Data[1] == 0xAF)
+                {
+                    AudioSource = AudioSource.Off;
+                }
+                if (m.Data[1] == 0xA0)
+                {
+                    AudioSource = AudioSource.CD;
+                }
+                if (m.Data[1] == 0xA1)
+                {
+                    AudioSource = AudioSource.TunerTape;
+                }
+
+                if (m.Data[1] >= 0x30 && m.Data[1] <= 0x4F)
+                {
+                    m.ReceiverDescription = "Configuring Balance";
+                }
+                if (m.Data[1] >= 0x50 && m.Data[1] <= 0x6F)
+                {
+                    m.ReceiverDescription = "Configuring Bass";
+                }
+                if (m.Data[1] >= 0x70 && m.Data[1] <= 0x8F)
+                {
+                    m.ReceiverDescription = "Configuring Fader";
+                }
+                if (m.Data[1] >= 0xB0 && m.Data[1] <= 0xCF)
+                {
+                    m.ReceiverDescription = "Configuring Tremble";
+                }
+            }
         }
 
         static void ClearTimer()

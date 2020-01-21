@@ -502,9 +502,9 @@ namespace imBMW.Devices.V2
         internal static void SleepMode()
         {
             Logger.Trace("Going to sleep");
+            VolumioRestApiPlayer.Shutdown();
             UnmountMassStorage();
             DisposeManagers();
-            VolumioRestApiPlayer.Shutdown();
 
             State = AppState.Sleep;
         }
@@ -553,6 +553,17 @@ namespace imBMW.Devices.V2
             return true;
         }
 
+        private static bool IBusReaderPredicate(MessageEventArgs e)
+        {
+            if (e.Message.SourceDevice == DeviceAddress.CDChanger
+                || e.Message.SourceDevice == DeviceAddress.Telephone)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         internal static void Manager_BeforeMessageReceived(MessageEventArgs e)
         {
             idleTime = 0;
@@ -560,7 +571,7 @@ namespace imBMW.Devices.V2
 
         private static void Manager_AfterMessageReceived(MessageEventArgs e)
         {
-            if (IBusLoggerPredicate(e))
+            if (IBusLoggerPredicate(e) && IBusReaderPredicate(e))
             {
                 // Show only messages which are described
                 if (e.Message.Describe() == null)

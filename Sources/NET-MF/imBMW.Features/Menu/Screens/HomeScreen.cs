@@ -14,7 +14,7 @@ namespace imBMW.Features.Menu.Screens
         protected MenuItem auxilaryHeaterItem;
         //protected MenuItem ddeItem;
         //protected MenuItem bluetoothItem;
-        //protected MenuItem activateItem;
+        protected MenuItem activateItem;
         //protected MenuItem musicListItem;
         protected MenuItem integratedHeatingAndAirConditioningItem;
         //protected MenuItem test2Item;
@@ -46,10 +46,10 @@ namespace imBMW.Features.Menu.Screens
             //{
             //    GoToScreenCallback = () => BluetoothScreen.Instance
             //};
-            //activateItem = new MenuItem(i => Localization.Current.Activate, MenuItemType.Button, MenuItemAction.GoToScreen)
-            //{
-            //    GoToScreenCallback = () => ActivateScreen.Instance
-            //};
+            activateItem = new MenuItem(i => Localization.Current.Activate, MenuItemType.Button, MenuItemAction.GoToScreen)
+            {
+                GoToScreenCallback = () => ActivateScreen.Instance
+            };
             //musicListItem = new MenuItem(i => Localization.Current.MusicList, MenuItemType.Button, MenuItemAction.GoToScreen)
             //{
             //    GoToScreenCallback = () => MusicListScreen.Instance
@@ -77,7 +77,7 @@ namespace imBMW.Features.Menu.Screens
             AddItem(auxilaryHeaterItem);
             //AddItem(ddeItem);
             //AddItem(bluetoothItem);
-            //AddItem(activateItem);
+            AddItem(activateItem);
             //AddItem(musicListItem);
             AddItem(integratedHeatingAndAirConditioningItem);
             //AddItem(test2Item);

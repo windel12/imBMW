@@ -211,5 +211,16 @@ namespace imBMW.Enums
             }
             return "NotSpecified(" + e.ToString() + ")";
         }
+
+        public static string ToStringValue(this AudioSource e)
+        {
+            switch (e)
+            {
+                case AudioSource.Off: return "Off";
+                case AudioSource.CD: return "CD";
+                case AudioSource.TunerTape: return "Tuner/Tape";
+            }
+            return "NotSpecified(" + e.ToString() + ")";
+        }
     }
 }

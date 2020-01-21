@@ -8,9 +8,8 @@ namespace imBMW.Multimedia
 {
     public abstract class AudioPlayerBase : IAudioPlayer
     {
-        bool isEnabled;
+        private bool isPlaying;
         //TrackInfo nowPlaying;
-        protected bool isPlaying;
 
         public byte TrackNumber { get; set; } = 1;
         public byte DiskNumber { get; set; } = 1;
@@ -21,11 +20,6 @@ namespace imBMW.Multimedia
         public abstract void Play();
 
         public abstract void Pause();
-
-        protected void SetPlaying(bool value)
-        {
-            IsPlaying = value;
-        }
 
         public abstract void Next();
 
@@ -43,61 +37,37 @@ namespace imBMW.Multimedia
 
         public bool IsPlaying
         {
-            get;
-            protected set;
-        }
-
-        public bool IsEnabled
-        {
-            get
+            get { return isPlaying; }
+            protected set
             {
-                return isEnabled;
-            }
-            private set
-            {
-                if (isEnabled == value)
+                if (isPlaying == value)
                 {
                     return;
                 }
-                isEnabled = value;
-                OnIsEnabledChanged(value);
+                isPlaying = value;
+                OnIsPlayingChanged(value);
             }
         }
-
-        protected virtual void OnIsEnabledChanged(bool isEnabled)
-        {
-        }
-
-        //public event IsPlayingHandler IsPlayingChanging;
 
         public event IsPlayingHandler IsPlayingChanged;
 
         public event NowPlayingHandler TrackChanged;
 
-        //protected virtual void OnIsPlayingChanging(bool isPlaying)
-        //{
-        //    var e = IsPlayingChanging;
-        //    if (e != null)
-        //    {
-        //        e.Invoke(this, isPlaying);
-        //    }
-        //}
-
-        //protected virtual void OnIsPlayingChanged(bool isPlaying)
-        //{
-        //    var e = IsPlayingChanged;
-        //    if (e != null)
-        //    {
-        //        e.Invoke(this, isPlaying);
-        //    }
-        //}
+        protected virtual void OnIsPlayingChanged(bool isPlaying)
+        {
+            var e = IsPlayingChanged;
+            if (e != null)
+            {
+                e(this, isPlaying);
+            }
+        }
 
         protected virtual void OnTrackChanged(string trackName)
         {
             var e = TrackChanged;
             if (e != null)
             {
-                e.Invoke(this, trackName);
+                e(this, trackName);
             }
         }
     }

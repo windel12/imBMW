@@ -5,6 +5,7 @@ using imBMW.iBus;
 using imBMW.Tools;
 using imBMW.Features.Menu.Screens;
 using imBMW.iBus.Devices.Emulators;
+using System.Threading;
 
 namespace imBMW.Features.Menu
 {
@@ -61,9 +62,12 @@ namespace imBMW.Features.Menu
             {
                 //titleStartIndex = 0;
                 //statusStartIndex = 0;
-                InstrumentClusterElectronics.ShowNormalTextWithoutGong(trackName);
+                InstrumentClusterElectronics.ShowNormalTextWithoutGong(trackName, timeout: 5000);
                 if (IsEnabled)
+                {
+                    Thread.Sleep(200);
                     Bordmonitor.ShowText(trackName, BordmonitorFields.Title);
+                }
             };
             //mediaEmulator.IsEnabledChanged += mediaEmulator_IsEnabledChanged;
             //Radio.OnOffChanged += Radio_OnOffChanged;
@@ -196,19 +200,23 @@ namespace imBMW.Features.Menu
                 {
                     // 'Phone' button
                     case 0x08:
+                        m.ReceiverDescription = "Phone press";
                         break;
                     case 0x48:
                         OnPhoneButtonHold();
+                        m.ReceiverDescription = "Phone hold";
                         break;
                     case 0x88:
                         IsEnabled = true;
+                        m.ReceiverDescription = "Phone release";
                         break;
 
                     // 'AuxilaryHeater/Clock' button
                     case 0x07:
+                        break;
                     case 0x47:
                         break;
-                    case 0x87: 
+                    case 0x87:
                         IntegratedHeatingAndAirConditioning.StartAuxilaryHeater();
                         break;
 
@@ -223,31 +231,49 @@ namespace imBMW.Features.Menu
                     // 'Tone' button
                     case 0x04:
                         IsEnabled = false;
+                        m.ReceiverDescription = "TONE press";
                         break;
                     case 0x44:
-                        // DSP2.PRG -> JOBNAME:RESET 
-                        Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Diagnostic, DeviceAddress.DigitalSignalProcessingAudioAmplifier, 0x1C, 0x00));
+                        Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Diagnostic, DeviceAddress.DigitalSignalProcessingAudioAmplifier, "DSP2.PRG->JOBNAME:RESET", 0x1C, 0x00));
+                        m.ReceiverDescription = "TONE hold";
                         break;
                     case 0x84:
+                        m.ReceiverDescription = "TONE release";
                         break;
 
                     // 'Select' button
                     case 0x20: 
                         IsEnabled = false;
+                        m.ReceiverDescription = "SELECT press";
                         break;
                     case 0x60:
-                        // DSP2.PRG -> JOBNAME:DSP_SELBSTTEST 
-                        Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Diagnostic, DeviceAddress.DigitalSignalProcessingAudioAmplifier, 0x30));
+                        Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Diagnostic, DeviceAddress.DigitalSignalProcessingAudioAmplifier, "DSP2.PRG->JOBNAME:DSP_SELBSTTEST ", 0x30));
+                        m.ReceiverDescription = "SELECT hold";
                         break;
                     case 0xA0:
+                        m.ReceiverDescription = "SELECT release";
+                        break;
+
+                    // 'Next' button
+                    case 0x00:
+                        m.ReceiverDescription = "Next press";
+                        break;
+                    case 0x40:
+                        m.ReceiverDescription = "Next hold";
+                        break;
+                    case 0x80:
+                        m.ReceiverDescription = "Next release";
                         break;
 
                     // 'Mode' button
                     case 0x23:
+                        m.ReceiverDescription = "MODE press";
+                        break;
                     case 0x63:
+                        m.ReceiverDescription = "MODE hold";
                         break;
                     case 0xA3:
-                        m.ReceiverDescription = "Mode button released.";
+                        m.ReceiverDescription = "MODE released.";
                         break;
 
                     // 'Eject' button
@@ -261,11 +287,14 @@ namespace imBMW.Features.Menu
 
                     // 'Menu' button
                     case 0x34: // pressed
+                        m.ReceiverDescription = "MENU press";
                         break;
                     case 0x74: // hold > 1s
                         OnMenuButtonHold();
+                        m.ReceiverDescription = "MENU hold";
                         break;
                     case 0xB4: // released
+                        m.ReceiverDescription = "MENU release";
                         IsEnabled = false;
                         break;
                 }
@@ -280,12 +309,15 @@ namespace imBMW.Features.Menu
                     {
                         // switch screen
                         case 0x30: // pressed
-                            m.ReceiverDescription = "BM button Switch Screen";
                             IsEnabled = !IsEnabled;
                             //if (screenSwitched) { UpdateScreen(); }
+                            m.ReceiverDescription = "SwitchScreen press";
                             break;
                         case 0x70: // hold
+                            m.ReceiverDescription = "SwitchScreen hold";
+                            break;
                         case 0xB0: // released
+                            m.ReceiverDescription = "SwitchScreen release";
                             break;
                     }
                 }

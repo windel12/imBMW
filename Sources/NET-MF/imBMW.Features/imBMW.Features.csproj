@@ -72,7 +72,7 @@
     <Compile Include="Menu\MenuItem.cs" />
     <Compile Include="Menu\MenuScreen.cs" />
     <Compile Include="Menu\RadioMenu.cs" />
-    <None Include="Menu\Screens\ActivateScreen.cs" />
+    <Compile Include="Menu\Screens\ActivateScreen.cs" />
     <None Include="Menu\Screens\BluetoothScreen.cs" />
     <Compile Include="Menu\Screens\BordcomputerScreen.cs" />
     <None Include="Menu\Screens\DDEScreen.cs" />

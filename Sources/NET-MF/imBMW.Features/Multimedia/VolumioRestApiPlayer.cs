@@ -19,8 +19,6 @@ namespace imBMW.Features.Multimedia
         public static bool Ready = false;
         public static Thread CheckStatusThread = new Thread(CheckStatus);
 
-        private HttpRequestCommand pauseCommand = new HttpRequestCommand("commands/?cmd=pause", x => Thread.Sleep(500));
-
         public VolumioRestApiPlayer(Cpu.Pin chipSelect, Cpu.Pin externalInterrupt, Cpu.Pin reset)
         {
             commands = new QueueThreadWorker(ProcessCommand, "httpRequestsThread", ThreadPriority.Lowest);
@@ -66,13 +64,13 @@ namespace imBMW.Features.Multimedia
 #endif
 
                 response = request?.GetResponse() as HttpWebResponse;
-                Logger.Trace("Responded successfull.");
                 using (var stream = response?.GetResponseStream())
                 {
                     byte[] bytes = new byte[stream.Length];
                     stream.Read(bytes, 0, bytes.Length);
-                    var result = ASCIIEncoding.GetString(bytes, 0, bytes.Length);
-                    return result;
+                    var text = ASCIIEncoding.GetString(bytes, 0, bytes.Length);
+                    Logger.Trace("Responded successfull. Bytes: " + bytes.ToHex(' ') + ". Text: " + text);
+                    return text;
                 }
             }
             catch (Exception ex)
@@ -111,24 +109,23 @@ namespace imBMW.Features.Multimedia
 
         public override void Play()
         {
-            SetPlaying(true);
-            commands.Enqueue(new HttpRequestCommand("commands/?cmd=play"));
+            commands.Enqueue(new HttpRequestCommand("commands/?cmd=play", x => IsPlaying = true));
         }
 
         public override void Pause()
         {
-            SetPlaying(false);
-            commands.Enqueue(pauseCommand);
+            commands.Enqueue(new HttpRequestCommand("commands/?cmd=pause", x => IsPlaying = false));
         }
 
         public override void Next()
         {
-            commands.Enqueue(pauseCommand);
+            commands.Enqueue(new HttpRequestCommand("commands/?cmd=pause", x => Thread.Sleep(500)));
             commands.Enqueue(new HttpRequestCommand("commands/?cmd=next", OnTrackChanged));
         }
 
         public override void Prev()
         {
+            commands.Enqueue(new HttpRequestCommand("commands/?cmd=pause", x => Thread.Sleep(500)));
             commands.Enqueue(new HttpRequestCommand("commands/?cmd=prev"));
         }
 
@@ -148,7 +145,8 @@ namespace imBMW.Features.Multimedia
             {
                 try
                 {
-                    Execute("ping");                  
+                    Execute("ping");
+                    Logger.Trace("CheckStatus: Volumio READY!");
                     FrontDisplay.RefreshLEDs(LedType.Green);
                     CheckStatusThread.Suspend();
                 }

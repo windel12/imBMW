@@ -526,9 +526,8 @@ namespace imBMW.iBus.Devices.Real
 
         private static void ShowTextForSomePeriodOfTime(string text, TextAlign align, TextMode mode, int timeout)
         {
-            ShowText(text, align, mode);
-
             CancelDelay();
+            ShowText(text, align, mode);
             delayTimer = new Timer(delegate
             {
                 CancelDelay();

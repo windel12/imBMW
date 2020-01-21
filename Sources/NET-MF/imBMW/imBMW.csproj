@@ -69,6 +69,7 @@
     <None Include="DBus\DS2Message.cs" />
     <Compile Include="DebuggerBrowsableState.cs" />
     <Compile Include="Enums\AirConditioningCompressorStatus.cs" />
+    <Compile Include="Enums\AudioSource.cs" />
     <Compile Include="Enums\AuxilaryHeaterActivationMode.cs" />
     <Compile Include="Enums\AuxilaryHeaterStatus.cs" />
     <Compile Include="Enums\FlapPosition.cs" />

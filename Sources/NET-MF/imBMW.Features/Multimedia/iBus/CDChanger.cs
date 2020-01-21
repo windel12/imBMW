@@ -107,6 +107,13 @@ namespace imBMW.iBus.Devices.Emulators
 
                 //Radio.OnOffChanged += Radio_OnOffChanged;
 
+                Player.IsPlayingChanged += (s, isPlaying) =>
+                {
+                    if (isPlaying)
+                        Manager.Instance.EnqueueMessage(StatusPlaying(Player.DiskNumber, Player.TrackNumber));
+                    else
+                        Manager.Instance.EnqueueMessage(StatusStopped(Player.DiskNumber, Player.TrackNumber));
+                };
                 Player.TrackChanged += (s, e) =>
                 {
                     //Manager.Instance.EnqueueMessage(StatusEndTrack(Player.DiskNumber, Player.TrackNumber));
@@ -204,25 +211,18 @@ namespace imBMW.iBus.Devices.Emulators
                 {
                     Manager.Instance.EnqueueMessage(StatusStopped(Player.DiskNumber, Player.TrackNumber));
                 }
-                //m.ReceiverDescription = "CD status request";
             }
-            if (m.Data.Compare(DataStop))
+            else if (m.Data.Compare(DataStop))
             {
                 IsEnabled = false;
-                Manager.Instance.EnqueueMessage(StatusStopped(Player.DiskNumber, Player.TrackNumber));
-                //m.ReceiverDescription = "Stop playing";
             }
             else if (m.Data.Compare(DataPause))
             {
                 Pause();
-                Manager.Instance.EnqueueMessage(StatusStopped(Player.DiskNumber, Player.TrackNumber));
-                //m.ReceiverDescription = "Pause";
             }
             else if (m.Data.Compare(DataPlay))
             {
                 IsEnabled = true;
-                Manager.Instance.EnqueueMessage(StatusPlaying(Player.DiskNumber, Player.TrackNumber));
-                //m.ReceiverDescription = "Start playing";
             }
             else if(m.Data.Length == 3 && m.Data.StartsWith(0x38, 0x06)) // select disk
             {
