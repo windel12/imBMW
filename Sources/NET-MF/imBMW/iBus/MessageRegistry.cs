@@ -305,7 +305,7 @@ namespace imBMW.iBus
             messageDescriptions.Add(new byte[] { 0x22, 0x00, 0x00 }.ToHex(' '), "Text display confirmation for T1-T6");
             messageDescriptions.Add(new byte[] { 0x22, 0x10, 0xFF }.ToHex(' '), "Text display confirmation for shortcuts");
 
-            messageDescriptions.Add(new byte[] { 0x36, 0xA0 }.ToHex(' '), "AudioControl Source=CD???");
+            messageDescriptions.Add(new byte[] { 0x36, 0xA0 }.ToHex(' '), "AudioControl Source=CD");
             messageDescriptions.Add(new byte[] { 0x36, 0xA1 }.ToHex(' '), "AudioControl Source=Tuner/Tape");
             messageDescriptions.Add(new byte[] { 0x36, 0xAF }.ToHex(' '), "AudioControl Source=Off");
 

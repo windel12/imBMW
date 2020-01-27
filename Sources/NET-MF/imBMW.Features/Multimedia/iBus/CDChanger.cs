@@ -105,7 +105,7 @@ namespace imBMW.iBus.Devices.Emulators
                     }
                 };
 
-                //Radio.OnOffChanged += Radio_OnOffChanged;
+                Radio.OnOffChanged += Radio_OnOffChanged;
 
                 Player.IsPlayingChanged += (s, isPlaying) =>
                 {
@@ -127,10 +127,10 @@ namespace imBMW.iBus.Devices.Emulators
             }
         }
 
-        //private void Radio_OnOffChanged(bool turnedOn)
-        //{
-        //    IsEnabled = turnedOn;
-        //}
+        private void Radio_OnOffChanged(bool turnedOn)
+        {
+            IsEnabled = turnedOn;
+        }
 
         #region Player control
 

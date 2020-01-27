@@ -68,9 +68,12 @@ namespace imBMW.Features.Multimedia
                 {
                     byte[] bytes = new byte[stream.Length];
                     stream.Read(bytes, 0, bytes.Length);
-                    var text = ASCIIEncoding.GetString(bytes, 0, bytes.Length);
+                    //string text = ASCIIEncoding.GetString(bytes, 0, bytes.Length);
+                    string text = new string(Encoding.UTF8.GetChars(bytes));
                     Logger.Trace("Responded successfull. Bytes: " + bytes.ToHex(' ') + ". Text: " + text);
                     return text;
+                    //string[] values = StringHelpers.Split(text, " - ");
+                    //return values.Length > 1 ? values[1] : text;
                 }
             }
             catch (Exception ex)
@@ -93,8 +96,8 @@ namespace imBMW.Features.Multimedia
         {
             commands.Enqueue(new HttpRequestCommand("reboot", response =>
             {
+                Thread.Sleep(3000);
                 Logger.Warning("REBOOTED.");
-                Thread.Sleep(1000);
                 if (CheckStatusThread.ThreadState == ThreadState.Suspended || CheckStatusThread.ThreadState == ThreadState.SuspendRequested)
                 {
                     CheckStatusThread.Resume();
@@ -119,13 +122,13 @@ namespace imBMW.Features.Multimedia
 
         public override void Next()
         {
-            commands.Enqueue(new HttpRequestCommand("commands/?cmd=pause", x => Thread.Sleep(500)));
+            commands.Enqueue(new HttpRequestCommand("commands/?cmd=stop", x => Thread.Sleep(500)));
             commands.Enqueue(new HttpRequestCommand("commands/?cmd=next", OnTrackChanged));
         }
 
         public override void Prev()
         {
-            commands.Enqueue(new HttpRequestCommand("commands/?cmd=pause", x => Thread.Sleep(500)));
+            commands.Enqueue(new HttpRequestCommand("commands/?cmd=stop", x => Thread.Sleep(500)));
             commands.Enqueue(new HttpRequestCommand("commands/?cmd=prev"));
         }
 

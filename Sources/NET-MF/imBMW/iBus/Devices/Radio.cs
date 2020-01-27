@@ -13,7 +13,9 @@ namespace imBMW.iBus.Devices.Real
 
     public static class Radio
     {
+        /// <summary> 4A FF </summary>
         public static byte[] DataRadioOn = new byte[] { 0x4A, 0xFF };
+        /// <summary> 4A 00 </summary>
         public static byte[] DataRadioOff = new byte[] { 0x4A, 0x00 };
         //public static byte[] DataRadioUnknow = new byte[] { 0x4A, 0x90 };
 
@@ -64,7 +66,7 @@ namespace imBMW.iBus.Devices.Real
         /// <summary>
         /// Fires on radio on/off. Only for BM54/24.
         /// </summary>
-        //public static event RadioOnOffHandler OnOffChanged;
+        public static event RadioOnOffHandler OnOffChanged;
 
         static Radio()
         {
@@ -78,22 +80,23 @@ namespace imBMW.iBus.Devices.Real
 
         static void ProcessRadioMessage(Message m)
         {
-            //var radioOnOffChanged = OnOffChanged;
-            //if (radioOnOffChanged != null)
-            //{
-            //    if (m.Data.Compare(DataRadioOn))
-            //    {
-            //        radioOnOffChanged(true);
-            //        m.ReceiverDescription = "Radio On";
-            //        return;
-            //    }
-            //    if (m.Data.Compare(DataRadioOff))
-            //    {
-            //        radioOnOffChanged(false);
-            //        m.ReceiverDescription = "Radio Off";
-            //        return;
-            //    }
-            //}
+            var radioOnOffChanged = OnOffChanged;
+            if (radioOnOffChanged != null)
+            {
+                if (m.Data.Compare(DataRadioOn))
+                {
+                    radioOnOffChanged(true);
+                    m.ReceiverDescription = "Radio On";
+                    return;
+                }
+                if (m.Data.Compare(DataRadioOff))
+                {
+                    radioOnOffChanged(false);
+                    m.ReceiverDescription = "Radio Off";
+                    return;
+                }
+            }
+
             if (m.Data[0] == 0x36 && m.Data.Length == 2)
             {
                 if (m.Data[1] == 0xAF)
