@@ -9,13 +9,14 @@ namespace imBMW.Multimedia
     public abstract class AudioPlayerBase : IAudioPlayer
     {
         private bool isPlaying;
+        private bool isReady;
+
         //TrackInfo nowPlaying;
 
         public byte TrackNumber { get; set; } = 1;
         public byte DiskNumber { get; set; } = 1;
         //public string FileName { get; set; } = "";
         public bool IsRandom { get; set; } = true;
-
 
         public abstract void Play();
 
@@ -35,6 +36,20 @@ namespace imBMW.Multimedia
 
         public bool Inited { get; set; }
 
+        public bool IsReady
+        {
+            get { return isReady; }
+            set
+            {
+                if (isReady == value)
+                {
+                    return;
+                }
+                isReady = value;
+                OnIsReadyChanged(value);
+            }
+        }
+
         public bool IsPlaying
         {
             get { return isPlaying; }
@@ -49,9 +64,20 @@ namespace imBMW.Multimedia
             }
         }
 
+        public event IsReadyHandler IsReadyChanged;
+
         public event IsPlayingHandler IsPlayingChanged;
 
         public event NowPlayingHandler TrackChanged;
+
+        protected virtual void OnIsReadyChanged(bool isReady)
+        {
+            var e = IsReadyChanged;
+            if (e != null)
+            {
+                e(this, isReady);
+            }
+        }
 
         protected virtual void OnIsPlayingChanged(bool isPlaying)
         {

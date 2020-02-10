@@ -32,7 +32,7 @@ namespace imBMW.Devices.V2
         static OutputPort orangeLed;
         static OutputPort redLed;
 
-        internal static QueueThreadWorker LedBlinkingQueueThreadWorker = new QueueThreadWorker(LedBlinking, "ledBlibking");
+        internal static QueueThreadWorker LedBlinkingQueueThreadWorker;
 
         static OutputPort resetPin;
 
@@ -43,7 +43,7 @@ namespace imBMW.Devices.V2
         static InterruptPort nextButton;
         static InterruptPort prevButton;
 
-        private static ManualResetEvent _removableMediaInsertedSync = new ManualResetEvent(false);
+        private static ManualResetEvent _removableMediaInsertedSync;
 
         private static object lockObj = new object();
 
@@ -60,18 +60,14 @@ namespace imBMW.Devices.V2
 
         private static Timer requestIgnitionStateTimer;
 
-        internal static int idleTime = 0;
+        internal static int idleTime;
 
-        internal static int requestIgnitionStateTimerPeriod = watchDogTimeoutInMilliseconds / 3;
+        internal static int requestIgnitionStateTimerPeriod;
 
         // TODO: revert to 30 seconds, instead of 20 minutes
-        internal static int idleTimeout = GetTimeoutInMilliseconds(20, 00);
+        internal static int idleTimeout;
 
-#if DEBUG
-        internal static int sleepTimeout = GetTimeoutInMilliseconds(15, 20);
-#else
-        internal static int sleepTimeout = GetTimeoutInMilliseconds(15, 20);
-#endif
+        internal static int sleepTimeout;
 
         public enum LaunchMode
         {
@@ -98,7 +94,7 @@ namespace imBMW.Devices.V2
         {
             Logger.Trace("Board will reset in 2 seconds!!!");
             FrontDisplay.RefreshLEDs(LedType.RedBlinking, append: true);
-            LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(orangeLed, 2, 200));
+            LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(redLed, 6, 200));
 
             requestIgnitionStateTimer?.Dispose();
 
@@ -120,13 +116,29 @@ namespace imBMW.Devices.V2
             }
         }
 
+        static Launcher()
+        {
+#if (NETMF && RELEASE) || (OnBoardMonitorEmulator && !DebugOnRealDeviceOverFTDI)
+            _useWatchdog = true;
+            GHI.Processor.Watchdog.Enable(watchDogTimeoutInMilliseconds);
+#endif
+
+            LedBlinkingQueueThreadWorker = new QueueThreadWorker(LedBlinking, "ledBlibking");
+            _removableMediaInsertedSync = new ManualResetEvent(false);
+            requestIgnitionStateTimerPeriod = watchDogTimeoutInMilliseconds / 3;
+            idleTimeout = GetTimeoutInMilliseconds(20, 00);
+
+#if DEBUG
+            sleepTimeout = GetTimeoutInMilliseconds(15, 20);
+#else
+            sleepTimeout = GetTimeoutInMilliseconds(15, 05);
+#endif
+    }
+
         public static void Launch(LaunchMode launchMode = LaunchMode.MicroFramework)
         {
             try
             {
-                Comfort.Init();
-                IntegratedHeatingAndAirConditioning.Init();
-
                 _resetCause = GHI.Processor.Watchdog.LastResetCause;
 
                 blueLed = new OutputPort(FEZPandaIII.Gpio.Led1, false);
@@ -134,13 +146,8 @@ namespace imBMW.Devices.V2
                 orangeLed = new OutputPort(FEZPandaIII.Gpio.Led3, _resetCause == GHI.Processor.Watchdog.ResetCause.Watchdog);
                 redLed = new OutputPort(FEZPandaIII.Gpio.Led4, false);
 
-#if (NETMF && RELEASE) || (OnBoardMonitorEmulator && !DebugOnRealDeviceOverFTDI)
-                _useWatchdog = true;
-#endif
-                if (_useWatchdog)
-                {
-                    GHI.Processor.Watchdog.Enable(watchDogTimeoutInMilliseconds);
-                }
+                Comfort.Init();
+                IntegratedHeatingAndAirConditioning.Init();
 
                 settings = Settings.Instance;
 
@@ -206,42 +213,43 @@ namespace imBMW.Devices.V2
                         MassStorageMountState = MassStorageMountState.Unmounted;
                     };
 
-                    //_massStorage = massStorage;
-                    _massStorage = new SDCard(SDCard.SDInterface.SPI);
-                    _massStorage.Mount();
+                //_massStorage = massStorage;
                 //};
-#if RELEASE
-                //Controller.Start();
-#else
-#if NETMF
-                // WARNING! Be aware, without this line you can get 'Controller -> DeviceConnectFailed' each time when you start debugging...
-                if (Debugger.IsAttached)
-#endif
-                {
-                    //Controller.Start();
-                }
-#endif
                 #endregion
 
-                LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(orangeLed, 1, 200));
-                bool isSignalled = _removableMediaInsertedSync.WaitOne(Debugger.IsAttached ? 10000 : 10000, true);
-                if (!isSignalled) // No Storage inserted
+                try
+                {
+                    _massStorage = new SDCard(SDCard.SDInterface.SPI);
+                    _massStorage.Mount();
+
+                    LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(orangeLed, 1, 200));
+                    bool isSignalled = _removableMediaInsertedSync.WaitOne(Debugger.IsAttached ? 5000 : 5000, true);
+                    if (!isSignalled) // No Storage inserted
+                    {
+                        FrontDisplay.RefreshLEDs(LedType.Red, append: true);
+                        LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(redLed, 3, 100));
+                    }
+                    else
+                    {
+                        if (MassStorageMountState == MassStorageMountState.DeviceConnectFailed || MassStorageMountState == MassStorageMountState.UnknownDeviceConnected)
+                        {
+                            InstrumentClusterElectronics.ShowNormalTextWithGong(MassStorageMountState.ToStringValue());
+                            FrontDisplay.RefreshLEDs(LedType.RedBlinking, append: true);
+                            LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(redLed, 4, 100));
+                            ResetBoard();
+                        }
+                    }
+                    Logger.Debug("MassStorage state: " + MassStorageMountState.ToStringValue());
+                }
+                catch (Exception ex)
+                {
+                    LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(redLed, 1, 100));
+                }
+                finally
                 {
                     InstrumentClusterElectronics.ShowNormalTextWithGong(MassStorageMountState.ToStringValue());
-                    FrontDisplay.RefreshLEDs(LedType.RedBlinking, append: true);
-                    LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(redLed, 3, 100));
                 }
-                else
-                {
-                    if (MassStorageMountState == MassStorageMountState.DeviceConnectFailed || MassStorageMountState == MassStorageMountState.UnknownDeviceConnected)
-                    {
-                        InstrumentClusterElectronics.ShowNormalTextWithGong(MassStorageMountState.ToStringValue());
-                        FrontDisplay.RefreshLEDs(LedType.Red, append: true);
-                        LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(redLed, 4, 100));
-                        ResetBoard();
-                    }
-                }
-                Logger.Debug("MassStorage state: " + MassStorageMountState.ToStringValue());
+                
 
                 InstrumentClusterElectronics.RequestDateTime();
 
@@ -302,7 +310,6 @@ namespace imBMW.Devices.V2
             {
                 LedBlinking(new LedBlinkingItem(redLed, 5, 200));
                 Thread.Sleep(200);
-                redLed.Write(true);
                 Logger.Error(ex, "while modules initialization");
                 ResetBoard();
             }

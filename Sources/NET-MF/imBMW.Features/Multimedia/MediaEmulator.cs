@@ -72,6 +72,17 @@ namespace imBMW.iBus.Devices.Emulators
                 }
                 player = value;
                 player.IsPlayingChanged += player_IsPlayingChanged;
+                player.IsReadyChanged += player_IsReadyChanged;
+            }
+        }
+
+        private void player_IsReadyChanged(IAudioPlayer sender, bool isReady)
+        {
+            if (IsEnabled && isReady)
+            {
+                Radio.PressOnOffToggle();
+                System.Threading.Thread.Sleep(500);
+                Radio.PressOnOffToggle();
             }
         }
 

@@ -5,6 +5,8 @@ using imBMW.Features.Multimedia.Models;
 
 namespace imBMW.Multimedia
 {
+    public delegate void IsReadyHandler(IAudioPlayer sender, bool isReady);
+
     public delegate void IsPlayingHandler(IAudioPlayer sender, bool isPlaying);
 
     public delegate void NowPlayingHandler(IAudioPlayer sender, string trackName);
@@ -36,6 +38,10 @@ namespace imBMW.Multimedia
         //TrackInfo CurrentTrack { get; set; }
 
         bool Inited { get; set; }
+
+        bool IsReady { get; set; }
+
+        event IsReadyHandler IsReadyChanged;
 
         event IsPlayingHandler IsPlayingChanged;
 

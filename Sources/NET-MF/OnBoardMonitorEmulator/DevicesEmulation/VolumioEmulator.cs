@@ -39,7 +39,7 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
                 case "commands/?cmd=play":
                     return "play";
                 case "commands/?cmd=next":
-                    return "Next track name" + new Random().Next(0, 255);
+                    return "\"Next track name" + new Random().Next(0, 255) + "\"";
                 case "commands/?cmd=prev":
                     return "Prev track name" + new Random().Next(0, 255);
             }

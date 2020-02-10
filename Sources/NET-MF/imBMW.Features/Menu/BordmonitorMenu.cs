@@ -62,6 +62,7 @@ namespace imBMW.Features.Menu
             {
                 //titleStartIndex = 0;
                 //statusStartIndex = 0;
+                trackName = trackName.Trim('"');
                 InstrumentClusterElectronics.ShowNormalTextWithoutGong(trackName, timeout: 5000);
                 if (IsEnabled)
                 {

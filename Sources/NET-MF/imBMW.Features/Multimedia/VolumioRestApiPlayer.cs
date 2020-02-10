@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text;
 using System;
 using System.Threading;
@@ -16,7 +16,6 @@ namespace imBMW.Features.Multimedia
         private static QueueThreadWorker commands;
 
         private static string path = "http://169.254.194.94/api/v1/";
-        public static bool Ready = false;
         public static Thread CheckStatusThread = new Thread(CheckStatus);
 
         public VolumioRestApiPlayer(Cpu.Pin chipSelect, Cpu.Pin externalInterrupt, Cpu.Pin reset)
@@ -53,6 +52,7 @@ namespace imBMW.Features.Multimedia
             string fullPath = path + param;
             HttpWebRequest request = WebRequest.Create(fullPath) as HttpWebRequest;
             request.Timeout = 3000;
+            request.ReadWriteTimeout = 3000;
             request.KeepAlive = false;
             HttpWebResponse response = null;
             try
@@ -62,18 +62,15 @@ namespace imBMW.Features.Multimedia
 #if OnBoardMonitorEmulator
                 return OnBoardMonitorEmulator.DevicesEmulation.VolumioEmulator.MakeHttpRequest(param);
 #endif
-
                 response = request?.GetResponse() as HttpWebResponse;
                 using (var stream = response?.GetResponseStream())
                 {
                     byte[] bytes = new byte[stream.Length];
+                    stream.ReadTimeout = 3000;
                     stream.Read(bytes, 0, bytes.Length);
-                    //string text = ASCIIEncoding.GetString(bytes, 0, bytes.Length);
                     string text = new string(Encoding.UTF8.GetChars(bytes));
-                    Logger.Trace("Responded successfull. Bytes: " + bytes.ToHex(' ') + ". Text: " + text);
+                    Logger.Trace("Responded successfull. Text: " + text);
                     return text;
-                    //string[] values = StringHelpers.Split(text, " - ");
-                    //return values.Length > 1 ? values[1] : text;
                 }
             }
             catch (Exception ex)

@@ -7,7 +7,7 @@ namespace imBMW.Devices.V2
     {
         public static void Main()
         {
-            Logger.FreeMemory();
+            //Logger.FreeMemory();
             Launcher.Launch();
         }
     }
