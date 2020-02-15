@@ -92,7 +92,7 @@ namespace imBMW.Devices.V2
 
         internal static void ResetBoard()
         {
-            Logger.Trace("Board will reset in 2 seconds!!!");
+            Logger.Warning("Board will reset in 2 seconds!!!");
             FrontDisplay.RefreshLEDs(LedType.RedBlinking, append: true);
             LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(redLed, 6, 200));
 
@@ -277,11 +277,6 @@ namespace imBMW.Devices.V2
                     {
                         ResetBoard();
                     }
-                };
-                BordmonitorMenu.PhoneButtonHold += () =>
-                {
-                    VolumioRestApiPlayer.Reboot();
-                    Logger.Warning("Reboot request sent.");
                 };
                 BordmonitorMenu.EjectButtonHold += () =>
                 {

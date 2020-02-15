@@ -79,6 +79,7 @@
     <Compile Include="iBus\Devices\BodyModule.cs" />
     <Compile Include="iBus\Devices\Bordmonitor.cs" />
     <None Include="iBus\Devices\DigitalDieselElectronics.cs" />
+    <Compile Include="iBus\Devices\DigitalSignalProcessingAudioAmplifier.cs" />
     <Compile Include="iBus\Devices\FrontDisplay.cs" />
     <None Include="iBus\Devices\Immobiliser.cs" />
     <Compile Include="iBus\Devices\InstrumentClusterElectronics.cs" />

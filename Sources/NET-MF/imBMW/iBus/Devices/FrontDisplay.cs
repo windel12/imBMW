@@ -7,18 +7,18 @@ namespace imBMW.iBus.Devices.Real
     [Flags]
     public enum LedType : byte
     {
-        Red = 1,
-        RedBlinking = 2,
-        Orange = 4,
-        OrangeBlinking = 8,
-        Green = 16,
-        GreenBlinking = 32,
-        Empty = 64
+        Red = 0x01,
+        RedBlinking = 0x02,
+        Orange = 0x04,
+        OrangeBlinking = 0x08,
+        Green = 0x10,
+        GreenBlinking = 0x20,
+        Empty = 0x40
     }
 
     public static class FrontDisplay
     {
-        private static LedType _currentLEDState;
+        public static LedType CurrentLEDState;
 
         /// <summary> 2A 00 00 </summary>
         public static readonly Message AuxHeaterIndicatorTurnOffMessage = new Message(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.FrontDisplay, 0x2A, 0x00, 0x00);
@@ -38,15 +38,15 @@ namespace imBMW.iBus.Devices.Real
 
             if (append)
             {
-                _currentLEDState = ledType | _currentLEDState;
+                CurrentLEDState = ledType | CurrentLEDState;
             }
             else if (remove)
             {
-                _currentLEDState = _currentLEDState & ~ledType;
+                CurrentLEDState = CurrentLEDState &~ ledType;
             }
             else
             {
-                _currentLEDState = ledType;
+                CurrentLEDState = ledType;
             }
 
             //if (blinkerOn)
@@ -57,7 +57,7 @@ namespace imBMW.iBus.Devices.Real
             //{
             //    b = b.AddBit(4);
             //}
-            var message = new Message(DeviceAddress.Telephone, DeviceAddress.FrontDisplay, "Set LEDs", 0x2B, (byte)_currentLEDState);
+            var message = new Message(DeviceAddress.Telephone, DeviceAddress.FrontDisplay, "Set LEDs", 0x2B, (byte)CurrentLEDState);
             Manager.Instance.EnqueueMessage(message);
         }
     }

@@ -57,11 +57,8 @@ namespace imBMW.Tools
         public static void Info(string message, string priorityTitle = null)
         {
             Log(LogPriority.Info, message, priorityTitle);
-        }
-
-        public static void Info(Message message, string priorityTitle = null)
-        {
-            Log(LogPriority.Info, message.ToPrettyString(true), priorityTitle);
+            if (Manager.Instance.Inited)
+                InstrumentClusterElectronics.ShowNormalTextWithoutGong(message, timeout: 5000);
         }
 
         public static void Warning(string message, string priorityTitle = "WARN ")
@@ -91,7 +88,8 @@ namespace imBMW.Tools
             {
                 Microsoft.SPOT.Debug.Print(message);
             }
-            InstrumentClusterElectronics.ShowNormalTextWithGong(message, timeout: 10000);
+            if (Manager.Instance.Inited)
+                InstrumentClusterElectronics.ShowNormalTextWithGong(message, timeout: 10000);
         }
 
         public static void Print(string message)

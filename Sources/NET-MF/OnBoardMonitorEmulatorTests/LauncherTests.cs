@@ -119,9 +119,8 @@ namespace OnBoardMonitorEmulatorTests
             Assert.IsTrue(Launcher._massStorage.Mounted == true, "5");
 
             // Should not mount storage, if it was unmount manually
-            BordmonitorMenu.PhoneButtonHold += () => { phoneButtonHoldWaitHandle.Set(); };
             Manager.Instance.EnqueueMessage(new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, 0x48, 0x48));
-            var phoneButtonHoldWaitHandleResult = phoneButtonHoldWaitHandle.Wait(10000);
+            var phoneButtonHoldWaitHandleResult = phoneButtonHoldWaitHandle.Wait(2000);
             Assert.IsTrue(phoneButtonHoldWaitHandleResult, "6");
             Assert.IsTrue(Launcher._massStorage == null, "7");
 

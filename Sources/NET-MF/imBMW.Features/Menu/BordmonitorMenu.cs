@@ -6,6 +6,7 @@ using imBMW.Tools;
 using imBMW.Features.Menu.Screens;
 using imBMW.iBus.Devices.Emulators;
 using System.Threading;
+using imBMW.Features.Multimedia;
 
 namespace imBMW.Features.Menu
 {
@@ -204,8 +205,9 @@ namespace imBMW.Features.Menu
                         m.ReceiverDescription = "Phone press";
                         break;
                     case 0x48:
-                        OnPhoneButtonHold();
                         m.ReceiverDescription = "Phone hold";
+                        VolumioRestApiPlayer.Reboot();
+                        Logger.Warning("Reboot request sent.");
                         break;
                     case 0x88:
                         IsEnabled = true;
@@ -235,7 +237,7 @@ namespace imBMW.Features.Menu
                         m.ReceiverDescription = "TONE press";
                         break;
                     case 0x44:
-                        Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Diagnostic, DeviceAddress.DigitalSignalProcessingAudioAmplifier, "DSP2.PRG->JOBNAME:RESET", 0x1C, 0x00));
+                        DigitalSignalProcessingAudioAmplifier.Reset();
                         m.ReceiverDescription = "TONE hold";
                         break;
                     case 0x84:
@@ -248,7 +250,7 @@ namespace imBMW.Features.Menu
                         m.ReceiverDescription = "SELECT press";
                         break;
                     case 0x60:
-                        Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Diagnostic, DeviceAddress.DigitalSignalProcessingAudioAmplifier, "DSP2.PRG->JOBNAME:DSP_SELBSTTEST ", 0x30));
+                        DigitalSignalProcessingAudioAmplifier.SelfTest();
                         m.ReceiverDescription = "SELECT hold";
                         break;
                     case 0xA0:
@@ -272,6 +274,8 @@ namespace imBMW.Features.Menu
                         break;
                     case 0x63:
                         m.ReceiverDescription = "MODE hold";
+                        VolumioRestApiPlayer.Shutdown();
+                        Logger.Warning("Shutdown request sent.");
                         break;
                     case 0xA3:
                         m.ReceiverDescription = "MODE released.";
@@ -504,15 +508,6 @@ namespace imBMW.Features.Menu
             }
         }
 
-        static void OnPhoneButtonHold()
-        {
-            var e = PhoneButtonHold;
-            if (e != null)
-            {
-                e();
-            }
-        }
-
         static void OnEjectButtonHold()
         {
             var e = EjectButtonHold;
@@ -524,7 +519,6 @@ namespace imBMW.Features.Menu
 
         public delegate void ButtonPressedHanlder();
         public static event ButtonPressedHanlder MenuButtonHold;
-        public static event ButtonPressedHanlder PhoneButtonHold;
         public static event ButtonPressedHanlder EjectButtonHold;
     }
 }

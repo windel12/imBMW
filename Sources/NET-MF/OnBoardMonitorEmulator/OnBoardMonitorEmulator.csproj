@@ -149,6 +149,9 @@
     <Compile Include="..\imBMW\Enums\MassStorageMountState.cs">
       <Link>imBMW\Enums\MassStorageMountState.cs</Link>
     </Compile>
+    <Compile Include="..\imBMW\iBus\Devices\DigitalSignalProcessingAudioAmplifier.cs">
+      <Link>imBMW\iBus\Devices\DigitalSignalProcessingAudioAmplifier.cs</Link>
+    </Compile>
     <Compile Include="..\imBMW\Tools\FEZPandaIII.cs">
       <Link>imBMW\Tools\FEZPandaIII.cs</Link>
     </Compile>

@@ -16,6 +16,9 @@ namespace imBMW.Features.Multimedia
         private static QueueThreadWorker commands;
 
         private static string path = "http://169.254.194.94/api/v1/";
+        private string netifIpAddress = "169.254.194.93";
+        private int _waitIpAddressAttempts = 8;
+
         public static Thread CheckStatusThread = new Thread(CheckStatus);
 
         public VolumioRestApiPlayer(Cpu.Pin chipSelect, Cpu.Pin externalInterrupt, Cpu.Pin reset)
@@ -26,11 +29,15 @@ namespace imBMW.Features.Multimedia
             netif.Open();
             ////netif.EnableDhcp();
             ////netif.EnableDynamicDns();
-            netif.EnableStaticIP("169.254.194.93", "255.255.0.0", "0.0.0.0");
+            netif.EnableStaticIP(netifIpAddress, "255.255.0.0", "0.0.0.0");
             int attemps = 0;
-            while (netif.IPAddress != "169.254.194.93" && attemps++ < 4)
+            while (netif.IPAddress != netifIpAddress && ++attemps < _waitIpAddressAttempts)
             {
                 System.Threading.Thread.Sleep(250);
+            }
+            if (attemps >= _waitIpAddressAttempts)
+            {
+                Logger.Error("IP address not acquired! Current IP address: " + netif.IPAddress);
             }
             Inited = true;
 
@@ -94,7 +101,7 @@ namespace imBMW.Features.Multimedia
             commands.Enqueue(new HttpRequestCommand("reboot", response =>
             {
                 Thread.Sleep(3000);
-                Logger.Warning("REBOOTED.");
+                Logger.Warning("REBOOTED!");
                 if (CheckStatusThread.ThreadState == ThreadState.Suspended || CheckStatusThread.ThreadState == ThreadState.SuspendRequested)
                 {
                     CheckStatusThread.Resume();
@@ -104,7 +111,11 @@ namespace imBMW.Features.Multimedia
 
         public static void Shutdown()
         {
-            commands.Enqueue(new HttpRequestCommand("shutdown"));
+            commands.Enqueue(new HttpRequestCommand("shutdown", response =>
+            {
+                Thread.Sleep(2000);
+                Logger.Warning("SHUTTEDDOWN!");
+            }));
         }
 
         public override void Play()
@@ -152,7 +163,14 @@ namespace imBMW.Features.Multimedia
                 }
                 catch (Exception ex)
                 {
-                    FrontDisplay.RefreshLEDs(LedType.OrangeBlinking, append: true);
+                    if ((FrontDisplay.CurrentLEDState & LedType.Orange) != 0)
+                    {
+                        FrontDisplay.RefreshLEDs(LedType.Orange, remove: true);
+                    }
+                    else
+                    {
+                        FrontDisplay.RefreshLEDs(LedType.Orange, append: true);
+                    }
                     Logger.Trace("CheckStatus: Volumio isn't ready yet.");
                     Thread.Sleep(1000);
                 }

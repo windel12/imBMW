@@ -34,6 +34,7 @@ namespace imBMW.iBus.Devices.Real
         ThirdBrakeLight = 0x1000,
         FrontRightStandingLight = 0x2000,
         FrontRightBlinker = 0x4000,
+        RearLeftBlinker = 0x8000,
         FrontLeftStandingLight = 0x010000,
         RearLeftInnerStandingLight = 0x020000,
         FrontLeftFogLamp = 0x040000,

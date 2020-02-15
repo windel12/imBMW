@@ -22,6 +22,8 @@ namespace imBMW.iBus.Devices.Real
         /// <summary> IHKA > ZUH: 92 00 11 </summary>
         public static Message StopAuxilaryHeater2 = new Message(DeviceAddress.IntegratedHeatingAndAirConditioning, DeviceAddress.AuxilaryHeater, 0x92, 0x00, 0x11);
 
+        private static DateTime _auxilaryHeaterWorkingLastResponseTime;
+
         private static byte _auxilaryHeaterWorkingRequestsCounter = 0;
         public static byte AuxilaryHeaterWorkingRequestsCounter
         {
@@ -42,6 +44,8 @@ namespace imBMW.iBus.Devices.Real
         public static byte AirConditioningCompressorStatus_FirstByte = 0x00;
         public static byte AirConditioningCompressorStatus_SecondByte = 0x00;
 
+        private static byte TrunkLidButtonPressedCount = 0;
+
         public static void Init() { }
 
         static IntegratedHeatingAndAirConditioning()
@@ -57,6 +61,36 @@ namespace imBMW.iBus.Devices.Real
             //        KBusManager.Instance.EnqueueMessage(StopAuxilaryHeater2);
             //    }
             //};
+
+            BodyModule.RemoteKeyButtonPressed += BodyModule_RemoteKeyButtonPressed;
+        }
+
+        private static void BodyModule_RemoteKeyButtonPressed(RemoteKeyEventArgs e)
+        {
+            if (e.Button == RemoteKeyButton.Trunk)
+            {
+                TrunkLidButtonPressedCount++;
+                switch (TrunkLidButtonPressedCount)
+                {
+                    case 1:
+                        LightControlModule.TurnOnLamps(Lights.FrontLeftStandingLight & Lights.FrontRightStandingLight);
+                        break;
+                    case 2:
+                        LightControlModule.TurnOnLamps(Lights.FrontLeftStandingLight & Lights.FrontRightStandingLight &
+                                                       Lights.FrontLeftBlinker & Lights.FrontRightBlinker);
+                        break;
+                    case 3:
+                        LightControlModule.TurnOnLamps(Lights.FrontLeftStandingLight & Lights.FrontRightStandingLight &
+                                                       Lights.FrontLeftBlinker & Lights.FrontRightBlinker &
+                                                       Lights.FrontLeftFogLamp & Lights.FrontRightFogLamp);
+                        StartAuxilaryHeater();
+                        break;
+                }
+            }
+            else
+            {
+                TrunkLidButtonPressedCount = 0;
+            }
         }
 
         public static void ProcessAuxilaryHeaterMessage(Message m)
@@ -65,6 +99,24 @@ namespace imBMW.iBus.Devices.Real
 
             if (Settings.Instance.SuspendAuxilaryHeaterResponseEmulation)
             {
+                if (m.Data.StartsWith(AuxilaryHeater.AuxilaryHeaterWorkingResponse.Data))
+                {
+                    // turning on lights, if webasto working
+                    if (InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Off)
+                    {
+                        LightControlModule.TurnOnLamps(Lights.FrontLeftBlinker & Lights.FrontRightBlinker & Lights.RearLeftStandingLight & Lights.RearRightStandingLight);
+                    }
+
+                    // WORKAROUND: when IHKA replied, but webasto not acquired response, and sending message again, but IHKA isn't replying, because thinking that already replied
+                    if (_auxilaryHeaterWorkingLastResponseTime > DateTime.Now.AddSeconds(-15) && _auxilaryHeaterWorkingLastResponseTime < DateTime.Now)
+                    {
+                        Logger.Error("Webasto thinking that K-Bus connection is lost and trying to fire K-Bus breakdown error. Fixing it.");
+                        var respondMessage = ContinueWorkingAuxilaryHeater;
+                        respondMessage.ReceiverDescription = "Replying instead of IHKA.";
+                        KBusManager.Instance.EnqueueMessage(respondMessage);
+                    }
+                    _auxilaryHeaterWorkingLastResponseTime = DateTime.Now;
+                }
                 return;
             }
 

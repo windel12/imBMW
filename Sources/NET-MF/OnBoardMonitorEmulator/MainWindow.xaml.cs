@@ -95,7 +95,7 @@ namespace OnBoardMonitorEmulator
 
             InstrumentClusterElectronicsEmulator.Init();
             NavigationModuleEmulator.Init();
-            AuxilaryHeaterEmulator.Init();
+            AuxilaryHeaterEmulator.Init(30000);
             RadioEmulator.Init();
             DigitalDieselElectronicsEmulator.Init();
             FrontDisplayEmulator.Init();
@@ -205,6 +205,10 @@ namespace OnBoardMonitorEmulator
             {
                 RedIndicator.Fill = OrangeIndicator.Fill = GreenIndicator.Fill = new SolidColorBrush(Colors.White);
                 RedIndicator.Opacity = OrangeIndicator.Opacity = GreenIndicator.Opacity = 1;
+
+                RedIndicator.Fill = new SolidColorBrush(Colors.White);
+                OrangeIndicator.Fill = new SolidColorBrush(Colors.White);
+                GreenIndicator.Fill = new SolidColorBrush(Colors.White);
 
                 if ((ledType & LedType.Red) != 0 || (ledType & LedType.RedBlinking) != 0)
                 {
