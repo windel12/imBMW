@@ -8,6 +8,7 @@ using imBMW.Multimedia;
 using imBMW.Tools;
 using imBMW.iBus.Devices.Real;
 using imBMW.Features.Multimedia.Models;
+using imBMW.Enums;
 
 namespace imBMW.Features.Multimedia
 {
@@ -47,16 +48,13 @@ namespace imBMW.Features.Multimedia
         private static void ProcessCommand(object o)
         {
             var httpRequestCommand = (HttpRequestCommand) o;
-            string result = Execute(httpRequestCommand.Param);
-            if (httpRequestCommand.Callback != null)
-            {
-                httpRequestCommand.Callback(result);
-            }
+            Execute(httpRequestCommand);
         }
 
-        private static string Execute(string param)
+        private static void Execute(HttpRequestCommand httpRequestCommand)
         {
-            string fullPath = path + param;
+
+            string fullPath = path + httpRequestCommand.Param;
             HttpWebRequest request = WebRequest.Create(fullPath) as HttpWebRequest;
             request.Timeout = 3000;
             request.ReadWriteTimeout = 3000;
@@ -67,7 +65,7 @@ namespace imBMW.Features.Multimedia
                 Logger.Trace("Sending request: " + fullPath);
 
 #if OnBoardMonitorEmulator
-                return OnBoardMonitorEmulator.DevicesEmulation.VolumioEmulator.MakeHttpRequest(param);
+                OnBoardMonitorEmulator.DevicesEmulation.VolumioEmulator.MakeHttpRequest(httpRequestCommand.Param);
 #endif
                 response = request?.GetResponse() as HttpWebResponse;
                 using (var stream = response?.GetResponseStream())
@@ -75,16 +73,26 @@ namespace imBMW.Features.Multimedia
                     byte[] bytes = new byte[stream.Length];
                     stream.ReadTimeout = 3000;
                     stream.Read(bytes, 0, bytes.Length);
-                    string text = new string(Encoding.UTF8.GetChars(bytes));
-                    Logger.Trace("Responded successfull. Text: " + text);
-                    return text;
+                    string responseText = new string(Encoding.UTF8.GetChars(bytes));
+                    Logger.Trace("Responded successfull. ResponseText: " + responseText);
+                    if (httpRequestCommand.SuccessCallback != null)
+                    {
+                        httpRequestCommand.SuccessCallback(responseText);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                var webException = ex as WebException;
-                var status = webException != null ? (int) webException.Status : -1;
-                throw new Exception("WebExStatus: " + status, ex);
+                if (httpRequestCommand.ErrorCallback == null)
+                {
+                    var webException = ex as WebException;
+                    var status = webException != null ? (int) webException.Status : -1;
+                    throw new Exception("WebExStatus: " + status, ex);
+                }
+                else
+                {
+                    httpRequestCommand.ErrorCallback(ex);
+                }
             }
             finally
             {
@@ -93,7 +101,6 @@ namespace imBMW.Features.Multimedia
                 request?.Dispose();
 #endif
             }
-            return string.Empty;
         }
 
         public static void Reboot()
@@ -109,13 +116,9 @@ namespace imBMW.Features.Multimedia
             }));
         }
 
-        public static void Shutdown()
+        public static void Shutdown(ActionString successCallback, ActionException errorCallback = null)
         {
-            commands.Enqueue(new HttpRequestCommand("shutdown", response =>
-            {
-                Thread.Sleep(2000);
-                Logger.Warning("SHUTTEDDOWN!");
-            }));
+            commands.Enqueue(new HttpRequestCommand("shutdown", successCallback, errorCallback));
         }
 
         public override void Play()
@@ -130,13 +133,25 @@ namespace imBMW.Features.Multimedia
 
         public override void Next()
         {
-            commands.Enqueue(new HttpRequestCommand("commands/?cmd=stop", x => Thread.Sleep(500)));
-            commands.Enqueue(new HttpRequestCommand("commands/?cmd=next", OnTrackChanged));
+            commands.Enqueue(new HttpRequestCommand("commands/?cmd=stop", response =>
+            {
+                Thread.Sleep(100);
+                DigitalSignalProcessingAudioAmplifier.ChangeSource(AudioSource.TunerTape);
+            }));
+            commands.Enqueue(new HttpRequestCommand("commands/?cmd=next", response =>
+            {
+                OnTrackChanged(response);
+
+                Thread.Sleep(100);
+                DigitalSignalProcessingAudioAmplifier.ChangeSource(AudioSource.CD);
+                Thread.Sleep(100);
+                DigitalSignalProcessingAudioAmplifier.ChangeSource(AudioSource.CD);
+            }));
         }
 
         public override void Prev()
         {
-            commands.Enqueue(new HttpRequestCommand("commands/?cmd=stop", x => Thread.Sleep(500)));
+            //commands.Enqueue(new HttpRequestCommand("commands/?cmd=stop", x => Thread.Sleep(500)));
             commands.Enqueue(new HttpRequestCommand("commands/?cmd=prev"));
         }
 
@@ -156,7 +171,8 @@ namespace imBMW.Features.Multimedia
             {
                 try
                 {
-                    Execute("ping");
+                    var pingCommand = new HttpRequestCommand("ping");
+                    Execute(pingCommand);
                     Logger.Trace("CheckStatus: Volumio READY!");
                     FrontDisplay.RefreshLEDs(LedType.Green);
                     CheckStatusThread.Suspend();

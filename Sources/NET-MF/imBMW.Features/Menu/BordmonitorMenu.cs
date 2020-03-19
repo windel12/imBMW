@@ -274,7 +274,12 @@ namespace imBMW.Features.Menu
                         break;
                     case 0x63:
                         m.ReceiverDescription = "MODE hold";
-                        VolumioRestApiPlayer.Shutdown();
+                        VolumioRestApiPlayer.Shutdown(response =>
+                        {
+                            Thread.Sleep(2000);
+                            if (InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Ign || InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Acc)
+                                Logger.Warning(response);
+                        });
                         Logger.Warning("Shutdown request sent.");
                         break;
                     case 0xA3:

@@ -39,15 +39,15 @@ namespace JDI.Common.Security
 		/// </summary>
 		/// <param name="input">The byte-array to compute the hash value for.</param>
 		/// <returns>The computed hash value.</returns>
-		public static byte[] ComputeSha1Hash(byte[] input)
-		{
-			byte[] hash = null;
-			using (HashAlgorithm sha1 = new HashAlgorithm(HashAlgorithmType.SHA1))
-			{
-				sha1.Initialize();
-				hash = sha1.ComputeHash(input);
-			}
-			return hash;
-		}
+		//public static byte[] ComputeSha1Hash(byte[] input)
+		//{
+		//	byte[] hash = null;
+		//	using (HashAlgorithm sha1 = new HashAlgorithm(HashAlgorithmType.SHA1))
+		//	{
+		//		sha1.Initialize();
+		//		hash = sha1.ComputeHash(input);
+		//	}
+		//	return hash;
+		//}
 	}
 }

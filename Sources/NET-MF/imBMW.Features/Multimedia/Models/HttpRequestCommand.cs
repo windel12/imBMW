@@ -5,16 +5,14 @@ namespace imBMW.Features.Multimedia.Models
     internal class HttpRequestCommand
     {
         public string Param { get; }
-        public ActionString Callback { get; }
+        public ActionString SuccessCallback { get; }
+        public ActionException ErrorCallback { get; }
 
-        public HttpRequestCommand(string param)
+        public HttpRequestCommand(string param, ActionString successCallback = null, ActionException errorCallback = null)
         {
             Param = param;
-        }
-
-        public HttpRequestCommand(string param, ActionString callback) : this(param)
-        {
-            Callback = callback;
+            SuccessCallback = successCallback;
+            ErrorCallback = errorCallback;
         }
 
 #if OnBoardMonitorEmulator

@@ -131,7 +131,7 @@ namespace imBMW.Devices.V2
 #if DEBUG
             sleepTimeout = GetTimeoutInMilliseconds(15, 20);
 #else
-            sleepTimeout = GetTimeoutInMilliseconds(15, 05);
+            sleepTimeout = GetTimeoutInMilliseconds(15, 00);
 #endif
     }
 
@@ -312,8 +312,8 @@ namespace imBMW.Devices.V2
 
         internal static void RequestIgnitionStateTimerHandler(object obj)
         {
-            if (InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Off)
-            {
+            //if (InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Off)
+            //{
                 Logger.Trace("idleTime: " + GetTimeSpanFromMilliseconds(idleTime));
 
                 if (idleTime >= idleTimeout)
@@ -341,11 +341,11 @@ namespace imBMW.Devices.V2
                 idleTime += requestIgnitionStateTimerPeriod;
 
                 GHI.Processor.Watchdog.ResetCounter();
-            }
-            else
-            {
-                InstrumentClusterElectronics.RequestIgnitionStatus();
-            }
+            //}
+            //else
+            //{
+            //    InstrumentClusterElectronics.RequestIgnitionStatus();
+            //}
         }
 
         private static void InitManagers()
@@ -490,6 +490,7 @@ namespace imBMW.Devices.V2
             //    {
             //        Emulator.Play();
             //    }
+            //    //UnmountMassStorage();
             //};
         }
 
@@ -504,7 +505,18 @@ namespace imBMW.Devices.V2
         internal static void SleepMode()
         {
             Logger.Trace("Going to sleep");
-            VolumioRestApiPlayer.Shutdown();
+
+            var waitHandle = new ManualResetEvent(false);
+            VolumioRestApiPlayer.Shutdown(response =>
+            {
+                waitHandle.Set();
+            }, exception =>
+            {
+                Logger.Trace("Exception while shuttig down before sleep. " + exception.Message);
+            });
+            bool result = waitHandle.WaitOne(5000, true);
+            Logger.Trace("Shutdown waitHandle result: " + result);
+
             UnmountMassStorage();
             DisposeManagers();
 
@@ -527,6 +539,7 @@ namespace imBMW.Devices.V2
                 unmountThread.Start();
 
                 waitHandle.WaitOne(3000, true);
+                greenLed.Write(false);
             }
         }
 

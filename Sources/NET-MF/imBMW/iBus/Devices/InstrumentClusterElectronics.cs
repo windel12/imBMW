@@ -280,7 +280,7 @@ namespace imBMW.iBus.Devices.Real
                 if (m.Data[1].HasBit(1)) m.ReceiverDescription += "Oil pressure low;";
 
                 if (m.Data[2].HasBit(0)) m.ReceiverDescription += "Motor running;";
-                if (m.Data[2].HasBit(1)) m.ReceiverDescription += "Vehile driving;";
+                if (m.Data[2].HasBit(1)) m.ReceiverDescription += "Vehicle driving;";
                 if (m.Data[2].HasBit(4)) m.ReceiverDescription += "Gear R;";
 
                 if (m.Data[3].HasBit(2)) m.ReceiverDescription += "Aux. heat ON;";

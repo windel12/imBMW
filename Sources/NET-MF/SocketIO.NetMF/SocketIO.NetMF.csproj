@@ -50,6 +50,8 @@
     <Compile Include="Common\Utils\ConvertEx.cs" />
     <Compile Include="Common\Utils\DebugEx.cs" />
     <Compile Include="Common\Utils\StringUtil.cs" />
+    <Compile Include="DebuggerBrowsableState.cs" />
+    <Compile Include="Gadgeteer\Timer.cs" />
     <Compile Include="Json\DateTimeExtensions.cs" />
     <Compile Include="Json\JsonParser.cs" />
     <Compile Include="Json\JsonSerializer.cs" />
@@ -73,6 +75,7 @@
     <Reference Include="Microsoft.SPOT.Net" />
     <Reference Include="Microsoft.SPOT.Net.Security" />
     <Reference Include="Microsoft.SPOT.Security.PKCS11" />
+    <Reference Include="Microsoft.SPOT.TinyCore" />
     <Reference Include="System" />
     <Reference Include="System.Http" />
     <Reference Include="System.IO" />
@@ -80,10 +83,5 @@
     <Reference Include="System.Security" />
     <Reference Include="System.Text.RegularExpressions" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\GadgeteerCore43\Gadgeteer43.csproj">
-      <Project>{9C152709-420A-4464-8CCC-A13EDF27D6CB}</Project>
-      <Name>Gadgeteer43</Name>
-    </ProjectReference>
-  </ItemGroup>
+  <ItemGroup />
 </Project>

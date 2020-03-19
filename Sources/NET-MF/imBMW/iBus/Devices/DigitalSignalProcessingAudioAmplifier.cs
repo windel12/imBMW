@@ -1,6 +1,7 @@
 using System;
 using Microsoft.SPOT;
 using imBMW.Tools;
+using imBMW.Enums;
 
 namespace imBMW.iBus.Devices.Real
 {
@@ -21,6 +22,11 @@ namespace imBMW.iBus.Devices.Real
             {
                 Logger.Error("DIAG BUSY");
             }
+        }
+
+        public static void ChangeSource(AudioSource source)
+        {
+            Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.DigitalSignalProcessingAudioAmplifier/*LocalBroadcastAddress*/, 0x36, (byte)source));
         }
 
         public static void Reset()

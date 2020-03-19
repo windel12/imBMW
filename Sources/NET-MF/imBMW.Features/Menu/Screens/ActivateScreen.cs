@@ -25,17 +25,17 @@ namespace imBMW.Features.Menu.Screens
         {
             AddItem(new MenuItem(i => "OFF: 36 AF", x =>
             {
-                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.DigitalSignalProcessingAudioAmplifier, 0x36, 0xAF));
+                DigitalSignalProcessingAudioAmplifier.ChangeSource(AudioSource.Off);
             }, MenuItemType.Button, MenuItemAction.Refresh));
 
             AddItem(new MenuItem(i => "CD: 36 A0", x =>
             {
-                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.DigitalSignalProcessingAudioAmplifier, 0x36, 0xA0));
+                DigitalSignalProcessingAudioAmplifier.ChangeSource(AudioSource.CD);
             }, MenuItemType.Button, MenuItemAction.Refresh));
 
             AddItem(new MenuItem(i => "Tuner/Tape: 36 A1", x =>
             {
-                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.DigitalSignalProcessingAudioAmplifier, 0x36, 0xA1));
+                DigitalSignalProcessingAudioAmplifier.ChangeSource(AudioSource.TunerTape);
             }, MenuItemType.Button, MenuItemAction.Refresh));
 
             AddItem(new MenuItem(i => "DSP > LOC: 02 01", x =>

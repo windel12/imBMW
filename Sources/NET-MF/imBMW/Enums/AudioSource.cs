@@ -5,8 +5,8 @@ namespace imBMW.Enums
 {
     public enum AudioSource
     {
-        Off,
-        CD,
-        TunerTape
+        Off = 0xAF,
+        CD = 0xA0,
+        TunerTape = 0xA1
     }
 }

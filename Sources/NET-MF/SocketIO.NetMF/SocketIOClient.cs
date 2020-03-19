@@ -21,7 +21,7 @@ using System.Threading;
 
 using JDI.WebSocket.Client;
 using Json.NETMF;
-using Gadgeteer.Networking;
+//using Gadgeteer.Networking;
 using JDI.Common.Logger;
 using System.Net;
 
