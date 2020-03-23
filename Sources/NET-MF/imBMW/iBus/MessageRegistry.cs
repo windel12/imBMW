@@ -85,8 +85,8 @@ namespace imBMW.iBus
             "BM SELECT/INFO buttons",               // "0x47"
             "BM buttons",   // "0x48"
             "Navi Knob button rotation",              // "0x49"
-            "Monitor CD/Tape control",
-            "Monitor CD/Tape status",
+            "Monitor CD/Tape control",                 // "0x4A"
+            "Monitor CD/Tape status",                   // 0x4B
             "", // "0x4C",
             "", // "0x4D",
             "Audio source selection", // "0x4E",

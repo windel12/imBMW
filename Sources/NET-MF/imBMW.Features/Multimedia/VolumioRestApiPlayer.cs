@@ -107,8 +107,9 @@ namespace imBMW.Features.Multimedia
         {
             commands.Enqueue(new HttpRequestCommand("reboot", response =>
             {
-                Thread.Sleep(3000);
-                Logger.Warning("REBOOTED!");
+				Thread.Sleep(500);
+                Logger.Warning(response);
+                Thread.Sleep(2500);
                 if (CheckStatusThread.ThreadState == ThreadState.Suspended || CheckStatusThread.ThreadState == ThreadState.SuspendRequested)
                 {
                     CheckStatusThread.Resume();
@@ -144,7 +145,7 @@ namespace imBMW.Features.Multimedia
 
                 Thread.Sleep(100);
                 DigitalSignalProcessingAudioAmplifier.ChangeSource(AudioSource.CD);
-                Thread.Sleep(100);
+                Thread.Sleep(150);
                 DigitalSignalProcessingAudioAmplifier.ChangeSource(AudioSource.CD);
             }));
         }

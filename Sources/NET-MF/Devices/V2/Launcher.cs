@@ -278,7 +278,7 @@ namespace imBMW.Devices.V2
                         ResetBoard();
                     }
                 };
-                BordmonitorMenu.EjectButtonHold += () =>
+                BordmonitorMenu.SwitchScreenButtonHold += () =>
                 {
                     UnmountMassStorage();
                     _massStorage = null;

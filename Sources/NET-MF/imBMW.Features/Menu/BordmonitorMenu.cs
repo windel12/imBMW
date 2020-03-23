@@ -276,9 +276,12 @@ namespace imBMW.Features.Menu
                         m.ReceiverDescription = "MODE hold";
                         VolumioRestApiPlayer.Shutdown(response =>
                         {
-                            Thread.Sleep(2000);
+                            Thread.Sleep(500);
                             if (InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Ign || InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Acc)
                                 Logger.Warning(response);
+
+                            Thread.Sleep(500);
+                            OnSwitchScreenButtonHold();
                         });
                         Logger.Warning("Shutdown request sent.");
                         break;
@@ -288,24 +291,38 @@ namespace imBMW.Features.Menu
 
                     // 'Eject' button
                     case 0x24:
+                        m.ReceiverDescription = "Eject press";
                         break;
                     case 0x64:
-                        OnEjectButtonHold();
+                        m.ReceiverDescription = "Eject hold";
                         break;
                     case 0xA4:
+                        m.ReceiverDescription = "Eject release";
                         break;
 
                     // 'Menu' button
-                    case 0x34: // pressed
+                    case 0x34:
                         m.ReceiverDescription = "MENU press";
                         break;
-                    case 0x74: // hold > 1s
+                    case 0x74:
                         OnMenuButtonHold();
                         m.ReceiverDescription = "MENU hold";
                         break;
-                    case 0xB4: // released
+                    case 0xB4:
                         m.ReceiverDescription = "MENU release";
                         IsEnabled = false;
+                        break;
+
+                    // switch screen
+                    case 0x30:
+                        m.ReceiverDescription = "SwitchScreen press";
+                        break;
+                    case 0x70:
+                        OnSwitchScreenButtonHold();
+                        m.ReceiverDescription = "SwitchScreen hold";
+                        break;
+                    case 0xB0:
+                        m.ReceiverDescription = "SwitchScreen release";
                         break;
                 }
             }
@@ -321,13 +338,6 @@ namespace imBMW.Features.Menu
                         case 0x30: // pressed
                             IsEnabled = !IsEnabled;
                             //if (screenSwitched) { UpdateScreen(); }
-                            m.ReceiverDescription = "SwitchScreen press";
-                            break;
-                        case 0x70: // hold
-                            m.ReceiverDescription = "SwitchScreen hold";
-                            break;
-                        case 0xB0: // released
-                            m.ReceiverDescription = "SwitchScreen release";
                             break;
                     }
                 }
@@ -513,9 +523,9 @@ namespace imBMW.Features.Menu
             }
         }
 
-        static void OnEjectButtonHold()
+        static void OnSwitchScreenButtonHold()
         {
-            var e = EjectButtonHold;
+            var e = SwitchScreenButtonHold;
             if (e != null)
             {
                 e();
@@ -524,6 +534,6 @@ namespace imBMW.Features.Menu
 
         public delegate void ButtonPressedHanlder();
         public static event ButtonPressedHanlder MenuButtonHold;
-        public static event ButtonPressedHanlder EjectButtonHold;
+        public static event ButtonPressedHanlder SwitchScreenButtonHold;
     }
 }
