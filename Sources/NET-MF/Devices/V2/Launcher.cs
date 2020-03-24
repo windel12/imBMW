@@ -58,7 +58,7 @@ namespace imBMW.Devices.V2
 
         internal static AppState State { get; set; }
 
-        private static Timer requestIgnitionStateTimer;
+        private static Timer watchdogTimer;
 
         internal static int idleTime;
 
@@ -96,7 +96,7 @@ namespace imBMW.Devices.V2
             FrontDisplay.RefreshLEDs(LedType.RedBlinking, append: true);
             LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(redLed, 6, 200));
 
-            requestIgnitionStateTimer?.Dispose();
+            watchdogTimer?.Dispose();
 
             UnmountMassStorage();
             FrontDisplay.RefreshLEDs(LedType.Empty);
@@ -247,7 +247,8 @@ namespace imBMW.Devices.V2
                 }
                 finally
                 {
-                    InstrumentClusterElectronics.ShowNormalTextWithGong(MassStorageMountState.ToStringValue());
+                    InstrumentClusterElectronics.ShowNormalTextWithGong(MassStorageMountState.ToStringValue() 
+                    + "; " + (_resetCause == GHI.Processor.Watchdog.ResetCause.Normal ? "Normal" : "Watchdog"));
                 }
                 
 
@@ -290,9 +291,10 @@ namespace imBMW.Devices.V2
                     if (m.Data[0] == 0x11 && m.Data.Length == 2) // Ignition status
                     {
                         GHI.Processor.Watchdog.ResetCounter();
+                        Logger.Trace("Watchdog counter was resetted via response from IKE!");
                     }
                 });
-                requestIgnitionStateTimer = new Timer(RequestIgnitionStateTimerHandler, null, 0, requestIgnitionStateTimerPeriod);
+                watchdogTimer = new Timer(WatchdogTimerHandler, null, 0, requestIgnitionStateTimerPeriod);
 
                 imBMWTest();
 
@@ -310,42 +312,44 @@ namespace imBMW.Devices.V2
             }
         }
 
-        internal static void RequestIgnitionStateTimerHandler(object obj)
+        internal static void WatchdogTimerHandler(object obj)
         {
-            //if (InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Off)
-            //{
-                Logger.Trace("idleTime: " + GetTimeSpanFromMilliseconds(idleTime));
+            Logger.Trace("idleTime: " + GetTimeSpanFromMilliseconds(idleTime));
 
-                if (idleTime >= idleTimeout)
+            if (idleTime >= idleTimeout)
+            {
+                lock (lockObj)
                 {
-                    lock (lockObj)
+                    if (State != AppState.Idle)
                     {
-                        if (State != AppState.Idle)
-                        {
-                            IdleMode();
-                        }
+                        IdleMode();
                     }
                 }
+            }
 
-                if (idleTime >= sleepTimeout)
+            if (idleTime >= sleepTimeout)
+            {
+                lock (lockObj)
                 {
-                    lock (lockObj)
+                    if (State != AppState.Sleep)
                     {
-                        if (State != AppState.Sleep)
-                        {
-                            SleepMode();
-                        }
+                        SleepMode();
                     }
                 }
+            }
 
-                idleTime += requestIgnitionStateTimerPeriod;
+            idleTime += requestIgnitionStateTimerPeriod;
 
+            if (!Settings.Instance.WatchdogResetOnIKEResponse || InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Off)
+            {
                 GHI.Processor.Watchdog.ResetCounter();
-            //}
-            //else
-            //{
-            //    InstrumentClusterElectronics.RequestIgnitionStatus();
-            //}
+                Logger.Trace("Watchdog counter was resetted via simple timer!");
+            }
+            else
+            {
+                Logger.Trace("Going to request ignition status to reset watchdog counter");
+                InstrumentClusterElectronics.RequestIgnitionStatus();
+            }
         }
 
         private static void InitManagers()

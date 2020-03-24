@@ -52,20 +52,21 @@ namespace imBMW.Features.Multimedia
         }
 
         private static void Execute(HttpRequestCommand httpRequestCommand)
-        {
-
+        { 
             string fullPath = path + httpRequestCommand.Param;
             HttpWebRequest request = WebRequest.Create(fullPath) as HttpWebRequest;
             request.Timeout = 3000;
             request.ReadWriteTimeout = 3000;
             request.KeepAlive = false;
             HttpWebResponse response = null;
+            string responseText = "";
             try
             {
                 Logger.Trace("Sending request: " + fullPath);
 
 #if OnBoardMonitorEmulator
                 OnBoardMonitorEmulator.DevicesEmulation.VolumioEmulator.MakeHttpRequest(httpRequestCommand.Param);
+                return;
 #endif
                 response = request?.GetResponse() as HttpWebResponse;
                 using (var stream = response?.GetResponseStream())
@@ -73,12 +74,8 @@ namespace imBMW.Features.Multimedia
                     byte[] bytes = new byte[stream.Length];
                     stream.ReadTimeout = 3000;
                     stream.Read(bytes, 0, bytes.Length);
-                    string responseText = new string(Encoding.UTF8.GetChars(bytes));
+                    responseText = new string(Encoding.UTF8.GetChars(bytes));
                     Logger.Trace("Responded successfull. ResponseText: " + responseText);
-                    if (httpRequestCommand.SuccessCallback != null)
-                    {
-                        httpRequestCommand.SuccessCallback(responseText);
-                    }
                 }
             }
             catch (Exception ex)
@@ -96,6 +93,11 @@ namespace imBMW.Features.Multimedia
             }
             finally
             {
+                if (httpRequestCommand.SuccessCallback != null)
+                {
+                    httpRequestCommand.SuccessCallback(responseText);
+                }
+
                 response?.Dispose();
 #if NETMF
                 request?.Dispose();
@@ -134,7 +136,7 @@ namespace imBMW.Features.Multimedia
 
         public override void Next()
         {
-            commands.Enqueue(new HttpRequestCommand("commands/?cmd=stop", response =>
+            commands.Enqueue(new HttpRequestCommand("commands/?cmd=pause", response =>
             {
                 Thread.Sleep(100);
                 DigitalSignalProcessingAudioAmplifier.ChangeSource(AudioSource.TunerTape);

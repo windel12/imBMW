@@ -41,9 +41,9 @@ namespace imBMW.Features.Menu.Screens
             {
                 IsChecked = Comfort.AutoUnlockDoors
             });
-            AddItem(new MenuItem(i => "AutoUnmount", i => Settings.Instance.UnmountMassStorageOnChangingIgnitionToAcc = i.IsChecked, MenuItemType.Checkbox)
+            AddItem(new MenuItem(i => "WatchdogIKE", i => Settings.Instance.WatchdogResetOnIKEResponse = i.IsChecked, MenuItemType.Checkbox)
             {
-                IsChecked = Settings.Instance.UnmountMassStorageOnChangingIgnitionToAcc
+                IsChecked = Settings.Instance.WatchdogResetOnIKEResponse
             });
             AddItem(new MenuItem(i => nameof(Settings.Instance.ForceMessageLog), i => Settings.Instance.ForceMessageLog = i.IsChecked, MenuItemType.Checkbox)
             {

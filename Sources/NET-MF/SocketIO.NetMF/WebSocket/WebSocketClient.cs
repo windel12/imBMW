@@ -1135,7 +1135,7 @@ namespace JDI.WebSocket.Client
 		{
 			// build expected secKey
 			byte[] tempbytes = Encoding.UTF8.GetBytes(string.Concat(this.securityKey, WSConst.HeaderSecurityGUID));
-			string expectedSecKey = ConvertEx.ToBase64String(CryptoUtils.ComputeSha1Hash(tempbytes));
+            string expectedSecKey = "";//ConvertEx.ToBase64String(CryptoUtils.ComputeSha1Hash(tempbytes));
 
 			Logger.WriteDebug(this.loggerID, "Expected sec key: " + expectedSecKey);
 			Logger.WriteDebug(this.loggerID, "Response sec key: " + responseSecKey);

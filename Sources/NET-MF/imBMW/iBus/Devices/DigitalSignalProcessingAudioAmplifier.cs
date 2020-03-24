@@ -7,6 +7,8 @@ namespace imBMW.iBus.Devices.Real
 {
     public static class DigitalSignalProcessingAudioAmplifier
     {
+        private static bool IsAnnounced { get; set; }
+
         static DigitalSignalProcessingAudioAmplifier()
         {
             Manager.Instance.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.DigitalSignalProcessingAudioAmplifier, DeviceAddress.Diagnostic, ProcessMessageFromDSP);
@@ -21,6 +23,18 @@ namespace imBMW.iBus.Devices.Real
             if (message.Data[0] == 0xA1 || message.Data[0] == 0xA2)
             {
                 Logger.Error("DIAG BUSY");
+            }
+
+            if (message.Data.StartsWith(MessageRegistry.DataAnnounce))
+            {
+                if (!IsAnnounced)
+                {
+                    IsAnnounced = true;
+                }
+                else
+                {
+                    Logger.Warning("DSP WAS RESETTED!");
+                }
             }
         }
 

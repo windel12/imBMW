@@ -14,7 +14,7 @@ namespace imBMW.Tools
 
         public bool LogToSD { get; set; }
 
-        public bool LogMessageToASCII { get; set; }
+        public bool LogMessageToASCII { get; set; } = true;
 
         public bool AutoLockDoors { get; set; }
 
@@ -24,17 +24,17 @@ namespace imBMW.Tools
 
         public bool AutoCloseSunroof { get; set; }
 
-        public bool MenuMFLControl { get; set; }
+        public bool MenuMFLControl { get; set; } = true;
 
         public bool RadioSpaceCharAlt { get; set; }
-        
-        public NaviVersion NaviVersion { get; set; }
-        
-        public MenuMode MenuMode { get; set; }
+
+        public NaviVersion NaviVersion { get; set; } = NaviVersion.MK4;
+
+        public MenuMode MenuMode { get; set; } = MenuMode.BordmonitorCDC;
 
         public string Language { get; set; }
 
-        public string BluetoothPin { get; set; }
+        public string BluetoothPin { get; set; } = "0000";
 
         public string MediaShield { get; set; }
 
@@ -48,9 +48,9 @@ namespace imBMW.Tools
             {
                 if (_unmountMassStorageOnChangingIgnitionToAcc != value)
                 {
+                    _unmountMassStorageOnChangingIgnitionToAcc = value;
                     SettingsChanged();
                 }
-                _unmountMassStorageOnChangingIgnitionToAcc = value;
             }
         }
 
@@ -96,10 +96,23 @@ namespace imBMW.Tools
             }
         }
 
+        private bool _watchdogResetOnIKEResponse = false;
+        public bool WatchdogResetOnIKEResponse
+        {
+            get { return _watchdogResetOnIKEResponse; }
+            set
+            {
+                if (_watchdogResetOnIKEResponse != value)
+                {
+                    _watchdogResetOnIKEResponse = value;
+                    SettingsChanged();
+                }
+            }
+        }
+
         public static Settings Init(string path)
         {
             Instance = new Settings();
-            Instance.InitDefault();
             if (path != null)
             {
                 if (File.Exists(path))
@@ -118,16 +131,6 @@ namespace imBMW.Tools
             return Instance;
         }
 
-        public virtual void InitDefault()
-        {
-            Log = false;
-            LogToSD = false;
-            LogMessageToASCII = true;
-            MenuMFLControl = true;
-            NaviVersion = NaviVersion.MK4;
-            MenuMode = MenuMode.BordmonitorCDC;
-            BluetoothPin = "0000";
-        }
 
         protected virtual void InitFile(string path)
         {
@@ -167,6 +170,7 @@ namespace imBMW.Tools
                     sw.WriteLine(nameof(ForceMessageLog) + "=" + ForceMessageLog);
                     sw.WriteLine(nameof(SuspendCDChangerResponseEmulation) + "=" + SuspendCDChangerResponseEmulation);
                     sw.WriteLine(nameof(SuspendAuxilaryHeaterResponseEmulation) + "=" + SuspendAuxilaryHeaterResponseEmulation);
+                    sw.WriteLine(nameof(WatchdogResetOnIKEResponse) + "=" + WatchdogResetOnIKEResponse);
                 }
             }
             catch (Exception ex)
@@ -184,49 +188,49 @@ namespace imBMW.Tools
                 bool isTrue = value == "1" || value == "true" || value == "on" || value == "yes";
                 switch (name)
                 {
-                    case "AutoLockDoors":
+                    case nameof(AutoLockDoors):
                         AutoLockDoors = isTrue;
                         break;
-                    case "AutoUnlockDoors":
+                    case nameof(AutoUnlockDoors):
                         AutoUnlockDoors = isTrue;
                         break;
-                    case "AutoCloseWindows":
+                    case nameof(AutoCloseWindows):
                         AutoCloseWindows = isTrue;
                         break;
-                    case "AutoCloseSunroof":
+                    case nameof(AutoCloseSunroof):
                         AutoCloseSunroof = isTrue;
                         break;
-                    case "Log":
+                    case nameof(Log):
                         Log = isTrue;
                         break;
-                    case "LogToSD":
+                    case nameof(LogToSD):
                         LogToSD = isTrue;
                         break;
-                    case "LogMessageToASCII":
+                    case nameof(LogMessageToASCII):
                         LogMessageToASCII = isTrue;
                         break;
-                    case "MenuModeMK2": // Deprecated. Use NaviVersion
+                    case nameof(NaviVersion.MK2): // Deprecated. Use NaviVersion
                         NaviVersion = Tools.NaviVersion.MK2;
                         break;
-                    case "MenuMFLControl":
+                    case nameof(MenuMFLControl):
                         MenuMFLControl = isTrue;
                         break;
-                    case "RadioSpaceCharAlt":
+                    case nameof(RadioSpaceCharAlt):
                         RadioSpaceCharAlt = isTrue;
                         break;
-                    case "MenuMode":
+                    case nameof(MenuMode):
                         MenuMode = (Tools.MenuMode)byte.Parse(value);
                         break;
-                    case "NaviVersion":
+                    case nameof(NaviVersion):
                         NaviVersion = (Tools.NaviVersion)byte.Parse(value);
                         break;
-                    case "Language":
+                    case nameof(Language):
                         Language = value;
                         break;
-                    case "BluetoothPin":
+                    case nameof(BluetoothPin):
                         BluetoothPin = value;
                         break;
-                    case "MediaShield":
+                    case nameof(MediaShield):
                         MediaShield = value; // TODO make enum
                         break;
                     case nameof(LightsBlinkerTimeout):
@@ -234,6 +238,9 @@ namespace imBMW.Tools
                         break;
                     case nameof(UnmountMassStorageOnChangingIgnitionToAcc):
                         _unmountMassStorageOnChangingIgnitionToAcc = isTrue;
+                        break;
+                    case nameof(WatchdogResetOnIKEResponse):
+                        _watchdogResetOnIKEResponse = isTrue;
                         break;
                     case nameof(ForceMessageLog):
                         _forceMessageLog = isTrue;
