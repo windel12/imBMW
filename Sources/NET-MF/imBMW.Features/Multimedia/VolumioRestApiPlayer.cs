@@ -138,16 +138,17 @@ namespace imBMW.Features.Multimedia
         {
             commands.Enqueue(new HttpRequestCommand("commands/?cmd=pause", response =>
             {
-                Thread.Sleep(100);
+                Thread.Sleep(Settings.Instance.Delay1);
                 DigitalSignalProcessingAudioAmplifier.ChangeSource(AudioSource.TunerTape);
+                Thread.Sleep(Settings.Instance.Delay2);
             }));
             commands.Enqueue(new HttpRequestCommand("commands/?cmd=next", response =>
             {
                 OnTrackChanged(response);
 
-                Thread.Sleep(100);
+                Thread.Sleep(Settings.Instance.Delay3);
                 DigitalSignalProcessingAudioAmplifier.ChangeSource(AudioSource.CD);
-                Thread.Sleep(150);
+                Thread.Sleep(Settings.Instance.Delay4);
                 DigitalSignalProcessingAudioAmplifier.ChangeSource(AudioSource.CD);
             }));
         }
@@ -177,6 +178,7 @@ namespace imBMW.Features.Multimedia
                     var pingCommand = new HttpRequestCommand("ping");
                     Execute(pingCommand);
                     Logger.Trace("CheckStatus: Volumio READY!");
+                    InstrumentClusterElectronics.ShowNormalTextWithGong("Volumio READY!");
                     FrontDisplay.RefreshLEDs(LedType.Green);
                     CheckStatusThread.Suspend();
                 }

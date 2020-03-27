@@ -134,6 +134,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="..\imBMW.Features\Menu\Screens\DelayScreen.cs">
+      <Link>imBMW.Features\Menu\Screens\DelayScreen.cs</Link>
+    </Compile>
     <Compile Include="..\imBMW.Features\Multimedia\Models\HttpRequestCommand.cs">
       <Link>imBMW.Features\Multimedia\Models\HttpRequestCommand.cs</Link>
     </Compile>

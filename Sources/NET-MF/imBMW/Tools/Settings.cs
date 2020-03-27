@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.IO;
 
 namespace imBMW.Tools
@@ -110,6 +109,62 @@ namespace imBMW.Tools
             }
         }
 
+        private short _delay1 = 200;
+        public short Delay1
+        {
+            get { return _delay1; }
+            set
+            {
+                if (_delay1 != value)
+                {
+                    _delay1 = value;
+                    SettingsChanged();
+                }
+            }
+        }
+
+        private short _delay2 = 100;
+        public short Delay2
+        {
+            get { return _delay2; }
+            set
+            {
+                if (_delay2 != value)
+                {
+                    _delay2 = value;
+                    SettingsChanged();
+                }
+            }
+        }
+
+        private short _delay3 = 100;
+        public short Delay3
+        {
+            get { return _delay3; }
+            set
+            {
+                if (_delay3 != value)
+                {
+                    _delay3 = value;
+                    SettingsChanged();
+                }
+            }
+        }
+
+        private short _delay4 = 100;
+        public short Delay4
+        {
+            get { return _delay4; }
+            set
+            {
+                if (_delay4 != value)
+                {
+                    _delay4 = value;
+                    SettingsChanged();
+                }
+            }
+        }
+
         public static Settings Init(string path)
         {
             Instance = new Settings();
@@ -171,6 +226,10 @@ namespace imBMW.Tools
                     sw.WriteLine(nameof(SuspendCDChangerResponseEmulation) + "=" + SuspendCDChangerResponseEmulation);
                     sw.WriteLine(nameof(SuspendAuxilaryHeaterResponseEmulation) + "=" + SuspendAuxilaryHeaterResponseEmulation);
                     sw.WriteLine(nameof(WatchdogResetOnIKEResponse) + "=" + WatchdogResetOnIKEResponse);
+                    sw.WriteLine(nameof(Delay1) + "=" + Delay1);
+                    sw.WriteLine(nameof(Delay2) + "=" + Delay2);
+                    sw.WriteLine(nameof(Delay3) + "=" + Delay3);
+                    sw.WriteLine(nameof(Delay4) + "=" + Delay4);
                 }
             }
             catch (Exception ex)
@@ -239,9 +298,6 @@ namespace imBMW.Tools
                     case nameof(UnmountMassStorageOnChangingIgnitionToAcc):
                         _unmountMassStorageOnChangingIgnitionToAcc = isTrue;
                         break;
-                    case nameof(WatchdogResetOnIKEResponse):
-                        _watchdogResetOnIKEResponse = isTrue;
-                        break;
                     case nameof(ForceMessageLog):
                         _forceMessageLog = isTrue;
                         break;
@@ -250,6 +306,21 @@ namespace imBMW.Tools
                         break;
                     case nameof(SuspendAuxilaryHeaterResponseEmulation):
                         _suspendAuxilaryHeaterResponseEmulation = isTrue;
+                        break;
+                    case nameof(WatchdogResetOnIKEResponse):
+                        _watchdogResetOnIKEResponse = isTrue;
+                        break;
+                    case nameof(Delay1):
+                        _delay1 = short.Parse(value);
+                        break;
+                    case nameof(Delay2):
+                        _delay2 = short.Parse(value);
+                        break;
+                    case nameof(Delay3):
+                        _delay3 = short.Parse(value);
+                        break;
+                    case nameof(Delay4):
+                        _delay4 = short.Parse(value);
                         break;
                     default:
                         Logger.Warning("  Unknown setting");

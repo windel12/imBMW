@@ -17,14 +17,13 @@ namespace imBMW.Features.Menu.Screens
         protected MenuItem activateItem;
         //protected MenuItem musicListItem;
         protected MenuItem integratedHeatingAndAirConditioningItem;
-        //protected MenuItem test2Item;
-        //protected MenuItem test3Item;
+        protected MenuItem delayItem;
 
         protected HomeScreen()
         {
             Title = "imBMW";
 
-            FastMenuDrawing = false;
+            FastMenuDrawing = true;
 
             itemBC = new MenuItem(i => Localization.Current.Bordcomputer, MenuItemType.Button, MenuItemAction.GoToScreen)
             {
@@ -58,12 +57,10 @@ namespace imBMW.Features.Menu.Screens
             {
                 GoToScreenCallback = () => IntegratedHeatingAndAirConditioningScreen.Instance
             };
-            //test2Item = new MenuItem(i => "-", MenuItemType.Button, MenuItemAction.Refresh)
-            //{
-            //};
-            //test3Item = new MenuItem(i => "-", MenuItemType.Button, MenuItemAction.Refresh)
-            //{
-            //};
+            delayItem = new MenuItem(i => "Delay", MenuItemType.Button, MenuItemAction.GoToScreen)
+            {
+                GoToScreenCallback = () => DelayScreen.Instance
+            };
 
             SetItems();
         }
@@ -72,16 +69,16 @@ namespace imBMW.Features.Menu.Screens
         {
             ClearItems();
 
-            AddItem(itemBC);
-            AddItem(itemSettings);
-            AddItem(auxilaryHeaterItem);
-            //AddItem(ddeItem);
-            //AddItem(bluetoothItem);
-            AddItem(activateItem);
-            //AddItem(musicListItem);
-            AddItem(integratedHeatingAndAirConditioningItem);
-            //AddItem(test2Item);
-            //AddItem(test3Item);
+            this.AddItem(itemBC);
+            this.AddItem(itemSettings);
+            this.AddItem(auxilaryHeaterItem);
+            this.AddItem(activateItem);
+            this.AddItem(integratedHeatingAndAirConditioningItem);
+            this.AddItem(delayItem);//AddItem(ddeItem);
+            this.AddDummyButton();//AddItem(bluetoothItem);
+            this.AddDummyButton();//AddItem(musicListItem);
+            this.AddDummyButton();
+            this.AddDummyButton();
         }
 
         public static HomeScreen Instance

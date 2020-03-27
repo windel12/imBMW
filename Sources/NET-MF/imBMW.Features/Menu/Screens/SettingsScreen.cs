@@ -15,6 +15,8 @@ namespace imBMW.Features.Menu.Screens
         {
             TitleCallback = s => Localization.Current.Settings;
 
+            FastMenuDrawing = true;
+
             SetItems();
         }
 
@@ -24,6 +26,10 @@ namespace imBMW.Features.Menu.Screens
             if (CanChangeLanguage)
             {
                 AddItem(new MenuItem(i => Localization.Current.Language + ": " + Localization.Current.LanguageName, i => SwitchLanguage(), MenuItemType.Button, MenuItemAction.Refresh));
+            }
+            else
+            {
+                this.AddDummyButton();
             }
             AddItem(new MenuItem(i => Localization.Current.ComfortWindows, i => Comfort.AutoCloseWindows = i.IsChecked, MenuItemType.Checkbox)
             {

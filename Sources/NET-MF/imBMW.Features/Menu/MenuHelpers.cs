@@ -10,5 +10,10 @@ namespace imBMW.Features.Menu
         {
             screen.AddItem(new MenuItem(i => "« " + Localization.Current.Back, MenuItemType.Button, MenuItemAction.GoBackScreen), index);
         }
+
+        public static void AddDummyButton(this MenuScreen screen)
+        {
+            screen.AddItem(new MenuItem(i => "-", MenuItemType.Button, MenuItemAction.Refresh));
+        }
     }
 }
