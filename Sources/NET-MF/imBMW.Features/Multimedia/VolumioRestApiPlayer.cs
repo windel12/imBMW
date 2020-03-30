@@ -9,6 +9,8 @@ using imBMW.Tools;
 using imBMW.iBus.Devices.Real;
 using imBMW.Features.Multimedia.Models;
 using imBMW.Enums;
+using Json.NETMF;
+using System.Collections;
 
 namespace imBMW.Features.Multimedia
 {
@@ -65,7 +67,7 @@ namespace imBMW.Features.Multimedia
                 Logger.Trace("Sending request: " + fullPath);
 
 #if OnBoardMonitorEmulator
-                OnBoardMonitorEmulator.DevicesEmulation.VolumioEmulator.MakeHttpRequest(httpRequestCommand.Param);
+                responseText = OnBoardMonitorEmulator.DevicesEmulation.VolumioEmulator.MakeHttpRequest(httpRequestCommand.Param);
                 return;
 #endif
                 response = request?.GetResponse() as HttpWebResponse;
@@ -126,12 +128,17 @@ namespace imBMW.Features.Multimedia
 
         public override void Play()
         {
-            commands.Enqueue(new HttpRequestCommand("commands/?cmd=play", x => IsPlaying = true));
+            commands.Enqueue(new HttpRequestCommand("commands/?cmd=play", response =>
+            {
+                Hashtable result = (Hashtable)JsonParser.JsonDecode(response);
+                InstrumentClusterElectronics.ShowNormalTextWithoutGong(result["response"].ToString(), timeout: 5000);
+                IsPlaying = true;
+            }));
         }
 
         public override void Pause()
         {
-            commands.Enqueue(new HttpRequestCommand("commands/?cmd=pause", x => IsPlaying = false));
+            commands.Enqueue(new HttpRequestCommand("commands/?cmd=pause", response => IsPlaying = false));
         }
 
         public override void Next()

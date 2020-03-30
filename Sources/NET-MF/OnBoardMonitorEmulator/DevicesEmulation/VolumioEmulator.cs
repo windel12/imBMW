@@ -35,11 +35,11 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
                     IsReady = false;
                     return "";
                 case "commands/?cmd=pause":
-                    return "pause";
+                    return "{\"time\":1584619195432,\"response\":\"pause Success\"}";
                 case "commands/?cmd=play":
-                    return "play";
+                    return "{\"time\":1584619195432,\"response\":\"play Success\"}";
                 case "commands/?cmd=stop":
-                    return "stop";
+                    return "{\"time\":1584619195432,\"response\":\"stop Success\"}";
                 case "commands/?cmd=next":
                     return "\"Next track name" + new Random().Next(0, 255) + "\"";
                 case "commands/?cmd=prev":

@@ -155,6 +155,21 @@
     <Compile Include="..\imBMW\iBus\Devices\DigitalSignalProcessingAudioAmplifier.cs">
       <Link>imBMW\iBus\Devices\DigitalSignalProcessingAudioAmplifier.cs</Link>
     </Compile>
+    <Compile Include="..\imBMW\Json\DateTimeExtensions.cs">
+      <Link>imBMW\Json\DateTimeExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\imBMW\Json\JsonParser.cs">
+      <Link>imBMW\Json\JsonParser.cs</Link>
+    </Compile>
+    <Compile Include="..\imBMW\Json\JsonSerializer.cs">
+      <Link>imBMW\Json\JsonSerializer.cs</Link>
+    </Compile>
+    <Compile Include="..\imBMW\Json\NumberExtensions.cs">
+      <Link>imBMW\Json\NumberExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\imBMW\Json\StringExtensions.cs">
+      <Link>imBMW\Json\StringExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\imBMW\Tools\FEZPandaIII.cs">
       <Link>imBMW\Tools\FEZPandaIII.cs</Link>
     </Compile>

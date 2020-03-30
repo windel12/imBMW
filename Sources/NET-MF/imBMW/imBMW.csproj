@@ -93,6 +93,11 @@
     <Compile Include="iBus\ManagerImpl.cs" />
     <Compile Include="iBus\ManagerTools.cs" />
     <None Include="iBus\MessageParser.cs" />
+    <Compile Include="Json\DateTimeExtensions.cs" />
+    <Compile Include="Json\JsonParser.cs" />
+    <Compile Include="Json\JsonSerializer.cs" />
+    <Compile Include="Json\NumberExtensions.cs" />
+    <Compile Include="Json\StringExtensions.cs" />
     <Compile Include="Tools\FEZPandaIII.cs" />
     <Compile Include="IO\ISerialPort.cs" />
     <Compile Include="IO\SerialInterruptPort.cs" />
