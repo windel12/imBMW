@@ -64,7 +64,7 @@ namespace imBMW.Features.Multimedia
             string responseText = "";
             try
             {
-                Logger.Trace("Sending request: " + fullPath);
+                Logger.Trace("Sending request: " + fullPath, "VOLUMIO");
 
 #if OnBoardMonitorEmulator
                 responseText = OnBoardMonitorEmulator.DevicesEmulation.VolumioEmulator.MakeHttpRequest(httpRequestCommand.Param);
@@ -77,7 +77,7 @@ namespace imBMW.Features.Multimedia
                     stream.ReadTimeout = 3000;
                     stream.Read(bytes, 0, bytes.Length);
                     responseText = new string(Encoding.UTF8.GetChars(bytes));
-                    Logger.Trace("Responded successfull. ResponseText: " + responseText);
+                    Logger.Trace("Responded successfull. ResponseText: " + responseText, "VOLUMIO");
                 }
             }
             catch (Exception ex)
@@ -176,6 +176,8 @@ namespace imBMW.Features.Multimedia
             return true;
         }
 
+        private static byte _failedPingsCount;
+        private static bool _volumioFirstInitCompleted;
         public static void CheckStatus()
         {
             while (true)
@@ -184,9 +186,25 @@ namespace imBMW.Features.Multimedia
                 {
                     var pingCommand = new HttpRequestCommand("ping");
                     Execute(pingCommand);
-                    Logger.Trace("CheckStatus: Volumio READY!");
-                    InstrumentClusterElectronics.ShowNormalTextWithGong("Volumio READY!");
+                    string successLabel = "Volumio READY!";
+                    Logger.Trace(successLabel, "CheckStatus");
+                    InstrumentClusterElectronics.ShowNormalTextWithGong(successLabel);
+                    Thread.Sleep(200);
                     FrontDisplay.RefreshLEDs(LedType.Green);
+
+                    if (_failedPingsCount > 10)
+                    {
+                        if (Settings.Instance.AutoRestartVolumio && !_volumioFirstInitCompleted)
+                        {
+                            Thread.Sleep(500);
+                            Logger.Warning("Volumio AUTO reboot", "CheckStatus");
+                            Thread.Sleep(500);
+                            Reboot();
+                        }
+                    }
+                    _failedPingsCount = 0;
+                    _volumioFirstInitCompleted = true;
+
                     CheckStatusThread.Suspend();
                 }
                 catch (Exception ex)
@@ -199,7 +217,8 @@ namespace imBMW.Features.Multimedia
                     {
                         FrontDisplay.RefreshLEDs(LedType.Orange, append: true);
                     }
-                    Logger.Trace("CheckStatus: Volumio isn't ready yet.");
+                    Logger.Trace("Volumio isn't ready yet.", "CheckStatus");
+                    _failedPingsCount++;
                     Thread.Sleep(1000);
                 }
             }

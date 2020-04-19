@@ -549,9 +549,12 @@ namespace imBMW.Devices.V2
 
         private static void DateTimeChanged(DateTimeEventArgs e)
         {
-            Logger.Debug("Acquired dateTime from IKE: " + e.Value);
+            if (DateTime.Now.Year < 2020)
+            {
+                Logger.Debug("Acquired dateTime from IKE: " + e.Value);
+            }
             Utility.SetLocalTime(e.Value);
-            InstrumentClusterElectronics.DateTimeChanged -= DateTimeChanged;
+            //InstrumentClusterElectronics.DateTimeChanged -= DateTimeChanged;
         }
 
         // Log just needed message

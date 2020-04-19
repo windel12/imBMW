@@ -99,6 +99,23 @@ namespace imBMW.iBus.Devices.Real
 
             if (Settings.Instance.SuspendAuxilaryHeaterResponseEmulation)
             {
+                /*
+                05-12 19:06:47.727 [DEBUG] Manual start of auxilary heater
+                05-12 19:06:47.729 [DEBUG] Auxilary heater start pending: 92 00 22
+                05-12 19:06:47.739 [K > ] IHKA > ZUH: 92 00 22 (Command for auxilary heater)
+                05-12 19:06:47.743 [I > ] IKE > ANZV: 2A 00 04 (On-Board Computer State Update)
+                05-12 19:06:47.781 [K < ] ZUH > IHKA: 93 00 22 {Coolant Temperature: 15}
+
+                05-12 19:06:48.168 [K < ] IHKA > ZUH: 92 00 22 (Command for auxilary heater)
+                05-12 19:06:48.187 [K < ] IHKA > GLO: 82 05 [IHKA turned on by webasto activation]
+                05-12 19:06:48.214 [I < ] IHKA > GLO: 82 05 [IHKA turned on by webasto activation]
+                05-12 19:06:48.219 [K < ] ZUH > IHKA: 93 00 22 {Coolant Temperature: 15}
+
+                -- after 30 sec
+                05-12 19:07:16.513 [K < ] ZUH > IHKA: 93 00 22 {Coolant Temperature: 16}
+                05-12 19:07:16.966 [K < ] IHKA > ZUH: 92 00 22 (Command for auxilary heater)
+                 */
+
                 if (m.Data.StartsWith(AuxilaryHeater.AuxilaryHeaterWorkingResponse.Data))
                 {
                     // turning on lights, if webasto working
@@ -107,10 +124,20 @@ namespace imBMW.iBus.Devices.Real
                         LightControlModule.TurnOnLamps(Lights.FrontLeftBlinker & Lights.FrontRightBlinker & Lights.RearLeftStandingLight & Lights.RearRightStandingLight);
                     }
 
+                    // skipping first reply
+                    if (AuxilaryHeater.Status == AuxilaryHeaterStatus.Starting)
+                    {
+                        AuxilaryHeater.Status = AuxilaryHeaterStatus.Started;
+                        return;
+                    }
+
                     // WORKAROUND: when IHKA replied, but webasto not acquired response, and sending message again, but IHKA isn't replying, because thinking that already replied
+                    Logger.Trace("_auxilaryHeaterWorkingLastResponseTime: " + _auxilaryHeaterWorkingLastResponseTime, "WEBASTO");
+                    Logger.Trace("DateTime.Now: " + DateTime.Now, "WEBASTO");
                     if (_auxilaryHeaterWorkingLastResponseTime > DateTime.Now.AddSeconds(-15) && _auxilaryHeaterWorkingLastResponseTime < DateTime.Now)
                     {
-                        Logger.Error("Webasto thinking that K-Bus connection is lost and trying to fire K-Bus breakdown error. Fixing it.");
+                        Logger.Error("Webasto thinking that K-Bus connection is lost and trying to fire K-Bus breakdown error. ", "WEBASTO");
+                        // TODO: Wait for 1 sec, and if there is no real reply from IHKA - reply manually. see 2020.03.27\traceLog45.
                         var respondMessage = ContinueWorkingAuxilaryHeater;
                         respondMessage.ReceiverDescription = "Replying instead of IHKA.";
                         KBusManager.Instance.EnqueueMessage(respondMessage);

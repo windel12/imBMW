@@ -109,6 +109,20 @@ namespace imBMW.Tools
             }
         }
 
+        private bool _autoRestartVolumio = false;
+        public bool AutoRestartVolumio
+        {
+            get { return _autoRestartVolumio; }
+            set
+            {
+                if (_autoRestartVolumio != value)
+                {
+                    _autoRestartVolumio = value;
+                    SettingsChanged();
+                }
+            }
+        }
+
         private short _delay1 = 200;
         public short Delay1
         {
@@ -226,6 +240,7 @@ namespace imBMW.Tools
                     sw.WriteLine(nameof(SuspendCDChangerResponseEmulation) + "=" + SuspendCDChangerResponseEmulation);
                     sw.WriteLine(nameof(SuspendAuxilaryHeaterResponseEmulation) + "=" + SuspendAuxilaryHeaterResponseEmulation);
                     sw.WriteLine(nameof(WatchdogResetOnIKEResponse) + "=" + WatchdogResetOnIKEResponse);
+                    sw.WriteLine(nameof(AutoRestartVolumio) + "=" + AutoRestartVolumio);
                     sw.WriteLine(nameof(Delay1) + "=" + Delay1);
                     sw.WriteLine(nameof(Delay2) + "=" + Delay2);
                     sw.WriteLine(nameof(Delay3) + "=" + Delay3);
@@ -307,8 +322,8 @@ namespace imBMW.Tools
                     case nameof(SuspendAuxilaryHeaterResponseEmulation):
                         _suspendAuxilaryHeaterResponseEmulation = isTrue;
                         break;
-                    case nameof(WatchdogResetOnIKEResponse):
-                        _watchdogResetOnIKEResponse = isTrue;
+                    case nameof(AutoRestartVolumio):
+                        _autoRestartVolumio = isTrue;
                         break;
                     case nameof(Delay1):
                         _delay1 = short.Parse(value);

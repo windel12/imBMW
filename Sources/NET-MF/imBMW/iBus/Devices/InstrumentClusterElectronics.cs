@@ -886,17 +886,12 @@ namespace imBMW.iBus.Devices.Real
             {
                 return;
             }
-            var now = DateTime.Now;
-            now = new DateTime(_dateYear, _dateMonth, _dateDay, _timeHour, _timeMinute, now.Second);
-            OnDateTimeChanged(now);
-        }
+            var currentDateTime = new DateTime(_dateYear, _dateMonth, _dateDay, _timeHour, _timeMinute, 0);
 
-        private static void OnDateTimeChanged(DateTime value)
-        {
             var e = DateTimeChanged;
             if (e != null)
             {
-                e(new DateTimeEventArgs(value));
+                e(new DateTimeEventArgs(currentDateTime));
             }
         }
 

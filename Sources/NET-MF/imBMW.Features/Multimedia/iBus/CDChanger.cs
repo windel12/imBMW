@@ -103,6 +103,10 @@ namespace imBMW.iBus.Devices.Emulators
                             CancelStopDelay();
                         }, null, 1000, 0);
                     }
+                    if (button == MFLButton.Dial)
+                    {
+                        DigitalSignalProcessingAudioAmplifier.ChangeSource(AudioSource.CD);
+                    }
                 };
 
                 //Radio.OnOffChanged += Radio_OnOffChanged;
