@@ -67,9 +67,9 @@ namespace imBMW.Tools
             //            //     GPIO pin.
             //            public const Cpu.Pin D21 = (Cpu.Pin)27;
             //            //
-            //            // Summary:
-            //            //     GPIO pin.
-            //            public const Cpu.Pin D22 = (Cpu.Pin)69;
+            // Summary:
+            //     GPIO pin.
+            public const Cpu.Pin D22 = (Cpu.Pin)69;
             //            //
             //            // Summary:
             //            //     GPIO pin.
@@ -77,7 +77,7 @@ namespace imBMW.Tools
             //            //
             //            // Summary:
             //            //     GPIO pin.
-                        public const Cpu.Pin D24 = (Cpu.Pin)70;
+            public const Cpu.Pin D24 = (Cpu.Pin)70;
             //
             // Summary:
             //     GPIO pin.
@@ -118,10 +118,10 @@ namespace imBMW.Tools
             // Summary:
             //     GPIO pin.
             public const Cpu.Pin D33 = Cpu.Pin.GPIO_Pin0;
-            //            //
-            //            // Summary:
-            //            //     GPIO pin.
-            //            public const Cpu.Pin D34 = (Cpu.Pin)18;
+            //
+            // Summary:
+            //     GPIO pin.
+            public const Cpu.Pin D34 = (Cpu.Pin)18;
             //            //
             //            // Summary:
             //            //     GPIO pin.
@@ -146,11 +146,10 @@ namespace imBMW.Tools
             //            // Summary:
             //            //     GPIO pin.
             //            public const Cpu.Pin D4 = (Cpu.Pin)48;
-            //
-            // Summary:
-            //     GPIO pin.
-            public const Cpu.Pin D40 = (Cpu.Pin)57;
-            //
+            //// Summary:
+            ////     GPIO pin.
+            //public const Cpu.Pin D40 = (Cpu.Pin)57;
+
             // Summary:
             //     GPIO pin.
             public const Cpu.Pin D41 = (Cpu.Pin)51;
@@ -159,9 +158,9 @@ namespace imBMW.Tools
             //            //     GPIO pin.
             //            public const Cpu.Pin D42 = (Cpu.Pin)56;
             //            //
-            //            // Summary:
-            //            //     GPIO pin.
-            //            public const Cpu.Pin D43 = (Cpu.Pin)52;
+            //// Summary:
+            ////     GPIO pin.
+            //public const Cpu.Pin D43 = (Cpu.Pin)52;
             //            //
             //            // Summary:
             //            //     GPIO pin.

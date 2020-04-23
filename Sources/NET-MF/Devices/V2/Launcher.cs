@@ -110,10 +110,11 @@ namespace imBMW.Devices.V2
                 return;
 #endif
 
-            if (resetPin == null)
-            {
-                resetPin = new OutputPort(Pin.ResetPin, false);
-            }
+            //if (resetPin == null)
+            //{
+            //    resetPin = new OutputPort(Pin.ResetPin, false);
+            //}
+            resetPin.Write(true);
         }
 
         static Launcher()
@@ -139,6 +140,7 @@ namespace imBMW.Devices.V2
         {
             try
             {
+                resetPin = new OutputPort(Pin.ResetPin, true);
                 _resetCause = GHI.Processor.Watchdog.LastResetCause;
 
                 blueLed = new OutputPort(FEZPandaIII.Gpio.Led1, false);
