@@ -98,7 +98,7 @@ namespace imBMW.Devices.V2
 
             watchdogTimer?.Dispose();
 
-            UnmountMassStorage();
+            bool result = UnmountMassStorage();
             FrontDisplay.RefreshLEDs(LedType.Empty);
 
 #if OnBoardMonitorEmulator
@@ -110,11 +110,10 @@ namespace imBMW.Devices.V2
                 return;
 #endif
 
-            //if (resetPin == null)
-            //{
-            //    resetPin = new OutputPort(Pin.ResetPin, false);
-            //}
-            resetPin.Write(true);
+            if (resetPin == null)
+            {
+                resetPin = new OutputPort(Pin.ResetPin, false);
+            }
         }
 
         static Launcher()
@@ -140,7 +139,6 @@ namespace imBMW.Devices.V2
         {
             try
             {
-                resetPin = new OutputPort(Pin.ResetPin, true);
                 _resetCause = GHI.Processor.Watchdog.LastResetCause;
 
                 blueLed = new OutputPort(FEZPandaIII.Gpio.Led1, false);
@@ -298,10 +296,17 @@ namespace imBMW.Devices.V2
                 });
                 watchdogTimer = new Timer(WatchdogTimerHandler, null, 0, requestIgnitionStateTimerPeriod);
 
-                imBMWTest();
+                imBMWTestCommandsHandler();
 
                 Logger.Debug("Actions inited!");
 
+                InterruptPort ldr1_button = new InterruptPort(FEZPandaIII.Gpio.Ldr1, true, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeLow);
+                ldr1_button.OnInterrupt += (uint data1, uint data2, DateTime time) =>
+                {
+                    UnmountMassStorage();
+                };
+
+                Logger.Debug("Going to Thread.Sleep(Timeout.Infinite).");
                 if (launchMode == LaunchMode.MicroFramework)
                     Thread.Sleep(Timeout.Infinite);
             }
@@ -356,14 +361,15 @@ namespace imBMW.Devices.V2
 
         private static void InitManagers()
         {
+            var iBusComPort = Serial.COM1;
             var iBusBusy = Pin.TH3122SENSTA;
             var kBusBusy = Pin.K_BUS_TH3122SENSTA;
+
 #if DEBUG || DebugOnRealDeviceOverFTDI
+            iBusComPort = "COM4";
             iBusBusy = Cpu.Pin.GPIO_NONE;
             kBusBusy = Cpu.Pin.GPIO_NONE;
 #endif
-
-            string iBusComPort = Serial.COM1;
 #if NETMF
             ISerialPort iBusPort = new SerialPortTH3122(iBusComPort, iBusBusy);
 #endif
@@ -386,6 +392,15 @@ namespace imBMW.Devices.V2
 
             KBusManager.Instance.AfterMessageReceived += KBusManager_AfterMessageReceived;
             KBusManager.Instance.AfterMessageSent += KBusManager_AfterMessageSent;
+
+
+            //string volumioComPort = Serial.COM3;
+            //ISerialPort VolumioPort = new SerialPortTH3122(volumioComPort, Cpu.Pin.GPIO_NONE);
+            //VolumioManager.Init(VolumioPort, ThreadPriority.Normal);
+            //Logger.Debug("VolumioManager inited");
+
+            //VolumioManager.Instance.AfterMessageReceived += VolumioManager_AfterMessageReceived;
+            //VolumioManager.Instance.AfterMessageSent += VolumioManager_AfterMessageSent;
 #endif
 
 #if NETMF || (OnBoardMonitorEmulator && DEBUG)
@@ -416,6 +431,10 @@ namespace imBMW.Devices.V2
             KBusManager.Instance.AfterMessageReceived -= KBusManager_AfterMessageReceived;
             KBusManager.Instance.AfterMessageSent -= KBusManager_AfterMessageSent;
             KBusManager.Instance.Dispose();
+
+            //VolumioManager.Instance.AfterMessageReceived -= VolumioManager_AfterMessageReceived;
+            //VolumioManager.Instance.AfterMessageSent -= VolumioManager_AfterMessageSent;
+            //VolumioManager.Instance.Dispose();
 
             //DBusManager.Instance.AfterMessageReceived -= DBusManager_AfterMessageReceived;
             //DBusManager.Instance.AfterMessageSent -= DBusManager_AfterMessageSent;
@@ -529,7 +548,7 @@ namespace imBMW.Devices.V2
             State = AppState.Sleep;
         }
 
-        internal static void UnmountMassStorage()
+        internal static bool UnmountMassStorage()
         {
             Logger.Trace("Storage will be unmounted");
             if (_massStorage != null && _massStorage.Mounted)
@@ -546,7 +565,13 @@ namespace imBMW.Devices.V2
 
                 waitHandle.WaitOne(3000, true);
                 greenLed.Write(false);
+                return true;
             }
+
+            greenLed.Write(false);
+            Thread.Sleep(200);
+            greenLed.Write(true);
+            return false;
         }
 
         private static void DateTimeChanged(DateTimeEventArgs e)
@@ -693,6 +718,14 @@ namespace imBMW.Devices.V2
             }
         }
 
+        private static void VolumioManager_AfterMessageReceived(MessageEventArgs e)
+        {
+        }
+
+        private static void VolumioManager_AfterMessageSent(MessageEventArgs e)
+        {
+        }
+
         // Log just needed message
         //private static bool DBusLoggerPredicate(MessageEventArgs e)
         //{
@@ -759,13 +792,19 @@ namespace imBMW.Devices.V2
             return Launcher.busy > 0;
         }
 
-        private static void imBMWTest()
+
+        private static void imBMWTestCommandsHandler()
         {
             Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.imBMWTest, m =>
             {
                 if (m.Data[0] == 0x02)
                 {
                     SleepMode();
+                }
+
+                if (m.Data[0] == 0x03)
+                {
+                    //VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.AirBagModule, DeviceAddress.BodyModule, 0x91));
                 }
             });
         }

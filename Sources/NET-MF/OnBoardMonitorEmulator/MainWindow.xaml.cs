@@ -364,7 +364,7 @@ namespace OnBoardMonitorEmulator
 
         private void imBMWTest_Click(object sender, RoutedEventArgs e)
         {
-            var message = new Message(DeviceAddress.imBMWTest, DeviceAddress.LocalBroadcastAddress, 0xEE, 0x00);
+            var message = new Message(DeviceAddress.imBMWTest, DeviceAddress.LocalBroadcastAddress, 0x03, 4, 5, 6);
             WriteMessage(message);
         }
 

@@ -155,6 +155,9 @@
     <Compile Include="..\imBMW\iBus\Devices\DigitalSignalProcessingAudioAmplifier.cs">
       <Link>imBMW\iBus\Devices\DigitalSignalProcessingAudioAmplifier.cs</Link>
     </Compile>
+    <Compile Include="..\imBMW\iBus\VolumioManager.cs">
+      <Link>imBMW\iBus\VolumioManager.cs</Link>
+    </Compile>
     <Compile Include="..\imBMW\Json\DateTimeExtensions.cs">
       <Link>imBMW\Json\DateTimeExtensions.cs</Link>
     </Compile>

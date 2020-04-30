@@ -93,6 +93,7 @@
     <Compile Include="iBus\ManagerImpl.cs" />
     <Compile Include="iBus\ManagerTools.cs" />
     <None Include="iBus\MessageParser.cs" />
+    <None Include="iBus\VolumioManager.cs" />
     <Compile Include="Json\DateTimeExtensions.cs" />
     <Compile Include="Json\JsonParser.cs" />
     <Compile Include="Json\JsonSerializer.cs" />

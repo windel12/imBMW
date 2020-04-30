@@ -27,6 +27,11 @@ namespace Microsoft.SPOT.Hardware
             Thread.Sleep(1);
         }
 
+        public void WriteRead(byte[] writeBuffer, byte[] readBuffer)
+        {
+            WriteRead(writeBuffer, readBuffer, 0);
+        }
+
         public void WriteRead(byte[] writeBuffer, byte[] readBuffer, int startReadOffset)
         {
             if (writeBuffer[1] == 0x05)

@@ -322,6 +322,9 @@ namespace imBMW.Tools
                     case nameof(SuspendAuxilaryHeaterResponseEmulation):
                         _suspendAuxilaryHeaterResponseEmulation = isTrue;
                         break;
+                    case nameof(WatchdogResetOnIKEResponse):
+                        _watchdogResetOnIKEResponse = isTrue;
+                        break;
                     case nameof(AutoRestartVolumio):
                         _autoRestartVolumio = isTrue;
                         break;
@@ -338,7 +341,7 @@ namespace imBMW.Tools
                         _delay4 = short.Parse(value);
                         break;
                     default:
-                        Logger.Warning("  Unknown setting");
+                        Logger.Warning("Unknown setting");
                         return;
                 }
             }
