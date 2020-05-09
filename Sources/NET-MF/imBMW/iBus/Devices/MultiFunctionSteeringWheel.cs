@@ -38,7 +38,7 @@ namespace imBMW.iBus.Devices.Real
         /// <summary>
         /// Use RT as button, not as radio/telephone modes toggle
         /// </summary>
-        public static bool RTAsButton { get; set; }
+        public static bool RTAsButton { get; set; } = true;
 
         static MultiFunctionSteeringWheel()
         {
@@ -154,12 +154,10 @@ namespace imBMW.iBus.Devices.Real
                         wasDialLongPressed = false;
                         m.ReceiverDescription = "Dial pressed";
                         break;
-
                     case 0x90:
                         wasDialLongPressed = true;
                         OnButtonPressed(m, MFLButton.DialLong);
                         break;
-
                     case 0xA0:
                         if (!wasDialLongPressed)
                         {
@@ -171,7 +169,6 @@ namespace imBMW.iBus.Devices.Real
                         }
                         wasDialLongPressed = false;
                         break;
-
                     default:
                         m.ReceiverDescription = "Button unknown " + btn.ToHex();
                         break;

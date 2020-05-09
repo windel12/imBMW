@@ -11,6 +11,8 @@ using imBMW.iBus.Devices.Emulators;
 using imBMW.Tools;
 using imBMW.iBus.Devices.Real;
 using OnBoardMonitorEmulator.DevicesEmulation;
+using System.IO;
+using System.Diagnostics;
 
 namespace OnBoardMonitorEmulator
 {
@@ -104,6 +106,7 @@ namespace OnBoardMonitorEmulator
             VolumioEmulator.Init(_viewModel);
 
             Launcher.Launch(Launcher.LaunchMode.WPF);
+            OpenLastLogButton.Content = Path.GetFileName(FileLogger.FullPath);
 
             //AuxilaryHeaterEmulator.FirstMessageAfterWakeup();
 
@@ -144,6 +147,14 @@ namespace OnBoardMonitorEmulator
 #if !DebugOnRealDeviceOverFTDI
             //Launcher.emulator.IsEnabled = true;
 #endif
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+
+            Launcher.DisposeManagers();
+            Application.Current.Shutdown();
         }
 
         private void EnableRadio()
@@ -430,6 +441,24 @@ namespace OnBoardMonitorEmulator
         {
             var message = new Message(DeviceAddress.imBMWTest, DeviceAddress.GlobalBroadcastAddress, 0x03);
             Manager.Instance.EnqueueMessage(message);
+        }
+
+        private void OpenLastLogButton_Click(object sender, RoutedEventArgs e)
+        {
+            var pathToLastLogFile = Path.Combine(Environment.CurrentDirectory, FileLogger.FullPath);
+            Process.Start(pathToLastLogFile);
+        }
+
+        private void ModeButton_Click(object sender, RoutedEventArgs e)
+        {
+            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, 0x48, 0x23);
+            WriteMessage(message);
+        }
+
+        private void ModeButton_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, 0x48, 0x63);
+            WriteMessage(message);
         }
     }
 }

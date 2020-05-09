@@ -96,8 +96,9 @@
     <Compile Include="Multimedia\Models\ModelHelpers.cs" />
     <None Include="Multimedia\Models\TrackInfo.cs" />
     <Compile Include="Multimedia\MultiplexorTDA7313.cs" />
-    <Compile Include="Multimedia\VolumioRestApiPlayer.cs" />
+    <None Include="Multimedia\VolumioRestApiPlayer.cs" />
     <None Include="Multimedia\VS1003Player.cs" />
+    <Compile Include="Multimedia\VolumioUartPlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

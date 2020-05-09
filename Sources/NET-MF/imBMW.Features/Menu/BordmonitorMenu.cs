@@ -206,7 +206,7 @@ namespace imBMW.Features.Menu
                         break;
                     case 0x48:
                         m.ReceiverDescription = "Phone hold";
-                        VolumioRestApiPlayer.Reboot();
+                        VolumioUartPlayer.Reboot();
                         Logger.Warning("Reboot request sent.");
                         break;
                     case 0x88:
@@ -274,7 +274,7 @@ namespace imBMW.Features.Menu
                         break;
                     case 0x63:
                         m.ReceiverDescription = "MODE hold";
-                        VolumioRestApiPlayer.Shutdown(response =>
+                        VolumioUartPlayer.Shutdown(/*response =>
                         {
                             Thread.Sleep(500);
                             if (InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Ign || InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Acc)
@@ -282,7 +282,7 @@ namespace imBMW.Features.Menu
 
                             Thread.Sleep(500);
                             OnSwitchScreenButtonHold();
-                        });
+                        }*/);
                         Logger.Warning("Shutdown request sent.");
                         break;
                     case 0xA3:

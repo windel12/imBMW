@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="MainWindow" Height="453.574" Width="621.011">
+        Title="MainWindow" Height="462.574" Width="621.011">
     <Grid Margin="0,0,2,0">
         <Rectangle Name="RedIndicator" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="13" Margin="514,229,0,0" Stroke="Black" VerticalAlignment="Top" Width="10"/>
         <Rectangle Name="OrangeIndicator" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="13" Margin="529,229,0,0" Stroke="Black" VerticalAlignment="Top" Width="10"/>
@@ -13,7 +13,7 @@
         <Button x:Name="Knob1Button" Content="Radio" HorizontalAlignment="Left" Margin="10,371,0,0" VerticalAlignment="Top" Width="90" Height="42" Click="Knob1Button_Click"/>
         <Button x:Name="Knob2Button" Content="Navi" HorizontalAlignment="Left" Margin="513,371,0,0" VerticalAlignment="Top" Width="90" Height="42" Click="Knob2Button_Click"/>
 
-        <Button x:Name="ModeButton" Content="Mode" HorizontalAlignment="Left" Margin="10,346,0,0" VerticalAlignment="Top" Width="40"/>
+        <Button x:Name="ModeButton" Content="Mode" HorizontalAlignment="Left" Margin="10,346,0,0" VerticalAlignment="Top" Width="40" Click="ModeButton_Click" MouseRightButtonUp="ModeButton_MouseUp"/>
         <Button x:Name="SwitchButton" Content="Switch" HorizontalAlignment="Left" Margin="60,346,0,0" VerticalAlignment="Top" Width="40"/>
         <Button x:Name="FMButton" Content="FM" HorizontalAlignment="Left" Margin="10,321,0,0" VerticalAlignment="Top" Width="40"/>
         <Button x:Name="AMButton" Content="AM" HorizontalAlignment="Left" Margin="60,321,0,0" VerticalAlignment="Top" Width="40"/>
@@ -40,7 +40,7 @@
 
         <TextBlock x:Name="OBCDisplay" HorizontalAlignment="Left" Margin="105,175,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="400" Height="37" Foreground="#FFE08619" Background="Black" Text="123" FontWeight="Bold" FontSize="24" TextAlignment="Center"/>
 
-        <Grid Name="BordComputerGrid" Background="Black" Visibility="Visible" Width="400" Margin="105,217,105,10">
+        <Grid Name="BordComputerGrid" Background="Black" Visibility="Visible" Width="400" Margin="106,217,105,0" Height="196" VerticalAlignment="Top">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -68,25 +68,26 @@
             <TextBlock Grid.Row="5" Grid.Column="1" Text="Monitor Off" Foreground="White" FontSize="20"/>
         </Grid>
 
-        <StackPanel Name="CDChangerPanel" Orientation="Vertical" Visibility="Hidden" Margin="105,222,105,10">
+        <StackPanel Name="CDChangerPanel" Orientation="Vertical" Visibility="Hidden" Margin="105,222,105,0" Height="191" VerticalAlignment="Top">
             <Grid Name="HeaderGrid" Height="46">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="0.5*" />
                     <RowDefinition Height="0.5*" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="0.35*" />
-                    <ColumnDefinition Width="0.15*" />
-                    <ColumnDefinition Width="0.35*" />
-                    <ColumnDefinition Width="0.15*" />
+                    <ColumnDefinition Width="31*" />
+                    <ColumnDefinition Width="109*"/>
+                    <ColumnDefinition Width="60*" />
+                    <ColumnDefinition Width="141*" />
+                    <ColumnDefinition Width="60*" />
                 </Grid.ColumnDefinitions>
-                <Label Grid.RowSpan="2" Grid.Column="0" Name="label0" Content="CD 1-01" VerticalAlignment="Center" FontSize="20" FontWeight="Bold" />
-                <Label Grid.Row="0" Grid.Column="1" Name="label4" Content="T4a" />
-                <Label Grid.Row="1" Grid.Column="1" Name="label3" Content="T3abc" />
-                <Label Grid.Row="0" Grid.Column="2" Name="label5" Content="T5abc" />
-                <Label Grid.Row="1" Grid.Column="2" Name="label6" Content="T6abcdefghijklmn" />
-                <Label Grid.Row="0" Grid.Column="3" Name="label2" Content="T2a" />
-                <Label Grid.Row="1" Grid.Column="3" Name="label1" Content="T1ab" />
+                <Label Grid.RowSpan="2" Grid.Column="0" Name="label0" Content="CD 1-01" VerticalAlignment="Center" FontSize="20" FontWeight="Bold" Grid.ColumnSpan="2" Margin="0,4" />
+                <Label Grid.Row="0" Grid.Column="2" Name="label4" Content="T4a" />
+                <Label Grid.Row="1" Grid.Column="2" Name="label3" Content="T3abc" />
+                <Label Grid.Row="0" Grid.Column="3" Name="label5" Content="T5abc" />
+                <Label Grid.Row="1" Grid.Column="3" Name="label6" Content="T6abcdefghijklmn" />
+                <Label Grid.Row="0" Grid.Column="4" Name="label2" Content="T2a" />
+                <Label Grid.Row="1" Grid.Column="4" Name="label1" Content="T1ab" />
             </Grid>
             <Grid Height="130" Margin="0,10,0,0">
                 <Grid.RowDefinitions>
@@ -120,8 +121,8 @@
         <TextBlock HorizontalAlignment="Left" Margin="105,39,0,0" TextWrapping="Wrap" Text="temperaturAnnounceInterval:" VerticalAlignment="Top"/>
         <Button x:Name="AC" Content="AC" HorizontalAlignment="Left" Margin="524,35,0,0" VerticalAlignment="Top" Width="75" Click="AC_Click"/>
 
-        <Label x:Name="IgnitionStateLabel" HorizontalAlignment="Left" Margin="334,4,0,0" VerticalAlignment="Top" Width="171" Height="26">
-
+        <Label x:Name="IgnitionStateLabel"  HorizontalAlignment="Left" Margin="334,68,0,0" VerticalAlignment="Top" Width="171" Height="26">
+            Ignition status:
         </Label>
         <Slider x:Name="IgnitionSlider" HorizontalAlignment="Left" Margin="334,41,0,0" VerticalAlignment="Top" Width="158" IsSnapToTickEnabled="True" Minimum="0" Maximum="3" Value="0" TickFrequency="1" ValueChanged="IgnitionSlider_ValueChanged" />
         <Button x:Name="lockButton" Content="LOCK" Margin="337,8,198,0" Click="lockButton_Click" Height="20" VerticalAlignment="Top"/>
@@ -136,5 +137,6 @@
         <CheckBox x:Name="VolumioReadinessCheckbox" IsChecked="{Binding VolumioReadiness}" Margin="10,135,475,266">
             Volumio readiness
         </CheckBox>
+        <Button x:Name="OpenLastLogButton" Content="Open Last Log" HorizontalAlignment="Left" Margin="502,146,0,0" VerticalAlignment="Top" Width="97" Click="OpenLastLogButton_Click"/>
     </Grid>
 </Window>

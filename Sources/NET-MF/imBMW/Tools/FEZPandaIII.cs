@@ -62,11 +62,11 @@ namespace imBMW.Tools
             //            // Summary:
             //            //     GPIO pin.
             public const Cpu.Pin D20 = (Cpu.Pin)66;
-            //            //
-            //            // Summary:
-            //            //     GPIO pin.
-            //            public const Cpu.Pin D21 = (Cpu.Pin)27;
-            //            //
+            //
+            // Summary:
+            //     GPIO pin.
+            public const Cpu.Pin D21 = (Cpu.Pin)27;
+            //
             // Summary:
             //     GPIO pin.
             public const Cpu.Pin D22 = (Cpu.Pin)69;

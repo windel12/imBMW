@@ -233,7 +233,7 @@ namespace imBMW.iBus.Devices.Real
             TemperatureOutside = sbyte.MinValue;
             TemperatureCoolant = sbyte.MinValue;
 
-            Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.InstrumentClusterElectronics, ProcessIKEMessage);
+            Manager.Instance.AddMessageReceiverForSourceOrDestinationDevice(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.InstrumentClusterElectronics, ProcessIKEMessage);
         }
 
         /// <summary>
@@ -283,6 +283,8 @@ namespace imBMW.iBus.Devices.Real
                 if (m.Data[2].HasBit(1)) m.ReceiverDescription += "Vehicle driving;";
                 if (m.Data[2].HasBit(4)) m.ReceiverDescription += "Gear R;";
 
+                if (m.Data[3].HasBit(1)) m.ReceiverDescription += "Immobiliser ON;";
+                if (m.Data[3].HasBit(0)) m.ReceiverDescription += "Wrong Code;";
                 if (m.Data[3].HasBit(2)) m.ReceiverDescription += "Aux. heat ON;";
                 if (m.Data[3].HasBit(3)) m.ReceiverDescription += "Aux. vent ON;";
                 if (m.Data[3].HasBit(6)) m.ReceiverDescription += "Temp F;";
@@ -409,7 +411,9 @@ namespace imBMW.iBus.Devices.Real
                         }
                         break;
                     case 0x0D:
-                        m.ReceiverDescription = "Code: " + ASCIIEncoding.GetString(m.Data.Skip(3));
+                        m.ReceiverDescription = "Code: " + ASCIIEncoding.GetString(m.Data.Skip(3)) + ". CurrentIgnitionState: " + CurrentIgnitionState.ToStringValue();
+                        bool isDeactivated = m.Data[3] == 0x2D && m.Data[4] == 0x2D && m.Data[5] == 0x2D && m.Data[6] == 0x2D;
+                        ShowNormalTextWithGong("CODE " + (isDeactivated ? "DEACTIVATED" : "ACTIVATED"));
                         break;
                     case 0x0E:
                         m.ReceiverDescription = "Swopwatch: " + ASCIIEncoding.GetString(m.Data.Skip(3));
@@ -447,10 +451,22 @@ namespace imBMW.iBus.Devices.Real
             {
                 switch (m.Data[1])
                 {
+                    case 0x01:
+                        m.ReceiverDescription = "Set time: " + m.Data[2].ToString("D2") + ":" + m.Data[3].ToString("D2"); break;
+                    case 0x02:
+                        m.ReceiverDescription = "Set date: " + m.Data[2].ToString("D2") + "/" + m.Data[3].ToString("D2") + "/" + m.Data[4].ToString("D2"); break;
+                    case 0x07:
+                        m.ReceiverDescription = "Set Distance"; break;
+                    case 0x08:
+                        m.ReceiverDescription = "Set Arrival"; break;
+                    case 0x09:
+                        m.ReceiverDescription = "Set Limit"; break;
+                    case 0x0D:
+                        m.ReceiverDescription = "Set code: " + m.Data[2] + m.Data[3] + ". CurrentIgnitionState: " + CurrentIgnitionState.ToStringValue(); break;
                     case 0x0F:
-                        m.ReceiverDescription = "Set Timer1: " + m.Data[2] + ":" + m.Data[3]; break;
+                        m.ReceiverDescription = "Set Timer1: " + m.Data[2].ToString("D2") + ":" + m.Data[3].ToString("D2"); break;
                     case 0x10:
-                        m.ReceiverDescription = "set Timer2: " + m.Data[2] + ":" + m.Data[3]; break;
+                        m.ReceiverDescription = "set Timer2: " + m.Data[2].ToString("D2") + ":" + m.Data[3].ToString("D2"); break;
                 }
             }
             else if (m.Data[0] == 0x41) // OBC Data request
@@ -501,11 +517,6 @@ namespace imBMW.iBus.Devices.Real
             {
                 OnVinChanged("" + (char)m.Data[1] + (char)m.Data[2] + m.Data[3].ToHex() + m.Data[4].ToHex() + m.Data[5].ToHex()[0]);
                 m.ReceiverDescription = "VIN " + VIN;
-            }
-            // TODO: in this case - IKE is Destination device, not Source as defined for callback. + Implement handling of 0x23 message!!!!
-            else if (m.Data[0] == 0x1A) // Check control message 
-            {
-                m.ReceiverDescription = "Displaying error:" + ASCIIEncoding.GetString(m.Data.Skip(3));
             }
         }
 

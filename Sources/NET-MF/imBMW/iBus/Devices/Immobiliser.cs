@@ -30,6 +30,16 @@ namespace imBMW.iBus.Devices.Real
         static Immobiliser()
         {
             KBusManager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.Immobiliser, ProcessEWSMessage);
+
+            MultiFunctionSteeringWheel.ButtonPressed += button =>
+            {
+                if (button == MFLButton.RT) // ModeRadio for sure
+                {
+                    // GND > IKE: 40 0D 00 01
+                    var setCode0001Message = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.InstrumentClusterElectronics, 0x40, 0x0D, 0x00, 0x01);
+                    Manager.Instance.EnqueueMessage(setCode0001Message);
+                }
+            };
         }
 
         /// <summary>
@@ -74,7 +84,7 @@ namespace imBMW.iBus.Devices.Real
                 }
                 else if (m.Data[1] == 0x05)
                 {
-                    m.ReceiverDescription = "Key" + LastKeyInserted + "immobilisation deactivated";
+                    m.ReceiverDescription = "Key" + LastKeyInserted + " Immobilisation deactivated";
                 }
             }
         }

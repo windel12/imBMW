@@ -21,6 +21,8 @@ namespace imBMW.Tools
         static QueueThreadWorker queue;
         static Action FlushCallback;
 
+        public static string FullPath { get; set; }
+
         private static bool queueLimitExceeded;
 
         public static void Create()
@@ -63,15 +65,14 @@ namespace imBMW.Tools
                 }
                 IEnumerable filesEnumerator = Directory.EnumerateFiles(path);
 
-                string fullpath;
                 int filesCount = 0;
                 foreach (object file in filesEnumerator)
                 {
                     filesCount++;
                 }
 
-                fullpath = path + @"\traceLog" + filesCount + ".log";
-                writer = new StreamWriter(fullpath, append:true);
+                FullPath = path + @"\traceLog" + filesCount + ".log";
+                writer = new StreamWriter(FullPath, append:true);
 
                 queue.Start();
             }
@@ -97,11 +98,12 @@ namespace imBMW.Tools
                 Logger.Debug("Queue is full");
             }
             
-#if (NETMF || OnBoardMonitorEmulator) && DebugOnRealDeviceOverFTDI
+#if (NETMF && !RELEASE) || OnBoardMonitorEmulator
             if (System.Diagnostics.Debugger.IsAttached)
             {
                 Debug.Print(args.LogString);
-                Logger.FreeMemory();
+                //Logger.FreeMemory();
+                
             }
 #endif
         }

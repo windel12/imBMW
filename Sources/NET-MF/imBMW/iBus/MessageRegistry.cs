@@ -430,6 +430,7 @@ namespace imBMW.iBus
             //    return m.Device.ToStringValue() + ": " + (m.ReceiverDescription ?? m.DataDump);
             //}
             //#endif
+            bool isIkeCcmMessage = message.Data[0] == 0x1A || message.Data[0] == 0x52;
 
             string description = message.Describe();
             if (description == null)
@@ -437,13 +438,18 @@ namespace imBMW.iBus
                 description = message.DataDump;
             }
             description = message.SourceDevice.ToStringValue() + " > " + message.DestinationDevice.ToStringValue() + ": " + description;
+
+            if (withPerformanceInfo)
+            {
+                description += " (" + message.PerformanceInfo.ToString() + ")";
+            }
             if (withBytesAsAscii)
             {
                 description += " (" + ASCIIEncoding.GetString(message.Data) + ")";
             }
-            if (withPerformanceInfo)
+            if (isIkeCcmMessage && message.ReceiverDescription == null && message.Data.Length > 3)
             {
-                description += " (" + message.PerformanceInfo.ToString() + ")";
+                description += " - \"" + ASCIIEncoding.GetString(message.Data.Skip(3)) + "\"";
             }
             return description;
         }

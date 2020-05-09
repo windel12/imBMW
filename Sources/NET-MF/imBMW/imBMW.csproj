@@ -81,7 +81,7 @@
     <None Include="iBus\Devices\DigitalDieselElectronics.cs" />
     <Compile Include="iBus\Devices\DigitalSignalProcessingAudioAmplifier.cs" />
     <Compile Include="iBus\Devices\FrontDisplay.cs" />
-    <None Include="iBus\Devices\Immobiliser.cs" />
+    <Compile Include="iBus\Devices\Immobiliser.cs" />
     <Compile Include="iBus\Devices\InstrumentClusterElectronics.cs" />
     <Compile Include="iBus\Devices\IntegratedHeatingAndAirConditioning.cs" />
     <Compile Include="iBus\Devices\LightControlModule.cs" />
@@ -93,7 +93,7 @@
     <Compile Include="iBus\ManagerImpl.cs" />
     <Compile Include="iBus\ManagerTools.cs" />
     <None Include="iBus\MessageParser.cs" />
-    <None Include="iBus\VolumioManager.cs" />
+    <Compile Include="iBus\VolumioManager.cs" />
     <Compile Include="Json\DateTimeExtensions.cs" />
     <Compile Include="Json\JsonParser.cs" />
     <Compile Include="Json\JsonSerializer.cs" />

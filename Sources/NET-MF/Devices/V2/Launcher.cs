@@ -291,7 +291,11 @@ namespace imBMW.Devices.V2
                     if (m.Data[0] == 0x11 && m.Data.Length == 2) // Ignition status
                     {
                         GHI.Processor.Watchdog.ResetCounter();
-                        Logger.Trace("Watchdog counter was resetted via response from IKE!");
+                        if (watchdogIkeRequestSent)
+                        {
+                            Logger.Trace("Watchdog counter was resetted via response from IKE!");
+                            watchdogIkeRequestSent = false;
+                        }
                     }
                 });
                 watchdogTimer = new Timer(WatchdogTimerHandler, null, 0, requestIgnitionStateTimerPeriod);
@@ -306,7 +310,7 @@ namespace imBMW.Devices.V2
                     UnmountMassStorage();
                 };
 
-                Logger.Debug("Going to Thread.Sleep(Timeout.Infinite).");
+                Logger.Debug("Going to Thread.Sleep(Timeout.Infinite)");
                 if (launchMode == LaunchMode.MicroFramework)
                     Thread.Sleep(Timeout.Infinite);
             }
@@ -319,6 +323,7 @@ namespace imBMW.Devices.V2
             }
         }
 
+        private static bool watchdogIkeRequestSent = false;
         internal static void WatchdogTimerHandler(object obj)
         {
             Logger.Trace("idleTime: " + GetTimeSpanFromMilliseconds(idleTime));
@@ -354,6 +359,7 @@ namespace imBMW.Devices.V2
             }
             else
             {
+                watchdogIkeRequestSent = true;
                 Logger.Trace("Going to request ignition status to reset watchdog counter");
                 InstrumentClusterElectronics.RequestIgnitionStatus();
             }
@@ -365,11 +371,18 @@ namespace imBMW.Devices.V2
             var iBusBusy = Pin.TH3122SENSTA;
             var kBusBusy = Pin.K_BUS_TH3122SENSTA;
 
+            var debugPin = new InputPort(FEZPandaIII.Gpio.D21, false, Port.ResistorMode.PullUp);
+            bool isDebug = !debugPin.Read();
 #if DEBUG || DebugOnRealDeviceOverFTDI
-            iBusComPort = "COM4";
-            iBusBusy = Cpu.Pin.GPIO_NONE;
-            kBusBusy = Cpu.Pin.GPIO_NONE;
+            isDebug = true;
 #endif
+            if (isDebug)
+            {
+                LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(greenLed, 2, 100));
+                iBusComPort = "COM4";
+                iBusBusy = Cpu.Pin.GPIO_NONE;
+                kBusBusy = Cpu.Pin.GPIO_NONE;
+            }
 #if NETMF
             ISerialPort iBusPort = new SerialPortTH3122(iBusComPort, iBusBusy);
 #endif
@@ -394,13 +407,13 @@ namespace imBMW.Devices.V2
             KBusManager.Instance.AfterMessageSent += KBusManager_AfterMessageSent;
 
 
-            //string volumioComPort = Serial.COM3;
-            //ISerialPort VolumioPort = new SerialPortTH3122(volumioComPort, Cpu.Pin.GPIO_NONE);
-            //VolumioManager.Init(VolumioPort, ThreadPriority.Normal);
-            //Logger.Debug("VolumioManager inited");
+            string volumioComPort = Serial.COM3;
+            ISerialPort VolumioPort = new SerialPortTH3122(volumioComPort, Cpu.Pin.GPIO_NONE);
+            VolumioManager.Init(VolumioPort, ThreadPriority.Normal);
+            Logger.Debug("VolumioManager inited");
 
-            //VolumioManager.Instance.AfterMessageReceived += VolumioManager_AfterMessageReceived;
-            //VolumioManager.Instance.AfterMessageSent += VolumioManager_AfterMessageSent;
+            VolumioManager.Instance.AfterMessageReceived += VolumioManager_AfterMessageReceived;
+            VolumioManager.Instance.AfterMessageSent += VolumioManager_AfterMessageSent;
 #endif
 
 #if NETMF || (OnBoardMonitorEmulator && DEBUG)
@@ -420,7 +433,7 @@ namespace imBMW.Devices.V2
 #endif
         }
 
-        private static void DisposeManagers()
+        public static void DisposeManagers()
         {
             Manager.Instance.BeforeMessageReceived -= Manager_BeforeMessageReceived;
             Manager.Instance.AfterMessageReceived -= Manager_AfterMessageReceived;
@@ -432,9 +445,9 @@ namespace imBMW.Devices.V2
             KBusManager.Instance.AfterMessageSent -= KBusManager_AfterMessageSent;
             KBusManager.Instance.Dispose();
 
-            //VolumioManager.Instance.AfterMessageReceived -= VolumioManager_AfterMessageReceived;
-            //VolumioManager.Instance.AfterMessageSent -= VolumioManager_AfterMessageSent;
-            //VolumioManager.Instance.Dispose();
+            VolumioManager.Instance.AfterMessageReceived -= VolumioManager_AfterMessageReceived;
+            VolumioManager.Instance.AfterMessageSent -= VolumioManager_AfterMessageSent;
+            VolumioManager.Instance.Dispose();
 
             //DBusManager.Instance.AfterMessageReceived -= DBusManager_AfterMessageReceived;
             //DBusManager.Instance.AfterMessageSent -= DBusManager_AfterMessageSent;
@@ -449,7 +462,8 @@ namespace imBMW.Devices.V2
             Cpu.Pin chipSelect_RT = FEZPandaIII.Gpio.D27;
             Cpu.Pin externalInterrupt_WS = FEZPandaIII.Gpio.D24;
             Cpu.Pin reset_BR = FEZPandaIII.Gpio.D26;
-            Player = new VolumioRestApiPlayer(chipSelect_RT, externalInterrupt_WS, reset_BR);
+            //Player = new VolumioRestApiPlayer(chipSelect_RT, externalInterrupt_WS, reset_BR);
+            Player = new VolumioUartPlayer();
             Logger.Debug("VolumioRestApiPlayer created.");
             FrontDisplay.RefreshLEDs(LedType.GreenBlinking);
             if (settings.MenuMode != Tools.MenuMode.RadioCDC/* || Manager.FindDevice(DeviceAddress.OnBoardMonitor, 10000)*/)
@@ -532,13 +546,13 @@ namespace imBMW.Devices.V2
             Logger.Trace("Going to sleep");
 
             var waitHandle = new ManualResetEvent(false);
-            VolumioRestApiPlayer.Shutdown(response =>
+            VolumioUartPlayer.Shutdown(/*response =>
             {
                 waitHandle.Set();
             }, exception =>
             {
                 Logger.Trace("Exception while shuttig down before sleep. " + exception.Message);
-            });
+            }*/);
             bool result = waitHandle.WaitOne(5000, true);
             Logger.Trace("Shutdown waitHandle result: " + result);
 
