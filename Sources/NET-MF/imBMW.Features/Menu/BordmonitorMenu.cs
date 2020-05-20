@@ -274,15 +274,20 @@ namespace imBMW.Features.Menu
                         break;
                     case 0x63:
                         m.ReceiverDescription = "MODE hold";
-                        VolumioUartPlayer.Shutdown(/*response =>
+                        ActionString volumioUartPlayerShuttedDown = null;
+                        volumioUartPlayerShuttedDown = message =>
                         {
                             Thread.Sleep(500);
                             if (InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Ign || InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Acc)
-                                Logger.Warning(response);
+                                Logger.Warning(message);
 
                             Thread.Sleep(500);
                             OnSwitchScreenButtonHold();
-                        }*/);
+
+                            VolumioUartPlayer.ShuttedDown -= volumioUartPlayerShuttedDown;
+                        };
+                        VolumioUartPlayer.ShuttedDown += volumioUartPlayerShuttedDown;
+                        VolumioUartPlayer.Shutdown();
                         Logger.Warning("Shutdown request sent.");
                         break;
                     case 0xA3:

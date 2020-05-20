@@ -546,15 +546,12 @@ namespace imBMW.Devices.V2
             Logger.Trace("Going to sleep");
 
             var waitHandle = new ManualResetEvent(false);
-            VolumioUartPlayer.Shutdown(/*response =>
-            {
-                waitHandle.Set();
-            }, exception =>
-            {
-                Logger.Trace("Exception while shuttig down before sleep. " + exception.Message);
-            }*/);
+            ActionString volumioUartPlayerShuttedDown = message => waitHandle.Set();
+            VolumioUartPlayer.ShuttedDown += volumioUartPlayerShuttedDown;
+            VolumioUartPlayer.Shutdown();
             bool result = waitHandle.WaitOne(5000, true);
             Logger.Trace("Shutdown waitHandle result: " + result);
+            VolumioUartPlayer.ShuttedDown -= volumioUartPlayerShuttedDown;
 
             UnmountMassStorage();
             DisposeManagers();

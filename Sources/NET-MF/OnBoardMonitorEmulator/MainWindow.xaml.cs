@@ -103,10 +103,13 @@ namespace OnBoardMonitorEmulator
             FrontDisplayEmulator.Init();
             HeadlightVerticalAimControlEmulator.Init();
             IntegratedHeatingAndAirConditioningEmulator.Init();
-            VolumioEmulator.Init(_viewModel);
+            //VolumioRestApiPlayerEmulator.Init(_viewModel);
 
             Launcher.Launch(Launcher.LaunchMode.WPF);
             OpenLastLogButton.Content = Path.GetFileName(FileLogger.FullPath);
+#if !DebugOnRealDeviceOverFTDI
+            VolumioUartPlayerEmulator.Init();
+#endif
 
             //AuxilaryHeaterEmulator.FirstMessageAfterWakeup();
 

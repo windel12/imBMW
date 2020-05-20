@@ -179,7 +179,8 @@
     <Compile Include="..\imBMW\Tools\FEZPandaIII.cs">
       <Link>imBMW\Tools\FEZPandaIII.cs</Link>
     </Compile>
-    <Compile Include="DevicesEmulation\VolumioEmulator.cs" />
+    <Compile Include="DevicesEmulation\VolumioRestApiPlayerEmulator.cs" />
+    <Compile Include="DevicesEmulation\VolumioUartPlayerEmulator.cs" />
     <Compile Include="GHI\Networking\EthernetENC28J60.cs" />
     <Compile Include="ViewModel.cs" />
     <Page Include="MainWindow.xaml">

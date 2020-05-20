@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OnBoardMonitorEmulator.DevicesEmulation
 {
-    public static class VolumioEmulator
+    public static class VolumioRestApiPlayerEmulator
     {
         private static ViewModel _viewModel;
 

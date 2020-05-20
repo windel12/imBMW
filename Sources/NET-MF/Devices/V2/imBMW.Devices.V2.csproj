@@ -89,4 +89,9 @@
       <Name>imBMW</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\..\..\Debug_Volumio.txt">
+      <Link>Debug_Volumio.txt</Link>
+    </Content>
+  </ItemGroup>
 </Project>

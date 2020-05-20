@@ -67,7 +67,7 @@ namespace imBMW.Features.Multimedia
                 Logger.Trace("Sending request: " + fullPath, "VOLUMIO");
 
 #if OnBoardMonitorEmulator
-                responseText = OnBoardMonitorEmulator.DevicesEmulation.VolumioEmulator.MakeHttpRequest(httpRequestCommand.Param);
+                responseText = OnBoardMonitorEmulator.DevicesEmulation.VolumioRestApiPlayerEmulator.MakeHttpRequest(httpRequestCommand.Param);
                 return;
 #endif
                 response = request?.GetResponse() as HttpWebResponse;
