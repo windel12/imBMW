@@ -2,6 +2,7 @@ using System;
 using Microsoft.SPOT;
 using imBMW.iBus;
 using imBMW.iBus.Devices.Real;
+using imBMW.Enums;
 
 namespace imBMW.Tools
 {
@@ -90,6 +91,11 @@ namespace imBMW.Tools
             }
             if (Manager.Instance.Inited)
                 InstrumentClusterElectronics.ShowNormalTextWithGong(message, timeout: 10000);
+        }
+
+        public static void FatalError(byte errorId)
+        {
+            Log(LogPriority.FatalError, (string)ErrorIdentifier.ErrorDescriptions[errorId]);
         }
 
         public static void Print(string message)

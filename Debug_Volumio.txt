@@ -15,3 +15,18 @@ config.txt:
 	- dtoverlay=disable-bt
 	- dtoverlay=miniuart-bt
 cmdline.txt -> remove 'console=serial0,115000'
+
+COMMON COMMANDS:
+sudo shutdown -h now
+ls /dev/tty*
+
+write to COM port:
+Linux: echo Hello > /dev/ttyUSB0
+MotoreTemperatur		echo -n -e \\xB8\\x12\\x04\\x2c\\x10\\x0F\\x00\\x6C > /dev/ttyUSB0
+PC: "echo Hello > COM2"
+
+
+
+OBD2:
+as far FTDI ID is overriden for Galleto -> after putting it into USB port -> Do "Update Driver -> Browse My Computer ... -> Let Me Pick ... -> Choose '2.12.28'"
+TO SEND DATA TO OBD2, USE pin#7 to Selaye Logic, AND PUT +12V to pin#16(use YELLOW wire from PC power supply). And use USB ports under the PC

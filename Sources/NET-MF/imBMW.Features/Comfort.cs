@@ -28,6 +28,11 @@ namespace imBMW.Features
         {
         }
 
+        public static void Dispose()
+        {
+            commands.Dispose();
+        }
+
         static Comfort()
         {
             // uncomment when will use comfort

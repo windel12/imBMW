@@ -18,10 +18,13 @@ namespace imBMW.Tools
         static ushort unflushed = 0;
 
         static StreamWriter writer;
+        static StreamWriter errorsWriter;
         static QueueThreadWorker queue;
         static Action FlushCallback;
 
         public static string FullPath { get; set; }
+
+        public static string ERROR_FILE_NAME = "ERRORS.log";
 
         private static bool queueLimitExceeded;
 
@@ -39,8 +42,10 @@ namespace imBMW.Tools
         {
             Logger.Logged -= Logger_Logged;
             bool waitResult = queue.WaitTillQueueBeEmpty(waitTimeout);
+            queue.Dispose();
 
             writer.Flush();
+            errorsWriter.Flush();
             if (FlushCallback != null)
             {
                 FlushCallback();
@@ -49,21 +54,22 @@ namespace imBMW.Tools
             unflushed = 0;
 
             writer.Dispose();
+            errorsWriter.Dispose();
 
             Thread.Sleep(1000);
         }
 
-        public static void Init(string path, Action flushCallback = null)
+        public static void Init(string logsPath, string errorsPath, Action flushCallback = null)
         {
             try
             {
                 FlushCallback = flushCallback;
               
-                if (!Directory.Exists(path))
+                if (!Directory.Exists(logsPath))
                 {
-                    Directory.CreateDirectory(path);
+                    Directory.CreateDirectory(logsPath);
                 }
-                IEnumerable filesEnumerator = Directory.EnumerateFiles(path);
+                IEnumerable filesEnumerator = Directory.EnumerateFiles(logsPath);
 
                 int filesCount = 0;
                 foreach (object file in filesEnumerator)
@@ -71,8 +77,9 @@ namespace imBMW.Tools
                     filesCount++;
                 }
 
-                FullPath = path + @"\traceLog" + filesCount + ".log";
+                FullPath = logsPath + @"\traceLog" + filesCount + ".log";
                 writer = new StreamWriter(FullPath, append:true);
+                errorsWriter = new StreamWriter(errorsPath + @"\" + ERROR_FILE_NAME, append: true);
 
                 queue.Start();
             }
@@ -85,14 +92,20 @@ namespace imBMW.Tools
 
         static void Logger_Logged(LoggerArgs args)
         {
-            if (queue.Count < queueLimit || args.Priority == LogPriority.Debug || args.Priority == LogPriority.Error)
+            if (args.Priority == LogPriority.FatalError)
+            {
+                errorsWriter.WriteLine(args.LogString);
+                errorsWriter.Flush();
+            }
+
+            if (queue.Count < queueLimit || args.Priority == LogPriority.Debug || args.Priority == LogPriority.Error || args.Priority == LogPriority.FatalError)
             {
                 queue.Enqueue(args.LogString);
 
                 if (queue.Count < queueLimit - 10)
                     queueLimitExceeded = false;
             }
-            if(queue.Count == queueLimit && !queueLimitExceeded)
+            if (queue.Count == queueLimit && !queueLimitExceeded)
             {
                 queueLimitExceeded = true;
                 Logger.Debug("Queue is full");
@@ -126,7 +139,7 @@ namespace imBMW.Tools
             catch (Exception ex)
             {
                 // don't use logger to prevent recursion
-                Logger.ErrorWithoutLogging("Can't write log to sd: " + ex.Message);
+                Logger.ErrorWithoutLogging("Can't write log: " + ex.Message);
             }
         }
 

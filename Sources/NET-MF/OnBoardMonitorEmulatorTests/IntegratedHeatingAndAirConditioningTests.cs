@@ -11,8 +11,15 @@ using imBMW.Tools;
 namespace OnBoardMonitorEmulatorTests
 {
     [TestClass]
-    public class IntegratedHeatingAndAirConditioningTests
+    public class IntegratedHeatingAndAirConditioningTests : TestBase
     {
+        [TestCleanup]
+        public void TestCleanup()
+        {
+            AuxilaryHeaterEmulator.Dispose();
+            base.TestCleanup();
+        }
+
         [TestMethod]
         public void ShouldStartAndStopAuxilaryHeater()
         {

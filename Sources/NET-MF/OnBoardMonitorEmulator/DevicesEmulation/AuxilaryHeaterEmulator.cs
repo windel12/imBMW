@@ -85,5 +85,17 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
                 KBusManager.Instance.EnqueueMessage(AuxilaryHeater.AuxilaryHeaterWorkingResponse);
             }
         }
+
+        public static void Dispose()
+        {
+            try
+            {
+                announceThread.Abort();
+            }
+            catch (ThreadStateException)
+            {
+                announceThread.Resume();
+            }
+        }
     }
 }

@@ -10,7 +10,8 @@ namespace imBMW.Tools
         Trace = 4,
         Info = 3,
         Warning = 2,
-        Error = 1
+        Error = 1,
+        FatalError = 0
     }
 
     public class LoggerArgs
@@ -34,6 +35,9 @@ namespace imBMW.Tools
             {
                 switch (priority)
                 {
+                    case LogPriority.FatalError:
+                        PriorityTitle = "FATAL";
+                        break;
                     case LogPriority.Error:
                         PriorityTitle = "ERROR";
                         break;

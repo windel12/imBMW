@@ -146,6 +146,9 @@
     <Compile Include="..\imBMW.Features\Multimedia\VolumioUartPlayer.cs">
       <Link>imBMW.Features\Multimedia\VolumioUartPlayer.cs</Link>
     </Compile>
+    <Compile Include="..\imBMW.Tools\ErrorIdentifier.cs">
+      <Link>imBMW.Tools\ErrorIdentifier.cs</Link>
+    </Compile>
     <Compile Include="..\imBMW\Enums\AudioSource.cs">
       <Link>imBMW\Enums\AudioSource.cs</Link>
     </Compile>

@@ -8,6 +8,7 @@ namespace imBMW.Enums
         UnknownDeviceConnected,
         MassStorageConnected,
         Mounted,
+        MountedButUnformatted,
         Unmounted
     }
 }

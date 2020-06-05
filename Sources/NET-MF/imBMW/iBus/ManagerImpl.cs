@@ -45,12 +45,16 @@ namespace imBMW.iBus
         public void Dispose()
         {
             messageWriteQueue.Dispose();
-            _port.DataReceived -= bus_DataReceived;
-            if (_port.IsOpen)
+            if (_port != null)
             {
-                _port.Close();
+                _port.DataReceived -= bus_DataReceived;
+                if (_port.IsOpen)
+                {
+                    _port.Close();
+                }
+
+                _port = null;
             }
-            _port = null;
         }
 
         #region Message reading and processing

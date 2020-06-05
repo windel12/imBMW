@@ -63,6 +63,7 @@
     <Compile Include="DateTimeHelpers.cs" />
     <Compile Include="Delegates.cs" />
     <Compile Include="Enums.cs" />
+    <Compile Include="ErrorIdentifier.cs" />
     <Compile Include="LoggerArgs.cs" />
     <Compile Include="Math.cs" />
     <Compile Include="NumHelpers.cs" />

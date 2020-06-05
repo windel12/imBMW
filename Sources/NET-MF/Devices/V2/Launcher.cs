@@ -20,6 +20,7 @@ using System.Threading;
 //using GHI.Usb.Host;
 using Debug = Microsoft.SPOT.Debug;
 using Localization = imBMW.Features.Localizations.Localization;
+using System.IO;
 
 namespace imBMW.Devices.V2
 {
@@ -61,13 +62,16 @@ namespace imBMW.Devices.V2
         private static Timer watchdogTimer;
 
         internal static int idleTime;
+        internal static int idleOverallTime;
 
         internal static int requestIgnitionStateTimerPeriod;
 
         // TODO: revert to 30 seconds, instead of 20 minutes
-        internal static int idleTimeout;
+        internal static readonly int idleTimeout;
+        internal static readonly int sleepTimeout;
+        internal static readonly int idleOverallTimeout;
 
-        internal static int sleepTimeout;
+        static bool ErrorExist = false;
 
         public enum LaunchMode
         {
@@ -126,14 +130,16 @@ namespace imBMW.Devices.V2
             LedBlinkingQueueThreadWorker = new QueueThreadWorker(LedBlinking, "ledBlibking");
             _removableMediaInsertedSync = new ManualResetEvent(false);
             requestIgnitionStateTimerPeriod = watchDogTimeoutInMilliseconds / 3;
-            idleTimeout = GetTimeoutInMilliseconds(20, 00);
 
+            idleTimeout = GetTimeoutInMilliseconds(20, 00);
 #if DEBUG
             sleepTimeout = GetTimeoutInMilliseconds(15, 20);
+            idleOverallTimeout = GetTimeoutInMilliseconds(30, 00);
 #else
             sleepTimeout = GetTimeoutInMilliseconds(15, 00);
+            idleOverallTimeout = GetTimeoutInMilliseconds(30, 00);
 #endif
-    }
+        }
 
         public static void Launch(LaunchMode launchMode = LaunchMode.MicroFramework)
         {
@@ -196,13 +202,25 @@ namespace imBMW.Devices.V2
                     {
                         LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(orangeLed, 3, 100));
 
-                        string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
-                        settings = Settings.Init(rootDirectory + "\\imBMW.ini");
-                        FileLogger.Init(rootDirectory + "\\logs", () => VolumeInfo.GetVolumes()[0].FlushAll());
-                        Logger.Debug("Logger initialized.");
+                        if (VolumeInfo.GetVolumes()[0].IsFormatted)
+                        {
+                            string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
+                            string logsPath = Path.Combine(rootDirectory, "logs");
+                            string errorsPath = rootDirectory;
 
-                        MassStorageMountState = MassStorageMountState.Mounted;
-                        _removableMediaInsertedSync.Set();
+                            ErrorExist = CheckIfErrorsExist(rootDirectory);
+
+                            settings = Settings.Init(rootDirectory + "\\imBMW.ini");
+                            FileLogger.Init(logsPath, errorsPath, () => VolumeInfo.GetVolumes()[0].FlushAll());
+                            Logger.Debug("Logger initialized.");
+
+                            MassStorageMountState = MassStorageMountState.Mounted;
+                            _removableMediaInsertedSync.Set();
+                        }
+                        else
+                        {
+                            MassStorageMountState = MassStorageMountState.MountedButUnformatted;
+                        }
                     };
 
                     RemovableMedia.Eject += (s, e) =>
@@ -236,7 +254,7 @@ namespace imBMW.Devices.V2
                             InstrumentClusterElectronics.ShowNormalTextWithGong(MassStorageMountState.ToStringValue());
                             FrontDisplay.RefreshLEDs(LedType.RedBlinking, append: true);
                             LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(redLed, 4, 100));
-                            ResetBoard();
+                            //ResetBoard();
                         }
                     }
                     Logger.Debug("MassStorage state: " + MassStorageMountState.ToStringValue());
@@ -247,10 +265,12 @@ namespace imBMW.Devices.V2
                 }
                 finally
                 {
-                    InstrumentClusterElectronics.ShowNormalTextWithGong(MassStorageMountState.ToStringValue() 
-                    + "; " + (_resetCause == GHI.Processor.Watchdog.ResetCause.Normal ? "Normal" : "Watchdog"));
+                    if (!ErrorExist || _resetCause == GHI.Processor.Watchdog.ResetCause.Watchdog)
+                    {
+                        InstrumentClusterElectronics.ShowNormalTextWithGong(MassStorageMountState.ToStringValue()
+                            + "; " + (_resetCause == GHI.Processor.Watchdog.ResetCause.Normal ? "Normal" : "Watchdog"));
+                    }
                 }
-                
 
                 InstrumentClusterElectronics.RequestDateTime();
 
@@ -285,6 +305,7 @@ namespace imBMW.Devices.V2
                     _massStorage = null;
                     Logger.Warning("UNMOUNTED!");
                 };
+                BodyModule.RemoteKeyButtonPressed += (e) => idleOverallTime = 0;
 
                 Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.InstrumentClusterElectronics, m =>
                 {
@@ -320,48 +341,6 @@ namespace imBMW.Devices.V2
                 Thread.Sleep(200);
                 Logger.Error(ex, "while modules initialization");
                 ResetBoard();
-            }
-        }
-
-        private static bool watchdogIkeRequestSent = false;
-        internal static void WatchdogTimerHandler(object obj)
-        {
-            Logger.Trace("idleTime: " + GetTimeSpanFromMilliseconds(idleTime));
-
-            if (idleTime >= idleTimeout)
-            {
-                lock (lockObj)
-                {
-                    if (State != AppState.Idle)
-                    {
-                        IdleMode();
-                    }
-                }
-            }
-
-            if (idleTime >= sleepTimeout)
-            {
-                lock (lockObj)
-                {
-                    if (State != AppState.Sleep)
-                    {
-                        SleepMode();
-                    }
-                }
-            }
-
-            idleTime += requestIgnitionStateTimerPeriod;
-
-            if (!Settings.Instance.WatchdogResetOnIKEResponse || InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Off)
-            {
-                GHI.Processor.Watchdog.ResetCounter();
-                Logger.Trace("Watchdog counter was resetted via simple timer!");
-            }
-            else
-            {
-                watchdogIkeRequestSent = true;
-                Logger.Trace("Going to request ignition status to reset watchdog counter");
-                InstrumentClusterElectronics.RequestIgnitionStatus();
             }
         }
 
@@ -533,6 +512,64 @@ namespace imBMW.Devices.V2
             //};
         }
 
+        private static bool watchdogIkeRequestSent = false;
+        internal static void WatchdogTimerHandler(object obj)
+        {
+            Logger.Trace("idleTime: " + GetTimeSpanFromMilliseconds(idleTime));
+            Logger.Trace("idleOverallTime: " + GetTimeSpanFromMilliseconds(idleOverallTime));
+
+            if (idleTime >= idleTimeout)
+            {
+                lock (lockObj)
+                {
+                    if (State != AppState.Idle)
+                    {
+                        IdleMode();
+                    }
+                }
+            }
+
+            bool sleepBySleepTimeout = idleTime >= sleepTimeout;
+            bool sleepByIdleOverallTimeout = idleOverallTime >= idleOverallTimeout;
+
+            if (sleepBySleepTimeout || sleepByIdleOverallTimeout)
+            {
+                lock (lockObj)
+                {
+                    if (State != AppState.Sleep)
+                    {
+                        if (sleepByIdleOverallTimeout)
+                        {
+                            Logger.FatalError(ErrorIdentifier.SleepModeFlowBrokenErrorId);
+                        }
+                        SleepMode();
+                    }
+                }
+            }
+
+            idleTime += requestIgnitionStateTimerPeriod;
+            if (InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Off)
+            {
+                idleOverallTime += requestIgnitionStateTimerPeriod;
+            }
+            else
+            {
+                idleOverallTime = 0;
+            }
+
+            if ((!Settings.Instance.WatchdogResetOnIKEResponse || InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Off) && InstrumentClusterElectronics.CurrentIgnitionState != IgnitionState.Unknown)
+            {
+                GHI.Processor.Watchdog.ResetCounter();
+                Logger.Trace("Watchdog counter was resetted via simple timer!");
+            }
+            else
+            {
+                watchdogIkeRequestSent = true;
+                Logger.Trace("Going to request ignition status to reset watchdog counter");
+                InstrumentClusterElectronics.RequestIgnitionStatus();
+            }
+        }
+
         internal static void IdleMode()
         {
             Logger.Trace("Going to idle");
@@ -593,6 +630,28 @@ namespace imBMW.Devices.V2
             }
             Utility.SetLocalTime(e.Value);
             //InstrumentClusterElectronics.DateTimeChanged -= DateTimeChanged;
+        }
+
+        private static bool CheckIfErrorsExist(string rootDirectory)
+        {
+            FileStream dataFile = null;
+            try
+            {
+                dataFile = File.Open(Path.Combine(rootDirectory, FileLogger.ERROR_FILE_NAME), FileMode.OpenOrCreate);
+                if (dataFile != null && dataFile.Length > 1)
+                {
+                    InstrumentClusterElectronics.ShowNormalTextWithGong("ERRORS FOUND. CHECK LOG!");
+                    return true;
+                }
+            }
+            finally
+            {
+                if (dataFile != null)
+                {
+                    dataFile.Close();
+                }
+            }
+            return false;
         }
 
         // Log just needed message
@@ -731,10 +790,28 @@ namespace imBMW.Devices.V2
 
         private static void VolumioManager_AfterMessageReceived(MessageEventArgs e)
         {
+            var logIco = "V < ";
+            if (settings.LogMessageToASCII)
+            {
+                Logger.Trace(e.Message.ToPrettyString(false, false), logIco);
+            }
+            else
+            {
+                Logger.Trace(e.Message, logIco);
+            }
         }
 
         private static void VolumioManager_AfterMessageSent(MessageEventArgs e)
         {
+            var logIco = "V > ";
+            if (settings.LogMessageToASCII)
+            {
+                Logger.Trace(e.Message.ToPrettyString(false, false), logIco);
+            }
+            else
+            {
+                Logger.Trace(e.Message, logIco);
+            }
         }
 
         // Log just needed message

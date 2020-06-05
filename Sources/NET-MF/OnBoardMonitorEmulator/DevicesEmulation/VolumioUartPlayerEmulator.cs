@@ -3,6 +3,8 @@ using System.Text;
 using System.Linq;
 using imBMW.Features.Multimedia;
 using imBMW.iBus;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace OnBoardMonitorEmulator.DevicesEmulation
 {
@@ -15,13 +17,39 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
 
         public static void Init()
         {
-            byte[] commands = new byte[2] { (byte)VolumioCommands.Common, (byte)CommonCommands.Init };
-            byte[] message = Encoding.UTF8.GetBytes("Volumio READY!");
-            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.Volumio, DeviceAddress.imBMW, commands.Concat(message).ToArray()));
+            Task.Factory.StartNew(() =>
+            {
+                Thread.Sleep(2000);
+                byte[] commands = new byte[2] { (byte)VolumioCommands.Common, (byte)CommonCommands.Init };
+                byte[] message = Encoding.UTF8.GetBytes("Volumio READY!");
+                VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.Volumio, DeviceAddress.imBMW, commands.Concat(message).ToArray()));
+            });
         }
 
         static void ProcessToVolumioMessage(Message m)
         {
+            if (m.Data[0] == (byte) VolumioCommands.Playback)
+            {
+                if (m.Data[1] == (byte)PlaybackState.Stop)
+                {
+                    byte[] commands = new byte[2] { (byte)VolumioCommands.Playback, (byte)PlaybackState.Stop };
+                    byte[] message = Encoding.UTF8.GetBytes("STOP!");
+                    VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.Volumio, DeviceAddress.imBMW, commands.Concat(message).ToArray()));
+                }
+                if (m.Data[1] == (byte)PlaybackState.Pause)
+                {
+                    byte[] commands = new byte[2] { (byte)VolumioCommands.Playback, (byte)PlaybackState.Pause };
+                    byte[] message = Encoding.UTF8.GetBytes("PAUSE!");
+                    VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.Volumio, DeviceAddress.imBMW, commands.Concat(message).ToArray()));
+                }
+                if (m.Data[1] == (byte) PlaybackState.Play)
+                {
+                    byte[] commands = new byte[2] { (byte)VolumioCommands.Playback, (byte)PlaybackState.Play };
+                    byte[] message = Encoding.UTF8.GetBytes("PLAY!");
+                    VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.Volumio, DeviceAddress.imBMW, commands.Concat(message).ToArray()));
+                }
+            }
+
             if (m.Data[0] == (byte)VolumioCommands.System)
             {
                 if (m.Data[1] == (byte)SystemCommands.Reboot)

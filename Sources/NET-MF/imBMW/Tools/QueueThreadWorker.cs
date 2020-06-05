@@ -161,7 +161,7 @@ namespace imBMW.Tools
                 queueThread.Resume();
             }
 #endif
-            queueThread = null;
+            //queueThread = null;
         }
     }
 }

@@ -14,7 +14,7 @@ namespace imBMW.iBus.Devices.Emulators
 {
     public class CDChanger : MediaEmulator
     {
-        Thread announceThread;
+        //Thread announceThread;
         Timer stopDelay;
 
         bool skipNextTrackMessage = false;
@@ -124,10 +124,10 @@ namespace imBMW.iBus.Devices.Emulators
                     Manager.Instance.EnqueueMessage(StatusPlaying(Player.DiskNumber, ++Player.TrackNumber));
                 };
 
-                announceThread = new Thread(announceCallback);
-                announceThread.Start();
+                //announceThread = new Thread(announceCallback);
+                //announceThread.Start();
 
-                //announce();
+                announce();
             }
         }
 
@@ -178,10 +178,10 @@ namespace imBMW.iBus.Devices.Emulators
                     Play();
                 }
 
-                if (announceThread.ThreadState != ThreadState.Suspended)
-                {
-                    announceThread.Suspend();
-                }
+                //if (announceThread.ThreadState != ThreadState.Suspended)
+                //{
+                //    announceThread.Suspend();
+                //}
             }
 
             base.OnIsEnabledChanged(isEnabled, isEnabled); // fire only if enabled
@@ -195,10 +195,10 @@ namespace imBMW.iBus.Devices.Emulators
                     FireIsEnabledChanged();
                     Pause();
 
-                if (announceThread.ThreadState == ThreadState.Suspended)
-                {
-                    announceThread.Resume();
-                }
+                //if (announceThread.ThreadState == ThreadState.Suspended)
+                //{
+                //    announceThread.Resume();
+                //}
                 //}, null, 1000, 0);
             }
         }

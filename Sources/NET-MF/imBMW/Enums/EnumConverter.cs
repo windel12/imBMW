@@ -125,12 +125,16 @@ namespace imBMW.Enums
                 case DeviceAddress.IntegratedRadioInformationSystem: return "IntegratedRadioInformationSystem";
                 case DeviceAddress.FrontDisplay: return "ANZV";
                 case DeviceAddress.RainLightSensor: return "RLS";
+                case DeviceAddress.DigitalSignalProcessingAudioController: return "DigitalSignalProcessingAudioController";
                 case DeviceAddress.Television: return "TV";
                 case DeviceAddress.OnBoardMonitor: return "OBM";
                 case DeviceAddress.OBD: return "OBD";
                 case DeviceAddress.CentralSwitchControlUnit: return "CentralSwitchControlUnit";
                 case DeviceAddress.LocalBroadcastAddress: return "LOC";
 
+
+                case DeviceAddress.Volumio: return "VOL";
+                case DeviceAddress.imBMW: return "IMB";
                 case DeviceAddress.imBMWTest: return "imBMWTest";
                 case DeviceAddress.imBMWMenu: return "imBMWMenu";
                 case DeviceAddress.imBMWPlayer: return "imBMWPlayer";
@@ -207,6 +211,7 @@ namespace imBMW.Enums
                 case MassStorageMountState.UnknownDeviceConnected: return "UnknownDeviceConnected";
                 case MassStorageMountState.MassStorageConnected: return "MassStorageConnected";
                 case MassStorageMountState.Mounted: return "Mounted";
+                case MassStorageMountState.MountedButUnformatted: return "MountedButUnformatted";
                 case MassStorageMountState.Unmounted: return "Unmounted";
             }
             return "NotSpecified(" + e.ToString() + ")";

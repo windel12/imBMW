@@ -4,18 +4,21 @@ using System.Threading;
 using Microsoft.SPOT.Hardware;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using imBMW.Devices.V2;
-using imBMW.Features.Menu;
 using imBMW.iBus;
 using imBMW.iBus.Devices.Real;
 using imBMW.Tools;
 using OnBoardMonitorEmulator.DevicesEmulation;
 using OnBoardMonitorEmulatorTests.Helpers;
+using Microsoft.SPOT.IO;
+using System.IO;
 using System.Threading.Tasks;
+using System.Reflection;
+using System.Linq;
 
 namespace OnBoardMonitorEmulatorTests
 {
     [TestClass]
-    public class LauncherTests
+    public class LauncherTests : TestBase
     {
         [TestInitialize]
         public void Initialize()
@@ -44,6 +47,7 @@ namespace OnBoardMonitorEmulatorTests
             Assert.AreEqual(Utility.CurrentDateTime.Minute, now.Minute);
         }
 
+        [Ignore]
         [TestMethod]
         public void Should_StartApp_AndAcquireBordComputerData()
         {
@@ -55,6 +59,7 @@ namespace OnBoardMonitorEmulatorTests
         public void Should_TurnOffRadio_AndResetBoard_WhenMenuRadioOnHold()
         {
             RadioEmulator.Init();
+            VolumioUartPlayerEmulator.Init();
 
             Launcher.Launch(Launcher.LaunchMode.WPF);
 
@@ -82,14 +87,15 @@ namespace OnBoardMonitorEmulatorTests
             Assert.IsTrue(!Launcher.Emulator.IsEnabled);
         }
 
+        [Ignore] // WakeUp after idle not implemented yet
         [TestMethod]
-        public void Should_IdleAndWakeUp()
+        public void Should_IdleAndUnmountStorage_AndThen_WakeUpAndMountStorageAgain()
         {
             var initializationWaitHandle = InitializationWaitHandle();
             var appStateChangedWaitHandle = AppStateChangedWaitHandle(AppState.Idle);
             var phoneButtonHoldWaitHandle = new ManualResetEvent(false);
 
-            var wakeUp = new Func<bool>(() =>
+            var wakeUpBySendingMessageToBus = new Func<bool>(() =>
             {
                 var message = new Message(DeviceAddress.BodyModule, DeviceAddress.GlobalBroadcastAddress, MessageRegistry.DataPollResponse);
                 var messageReceivedWaitHandle = MessageReceivedWaitHandle(message);
@@ -98,12 +104,13 @@ namespace OnBoardMonitorEmulatorTests
                 return messageReceivedWaitHandleResult;
             });
 
-            
-            Launcher.sleepTimeout = Launcher.GetTimeoutInMilliseconds(59, 59);
+            var sleepTimeout = typeof(Launcher).GetField("sleepTimeout", BindingFlags.Static | BindingFlags.NonPublic);
+            sleepTimeout.SetValue(null, Launcher.GetTimeoutInMilliseconds(59, 59));
             Launcher.Launch(Launcher.LaunchMode.WPF);
             InstrumentClusterElectronics.CurrentIgnitionState = IgnitionState.Off;
 
-            initializationWaitHandle.Wait();
+            bool initializationResult = initializationWaitHandle.Wait();
+            Assert.IsTrue(initializationResult, "-1");
 
             // Assert
             // going to idle
@@ -113,7 +120,7 @@ namespace OnBoardMonitorEmulatorTests
             Assert.IsTrue(Launcher._massStorage != null, "1");
             Assert.IsTrue(Launcher._massStorage.Mounted == false, "2");
 
-            var wakeUpWaitHandleResult = wakeUp();
+            var wakeUpWaitHandleResult = wakeUpBySendingMessageToBus();
             Assert.IsTrue(wakeUpWaitHandleResult == true, "3");
             Assert.IsTrue(Launcher._massStorage != null, "4");
             Assert.IsTrue(Launcher._massStorage.Mounted == true, "5");
@@ -124,7 +131,7 @@ namespace OnBoardMonitorEmulatorTests
             Assert.IsTrue(phoneButtonHoldWaitHandleResult, "6");
             Assert.IsTrue(Launcher._massStorage == null, "7");
 
-            wakeUpWaitHandleResult = wakeUp();
+            wakeUpWaitHandleResult = wakeUpBySendingMessageToBus();
             Assert.IsTrue(wakeUpWaitHandleResult == true, "8");
             Assert.IsTrue(Launcher._massStorage == null, "9");
         }
@@ -135,11 +142,13 @@ namespace OnBoardMonitorEmulatorTests
             var initializationWaitHandle = InitializationWaitHandle();
             var appStateChangedWaitHandle = AppStateChangedWaitHandle(AppState.Sleep);
 
-            Launcher.idleTimeout = Launcher.GetTimeoutInMilliseconds(59, 59);
+            var idleTimeout = typeof(Launcher).GetField("idleTimeout", BindingFlags.Static | BindingFlags.NonPublic);
+            idleTimeout.SetValue(null, Launcher.GetTimeoutInMilliseconds(59, 59));
             Launcher.Launch(Launcher.LaunchMode.WPF);
             InstrumentClusterElectronics.CurrentIgnitionState = IgnitionState.Off;
 
-            initializationWaitHandle.Wait();
+            bool initializationResult = initializationWaitHandle.Wait();
+            Assert.IsTrue(initializationResult, "-1");
 
             // Assert
             // going to sleep
@@ -148,12 +157,68 @@ namespace OnBoardMonitorEmulatorTests
             Assert.IsTrue(waitResult, "0");
             Assert.IsTrue(Launcher._massStorage != null, "1");
             Assert.IsTrue(Launcher._massStorage.Mounted == false, "2");
+
+            ShouldDisposeManagersAndFileLogger = false;
+        }
+
+        [TestMethod]
+        public void Should_StoreError_ByExceedingIdelOverallTimeout()
+        {
+            var errorFilePath = Path.Combine(VolumeInfo.GetVolumes()[0].RootDirectory, FileLogger.ERROR_FILE_NAME);
+            var errorsFile = File.Create(errorFilePath);
+            errorsFile.Dispose();
+
+            var initializationWaitHandle = InitializationWaitHandle();
+            var appStateChangedWaitHandle = AppStateChangedWaitHandle(AppState.Sleep);
+
+            Launcher.Launch(Launcher.LaunchMode.WPF);
+            InstrumentClusterElectronics.CurrentIgnitionState = IgnitionState.Off;
+
+            bool initializationResult = initializationWaitHandle.Wait();
+            Assert.IsTrue(initializationResult, "-1");
+
+            // Assert
+            // going to sleep by overall timeout
+            Launcher.idleOverallTime = Launcher.idleOverallTimeout + Launcher.GetTimeoutInMilliseconds(0, 59);
+            bool waitResult = appStateChangedWaitHandle.Wait(Launcher.requestIgnitionStateTimerPeriod * 2);
+            Assert.IsTrue(waitResult, "0");
+            Assert.IsTrue(Launcher._massStorage != null, "1");
+            Assert.IsTrue(Launcher._massStorage.Mounted == false, "2");
+
+            var errorsData = File.ReadLines(errorFilePath).ToArray();
+            Assert.IsTrue(errorsData.Length >= 1);
+            Assert.IsTrue(errorsData[errorsData.Length - 1].Contains("[FATAL] Sleep mode flow was broken"));
+
+            ShouldDisposeManagersAndFileLogger = false;
+        }
+
+        [TestMethod]
+        public void Should_ShowIKEMessage_IfErrorLogContainsData()
+        {
+            var errorsFile = File.Open(Path.Combine(VolumeInfo.GetVolumes()[0].RootDirectory, FileLogger.ERROR_FILE_NAME), FileMode.OpenOrCreate);
+            errorsFile.WriteByte(ErrorIdentifier.SleepModeFlowBrokenErrorId);
+            errorsFile.WriteByte(ErrorIdentifier.UknownError);
+            errorsFile.Dispose();
+
+            var text = "ERRORS FOUND. CHECK LOG!";
+            var data = new byte[] { 0x1A, 0x37, (byte)TextMode.WithGong1 };
+            data = data.PadRight(0x20, InstrumentClusterElectronics.DisplayTextOnIKEMaxLen);
+            data.PasteASCII(text.Translit(), 3, InstrumentClusterElectronics.DisplayTextOnIKEMaxLen, TextAlign.Left);
+            var waitHandle = MessageReceivedWaitHandle(new Message(DeviceAddress.CheckControlModule, DeviceAddress.InstrumentClusterElectronics, data));
+            Task.Factory.StartNew(() =>
+            {
+                Launcher.Launch(Launcher.LaunchMode.WPF);
+            });
+            bool result = waitHandle.Wait(10000);
+            Assert.IsTrue(result);
+
+            ShouldDisposeManagersAndFileLogger = false;
         }
 
 
         private EventWaitHandle InitializationWaitHandle()
         {
-            return MessageReceivedWaitHandle(new Message(DeviceAddress.Telephone, DeviceAddress.FrontDisplay, "Set LEDs", 0x2B, (byte) LedType.Green), 2);
+            return MessageReceivedWaitHandle(new Message(DeviceAddress.Telephone, DeviceAddress.FrontDisplay, "Set LEDs", 0x2B, (byte) LedType.Green), 1);
         }
 
         private EventWaitHandle MessageReceivedWaitHandle(Message message, int messagesCount = 1)
