@@ -4,7 +4,7 @@ using imBMW.iBus.Devices.Real;
 using imBMW.Features.Menu;
 using imBMW.Features.Multimedia.Models;
 
-namespace imBMW.Multimedia
+namespace imBMW.Features.Multimedia
 {
     public abstract class AudioPlayerBase : IAudioPlayer
     {

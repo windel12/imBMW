@@ -3,7 +3,7 @@ using Microsoft.SPOT;
 
 namespace imBMW.Devices.V2
 {
-    internal enum AppState
+    public enum AppState
     {
         Normal,
         Idle,

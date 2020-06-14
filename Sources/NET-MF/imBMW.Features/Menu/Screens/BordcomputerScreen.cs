@@ -3,10 +3,7 @@ using System.Threading;
 using imBMW.iBus.Devices.Real;
 using imBMW.Tools;
 using imBMW.Features.Localizations;
-using imBMW.iBus.Devices.Emulators;
-using imBMW.Multimedia;
-using imBMW.Features.Multimedia.Models;
-using Microsoft.SPOT.Hardware;
+using imBMW.Features.Multimedia;
 
 namespace imBMW.Features.Menu.Screens
 {

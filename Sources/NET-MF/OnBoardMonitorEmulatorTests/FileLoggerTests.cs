@@ -12,7 +12,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace OnBoardMonitorEmulatorTests
 {
     [TestClass]
-    public class FileLoggerTests : TestBase
+    public class FileLoggerTests : TestBaseWithLauncher
     {
         [DllImport("shlwapi.dll", CharSet = CharSet.Unicode)]
         private static extern int StrCmpLogicalW(string psz1, string psz2);

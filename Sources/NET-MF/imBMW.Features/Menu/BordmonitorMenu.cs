@@ -4,7 +4,6 @@ using imBMW.iBus.Devices.Real;
 using imBMW.iBus;
 using imBMW.Tools;
 using imBMW.Features.Menu.Screens;
-using imBMW.iBus.Devices.Emulators;
 using System.Threading;
 using imBMW.Features.Multimedia;
 

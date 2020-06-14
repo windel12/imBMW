@@ -1,8 +1,7 @@
 using System;
 using imBMW.iBus.Devices.Real;
-using imBMW.Multimedia;
 
-namespace imBMW.iBus.Devices.Emulators
+namespace imBMW.Features.Multimedia
 {
     public delegate void MediaEmulatorEnabledEventHandler(MediaEmulator emulator, bool isEnabled);
 

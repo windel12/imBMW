@@ -1,14 +1,9 @@
 using System;
-using Microsoft.SPOT;
-using System.Collections;
-using imBMW.Features.Menu.Screens;
-using imBMW.Tools;
-using imBMW.iBus.Devices.Emulators;
-using imBMW.Multimedia;
-using imBMW.Features.Localizations;
 using System.Threading;
-using imBMW.iBus;
-using imBMW.iBus.Devices.Real;
+using System.Collections;
+using imBMW.Tools;
+using imBMW.Features.Multimedia;
+using imBMW.Features.Menu.Screens;
 
 namespace imBMW.Features.Menu
 {

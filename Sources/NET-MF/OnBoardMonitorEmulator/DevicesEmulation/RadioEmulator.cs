@@ -1,12 +1,7 @@
 ﻿using imBMW.iBus;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using imBMW.iBus.Devices.Emulators;
 using imBMW.iBus.Devices.Real;
 using imBMW.Tools;
+using imBMW.Features.Multimedia.iBus;
 
 namespace OnBoardMonitorEmulator.DevicesEmulation
 {

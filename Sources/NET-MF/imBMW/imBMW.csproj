@@ -64,7 +64,7 @@
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
     <None Include="DBus\DBusManager.cs" />
-    <None Include="DBus\DBusMessage.cs" />
+    <Compile Include="DBus\DBusMessage.cs" />
     <None Include="DBus\DBusMessageParser.cs" />
     <None Include="DBus\DS2Message.cs" />
     <Compile Include="DebuggerBrowsableState.cs" />
@@ -78,7 +78,7 @@
     <Compile Include="iBus\Devices\AuxilaryHeater.cs" />
     <Compile Include="iBus\Devices\BodyModule.cs" />
     <Compile Include="iBus\Devices\Bordmonitor.cs" />
-    <None Include="iBus\Devices\DigitalDieselElectronics.cs" />
+    <Compile Include="iBus\Devices\DigitalDieselElectronics.cs" />
     <Compile Include="iBus\Devices\DigitalSignalProcessingAudioAmplifier.cs" />
     <Compile Include="iBus\Devices\FrontDisplay.cs" />
     <Compile Include="iBus\Devices\Immobiliser.cs" />

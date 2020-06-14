@@ -16,6 +16,9 @@ namespace imBMW.iBus.Devices.Real
         // bar
         public static double BoostTarget { get; private set; }
 
+        // %
+        public static double VNT { get; private set; }
+
         // mm3
         public static double InjectionQuantity { get; private set; }
 
@@ -23,7 +26,10 @@ namespace imBMW.iBus.Devices.Real
         public static double RailPressureTarget { get; private set; }
 
         // bar
-        public static double RailpressureActual { get; private set; }
+        public static double RailPressureActual { get; private set; }
+
+        // %
+        public static double PressureRegulationValve { get; private set; }
 
         // kg/h
         public static double AirMass { get; private set; }
@@ -37,16 +43,27 @@ namespace imBMW.iBus.Devices.Real
         private static byte[] dzmNmit = { 0x0F, 0x10 };
         private static byte[] ldmP_Llin = { 0x0F, 0x40 };
         private static byte[] ldmP_Lsoll = { 0x0F, 0x42 };
-        private static byte[] mrmM_EAKT = { 0x0F, 0x80 };
+        private static byte[] ehmFLDS = { 0x0E, 0x81 };
         private static byte[] zumPQsoll = { 0x1F, 0x5E };
         private static byte[] zumP_RAIL = { 0x1F, 0x5D };
+        private static byte[] ehmFKDR = { 0x0E, 0xE5 };
+        private static byte[] mrmM_EAKT = { 0x0F, 0x80 };
         private static byte[] aroIST_4 = { 0x00, 0x10 };
+
         private static byte[] armM_List = { 0x0F, 0x30 };
         private static byte[] anmWTF = { 0x0F, 0x00 };
 
         public static DBusMessage QueryMessage = new DBusMessage(DeviceAddress.OBD, DeviceAddress.DDE, 0x2C, 0x10,
-            admVDF[0], admVDF[1], dzmNmit[0], dzmNmit[1], ldmP_Llin[0], ldmP_Llin[1], ldmP_Lsoll[0], ldmP_Lsoll[1], mrmM_EAKT[0], mrmM_EAKT[1],
-            zumPQsoll[0], zumPQsoll[1], zumP_RAIL[0], zumP_RAIL[1], aroIST_4[0], aroIST_4[1], armM_List[0], armM_List[1]);
+            admVDF[0], admVDF[1], 
+            dzmNmit[0], dzmNmit[1], 
+            ldmP_Llin[0], ldmP_Llin[1], 
+            ldmP_Lsoll[0], ldmP_Lsoll[1],
+            ehmFLDS[0], ehmFLDS[1],
+            zumPQsoll[0], zumPQsoll[1], 
+            zumP_RAIL[0], zumP_RAIL[1],
+            ehmFKDR[0], ehmFKDR[1],
+            mrmM_EAKT[0], mrmM_EAKT[1],
+            aroIST_4[0], aroIST_4[1]);
 
         public static DBusMessage status_motortemperatur = new DBusMessage(DeviceAddress.OBD, DeviceAddress.DDE, 0x2C, 0x10, anmWTF[0], anmWTF[1]);
         public static DBusMessage status_vorfoederdruck = new DBusMessage(DeviceAddress.OBD, DeviceAddress.DDE, 0x2C, 0x10, admVDF[0], admVDF[1]);
@@ -55,7 +72,7 @@ namespace imBMW.iBus.Devices.Real
 
         static DigitalDieselElectronics()
         {
-            DBusManager.Instance.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.DDE, DeviceAddress.OBD, ProcessFromDDEMessage);
+            VolumioManager.Instance.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.Volumio, DeviceAddress.imBMW, ProcessFromDDEMessage);
         }
 
         static void ProcessFromDDEMessage(Message m)
@@ -82,7 +99,7 @@ namespace imBMW.iBus.Devices.Real
                 }
                 if (d.Length > 11)
                 {
-                    InjectionQuantity = ((d[10] << 8) + d[11]) * 0.01;
+                    VNT = ((d[10] << 8) + d[11]) * 0.01;
                 }
                 if (d.Length > 13)
                 {
@@ -90,16 +107,22 @@ namespace imBMW.iBus.Devices.Real
                 }
                 if (d.Length > 15)
                 {
-                    RailpressureActual = ((d[14] << 8) + d[15]) * 10.235414;
+                    RailPressureActual = ((d[14] << 8) + d[15]) * 10.235414;
                 }
                 if (d.Length > 17)
                 {
-                    AirMass = ((d[16] << 8) + d[17]) * 0.0359929742;
+                    PressureRegulationValve = ((d[16] << 8) + d[17]) * 0.01;
                 }
                 if (d.Length > 19)
                 {
-                    AirMassPerStroke = ((d[18] << 8) + d[19]) * 0.1;
+                    InjectionQuantity = ((d[18] << 8) + d[19]) * 0.01;
                 }
+                if (d.Length > 21)
+                {
+                    AirMass = ((d[20] << 8) + d[21]) * 0.0359929742;
+                }
+
+                //AirMassPerStroke = ((d[18] << 8) + d[19]) * 0.1;
             }
 
             if (m.Data[0] == 0x70 && m.Data[1] == 0xC7)

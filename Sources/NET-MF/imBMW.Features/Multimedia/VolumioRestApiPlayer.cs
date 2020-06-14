@@ -4,7 +4,6 @@ using System;
 using System.Threading;
 using Microsoft.SPOT.Hardware;
 using GHI.Networking;
-using imBMW.Multimedia;
 using imBMW.Tools;
 using imBMW.iBus.Devices.Real;
 using imBMW.Features.Multimedia.Models;

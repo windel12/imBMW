@@ -9,7 +9,7 @@
 //using imBMW.Features.Localizations;
 //using System.Text;
 
-//namespace imBMW.iBus.Devices.Emulators
+//namespace imBMW.Features.Multimedia.iBus
 //{
 //    public class BordmonitorAUX : MediaEmulator
 //    {
@@ -86,7 +86,7 @@
 //            {
 //                return;
 //            }
-            
+
 //            // BM buttons
 //            if (m.Data.Length == 2 && m.Data[0] == 0x48)
 //            {

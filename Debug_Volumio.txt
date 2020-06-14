@@ -1,6 +1,5 @@
-v                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
-
 Volumio:
+sudo shutdown -h now
 systemctl stop volumio
 node --inspect=0.0.0.0:2992 /volumio/index.js
 
@@ -17,14 +16,22 @@ config.txt:
 cmdline.txt -> remove 'console=serial0,115000'
 
 COMMON COMMANDS:
-sudo shutdown -h now
+
 ls /dev/tty*
+stty -F /dev/ttyUSB0 -cstopb cs8 -parenb 9600
+		-cstopb is 1 stop bit
+		-cs8 is 8 bits
+		-parenb is no parity
+		9600 is the baud rate
 
 write to COM port:
 Linux: echo Hello > /dev/ttyUSB0
 MotoreTemperatur		echo -n -e \\xB8\\x12\\x04\\x2c\\x10\\x0F\\x00\\x6C > /dev/ttyUSB0
 PC: "echo Hello > COM2"
 
+
+DBUS:
+9600/8-E-1
 
 
 OBD2:

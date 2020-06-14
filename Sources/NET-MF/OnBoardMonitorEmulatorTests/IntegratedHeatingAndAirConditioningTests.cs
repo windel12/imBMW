@@ -11,7 +11,7 @@ using imBMW.Tools;
 namespace OnBoardMonitorEmulatorTests
 {
     [TestClass]
-    public class IntegratedHeatingAndAirConditioningTests : TestBase
+    public class IntegratedHeatingAndAirConditioningTests : TestBaseWithLauncher
     {
         [TestCleanup]
         public void TestCleanup()

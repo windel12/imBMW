@@ -16,17 +16,7 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
         {
             if (m.Data[0] == 0x2C && m.Data[1] == 0x10)
             {
-                Random r = new Random();
-                var response = new DBusMessage(DeviceAddress.DDE, DeviceAddress.OBD, 0x6C, 0x10, 
-                    0x01, (byte)r.Next(0, 255),
-                    0x03, (byte)r.Next(0, 255),
-                    0x05, (byte)r.Next(0, 255),
-                    0x07, (byte)r.Next(0, 255),
-                    0x09, (byte)r.Next(0, 255),
-                    0x0B, (byte)r.Next(0, 255),
-                    0x0D, (byte)r.Next(0, 255),
-                    0x0F, (byte)r.Next(0, 255),
-                    0x11, (byte)r.Next(0, 255));
+                var response = GenerateData();
                 DBusManager.Instance.EnqueueMessage(response);
             }
 
@@ -35,6 +25,23 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
                 var response = new DBusMessage(DeviceAddress.DDE, DeviceAddress.OBD, 0x70, 0xC7, 0x07, m.Data[3]);
                 DBusManager.Instance.EnqueueMessage(response);
             }
+        }
+
+        public static Message GenerateData()
+        {
+            Random r = new Random();
+            var message = new DBusMessage(DeviceAddress.DDE, DeviceAddress.OBD, 0x6C, 0x10,
+                0x01, (byte)r.Next(0, 255),
+                0x03, (byte)r.Next(0, 255),
+                0x05, (byte)r.Next(0, 255),
+                0x07, (byte)r.Next(0, 255),
+                0x09, (byte)r.Next(0, 255),
+                0x0B, (byte)r.Next(0, 255),
+                0x0D, (byte)r.Next(0, 255),
+                0x0F, (byte)r.Next(0, 255),
+                0x11, (byte)r.Next(0, 255),
+                0x13, (byte)r.Next(0, 255));
+            return message;
         }
     }
 }

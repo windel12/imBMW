@@ -3,9 +3,7 @@ using System.Text;
 using System.Threading;
 using imBMW.iBus;
 using imBMW.iBus.Devices.Real;
-using imBMW.Multimedia;
 using imBMW.Tools;
-using Microsoft.SPOT;
 
 namespace imBMW.Features.Multimedia
 {
@@ -54,7 +52,7 @@ namespace imBMW.Features.Multimedia
                 {
                     var titleBytes = m.Data.Skip(2);
                     string message = new string(Encoding.UTF8.GetChars(titleBytes));
-                    InstrumentClusterElectronics.ShowNormalTextWithGong(message);
+                    InstrumentClusterElectronics.ShowNormalTextWithGong(message, mode: TextMode.WithGong3);
                 }
             }
 
@@ -107,22 +105,28 @@ namespace imBMW.Features.Multimedia
         public override void Pause()
         {
             VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, (byte)VolumioCommands.Playback, (byte)PlaybackState.Pause));
+            IsPlaying = false;
         }
 
         public override void Play()
         {
             VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, (byte)VolumioCommands.Playback, (byte)PlaybackState.Play));
+            IsPlaying = true;
         }
 
         public override void Prev()
         {
+            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, (byte)VolumioCommands.Playback, (byte)PlaybackState.Pause));
+            Thread.Sleep(Settings.Instance.Delay1);
+
             VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, (byte)VolumioCommands.Playback, 0x04));
         }
 
         public override void Next()
         {
-            this.Pause();
+            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, (byte)VolumioCommands.Playback, (byte)PlaybackState.Pause));
             Thread.Sleep(Settings.Instance.Delay1);
+
             VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, (byte)VolumioCommands.Playback, 0x05));
         }
 

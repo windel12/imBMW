@@ -7,9 +7,7 @@ using imBMW.Features.Menu;
 using imBMW.Features.Menu.Screens;
 using imBMW.Features.Multimedia;
 using imBMW.iBus;
-using imBMW.iBus.Devices.Emulators;
 using imBMW.iBus.Devices.Real;
-using imBMW.Multimedia;
 using imBMW.Tools;
 using Microsoft.SPOT.Hardware;
 using Microsoft.SPOT.IO;
@@ -21,6 +19,7 @@ using System.Threading;
 using Debug = Microsoft.SPOT.Debug;
 using Localization = imBMW.Features.Localizations.Localization;
 using System.IO;
+using imBMW.Features.Multimedia.iBus;
 
 namespace imBMW.Devices.V2
 {
@@ -251,7 +250,7 @@ namespace imBMW.Devices.V2
                     {
                         if (MassStorageMountState == MassStorageMountState.DeviceConnectFailed || MassStorageMountState == MassStorageMountState.UnknownDeviceConnected)
                         {
-                            InstrumentClusterElectronics.ShowNormalTextWithGong(MassStorageMountState.ToStringValue());
+                            InstrumentClusterElectronics.ShowNormalTextWithGong(MassStorageMountState.ToStringValue(), mode: TextMode.WithGong3);
                             FrontDisplay.RefreshLEDs(LedType.RedBlinking, append: true);
                             LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(redLed, 4, 100));
                             //ResetBoard();
@@ -268,7 +267,7 @@ namespace imBMW.Devices.V2
                     if (!ErrorExist || _resetCause == GHI.Processor.Watchdog.ResetCause.Watchdog)
                     {
                         InstrumentClusterElectronics.ShowNormalTextWithGong(MassStorageMountState.ToStringValue()
-                            + "; " + (_resetCause == GHI.Processor.Watchdog.ResetCause.Normal ? "Normal" : "Watchdog"));
+                            + "; " + (_resetCause == GHI.Processor.Watchdog.ResetCause.Normal ? "Normal" : "Watchdog"), mode: TextMode.WithGong2);
                     }
                 }
 
@@ -305,7 +304,11 @@ namespace imBMW.Devices.V2
                     _massStorage = null;
                     Logger.Warning("UNMOUNTED!");
                 };
-                BodyModule.RemoteKeyButtonPressed += (e) => idleOverallTime = 0;
+                BodyModule.RemoteKeyButtonPressed += (e) =>
+                {
+                    idleOverallTime = 0;
+                    Logger.Trace("idleOverallTime = 0");
+                };
 
                 Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.InstrumentClusterElectronics, m =>
                 {
@@ -640,7 +643,7 @@ namespace imBMW.Devices.V2
                 dataFile = File.Open(Path.Combine(rootDirectory, FileLogger.ERROR_FILE_NAME), FileMode.OpenOrCreate);
                 if (dataFile != null && dataFile.Length > 1)
                 {
-                    InstrumentClusterElectronics.ShowNormalTextWithGong("ERRORS FOUND. CHECK LOG!");
+                    InstrumentClusterElectronics.ShowNormalTextWithGong("ERRORS FOUND. CHECK LOG!", mode: TextMode.WithGong3);
                     return true;
                 }
             }

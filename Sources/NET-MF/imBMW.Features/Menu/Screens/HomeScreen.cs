@@ -12,7 +12,7 @@ namespace imBMW.Features.Menu.Screens
         protected MenuItem itemBC;
         protected MenuItem itemSettings;
         protected MenuItem auxilaryHeaterItem;
-        //protected MenuItem ddeItem;
+        protected MenuItem ddeItem;
         //protected MenuItem bluetoothItem;
         protected MenuItem activateItem;
         //protected MenuItem musicListItem;
@@ -37,10 +37,10 @@ namespace imBMW.Features.Menu.Screens
             {
                 GoToScreenCallback = () => AuxilaryHeaterScreen.Instance
             };
-            //ddeItem = new MenuItem(i => "-", MenuItemType.Button, MenuItemAction.GoToScreen)
-            //{
-            //    GoToScreenCallback = () => DDEScreen.Instance
-            //};
+            ddeItem = new MenuItem(i => "DDE", MenuItemType.Button, MenuItemAction.GoToScreen)
+            {
+                GoToScreenCallback = () => DDEScreen.Instance
+            };
             //bluetoothItem = new MenuItem(i => "Bluetooth", MenuItemType.Button, MenuItemAction.GoToScreen)
             //{
             //    GoToScreenCallback = () => BluetoothScreen.Instance
@@ -74,10 +74,10 @@ namespace imBMW.Features.Menu.Screens
             this.AddItem(auxilaryHeaterItem);
             this.AddItem(activateItem);
             this.AddItem(integratedHeatingAndAirConditioningItem);
-            this.AddItem(delayItem);//AddItem(ddeItem);
+            this.AddItem(delayItem);
+            AddItem(ddeItem);
             this.AddDummyButton();//AddItem(bluetoothItem);
             this.AddDummyButton();//AddItem(musicListItem);
-            this.AddDummyButton();
             this.AddDummyButton();
         }
 

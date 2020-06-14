@@ -22,6 +22,7 @@ namespace imBMW.Features.Menu.Screens
         protected MenuItem item7;
         protected MenuItem item8;
         protected MenuItem item9;
+        protected MenuItem item10;
 
         public DDEScreen()
         {
@@ -31,16 +32,22 @@ namespace imBMW.Features.Menu.Screens
             item2 = new MenuItem(x => "RPM: " + DigitalDieselElectronics.Rpm.ToString("F0")) { ShouldRefreshScreenIfTextChanged = false };
             item3 = new MenuItem(x => "LDF_in: " + DigitalDieselElectronics.BoostActual.ToString("F0")) { ShouldRefreshScreenIfTextChanged = false };
             item4 = new MenuItem(x => "LDF_soll: " + DigitalDieselElectronics.BoostTarget.ToString("F0")) { ShouldRefreshScreenIfTextChanged = false };
-            item5 = new MenuItem(x => "IQ: " + DigitalDieselElectronics.InjectionQuantity.ToString("F2")) { ShouldRefreshScreenIfTextChanged = false };
+            item5 = new MenuItem(x => "ehmFLDS: " + DigitalDieselElectronics.VNT.ToString("F0")) { ShouldRefreshScreenIfTextChanged = false };
             item6 = new MenuItem(x => "KDF_soll: " + DigitalDieselElectronics.RailPressureTarget.ToString("F0")) { ShouldRefreshScreenIfTextChanged = false };
-            item7 = new MenuItem(x => "KDF_in: " + DigitalDieselElectronics.RailpressureActual.ToString("F0")) { ShouldRefreshScreenIfTextChanged = false };
-            item8 = new MenuItem(x => "LMM: " + DigitalDieselElectronics.AirMass.ToString("F2")) { ShouldRefreshScreenIfTextChanged = false };
+            item7 = new MenuItem(x => "KDF_in: " + DigitalDieselElectronics.RailPressureActual.ToString("F0")) { ShouldRefreshScreenIfTextChanged = false };
+            item8 = new MenuItem(x => "ehmFKDR: " + DigitalDieselElectronics.PressureRegulationValve.ToString("F0")) { ShouldRefreshScreenIfTextChanged = false };
+            item9 = new MenuItem(x => "IQ: " + DigitalDieselElectronics.InjectionQuantity.ToString("F2"), e =>
+                {
+                    VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, 0x6C, 0x10));
+                }) { ShouldRefreshScreenIfTextChanged = false };
+            item10 = new MenuItem(x => "LMM: " + DigitalDieselElectronics.AirMass.ToString("F2"), MenuItemType.Button, MenuItemAction.GoBackScreen);
+
             //item9 = new MenuItem(x => "armM_List: " + DigitalDieselElectronics.AirMassPerStroke) { ShouldRefreshScreenIfTextChanged = false };
-            item9 = new MenuItem("Refresh", (e) =>
-            {
-                DBusManager.Port.WriteBufferSize = 1;
-                DBusManager.Instance.EnqueueMessage(DigitalDieselElectronics.QueryMessage);
-            }, MenuItemType.Button, MenuItemAction.Refresh);
+            //item9 = new MenuItem("Refresh", (e) =>
+            //{
+            //    DBusManager.Port.WriteBufferSize = 1;
+            //    DBusManager.Instance.EnqueueMessage(DigitalDieselElectronics.QueryMessage);
+            //}, MenuItemType.Button, MenuItemAction.Refresh);
 
 
             //ClearItems();
@@ -71,7 +78,8 @@ namespace imBMW.Features.Menu.Screens
             AddItem(item7);
             AddItem(item8);
             AddItem(item9);
-            this.AddBackButton();
+            AddItem(item10);
+            //this.AddBackButton();
         }
 
         private void DigitalDieselElectronics_MessageReceived()

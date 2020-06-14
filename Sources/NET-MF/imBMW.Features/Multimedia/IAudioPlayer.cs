@@ -3,7 +3,7 @@ using Microsoft.SPOT;
 using imBMW.Features.Menu;
 using imBMW.Features.Multimedia.Models;
 
-namespace imBMW.Multimedia
+namespace imBMW.Features.Multimedia
 {
     public delegate void IsReadyHandler(IAudioPlayer sender, bool isReady);
 

@@ -1,16 +1,11 @@
 using System;
-using Microsoft.SPOT;
-using Microsoft.SPOT.Hardware;
 using System.Threading;
-using imBMW.Tools;
-using imBMW.iBus.Devices.Real;
-using imBMW.Multimedia;
-using imBMW.Features.Menu.Screens;
-using imBMW.Features.Multimedia;
 using imBMW.iBus;
+using imBMW.iBus.Devices.Real;
+using imBMW.Tools;
 using imBMW.Enums;
 
-namespace imBMW.iBus.Devices.Emulators
+namespace imBMW.Features.Multimedia.iBus
 {
     public class CDChanger : MediaEmulator
     {
@@ -29,13 +24,13 @@ namespace imBMW.iBus.Devices.Emulators
         public static Message MessageAnnounce = new Message(DeviceAddress.CDChanger, DeviceAddress.LocalBroadcastAddress, 0x02, 0x01);
 
         /// <summary>0x39, 0x00, 0x02 </summary>
-        Message StatusStopped(byte disk, byte track)
+        public Message StatusStopped(byte disk, byte track)
         {
             return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Stop, Silence", 0x39, 0x00, 0x02, 0x00, disksMask, 0x00, disk, track); // try 39 00 0C ?
         }
 
         /// <summary>0x39, 0x02, 0x09 </summary>
-        Message StatusPlaying(byte disk, byte track)
+        public Message StatusPlaying(byte disk, byte track)
         {
             return new Message(DeviceAddress.CDChanger, DeviceAddress.Radio, "Play, CommonPlayback", 0x39, 0x02, 0x09, 0x00, disksMask, 0x00, disk, track);
         }

@@ -1,8 +1,4 @@
 using System;
-using imBMW.Features.Menu.Screens;
-using imBMW.iBus.Devices.Real;
-using Microsoft.SPOT;
-using imBMW.Multimedia;
 
 namespace imBMW.Features
 {

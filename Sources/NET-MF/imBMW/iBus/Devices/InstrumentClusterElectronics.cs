@@ -530,9 +530,9 @@ namespace imBMW.iBus.Devices.Real
             ShowTextForSomePeriodOfTime(text, align, TextMode.Normal, timeout);
         }
 
-        public static void ShowNormalTextWithGong(string text, TextAlign align = TextAlign.Left, int timeout = 5000)
+        public static void ShowNormalTextWithGong(string text, TextAlign align = TextAlign.Left, TextMode mode = TextMode.WithGong1, int timeout = 5000)
         {
-            ShowTextForSomePeriodOfTime(text, align, TextMode.WithGong1, timeout);
+            ShowTextForSomePeriodOfTime(text, align, mode, timeout);
         }
 
         private static void ShowTextForSomePeriodOfTime(string text, TextAlign align, TextMode mode, int timeout)
