@@ -149,6 +149,9 @@
     <Compile Include="..\imBMW.Tools\ErrorIdentifier.cs">
       <Link>imBMW.Tools\ErrorIdentifier.cs</Link>
     </Compile>
+    <Compile Include="..\imBMW.Tools\SignalGeneratorHelper.cs">
+      <Link>imBMW.Tools\SignalGeneratorHelper.cs</Link>
+    </Compile>
     <Compile Include="..\imBMW\Enums\AudioSource.cs">
       <Link>imBMW\Enums\AudioSource.cs</Link>
     </Compile>
@@ -184,6 +187,7 @@
     </Compile>
     <Compile Include="DevicesEmulation\VolumioRestApiPlayerEmulator.cs" />
     <Compile Include="DevicesEmulation\VolumioUartPlayerEmulator.cs" />
+    <Compile Include="GHI\IO\SignalGenerator.cs" />
     <Compile Include="GHI\Networking\EthernetENC28J60.cs" />
     <Compile Include="ViewModel.cs" />
     <Page Include="MainWindow.xaml">

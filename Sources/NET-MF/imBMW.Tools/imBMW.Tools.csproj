@@ -70,7 +70,12 @@
     <Compile Include="Parse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="StreamHelpers.cs" />
+    <Compile Include="SignalGeneratorHelper.cs" />
     <Compile Include="StringHelpers.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="GHI.Hardware, Version=4.3.8.1, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.SPOT.Native" />
   </ItemGroup>
   <Import Condition="EXISTS('$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets')" Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <Import Condition="!EXISTS('$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets')" Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

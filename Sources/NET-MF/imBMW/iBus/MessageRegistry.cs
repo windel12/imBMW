@@ -431,6 +431,7 @@ namespace imBMW.iBus
             //}
             //#endif
             bool isIkeCcmMessage = message.Data[0] == 0x1A || message.Data[0] == 0x52;
+            bool isVolumioMessage = message.SourceDevice == DeviceAddress.Volumio && message.DestinationDevice == DeviceAddress.imBMW;
 
             string description = message.Describe();
             if (description == null)
@@ -450,6 +451,10 @@ namespace imBMW.iBus
             if (isIkeCcmMessage && message.ReceiverDescription == null && message.Data.Length > 3)
             {
                 description += " - \"" + ASCIIEncoding.GetString(message.Data.Skip(3)) + "\"";
+            }
+            if (isVolumioMessage && message.Data.Length > 2)
+            {
+                description += " - \"" + ASCIIEncoding.GetString(message.Data.Skip(2)) + "\"";
             }
             return description;
         }

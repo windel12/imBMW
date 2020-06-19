@@ -27,12 +27,12 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
                 VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.Volumio, DeviceAddress.imBMW, commands.Concat(message).ToArray()));
             });
 
-            Timer = new Timer((obj) =>
-            {
-                byte[] data = DigitalDieselElectronicsEmulator.GenerateData().Data;
-                var message = new Message(DeviceAddress.Volumio, DeviceAddress.imBMW, data);
-                VolumioManager.Instance.EnqueueMessage(message);
-            }, null, 0, 2000);
+            //Timer = new Timer((obj) =>
+            //{
+            //    byte[] data = DigitalDieselElectronicsEmulator.GenerateData().Data;
+            //    var message = new Message(DeviceAddress.Volumio, DeviceAddress.imBMW, data);
+            //    VolumioManager.Instance.EnqueueMessage(message);
+            //}, null, 0, 2000);
         }
 
         static void ProcessToVolumioMessage(Message m)

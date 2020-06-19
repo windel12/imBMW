@@ -63,28 +63,33 @@ namespace imBMW.Features.Menu.Screens
             //        DBusManager.Port.AfterWriteDelay -= 1;
             //}, MenuItemType.Button, MenuItemAction.Refresh));
 
-            //AddItem(new MenuItem(i => "Pre-supply: " + DigitalDieselElectronics.PresupplyPressure.ToString("F2"), i =>
-            //{
-            //    DBusManager.Port.WriteBufferSize = 1;
-            //    DBusManager.Instance.EnqueueMessage(DigitalDieselElectronics.status_vorfoederdruck);
-            //}));
+            AddItem(new MenuItem(i => "Temp: " + DigitalDieselElectronics.PresupplyPressure.ToString("F2"), i =>
+            {
+                // DBusManager.Port.WriteBufferSize = 1;
+                DBusManager.Instance.EnqueueMessage(DigitalDieselElectronics.status_motortemperatur);
+            }));
 
-            //AddItem(new MenuItem(i => "Eluefter: " + DigitalDieselElectronics.EluefterFrequency, x =>
-            //{
-            //    byte value = DigitalDieselElectronics.EluefterFrequency;
+            AddItem(new MenuItem(i => "Pre-supply: " + DigitalDieselElectronics.PresupplyPressure.ToString("F2"), i =>
+            {
+               // DBusManager.Port.WriteBufferSize = 1;
+                DBusManager.Instance.EnqueueMessage(DigitalDieselElectronics.status_vorfoederdruck);
+            }));
 
-            //    if (DigitalDieselElectronics.EluefterFrequency < 30)
-            //        value = 30;
-            //    else if (DigitalDieselElectronics.EluefterFrequency >= 30 && DigitalDieselElectronics.EluefterFrequency < 60)
-            //        value = 60;
-            //    else if (DigitalDieselElectronics.EluefterFrequency >= 60 && DigitalDieselElectronics.EluefterFrequency < 90)
-            //        value = 90;
-            //    else
-            //        value = 0;
+            AddItem(new MenuItem(i => "Eluefter: " + DigitalDieselElectronics.EluefterFrequency, x =>
+            {
+                byte value = DigitalDieselElectronics.EluefterFrequency;
 
-            //    DBusManager.Port.WriteBufferSize = 1;
-            //    DBusManager.Instance.EnqueueMessage(DigitalDieselElectronics.SteuernEluefter(value));
-            //}));
+                if (DigitalDieselElectronics.EluefterFrequency < 30)
+                    value = 30;
+                else if (DigitalDieselElectronics.EluefterFrequency >= 30 && DigitalDieselElectronics.EluefterFrequency < 60)
+                    value = 60;
+                else if (DigitalDieselElectronics.EluefterFrequency >= 60 && DigitalDieselElectronics.EluefterFrequency < 90)
+                    value = 90;
+                else
+                    value = 0;
+
+                DBusManager.Instance.EnqueueMessage(DigitalDieselElectronics.SteuernEluefter(value));
+            }));
 
             //AddItem(new MenuItem(i => Localization.Current.Voltage + ": " + (NavigationModule.BatteryVoltage > 0 ? NavigationModule.BatteryVoltage.ToString("F2") : "-") + " " + Localization.Current.VoltageShort, x =>
             //{

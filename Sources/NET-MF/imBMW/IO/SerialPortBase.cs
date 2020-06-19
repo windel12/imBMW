@@ -79,6 +79,8 @@ namespace System.IO.Ports
         //    }
         //}
 
+        public abstract string Name { get; }
+
         public abstract bool IsOpen { get; }
 
         public abstract void Open();

@@ -15,8 +15,8 @@ namespace imBMW.iBus.Devices.Real
         BetweenTwoArrow = 0x01,
         BlinkingArrows = 0x02,
         WithGong1 = 0x04,
-        WithGong2 = 0x08,
-        WithGong3 = 0x10,
+        InfiniteGong1OnIgnOff = 0x08,
+        WithGong2 = 0x10,
     }
 
     public enum IgnitionState

@@ -75,6 +75,11 @@ namespace System.IO.Ports
 #endif
         }
 
+        public override string Name
+        {
+            get { return _port.PortName;  }
+        }
+
         public override void Open()
         {
             _port.Open();

@@ -196,6 +196,11 @@ namespace imBMW.iBus
 
         #region Message writing and queue
 
+        protected virtual void SendData(Message m)
+        {
+            _port.Write(m.Packet);
+        }
+
         void SendMessage(object o)
         {
             if (o is byte[])
@@ -223,12 +228,7 @@ namespace imBMW.iBus
                 }
             }
 
-            _port.Write(m.Packet);
-            // Flush DBus port
-            if (_port.WriteBufferSize == 1)
-            {
-                _port.Flush();
-            }
+            SendData(m);
 
 #if DEBUG
             m.PerformanceInfo.TimeEndedProcessing = DateTime.Now;

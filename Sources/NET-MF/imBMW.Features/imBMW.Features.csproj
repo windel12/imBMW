@@ -102,10 +102,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="GHI.Networking, Version=4.3.8.1, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.SPOT.Hardware" />
     <Reference Include="Microsoft.SPOT.Native" />
-    <Reference Include="System.Http" />
     <Reference Include="System.IO" />
   </ItemGroup>
   <ItemGroup>

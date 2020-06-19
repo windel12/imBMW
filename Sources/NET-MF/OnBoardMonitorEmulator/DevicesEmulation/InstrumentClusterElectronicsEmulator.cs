@@ -81,6 +81,19 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
             Manager.Instance.AddMessageReceiverForDestinationDevice(DeviceAddress.Diagnostic, ProcessDiagnosticMessageFromIBusAndForwardToDBus);
 
             TemperatureOutside = (byte)(new Random().Next(0, 40));
+
+            InstrumentClusterElectronics.IgnitionStateChanged += (e) =>
+            {
+                if (e.PreviousIgnitionState == IgnitionState.Acc && e.CurrentIgnitionState == IgnitionState.Ign)
+                {
+                    StartAnnounce();
+                }
+
+                if (e.PreviousIgnitionState == IgnitionState.Ign && e.CurrentIgnitionState == IgnitionState.Acc)
+                {
+                    StopAnnounce();
+                }
+            };
         }
 
         public static void StartAnnounce()

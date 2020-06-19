@@ -63,10 +63,10 @@
   </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
-    <None Include="DBus\DBusManager.cs" />
+    <Compile Include="DBus\DBusManager.cs" />
     <Compile Include="DBus\DBusMessage.cs" />
     <None Include="DBus\DBusMessageParser.cs" />
-    <None Include="DBus\DS2Message.cs" />
+    <Compile Include="DBus\DS2Message.cs" />
     <Compile Include="DebuggerBrowsableState.cs" />
     <Compile Include="Enums\AirConditioningCompressorStatus.cs" />
     <Compile Include="Enums\AudioSource.cs" />
@@ -133,6 +133,7 @@
     <None Include="imBMW.SampleSettings.ini" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="GHI.Hardware, Version=4.3.8.1, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.SPOT.Hardware" />
     <Reference Include="Microsoft.SPOT.Hardware.SerialPort" />
     <Reference Include="Microsoft.SPOT.Native" />

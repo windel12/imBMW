@@ -1,6 +1,7 @@
 using System;
 using System.IO.Ports;
 using System.Threading;
+using GHI.IO;
 using imBMW.Tools;
 
 namespace imBMW.iBus
@@ -9,6 +10,9 @@ namespace imBMW.iBus
     {
         public static string PORT_NAME = "dBus";
         private static DBusManager _instance;
+
+        static SignalGenerator sg = new SignalGenerator(FEZPandaIII.Gpio.D29, true);
+
         public static DBusManager Instance
         {
             get
@@ -41,6 +45,15 @@ namespace imBMW.iBus
         public static ISerialPort Port
         {
             get { return Instance._port; }
+        }
+
+        protected override void SendData(Message m)
+        {
+#if OnBoardMonitorEmulator
+            _port.Write(m.Packet);
+#else
+            SignalGeneratorHelper.Set(sg, false, m.Packet, 4000, false);
+#endif
         }
 
         protected override void bus_DataReceived(object sender, SerialDataReceivedEventArgs e)

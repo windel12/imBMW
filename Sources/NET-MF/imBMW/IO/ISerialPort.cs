@@ -41,5 +41,7 @@ namespace System.IO.Ports
         event SerialDataReceivedEventHandler DataReceived;
 
         event BusyChangedEventHandler BusyChanged; 
+
+        string Name { get; }
     }
 }

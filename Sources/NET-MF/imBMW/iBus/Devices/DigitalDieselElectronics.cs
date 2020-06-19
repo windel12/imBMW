@@ -50,8 +50,8 @@ namespace imBMW.iBus.Devices.Real
         private static byte[] mrmM_EAKT = { 0x0F, 0x80 };
         private static byte[] aroIST_4 = { 0x00, 0x10 };
 
-        private static byte[] armM_List = { 0x0F, 0x30 };
         private static byte[] anmWTF = { 0x0F, 0x00 };
+        private static byte[] armM_List = { 0x0F, 0x30 };
 
         public static DBusMessage QueryMessage = new DBusMessage(DeviceAddress.OBD, DeviceAddress.DDE, 0x2C, 0x10,
             admVDF[0], admVDF[1], 
@@ -67,12 +67,11 @@ namespace imBMW.iBus.Devices.Real
 
         public static DBusMessage status_motortemperatur = new DBusMessage(DeviceAddress.OBD, DeviceAddress.DDE, 0x2C, 0x10, anmWTF[0], anmWTF[1]);
         public static DBusMessage status_vorfoederdruck = new DBusMessage(DeviceAddress.OBD, DeviceAddress.DDE, 0x2C, 0x10, admVDF[0], admVDF[1]);
-
         public static DBusMessage SteuernEluefter(byte value) => new DBusMessage(DeviceAddress.OBD, DeviceAddress.DDE, 0x30, 0xC7, 0x07, value);
 
         static DigitalDieselElectronics()
         {
-            VolumioManager.Instance.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.Volumio, DeviceAddress.imBMW, ProcessFromDDEMessage);
+            DBusManager.Instance.AddMessageReceiverForSourceAndDestinationDevice(DeviceAddress.DDE, DeviceAddress.OBD, ProcessFromDDEMessage);
         }
 
         static void ProcessFromDDEMessage(Message m)

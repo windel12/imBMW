@@ -23,7 +23,9 @@ namespace imBMW.Features.Multimedia
     {
         Stop = 0x01,
         Pause = 0x02,
-        Play = 0x03
+        Play = 0x03,
+        Next = 0x04,
+        Prev = 0x05
     }
 
     public enum SystemCommands
@@ -52,7 +54,8 @@ namespace imBMW.Features.Multimedia
                 {
                     var titleBytes = m.Data.Skip(2);
                     string message = new string(Encoding.UTF8.GetChars(titleBytes));
-                    InstrumentClusterElectronics.ShowNormalTextWithGong(message, mode: TextMode.WithGong3);
+                    InstrumentClusterElectronics.ShowNormalTextWithGong(message, mode: TextMode.WithGong2);
+                    m.ReceiverDescription = "Init";
                 }
             }
 
@@ -61,10 +64,12 @@ namespace imBMW.Features.Multimedia
                 if (m.Data[1] == (byte)PlaybackState.Stop)
                 {
                     CurrentPlaybackState = PlaybackState.Stop;
+                    m.ReceiverDescription = "Stop";
                 }
                 if (m.Data[1] == (byte)PlaybackState.Pause)
                 {
                     CurrentPlaybackState = PlaybackState.Pause;
+                    m.ReceiverDescription = "Pause";
                 }
                 if (m.Data[1] == (byte)PlaybackState.Play)
                 {
@@ -77,6 +82,7 @@ namespace imBMW.Features.Multimedia
                         CurrentTitle = title;
                         OnTrackChanged(title);
                     }
+                    m.ReceiverDescription = "Play";
                 }
             }
 
@@ -88,6 +94,7 @@ namespace imBMW.Features.Multimedia
                     string message = new string(Encoding.UTF8.GetChars(messageBytes));
                     Thread.Sleep(300);
                     InstrumentClusterElectronics.ShowNormalTextWithoutGong(message);
+                    m.ReceiverDescription = "Reboot";
                 }
                 if (m.Data[1] == (byte)SystemCommands.Shutdown)
                 {
@@ -98,36 +105,37 @@ namespace imBMW.Features.Multimedia
                         string message = new string(Encoding.UTF8.GetChars(messageBytes));
                         ShuttedDown(message);
                     }
+                    m.ReceiverDescription = "Shutdown";
                 }
             }
         }
 
         public override void Pause()
         {
-            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, (byte)VolumioCommands.Playback, (byte)PlaybackState.Pause));
+            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Pause", (byte)VolumioCommands.Playback, (byte)PlaybackState.Pause));
             IsPlaying = false;
         }
 
         public override void Play()
         {
-            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, (byte)VolumioCommands.Playback, (byte)PlaybackState.Play));
+            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Play", (byte)VolumioCommands.Playback, (byte)PlaybackState.Play));
             IsPlaying = true;
         }
 
         public override void Prev()
         {
-            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, (byte)VolumioCommands.Playback, (byte)PlaybackState.Pause));
+            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Pause", (byte)VolumioCommands.Playback, (byte)PlaybackState.Pause));
             Thread.Sleep(Settings.Instance.Delay1);
 
-            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, (byte)VolumioCommands.Playback, 0x04));
+            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Prev", (byte)VolumioCommands.Playback, (byte)PlaybackState.Next));
         }
 
         public override void Next()
         {
-            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, (byte)VolumioCommands.Playback, (byte)PlaybackState.Pause));
+            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Pause", (byte)VolumioCommands.Playback, (byte)PlaybackState.Pause));
             Thread.Sleep(Settings.Instance.Delay1);
 
-            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, (byte)VolumioCommands.Playback, 0x05));
+            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Next", (byte)VolumioCommands.Playback, (byte)PlaybackState.Prev));
         }
 
         
@@ -144,12 +152,12 @@ namespace imBMW.Features.Multimedia
 
         public static void Reboot()
         {
-            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, (byte)VolumioCommands.System, (byte)SystemCommands.Reboot));
+            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Reboot", (byte)VolumioCommands.System, (byte)SystemCommands.Reboot));
         }
 
         public static void Shutdown()
         {
-            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, (byte)VolumioCommands.System, (byte)SystemCommands.Shutdown));
+            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Shutdown", (byte)VolumioCommands.System, (byte)SystemCommands.Shutdown));
         }
 
         public static event ActionString ShuttedDown;

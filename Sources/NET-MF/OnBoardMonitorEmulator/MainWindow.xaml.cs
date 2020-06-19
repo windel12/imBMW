@@ -49,10 +49,13 @@ namespace OnBoardMonitorEmulator
 
         public static byte[] PhoneButtonClick = { 0x48, 0x08 };
         public static byte[] PhoneButtonHold = { 0x48, 0x48 };
+        public static byte[] PhoneButtonRelease = { 0x48, 0x88 };
         public static byte[] MenuButtonClick = { 0x48, 0x34 };
         public static byte[] MenuButtonHold = { 0x48, 0x74 };
+        public static byte[] MenuButtonRelease = { 0x48, 0xB4 };
         public static byte[] EjectButtonClick = { 0x48, 0x24 };
         public static byte[] EjectButtonHold = { 0x48, 0x64 };
+        public static byte[] EjectButtonRelease = { 0x48, 0xA4 };
 
         //private bool _isEnabled = false;
         //public bool IsEnabled
@@ -102,6 +105,7 @@ namespace OnBoardMonitorEmulator
             FrontDisplayEmulator.Init();
             HeadlightVerticalAimControlEmulator.Init();
             IntegratedHeatingAndAirConditioningEmulator.Init();
+            DigitalDieselElectronicsEmulator.Init();
             //VolumioRestApiPlayerEmulator.Init(_viewModel);
 
             Launcher.Launch(Launcher.LaunchMode.WPF);
@@ -111,19 +115,6 @@ namespace OnBoardMonitorEmulator
 #endif
 
             //AuxilaryHeaterEmulator.FirstMessageAfterWakeup();
-
-            InstrumentClusterElectronics.IgnitionStateChanged += (e) =>
-            {
-                if (e.PreviousIgnitionState == IgnitionState.Acc && e.CurrentIgnitionState == IgnitionState.Ign)
-                {
-                    InstrumentClusterElectronicsEmulator.StartAnnounce();
-                }
-
-                if (e.PreviousIgnitionState == IgnitionState.Ign && e.CurrentIgnitionState == IgnitionState.Acc)
-                {
-                    InstrumentClusterElectronicsEmulator.StopAnnounce();
-                }
-            };
 
             Bordmonitor.ReplyToScreenUpdates = true;
             Bordmonitor.TextReceived += Bordmonitor_TextReceived;
@@ -138,11 +129,16 @@ namespace OnBoardMonitorEmulator
                 {
                     if (m.Data.StartsWith(Radio.DataRadioOn))
                     {
-                        EnableRadio();
+                        RadioEmulator.IsEnabled = true;
+                        Knob1Button.FontWeight = FontWeights.Bold;
+                        Knob1Button.Foreground = new SolidColorBrush(Colors.Orange);
                     }
                     if (m.Data.StartsWith(Radio.DataRadioOff))
                     {
-                        DisableRadio();
+                        RadioEmulator.IsEnabled = false;
+                        Knob1Button.FontWeight = FontWeights.Normal;
+                        Knob1Button.Foreground = new SolidColorBrush(Colors.Black);
+                        OBCDisplay.Text = "";
                     }
                 });
             });
@@ -157,21 +153,6 @@ namespace OnBoardMonitorEmulator
 
             Launcher.DisposeManagers();
             Application.Current.Shutdown();
-        }
-
-        private void EnableRadio()
-        {
-            RadioEmulator.IsEnabled = true;
-            Knob1Button.FontWeight = FontWeights.Bold;
-            Knob1Button.Foreground = new SolidColorBrush(Colors.Orange);
-        }
-
-        private void DisableRadio()
-        {
-            RadioEmulator.IsEnabled = false;
-            Knob1Button.FontWeight = FontWeights.Normal;
-            Knob1Button.Foreground = new SolidColorBrush(Colors.Black);
-            OBCDisplay.Text = "";
         }
 
         private void Bordmonitor_TextReceived(BordmonitorText args)
@@ -255,9 +236,16 @@ namespace OnBoardMonitorEmulator
             this.Dispatcher.Invoke(() => { OBCDisplay.Text = message; });
         }
 
-        private void WriteMessage(Message message)
+        private void WriteMessage(params Message[] message)
         {
             Manager.Instance.EnqueueMessage(message);
+        }
+
+        private void index_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var textBlock = sender as TextBlock;
+            var index = (byte)(int.Parse(new String(textBlock.Name.Skip(5).ToArray())) - 1);
+            Bordmonitor.PressItem(index);
         }
 
         private void Knob1Button_Click(object sender, RoutedEventArgs e)
@@ -304,8 +292,9 @@ namespace OnBoardMonitorEmulator
         private void MenuButton_Click(object sender, RoutedEventArgs e)
         {
             State = GraphicsNavigationDriverState.BordComputer;
-            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, MenuButtonClick);
-            WriteMessage(message);
+            var message1 = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, MenuButtonClick);
+            var message2 = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, MenuButtonRelease);
+            WriteMessage(message1, message2);
         }
 
         private void MenuButton_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
@@ -316,8 +305,9 @@ namespace OnBoardMonitorEmulator
 
         private void PhoneButton_Click(object sender, RoutedEventArgs e)
         {
-            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, PhoneButtonClick);
-            WriteMessage(message);
+            var message1 = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, PhoneButtonClick);
+            var message2 = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, PhoneButtonRelease);
+            WriteMessage(message1, message2);
         }
 
         private void PhoneButton_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
@@ -328,8 +318,9 @@ namespace OnBoardMonitorEmulator
 
         private void EjectButton_Click(object sender, RoutedEventArgs e)
         {
-            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, EjectButtonClick);
-            WriteMessage(message);
+            var message1 = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, EjectButtonClick);
+            var message2 = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, EjectButtonRelease);
+            WriteMessage(message1, message2);
         }
 
         private void EjectButton_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
@@ -338,11 +329,28 @@ namespace OnBoardMonitorEmulator
             WriteMessage(message);
         }
 
-        private void index_MouseDown(object sender, MouseButtonEventArgs e)
+        private void ClockButton_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            var textBlock = sender as TextBlock;
-            var index = (byte)(int.Parse(new String(textBlock.Name.Skip(5).ToArray())) -1);
-            Bordmonitor.PressItem(index);
+            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, 0x48, 0x87);
+            WriteMessage(message);
+        }
+
+        private void ArrowsButton_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, 0x48, 0x94);
+            WriteMessage(message);
+        }
+
+        private void ModeButton_Click(object sender, RoutedEventArgs e)
+        {
+            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, 0x48, 0x23);
+            WriteMessage(message);
+        }
+
+        private void ModeButton_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, 0x48, 0x63);
+            WriteMessage(message);
         }
 
         private void DiskButton_MouseUp(object sender, MouseButtonEventArgs e)
@@ -363,23 +371,7 @@ namespace OnBoardMonitorEmulator
             WriteMessage(message);
         }
 
-        private void ClockButton_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.LocalBroadcastAddress, 0x48, 0x87);
-            WriteMessage(message);
-        }
 
-        private void ArrowsButton_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, 0x48, 0x94);
-            WriteMessage(message);
-        }
-
-        private void imBMWTest_Click(object sender, RoutedEventArgs e)
-        {
-            var message = new Message(DeviceAddress.imBMWTest, DeviceAddress.LocalBroadcastAddress, 0x03, 4, 5, 6);
-            WriteMessage(message);
-        }
 
         private void MFLButton_VolumeUp(object sender, RoutedEventArgs e)
         {
@@ -390,6 +382,8 @@ namespace OnBoardMonitorEmulator
         {
             MultiFunctionSteeringWheel.VolumeDown();
         }
+
+
 
         private void rpmSpeedAnnounceInterval_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
@@ -445,22 +439,16 @@ namespace OnBoardMonitorEmulator
             Manager.Instance.EnqueueMessage(message);
         }
 
+        private void imBMWTest_Click(object sender, RoutedEventArgs e)
+        {
+            var message = new Message(DeviceAddress.imBMWTest, DeviceAddress.LocalBroadcastAddress, 0x03, 4, 5, 6);
+            WriteMessage(message);
+        }
+
         private void OpenLastLogButton_Click(object sender, RoutedEventArgs e)
         {
             var pathToLastLogFile = Path.Combine(Environment.CurrentDirectory, FileLogger.FullPath);
             Process.Start(pathToLastLogFile);
-        }
-
-        private void ModeButton_Click(object sender, RoutedEventArgs e)
-        {
-            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, 0x48, 0x23);
-            WriteMessage(message);
-        }
-
-        private void ModeButton_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            var message = new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, 0x48, 0x63);
-            WriteMessage(message);
         }
     }
 }
