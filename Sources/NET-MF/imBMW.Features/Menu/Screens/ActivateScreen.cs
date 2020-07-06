@@ -187,7 +187,7 @@ namespace imBMW.Features.Menu.Screens
 
                 //HeadlightVerticalAimControl.FrontSensorVoltageChanged += HeadlightVerticalAimControl_SensorsVoltageChanged;
                 //HeadlightVerticalAimControl.RearSensorVoltageChanged += HeadlightVerticalAimControl_SensorsVoltageChanged;
-                //DigitalDieselElectronics.MessageReceived += DigitalDieselElectronics_MessageReceived;
+                DigitalDieselElectronics.MessageReceived += DigitalDieselElectronics_MessageReceived;
                 return true;
             }
             return false;
@@ -204,7 +204,7 @@ namespace imBMW.Features.Menu.Screens
 
                 //HeadlightVerticalAimControl.FrontSensorVoltageChanged -= HeadlightVerticalAimControl_SensorsVoltageChanged;
                 //HeadlightVerticalAimControl.RearSensorVoltageChanged -= HeadlightVerticalAimControl_SensorsVoltageChanged;
-                //DigitalDieselElectronics.MessageReceived -= DigitalDieselElectronics_MessageReceived;
+                DigitalDieselElectronics.MessageReceived -= DigitalDieselElectronics_MessageReceived;
                 return true;
             }
             return false;
@@ -227,7 +227,7 @@ namespace imBMW.Features.Menu.Screens
 
         private void DigitalDieselElectronics_MessageReceived()
         {
-            Refresh();
+            OnUpdateBody(MenuScreenUpdateReason.Refresh);
         }
 
         public static ActivateScreen Instance

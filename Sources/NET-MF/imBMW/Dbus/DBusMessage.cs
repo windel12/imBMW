@@ -152,13 +152,12 @@ namespace imBMW.iBus
             {
                 length = packet.Length;
             }
-
             if (length < PacketLengthMin)
             {
                 return true;
             }
 
-            byte packetLength = (byte)(packet[1] + 2);
+            int packetLength = packetLengthCallback(packet);
             if (packetLength < PacketLengthMin)
             {
                 return false;

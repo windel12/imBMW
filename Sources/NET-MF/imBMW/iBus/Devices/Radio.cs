@@ -17,7 +17,9 @@ namespace imBMW.iBus.Devices.Real
         public static byte[] DataRadioOn = new byte[] { 0x4A, 0xFF };
         /// <summary> 4A 00 </summary>
         public static byte[] DataRadioOff = new byte[] { 0x4A, 0x00 };
-        //public static byte[] DataRadioUnknow = new byte[] { 0x4A, 0x90 };
+        /// <summary> 4A 90 </summary>
+        public static byte[] DataRadioUnknown1 = new byte[] { 0x4A, 0x90 };
+        //public static byte[] DataRadioUnknown1 = new byte[] { 0x4A, 0x48 };   // \traces\2019.08.14\traceLog2.log#247
 
         public static byte[] DataRadioKnobPressed = new byte[] { 0x48, 0x06 };
         //public static byte[] DataRadioKnobHold = new byte[] { 0x48, 0x46 };

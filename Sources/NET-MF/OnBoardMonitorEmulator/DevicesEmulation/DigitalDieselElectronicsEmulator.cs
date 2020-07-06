@@ -32,15 +32,15 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
             Random r = new Random();
             var message = new DBusMessage(DeviceAddress.DDE, DeviceAddress.OBD, 0x6C, 0x10,
                 0x01, (byte)r.Next(0, 255),
-                0x03, (byte)r.Next(0, 255),
-                0x05, (byte)r.Next(0, 255),
-                0x07, (byte)r.Next(0, 255),
-                0x09, (byte)r.Next(0, 255),
-                0x0B, (byte)r.Next(0, 255),
-                0x0D, (byte)r.Next(0, 255),
-                0x0F, (byte)r.Next(0, 255),
-                0x11, (byte)r.Next(0, 255),
-                0x13, (byte)r.Next(0, 255));
+                0x01, (byte)r.Next(0, 255),
+                0x01, (byte)r.Next(0, 255),
+                0x01, (byte)r.Next(0, 255),
+                0x01, (byte)r.Next(0, 255),
+                0x01, (byte)r.Next(0, 255),
+                0x01, (byte)r.Next(0, 255),
+                0x01, (byte)r.Next(0, 255),
+                0x01, (byte)r.Next(0, 255),
+                0x01, (byte)r.Next(0, 255));
             return message;
         }
     }

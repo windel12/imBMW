@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using imBMW.iBus;
 using imBMW.iBus.Devices.Real;
+using imBMW.Tools;
 
 namespace imBMW.Features.Menu.Screens
 {
@@ -24,22 +25,37 @@ namespace imBMW.Features.Menu.Screens
         protected MenuItem item9;
         protected MenuItem item10;
 
+        private static DBusMessage getDataMessage = new DBusMessage(DeviceAddress.OBD, DeviceAddress.DDE,
+                new byte[] { 0x2C, 0x10 }
+                .Combine(DigitalDieselElectronics.admVDF)
+                .Combine(DigitalDieselElectronics.dzmNmit)
+                .Combine(DigitalDieselElectronics.ldmP_Lsoll)
+                .Combine(DigitalDieselElectronics.ldmP_Llin)
+                .Combine(DigitalDieselElectronics.ehmFLDS)
+                .Combine(DigitalDieselElectronics.zumPQsoll)
+                .Combine(DigitalDieselElectronics.zumP_RAIL)
+                .Combine(DigitalDieselElectronics.ehmFKDR)
+                .Combine(DigitalDieselElectronics.mrmM_EAKT)
+                .Combine(DigitalDieselElectronics.aroIST_4));
+
+        private MenuItemEventHandler ItemClick = e =>
+        {
+            DBusManager.Instance.EnqueueMessage(getDataMessage);
+        };
+
         public DDEScreen()
         {
             FastMenuDrawing = true;
 
-            item1 = new MenuItem(x => "VDF: " + DigitalDieselElectronics.PresupplyPressure.ToString("F2")) { ShouldRefreshScreenIfTextChanged = false };
-            item2 = new MenuItem(x => "RPM: " + DigitalDieselElectronics.Rpm.ToString("F0")) { ShouldRefreshScreenIfTextChanged = false };
-            item3 = new MenuItem(x => "LDF_in: " + DigitalDieselElectronics.BoostActual.ToString("F0")) { ShouldRefreshScreenIfTextChanged = false };
-            item4 = new MenuItem(x => "LDF_soll: " + DigitalDieselElectronics.BoostTarget.ToString("F0")) { ShouldRefreshScreenIfTextChanged = false };
-            item5 = new MenuItem(x => "ehmFLDS: " + DigitalDieselElectronics.VNT.ToString("F0")) { ShouldRefreshScreenIfTextChanged = false };
-            item6 = new MenuItem(x => "KDF_soll: " + DigitalDieselElectronics.RailPressureTarget.ToString("F0")) { ShouldRefreshScreenIfTextChanged = false };
-            item7 = new MenuItem(x => "KDF_in: " + DigitalDieselElectronics.RailPressureActual.ToString("F0")) { ShouldRefreshScreenIfTextChanged = false };
-            item8 = new MenuItem(x => "ehmFKDR: " + DigitalDieselElectronics.PressureRegulationValve.ToString("F0")) { ShouldRefreshScreenIfTextChanged = false };
-            item9 = new MenuItem(x => "IQ: " + DigitalDieselElectronics.InjectionQuantity.ToString("F2"), e =>
-                {
-                    VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, 0x6C, 0x10));
-                }) { ShouldRefreshScreenIfTextChanged = false };
+            item1 = new MenuItem(x => "VDF: " + DigitalDieselElectronics.PresupplyPressure.ToString("F2"), ItemClick) { ShouldRefreshScreenIfTextChanged = false };
+            item2 = new MenuItem(x => "RPM: " + DigitalDieselElectronics.Rpm.ToString("F0"), ItemClick) { ShouldRefreshScreenIfTextChanged = false };
+            item3 = new MenuItem(x => "BoostTrg: " + DigitalDieselElectronics.BoostTarget.ToString("F0"), ItemClick) { ShouldRefreshScreenIfTextChanged = false };
+            item4 = new MenuItem(x => "BoostAct: " + DigitalDieselElectronics.BoostActual.ToString("F0"), ItemClick) { ShouldRefreshScreenIfTextChanged = false };
+            item5 = new MenuItem(x => "VNT: " + DigitalDieselElectronics.VNT.ToString("F0"), ItemClick) { ShouldRefreshScreenIfTextChanged = false };
+            item6 = new MenuItem(x => "RailTrg: " + DigitalDieselElectronics.RailPressureTarget.ToString("F0"), ItemClick) { ShouldRefreshScreenIfTextChanged = false };
+            item7 = new MenuItem(x => "RailAct: " + DigitalDieselElectronics.RailPressureActual.ToString("F0"), ItemClick) { ShouldRefreshScreenIfTextChanged = false };
+            item8 = new MenuItem(x => "DRV: " + DigitalDieselElectronics.PressureRegulationValve.ToString("F0"), ItemClick) { ShouldRefreshScreenIfTextChanged = false };
+            item9 = new MenuItem(x => "IQ: " + DigitalDieselElectronics.InjectionQuantity.ToString("F2"), ItemClick) { ShouldRefreshScreenIfTextChanged = false };
             item10 = new MenuItem(x => "LMM: " + DigitalDieselElectronics.AirMass.ToString("F2"), MenuItemType.Button, MenuItemAction.GoBackScreen);
 
             //item9 = new MenuItem(x => "armM_List: " + DigitalDieselElectronics.AirMassPerStroke) { ShouldRefreshScreenIfTextChanged = false };

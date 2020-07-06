@@ -54,7 +54,7 @@ namespace imBMW.Features.Multimedia.iBus
         //}
 
         /// <summary>0x38, 0x00, 0x00 </summary>
-        public static byte[] DataCurrentDiskTrackRequest = new byte[] { 0x38, 0x00, 0x00 };
+        public static byte[] DataStatusRequest = new byte[] { 0x38, 0x00, 0x00 };
         /// <summary>0x38, 0x01, 0x00 </summary>
         public static byte[] DataStop  = new byte[] { 0x38, 0x01, 0x00 };
         /// <summary>0x38, 0x02, 0x00 </summary>
@@ -200,7 +200,7 @@ namespace imBMW.Features.Multimedia.iBus
 
         void ProcessCDCMessage(Message m)
         {
-            if (m.Data.Compare(DataCurrentDiskTrackRequest))
+            if (m.Data.Compare(DataStatusRequest))
             {
                 if (Player.IsPlaying && this.IsEnabled)
                 {

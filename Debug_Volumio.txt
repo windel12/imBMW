@@ -27,8 +27,9 @@ stty -F /dev/ttyUSB0 -cstopb cs8 -parenb 9600
 write to COM port:
 Linux: echo Hello > /dev/ttyUSB0
 MotoreTemperatur		echo -n -e \\xB8\\x12\\x04\\x2c\\x10\\x0F\\x00\\x6C > /dev/ttyUSB0
-PC: "echo Hello > COM2"
-
+PC: echo Hello > COM2
+	mode COM2
+	mode COM2 BAUD=9600 PARITY=e DATA=8
 
 DBUS:
 9600/8-E-1

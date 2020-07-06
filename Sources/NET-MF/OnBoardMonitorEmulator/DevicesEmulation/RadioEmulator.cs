@@ -25,17 +25,37 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
                 var pollResponseMessage = new Message(DeviceAddress.Radio, DeviceAddress.GlobalBroadcastAddress, MessageRegistry.DataPollResponse);
                 Manager.Instance.EnqueueMessage(pollResponseMessage);
             }
+            
+            if (m.Data.Length == 2 && m.Data.StartsWith(Radio.DataRadioKnobPressed))
+            {
+                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, CDChanger.DataStatusRequest));
+                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.OnBoardMonitor, Radio.DataRadioUnknown1));
+                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.OnBoardMonitor, IsEnabled ? Radio.DataRadioOff : Radio.DataRadioOn));
+                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, IsEnabled ? CDChanger.DataStop : CDChanger.DataPlay));
+                IsEnabled = !IsEnabled;
+            }
+            if (m.Data.Length == 2 && m.Data.StartsWith(Radio.DataNextPressed))
+            {
+                var message = new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, CDChanger.DataNext);
+                Manager.Instance.EnqueueMessage(message);
+            }
+            if (m.Data.Length == 2 && m.Data.StartsWith(Radio.DataPrevPressed))
+            {
+                var message = new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, CDChanger.DataPrev);
+                Manager.Instance.EnqueueMessage(message);
+            }
+
             if (m.Data.Length == 4 && m.Data.StartsWith(Bordmonitor.DataItemClicked) && m.Data[3] <= 9)
             {
                 var index = m.Data[3];
                 byte diskNumber = 1;
                 if (index <= 2)
                 {
-                    diskNumber = (byte) (index + 1);
+                    diskNumber = (byte)(index + 1);
                 }
                 else if (index >= 5 && index <= 7)
                 {
-                    diskNumber = (byte) (index - 1);
+                    diskNumber = (byte)(index - 1);
                 }
                 else
                 {
@@ -50,22 +70,6 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
                 var diskNumber = m.Data[6];
                 var trackNumber = m.Data[7];
                 Bordmonitor.ShowText("CD " + (diskNumber) + "-" + (trackNumber), BordmonitorFields.Title, send: true);
-            }
-            if (m.Data.Length == 2 && m.Data.StartsWith(Radio.DataRadioKnobPressed))
-            {
-                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.LocalBroadcastAddress, IsEnabled ? Radio.DataRadioOff : Radio.DataRadioOn));
-                Manager.Instance.EnqueueMessage(new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, IsEnabled ? CDChanger.DataStop : CDChanger.DataPlay));
-                IsEnabled = !IsEnabled;
-            }
-            if (m.Data.Length == 2 && m.Data.StartsWith(Radio.DataNextPressed))
-            {
-                var message = new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, CDChanger.DataNext);
-                Manager.Instance.EnqueueMessage(message);
-            }
-            if (m.Data.Length == 2 && m.Data.StartsWith(Radio.DataPrevPressed))
-            {
-                var message = new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, CDChanger.DataPrev);
-                Manager.Instance.EnqueueMessage(message);
             }
         }
     }

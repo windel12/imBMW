@@ -50,13 +50,19 @@ namespace imBMW.iBus
         protected override void SendData(Message m)
         {
 #if OnBoardMonitorEmulator
-            _port.Write(m.Packet);
+            //_port.Write(m.Packet);
+            foreach (var b in m.Packet)
+            {
+                _port.Write(b);
+                Thread.Sleep(4);
+
+            }
 #else
             SignalGeneratorHelper.Set(sg, false, m.Packet, 4000, false);
 #endif
         }
 
-        protected override void bus_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        protected internal override void bus_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             ISerialPort port = (ISerialPort)sender;
             if (port.AvailableBytes == 0)
@@ -67,6 +73,8 @@ namespace imBMW.iBus
             lock (bufferSync)
             {
                 byte[] data = port.ReadAvailable();
+                Logger.Trace("DBus data received: " + data.ToHex());
+
                 if (messageBufferLength + data.Length > messageBuffer.Length)
                 {
                     Logger.Trace("Buffer overflow. Extending it. " + port.ToString());
@@ -83,6 +91,10 @@ namespace imBMW.iBus
                     Array.Copy(data, 0, messageBuffer, messageBufferLength, data.Length);
                     messageBufferLength += data.Length;
                 }
+
+                Logger.Trace("messageBuffer: " + messageBuffer.ToHex());
+
+                // TODO: Uncomment this and fix issue(because of partial writing to port, sometimes CanStartWith return false for correct packet)
                 while (messageBufferLength >= DBusMessage.PacketLengthMin || messageBufferLength >= DS2Message.PacketLengthMin)
                 {
                     Message dBusMessage = DBusMessage.TryCreate(messageBuffer, messageBufferLength);
@@ -99,11 +111,8 @@ namespace imBMW.iBus
                         return;
                     }
                     ProcessMessage(m);
-                    //#if DEBUG
-                    //m.PerformanceInfo.TimeEnqueued = DateTime.Now;
-                    //#endif
-                    //messageReadQueue.Enqueue(m);
                     SkipBuffer(m.PacketLength);
+                    Logger.Trace("Message received and buffer skipped: " + messageBuffer.ToHex());
                 }
                 lastMessage = DateTime.Now;
             }

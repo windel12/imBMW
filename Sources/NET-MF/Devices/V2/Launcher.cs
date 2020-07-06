@@ -347,10 +347,31 @@ namespace imBMW.Devices.V2
 
                 Logger.Debug("Actions inited!");
 
+                byte count = 0;
                 InterruptPort ldr1_button = new InterruptPort(FEZPandaIII.Gpio.Ldr1, true, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeLow);
                 ldr1_button.OnInterrupt += (uint data1, uint data2, DateTime time) =>
                 {
-                    UnmountMassStorage();
+                    if (++count == 4)
+                    {
+                        UnmountMassStorage();
+                    }
+                    else
+                    {
+                        DBusMessage getDataMessage = new DBusMessage(DeviceAddress.OBD, DeviceAddress.DDE,
+                            new byte[] { 0x2C, 0x10 }
+                                .Combine(DigitalDieselElectronics.admVDF)
+                                .Combine(DigitalDieselElectronics.dzmNmit)
+                                .Combine(DigitalDieselElectronics.ldmP_Lsoll)
+                                .Combine(DigitalDieselElectronics.ldmP_Llin)
+                                .Combine(DigitalDieselElectronics.ehmFLDS)
+                                .Combine(DigitalDieselElectronics.zumPQsoll)
+                                .Combine(DigitalDieselElectronics.zumP_RAIL)
+                                .Combine(DigitalDieselElectronics.ehmFKDR)
+                                .Combine(DigitalDieselElectronics.mrmM_EAKT)
+                                .Combine(DigitalDieselElectronics.aroIST_4));
+
+                        DBusManager.Instance.EnqueueMessage(getDataMessage);
+                    }
                 };
 
                 Logger.Debug("Going to Thread.Sleep(Timeout.Infinite)");
@@ -425,7 +446,7 @@ namespace imBMW.Devices.V2
             {
                 ISerialPort dBusPort = new SerialPortTH3122("COM4", Cpu.Pin.GPIO_NONE); // d31, d33
                 //dBusPort.AfterWriteDelay = 4;
-                DBusManager.Init(dBusPort, ThreadPriority.Highest);
+                DBusManager.Init(dBusPort, ThreadPriority.Normal);
                 Logger.Debug("DBusManager inited with COM4");
 
                 DBusManager.Instance.AfterMessageReceived += DBusManager_AfterMessageReceived;
@@ -853,6 +874,12 @@ namespace imBMW.Devices.V2
             {
                 Logger.Trace(e.Message, logIco);
             }
+
+            orangeLed.Write(true);
+            FrontDisplay.RefreshLEDs(LedType.Green, append: true);
+            Thread.Sleep(250);
+            orangeLed.Write(false);
+            FrontDisplay.RefreshLEDs(LedType.Green, remove: true);
         }
 
         private static void DBusManager_AfterMessageSent(MessageEventArgs e)
@@ -866,45 +893,13 @@ namespace imBMW.Devices.V2
             {
                 Logger.Trace(e.Message, logIco);
             }
+
+            orangeLed.Write(true);
+            FrontDisplay.RefreshLEDs(LedType.Orange, append: true);
+            Thread.Sleep(250);
+            orangeLed.Write(false);
+            FrontDisplay.RefreshLEDs(LedType.Orange, remove: true);
         }
-
-        // Log just needed message
-        //private static bool DBusLoggerPredicate(MessageEventArgs e)
-        //{
-        //    return true;
-        //}
-
-        //private static void DBusManager_AfterMessageReceived(MessageEventArgs e)
-        //{
-        //    if (DBusLoggerPredicate(e))
-        //    {
-        //        var logIco = "D < ";
-        //        if (settings.LogMessageToASCII)
-        //        {
-        //            Logger.Trace(e.Message.ToPrettyString(false, false), logIco);
-        //        }
-        //        else
-        //        {
-        //            Logger.Trace(e.Message, logIco);
-        //        }
-        //    }
-        //}
-
-        //private static void DBusManager_AfterMessageSent(MessageEventArgs e)
-        //{
-        //    if (DBusLoggerPredicate(e))
-        //    {
-        //        var logIco = "D > ";
-        //        if (settings.LogMessageToASCII)
-        //        {
-        //            Logger.Trace(e.Message.ToPrettyString(false, false), logIco);
-        //        }
-        //        else
-        //        {
-        //            Logger.Trace(e.Message, logIco);
-        //        }
-        //    }
-        //}
 
         static void LedBlinking(object item)
         {

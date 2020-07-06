@@ -80,6 +80,7 @@ namespace imBMW.Features.Multimedia
                         var titleBytes = m.Data.Skip(2);
                         string title = new string(Encoding.UTF8.GetChars(titleBytes));
                         CurrentTitle = title;
+                        // TODO: it sends "CDC > RAD: 39 02 09 00 00 00 01 01 {Play, CommonPlayback}" second time after first play
                         OnTrackChanged(title);
                     }
                     m.ReceiverDescription = "Play";

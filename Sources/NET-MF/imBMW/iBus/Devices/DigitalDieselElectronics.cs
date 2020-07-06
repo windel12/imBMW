@@ -39,16 +39,16 @@ namespace imBMW.iBus.Devices.Real
 
         public static byte EluefterFrequency { get; private set; }
 
-        private static byte[] admVDF = {0x20, 0x06};
-        private static byte[] dzmNmit = { 0x0F, 0x10 };
-        private static byte[] ldmP_Llin = { 0x0F, 0x40 };
-        private static byte[] ldmP_Lsoll = { 0x0F, 0x42 };
-        private static byte[] ehmFLDS = { 0x0E, 0x81 };
-        private static byte[] zumPQsoll = { 0x1F, 0x5E };
-        private static byte[] zumP_RAIL = { 0x1F, 0x5D };
-        private static byte[] ehmFKDR = { 0x0E, 0xE5 };
-        private static byte[] mrmM_EAKT = { 0x0F, 0x80 };
-        private static byte[] aroIST_4 = { 0x00, 0x10 };
+        public static byte[] admVDF = {0x20, 0x06};
+        public static byte[] dzmNmit = { 0x0F, 0x10 };
+        public static byte[] ldmP_Llin = { 0x0F, 0x40 };
+        public static byte[] ldmP_Lsoll = { 0x0F, 0x42 };
+        public static byte[] ehmFLDS = { 0x0E, 0x81 };
+        public static byte[] zumPQsoll = { 0x1F, 0x5E };
+        public static byte[] zumP_RAIL = { 0x1F, 0x5D };
+        public static byte[] ehmFKDR = { 0x0E, 0xE5 };
+        public static byte[] mrmM_EAKT = { 0x0F, 0x80 };
+        public static byte[] aroIST_4 = { 0x00, 0x10 };
 
         private static byte[] anmWTF = { 0x0F, 0x00 };
         private static byte[] armM_List = { 0x0F, 0x30 };
@@ -76,9 +76,10 @@ namespace imBMW.iBus.Devices.Real
 
         static void ProcessFromDDEMessage(Message m)
         {
+            Logger.Trace("Response from DDE: " + m.Data.ToHex(' '));
+
             if (m.Data[0] == 0x6C && m.Data[1] == 0x10)
             {
-                Logger.Trace("Response from DDE: " + m.Data.ToHex(' '));
                 var d = m.Data;
                 if (d.Length > 3)
                 {
@@ -90,11 +91,11 @@ namespace imBMW.iBus.Devices.Real
                 }
                 if (d.Length > 7)
                 {
-                    BoostActual = ((d[6] << 8) + d[7]);
+                    BoostTarget = ((d[8] << 8) + d[9]);
                 }
                 if (d.Length > 9)
                 {
-                    BoostTarget = ((d[8] << 8) + d[9]);
+                    BoostActual = ((d[6] << 8) + d[7]);
                 }
                 if (d.Length > 11)
                 {
@@ -120,7 +121,6 @@ namespace imBMW.iBus.Devices.Real
                 {
                     AirMass = ((d[20] << 8) + d[21]) * 0.0359929742;
                 }
-
                 //AirMassPerStroke = ((d[18] << 8) + d[19]) * 0.1;
             }
 

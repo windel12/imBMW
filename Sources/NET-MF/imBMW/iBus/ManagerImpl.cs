@@ -58,8 +58,7 @@ namespace imBMW.iBus
         }
 
         #region Message reading and processing
-
-        protected virtual void bus_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        protected internal virtual void bus_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             ISerialPort port = (ISerialPort)sender;
             if (port.AvailableBytes == 0)
