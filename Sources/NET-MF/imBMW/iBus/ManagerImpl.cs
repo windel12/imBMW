@@ -20,10 +20,10 @@ namespace imBMW.iBus
         protected byte[] messageBuffer = new byte[Message.PacketLengthMax];
 #endif
 #if OnBoardMonitorEmulator
-        protected byte[] messageBuffer = new byte[ushort.MaxValue];
+        protected internal byte[] messageBuffer = new byte[ushort.MaxValue];
 #endif
 
-        protected int messageBufferLength = 0;
+        protected internal int messageBufferLength = 0;
         protected object bufferSync = new object();
 
         internal ManagerImpl()
@@ -125,9 +125,11 @@ namespace imBMW.iBus
         protected void SkipBuffer(int count)
         {
             messageBufferLength -= count;
+            Array.Clear(messageBuffer, 0, count);
             if (messageBufferLength > 0)
             {
                 Array.Copy(messageBuffer, count, messageBuffer, 0, messageBufferLength);
+                Array.Clear(messageBuffer, messageBufferLength, count);
             }
         }
 

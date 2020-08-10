@@ -80,7 +80,7 @@ namespace OnBoardMonitorEmulatorTests
             Logger.Warning("test warning");
             Logger.FatalError(ErrorIdentifier.UknownError);
 
-            FileLogger.Dispose(100000);
+            FileLogger.Dispose(10000);
 
             var logFiles = Directory.GetFiles(logsPath, "traceLog*").OrderBy(x => x, new NaturalStringComparer()).ToArray();
             var lastLog = logFiles[logFiles.Length - 1];

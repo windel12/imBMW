@@ -41,8 +41,8 @@ namespace imBMW.iBus.Devices.Real
 
         public static byte[] admVDF = {0x20, 0x06};
         public static byte[] dzmNmit = { 0x0F, 0x10 };
-        public static byte[] ldmP_Llin = { 0x0F, 0x40 };
         public static byte[] ldmP_Lsoll = { 0x0F, 0x42 };
+        public static byte[] ldmP_Llin = { 0x0F, 0x40 };
         public static byte[] ehmFLDS = { 0x0E, 0x81 };
         public static byte[] zumPQsoll = { 0x1F, 0x5E };
         public static byte[] zumP_RAIL = { 0x1F, 0x5D };

@@ -27,16 +27,16 @@ namespace imBMW.Features.Menu.Screens
 
         private static DBusMessage getDataMessage = new DBusMessage(DeviceAddress.OBD, DeviceAddress.DDE,
                 new byte[] { 0x2C, 0x10 }
-                .Combine(DigitalDieselElectronics.admVDF)
-                .Combine(DigitalDieselElectronics.dzmNmit)
-                .Combine(DigitalDieselElectronics.ldmP_Lsoll)
-                .Combine(DigitalDieselElectronics.ldmP_Llin)
-                .Combine(DigitalDieselElectronics.ehmFLDS)
-                .Combine(DigitalDieselElectronics.zumPQsoll)
-                .Combine(DigitalDieselElectronics.zumP_RAIL)
-                .Combine(DigitalDieselElectronics.ehmFKDR)
-                .Combine(DigitalDieselElectronics.mrmM_EAKT)
-                .Combine(DigitalDieselElectronics.aroIST_4));
+                .Combine(DigitalDieselElectronics.admVDF)       // 0x20, 0x06,  
+                .Combine(DigitalDieselElectronics.dzmNmit)      // 0x0F, 0x10,  
+                .Combine(DigitalDieselElectronics.ldmP_Lsoll)   // 0x0F, 0x42,  
+                .Combine(DigitalDieselElectronics.ldmP_Llin)    // 0x0F, 0x40,  
+                .Combine(DigitalDieselElectronics.ehmFLDS)      // 0x0E, 0x81,  
+                .Combine(DigitalDieselElectronics.zumPQsoll)    // 0x1F, 0x5E,  
+                .Combine(DigitalDieselElectronics.zumP_RAIL)    // 0x1F, 0x5D,  
+                .Combine(DigitalDieselElectronics.ehmFKDR)      // 0x0E, 0xE5,  
+                .Combine(DigitalDieselElectronics.mrmM_EAKT)    // 0x0F, 0x80, 
+                .Combine(DigitalDieselElectronics.aroIST_4));   // 0x00, 0x10, 
 
         private MenuItemEventHandler ItemClick = e =>
         {

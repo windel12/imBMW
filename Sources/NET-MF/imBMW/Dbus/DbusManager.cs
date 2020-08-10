@@ -104,9 +104,9 @@ namespace imBMW.iBus
                     {
                         if (!DBusMessage.CanStartWith(messageBuffer, messageBufferLength))
                         {
-                            Logger.Trace("Buffer skip: non-dBus data detected: " + messageBuffer[0].ToHex());
-                            SkipBuffer(1);
-                            continue;
+                            Logger.Trace("non-dBus data detected: " + messageBuffer.ToHex(' '));
+                            //SkipBuffer(1);
+                            //continue;
                         }
                         return;
                     }

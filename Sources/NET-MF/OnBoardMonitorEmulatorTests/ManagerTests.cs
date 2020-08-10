@@ -15,6 +15,13 @@ namespace OnBoardMonitorEmulatorTests
     [TestClass]
     public class ManagerTests
     {
+        [TestCleanup]
+        public void TestCleanup()
+        {
+            DBusManager.Instance.messageBuffer = new byte[ushort.MaxValue];
+            DBusManager.Instance.messageBufferLength = 0;
+        }
+
         [TestMethod]
         public void ShouldCreateDBusMessage()
         {
@@ -110,17 +117,42 @@ namespace OnBoardMonitorEmulatorTests
             {
                 0xB8, 0x12, 0xF1, 0x16,
                 0x2C, 0x10,
+                0x20, 0x06,  // admVDF
+                0x0F, 0x10,  // dzmNmit
+                0x0F, 0x42,  // ldmP_Lsoll
+                0x0F, 0x40,  // ldmP_Llin
+                0x0E, 0x81,  // ehmFLDS
+                0x1F, 0x5E,  // zumPQsoll
+                0x1F, 0x5D,  // zumP_RAIL
+                0x0E, 0xE5,  // ehmFKDR
+                //0x0F, 0x80 // mrmM_EAKT
+                //0x00, 0x10 // aroIST_4
+            };
 
-                0x20, 0x06, // admVDF
-                0x0F, 0x10, // dzmNmit
-                0x0F, 0x42, // ldmP_Lsoll
-                0x0F, 0x40, // ldmP_Llin
-                0x0E, 0x81, // ehmFLDS
-                0x1F, 0x5E, // zumPQsoll
-                0x1F, 0x5D, // zumP_RAIL
-                0x0E, 0xE5, // ehmFKDR
-                //0x0F, 0x80 //mrmM_EAKT
-                //0x00, 0x10 //aroIST_4
+            var mock = new Mock<ISerialPort>();
+            mock.Setup(x => x.AvailableBytes).Returns(() => buffer.Length);
+            mock.Setup(x => x.ReadAvailable()).Returns(() => buffer);
+
+            DBusManager.Instance.bus_DataReceived(mock.Object, null);
+
+            Assert.IsFalse(messageReceived, "should not receive message, because bytes in buffer not contains full packet");
+        }
+
+        [TestMethod]
+        public void ShouldCorrectlyHandleNotFullDBusMessage2()
+        {
+            bool messageReceived = false;
+            DBusManager.Instance.AfterMessageReceived += e =>
+            {
+                messageReceived = true;
+            };
+
+            var buffer = new byte[]
+            {
+                0xB8, 0xF1, 0x12, 0x04,
+                0x70, 0xC7,
+                0x07, 0x1E, // e-luefter response
+                //0xF1 - not full message without last CRC byte
             };
 
             var mock = new Mock<ISerialPort>();
@@ -148,7 +180,7 @@ namespace OnBoardMonitorEmulatorTests
 
             buffer = new byte[]
             {
-                0x23, 0x40, 0x02, 0xFF, 0xFF, 0xFF, 0xFC, 0xC0 // some data, shich send DDE after start
+                0x23, 0x40, 0x02, 0xFF, 0xFF, 0xFF, 0xFC, 0xC0 // some data, which send DDE after start
             };
             DBusManager.Instance.bus_DataReceived(mock.Object, null);
 
@@ -156,21 +188,75 @@ namespace OnBoardMonitorEmulatorTests
             {
                 0xB8, 0x12, 0xF1, 0x16,
                 0x2C, 0x10,
-                0x20, 0x06,
-                0x0F, 0x10,
-                0x0F, 0x42,
-                0x0F, 0x40,
-                0x0E, 0x81,
-                0x1F, 0x5E,
-                0x1F, 0x5D,
-                0x0E, 0xE5,
-                0x0F, 0x80,
-                0x00, 0x10,
+                0x20, 0x06, // admVDF
+                0x0F, 0x10, // dzmNmit
+                0x0F, 0x42, // ldmP_Lso
+                0x0F, 0x40, // ldmP_Lli
+                0x0E, 0x81, // ehmFLDS
+                0x1F, 0x5E, // zumPQsol
+                0x1F, 0x5D, // zumP_RAI
+                0x0E, 0xE5, // ehmFKDR
+                0x0F, 0x80, // mrmM_EAK
+                0x00, 0x10, // aroIST_4
                 0xB2
             };
             DBusManager.Instance.bus_DataReceived(mock.Object, null);
 
             Assert.IsFalse(messageReceived, "should not receive message, because bytes in buffer not contains full packet");
+        }
+
+        [TestMethod]
+        public void ShouldCorrectlySkipBytesOfProcessedDBusMessage()
+        {
+            bool messageReceived = false;
+            DBusManager.Instance.AfterMessageReceived += e =>
+            {
+                messageReceived = true;
+            };
+
+            var buffer = new byte[0];
+            var mock = new Mock<ISerialPort>();
+            mock.Setup(x => x.AvailableBytes).Returns(() => buffer.Length);
+            mock.Setup(x => x.ReadAvailable()).Returns(() => buffer);
+
+            buffer = new byte[]
+            {
+                0xB8, 0x12
+            };
+            DBusManager.Instance.bus_DataReceived(mock.Object, null);
+
+            buffer = new byte[]
+            {
+                0xF1, 0x16,
+                0x2C, 0x10,
+                0x20, 0x06, // admVDF
+                0x0F, 0x10, // dzmNmit
+                0x0F, 0x42, // ldmP_Lsoll
+                0x0F, 0x40, // ldmP_Llin
+                0x0E, 0x81, // ehmFLDS
+                0x1F, 0x5E, // zumPQsoll
+                0x1F, 0x5D  // zumP_RAIL
+            };             
+            DBusManager.Instance.bus_DataReceived(mock.Object, null);
+            Assert.IsFalse(messageReceived, "should not receive message, because bytes in buffer not contains full packet");
+
+            buffer = new byte[]
+            {
+                0x0E, 0xE5,         // ehmFKDR
+                0x0F, 0x80,         // mrmM_EAKT
+                0x00, 0x10,         // aroIST_4
+                0xB2,               // CRC
+                0xB8, 0xF1, 0x12    // some bytes from response
+            };
+            DBusManager.Instance.bus_DataReceived(mock.Object, null);
+            Assert.IsTrue(messageReceived, "should receive message, because bytes in buffer contains full packet");
+
+            Assert.IsTrue(DBusManager.Instance.messageBuffer[0] == 0xB8);
+            Assert.IsTrue(DBusManager.Instance.messageBuffer[1] == 0xF1);
+            Assert.IsTrue(DBusManager.Instance.messageBuffer[2] == 0x12);
+            Assert.IsTrue(DBusManager.Instance.messageBuffer[3] == 0x00);
+            Assert.IsTrue(DBusManager.Instance.messageBuffer[4] == 0x00);
+            Assert.IsTrue(DBusManager.Instance.messageBuffer[5] == 0x00);
         }
     }
 }

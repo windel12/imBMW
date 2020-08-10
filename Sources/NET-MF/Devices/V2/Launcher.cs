@@ -712,7 +712,7 @@ namespace imBMW.Devices.V2
                 || e.Message.Data[0] == 0x19    // temp
                 || e.Message.Data[0] == 0x21    // radio shortcuts
                 || e.Message.Data[0] == 0x22    // text display confirmation
-				|| e.Message.Data[0] == 0x23    // display text
+				//|| e.Message.Data[0] == 0x23    // display text
                 || e.Message.Data[0] == 0xA5    // display title
                 )   
             {
