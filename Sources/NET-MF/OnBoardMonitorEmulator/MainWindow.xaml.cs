@@ -106,6 +106,7 @@ namespace OnBoardMonitorEmulator
             HeadlightVerticalAimControlEmulator.Init();
             IntegratedHeatingAndAirConditioningEmulator.Init();
             DigitalDieselElectronicsEmulator.Init();
+            LightControlModuleEmulator.Init();
             //VolumioRestApiPlayerEmulator.Init(_viewModel);
 
             Launcher.Launch(Launcher.LaunchMode.WPF);

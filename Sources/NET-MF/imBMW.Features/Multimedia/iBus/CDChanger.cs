@@ -278,7 +278,7 @@ namespace imBMW.Features.Multimedia.iBus
                     IsEnabled = false;
                 }
 
-                Action1 randomToggle = (newDiskNumber) =>
+                ActionByte randomToggle = (newDiskNumber) =>
                 {
                     RandomToggle(newDiskNumber);
                 };

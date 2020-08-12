@@ -260,7 +260,11 @@ namespace imBMW.Devices.V2
 #endif
 
                     LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(orangeLed, 1, 200));
+#if OnBoardMonitorEmulator
+                    bool isSignalled = _removableMediaInsertedSync.WaitOne(Debugger.IsAttached ? 1000 : 1000, true);
+#else
                     bool isSignalled = _removableMediaInsertedSync.WaitOne(Debugger.IsAttached ? 5000 : 5000, true);
+#endif
                     if (!isSignalled) // No Storage inserted
                     {
                         FrontDisplay.RefreshLEDs(LedType.Red, append: true);
@@ -437,7 +441,7 @@ namespace imBMW.Devices.V2
             VolumioManager.Init(VolumioPort, ThreadPriority.Normal);
             Logger.Debug("VolumioManager inited with COM3");
 
-            VolumioManager.Instance.AfterMessageReceived += VolumioManager_AfterMessageReceived;
+            VolumioManager.Instance.BeforeMessageReceived += VolumioManager_BeforeMessageReceived;
             VolumioManager.Instance.AfterMessageSent += VolumioManager_AfterMessageSent;
 #endif
 
@@ -473,7 +477,7 @@ namespace imBMW.Devices.V2
             KBusManager.Instance.AfterMessageSent -= KBusManager_AfterMessageSent;
             KBusManager.Instance.Dispose();
 
-            VolumioManager.Instance.AfterMessageReceived -= VolumioManager_AfterMessageReceived;
+            VolumioManager.Instance.BeforeMessageReceived -= VolumioManager_BeforeMessageReceived;
             VolumioManager.Instance.AfterMessageSent -= VolumioManager_AfterMessageSent;
             VolumioManager.Instance.Dispose();
 
@@ -837,7 +841,7 @@ namespace imBMW.Devices.V2
             }
         }
 
-        private static void VolumioManager_AfterMessageReceived(MessageEventArgs e)
+        private static void VolumioManager_BeforeMessageReceived(MessageEventArgs e)
         {
             var logIco = "V < ";
             if (settings.LogMessageToASCII)

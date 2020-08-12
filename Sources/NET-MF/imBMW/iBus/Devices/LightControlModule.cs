@@ -58,6 +58,40 @@ namespace imBMW.iBus.Devices.Real
 
     public static class LightControlModule
     {
+        static readonly Message StatusLessen = new Message(DeviceAddress.Diagnostic, DeviceAddress.LightControlModule, "Status lessen", 0x0B);
+
+        private static double _heatingTime;
+        private static double _coolingTime;
+
+        public static double HeatingTime
+        {
+            get { return _heatingTime; }
+            set
+            {
+                if (_heatingTime != value)
+                {
+                    _heatingTime = value;
+                    HeatingTimeChanged?.Invoke(_heatingTime);
+                }
+            }
+        }
+
+        public static double CoolingTime
+        {
+            get { return _coolingTime; }
+            set
+            {
+                if (_coolingTime != value)
+                {
+                    _coolingTime = value;
+                    CoolingTimeChanged?.Invoke(_coolingTime);
+                }
+            }
+        }
+
+        public static event ActionDouble HeatingTimeChanged;
+        public static event ActionDouble CoolingTimeChanged;
+
         static LightControlModule()
         {
             Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.LightControlModule, ProcessLCMMessage);
@@ -73,6 +107,13 @@ namespace imBMW.iBus.Devices.Real
             if (m.Data.Length == 5 && m.Data[0] == 0x5B)
             {
                 OnLightStatusReceived(m);
+            }
+
+            if (m.Data[0] == 0xA0 && m.Data.Length > 30)
+            {
+                HeatingTime = (m.Data[21] * 255 + m.Data[20]) * 0.00005;
+                CoolingTime = (m.Data[23] * 255 + m.Data[22]) * 0.00005;
+                m.ReceiverDescription = "LCM Status - HeatingTime: " + HeatingTime.ToString("F5") + "; CoolingTime" + CoolingTime.ToString("F5");
             }
         }
 
@@ -170,6 +211,11 @@ namespace imBMW.iBus.Devices.Real
 
             var message = new Message(DeviceAddress.Diagnostic, DeviceAddress.LightControlModule, "Turn lamps", data);
             Manager.Instance.EnqueueMessage(message);
+        }
+
+        public static void UpdateThermalOilLevelSensorValues()
+        {
+            Manager.Instance.EnqueueMessage(StatusLessen);
         }
 
         public static event LightStatusEventHandler LightStatusReceived;

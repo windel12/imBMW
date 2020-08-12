@@ -166,6 +166,12 @@ namespace imBMW.Features.Localizations
 
         public abstract string AirConditioning { get; }
 
+        public abstract string Temperature { get; }
+
+        public abstract string Temp { get; }
+
+        public abstract string Oil { get; }
+
         /*
         
         public abstract string  { get; }

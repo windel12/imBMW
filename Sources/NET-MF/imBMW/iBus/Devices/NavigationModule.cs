@@ -46,6 +46,6 @@ namespace imBMW.iBus.Devices.Real
             Manager.Instance.EnqueueMessage(MessageGetAnalogValues);
         }
 
-        public static event VoltageEventHandler BatteryVoltageChanged;
+        public static event ActionDouble BatteryVoltageChanged;
     }
 }

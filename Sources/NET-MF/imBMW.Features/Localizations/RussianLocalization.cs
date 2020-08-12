@@ -326,5 +326,11 @@ namespace imBMW.Features.Localizations
         {
             get { return "Блок климата"; }
         }
+
+        public override string Temperature => "Температура";
+
+        public override string Temp => "Темп.";
+
+        public override string Oil => "Масло";
     }
 }

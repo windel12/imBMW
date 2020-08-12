@@ -11,21 +11,21 @@ namespace imBMW.Features.Menu.Screens
     {
         protected static BordcomputerScreen instance;
 
-        protected MenuItem itemPlayer;
-        protected MenuItem itemFav;
-        protected MenuItem itemBC;
-        protected MenuItem itemSettings;
+        //protected MenuItem itemPlayer;
+        //protected MenuItem itemFav;
+        //protected MenuItem itemBC;
+        //protected MenuItem itemSettings;
 
         protected DateTime lastUpdated;
-        protected DateTime lastVoltageUpdated;
+        protected DateTime lastDiagDataUpdated;
         protected bool needUpdateVoltage;
 
         protected byte updateLimitSeconds = 1;
-        protected byte updateVoltageLimitSeconds = 5;
+        protected byte updateDiagDataLimitSeconds = 5;
 
         private ushort refreshInterval = 1000;
         private ushort timeoutBeforeStart = 2000;
-        protected Timer refreshTimer;
+        //protected Timer refreshTimer;
 
         // TODO: refactor
         public MediaEmulator MediaEmulator { get; set; }
@@ -43,7 +43,6 @@ namespace imBMW.Features.Menu.Screens
         {
             if (base.OnNavigatedTo(menu))
             {
-                NavigationModule.BatteryVoltageChanged += BodyModule_BatteryVoltageChanged;
                 InstrumentClusterElectronics.SpeedRPMChanged += InstrumentClusterElectronics_SpeedRPMChanged;
                 InstrumentClusterElectronics.TemperatureChanged += InstrumentClusterElectronics_TemperatureChanged;
                 InstrumentClusterElectronics.AverageSpeedChanged += InstrumentClusterElectronics_AverageSpeedChanged;
@@ -52,6 +51,9 @@ namespace imBMW.Features.Menu.Screens
                 InstrumentClusterElectronics.RangeChanged += InstrumentClusterElectronics_RangeChanged;
                 InstrumentClusterElectronics.SpeedLimitChanged += InstrumentClusterElectronics_SpeedLimitChanged;
 
+                NavigationModule.BatteryVoltageChanged += BodyModule_BatteryVoltageChanged;
+                LightControlModule.HeatingTimeChanged += LightControlModule_ThermalOilLevelSensorTimingsChanged;
+                LightControlModule.CoolingTimeChanged += LightControlModule_ThermalOilLevelSensorTimingsChanged;
                 //IntegratedHeatingAndAirConditioning.AuxilaryHeaterWorkingRequestsCounterChanged += IntegratedHeatingAndAirConditioning_AuxilaryHeaterWorkingRequestsCounterChanged;
 
                 //MediaEmulator.Player.TrackChanged += TrackChanged;
@@ -60,7 +62,7 @@ namespace imBMW.Features.Menu.Screens
                 //    OnUpdateHeader(MenuScreenUpdateReason.Refresh);
                 //}, null, timeoutBeforeStart, refreshInterval);
 
-                UpdateVoltage();
+                RequestSomeDiagData();
                 return true;
             }
             return false;
@@ -70,7 +72,6 @@ namespace imBMW.Features.Menu.Screens
         {
             if (base.OnNavigatedFrom(menu))
             {
-                NavigationModule.BatteryVoltageChanged -= BodyModule_BatteryVoltageChanged;
                 InstrumentClusterElectronics.SpeedRPMChanged -= InstrumentClusterElectronics_SpeedRPMChanged;
                 InstrumentClusterElectronics.TemperatureChanged -= InstrumentClusterElectronics_TemperatureChanged;
                 InstrumentClusterElectronics.AverageSpeedChanged -= InstrumentClusterElectronics_AverageSpeedChanged;
@@ -79,6 +80,9 @@ namespace imBMW.Features.Menu.Screens
                 InstrumentClusterElectronics.RangeChanged -= InstrumentClusterElectronics_RangeChanged;
                 InstrumentClusterElectronics.SpeedLimitChanged -= InstrumentClusterElectronics_SpeedLimitChanged;
 
+                NavigationModule.BatteryVoltageChanged -= BodyModule_BatteryVoltageChanged;
+                LightControlModule.HeatingTimeChanged -= LightControlModule_ThermalOilLevelSensorTimingsChanged;
+                LightControlModule.CoolingTimeChanged -= LightControlModule_ThermalOilLevelSensorTimingsChanged;
                 //IntegratedHeatingAndAirConditioning.AuxilaryHeaterWorkingRequestsCounterChanged -= IntegratedHeatingAndAirConditioning_AuxilaryHeaterWorkingRequestsCounterChanged;
 
                 //MediaEmulator.Player.TrackChanged -= TrackChanged;
@@ -147,14 +151,20 @@ namespace imBMW.Features.Menu.Screens
             UpdateItems(voltage == 0);
         }
 
+        void LightControlModule_ThermalOilLevelSensorTimingsChanged(double voltage)
+        {
+            UpdateItems();
+        }
+
+
         protected bool UpdateItems(bool force = false)
         {
             var now = DateTime.Now;
             int span;
-            if ((now - lastVoltageUpdated).GetTotalSeconds() > updateVoltageLimitSeconds || lastUpdated == DateTime.MinValue) //(needUpdateVoltage) // span > updateLimitSeconds / 2 && 
+            if ((now - lastDiagDataUpdated).GetTotalSeconds() > updateDiagDataLimitSeconds || lastUpdated == DateTime.MinValue) //(needUpdateVoltage) // span > updateLimitSeconds / 2 && 
             {
-                UpdateVoltage();
-                lastVoltageUpdated = now;
+                RequestSomeDiagData();
+                lastDiagDataUpdated = now;
             }
             if (!force && lastUpdated != DateTime.MinValue && (span = (now - lastUpdated).GetTotalSeconds()) < updateLimitSeconds)
             {
@@ -166,19 +176,6 @@ namespace imBMW.Features.Menu.Screens
             needUpdateVoltage = true;
             return true;
         }
-
-        protected virtual uint FirstColumnLength
-        {
-            get
-            {
-                var l = System.Math.Max(Localization.Current.Speed.Length, Localization.Current.Revs.Length);
-                l = System.Math.Max(l, Localization.Current.Voltage.Length);
-                l = System.Math.Max(l, Localization.Current.Engine.Length);
-                l = System.Math.Max(l, Localization.Current.Outside.Length);
-                return (uint)(l + 3);
-            }
-        }
-
 
         protected virtual void SetItems()
         {
@@ -198,18 +195,29 @@ namespace imBMW.Features.Menu.Screens
             AddItem(new MenuItem(i => Localization.Current.Average + ": " + (InstrumentClusterElectronics.AverageSpeed == 0 ? "-" : InstrumentClusterElectronics.AverageSpeed.ToString("F1") + Localization.Current.KMH)));
             AddItem(new MenuItem(i => Localization.Current.Range + ": " + (InstrumentClusterElectronics.Range == 0 ? "-" : InstrumentClusterElectronics.Range.ToString())));
 
+            AddItem(new MenuItem(i => Localization.Current.Voltage + ": " 
+                + (NavigationModule.BatteryVoltage > 0 ? NavigationModule.BatteryVoltage.ToString("F2") : "-") 
+                + " " 
+                + Localization.Current.VoltageShort, 
+                i => RequestSomeDiagData()));
 
-            AddItem(new MenuItem(i => Localization.Current.Voltage + ": " + (NavigationModule.BatteryVoltage > 0 ? NavigationModule.BatteryVoltage.ToString("F2") : "-") + " " + Localization.Current.VoltageShort, i => UpdateVoltage()));
+            AddItem(new MenuItem(i => Localization.Current.Oil + ": " 
+                + (LightControlModule.HeatingTime > 0 ? LightControlModule.HeatingTime.ToString("F4") : "-")
+                + "/"
+                + (LightControlModule.CoolingTime > 0 ? LightControlModule.CoolingTime.ToString("F4") : "-"), 
+                i => RequestSomeDiagData()));
+
             AddItem(new MenuItem(i =>
             {
                 var coolant = InstrumentClusterElectronics.TemperatureCoolant == sbyte.MinValue ? "-" : InstrumentClusterElectronics.TemperatureCoolant.ToString();
-                return Localization.Current.Engine + ": " + coolant + Localization.Current.DegreeCelsius;
-            }));
-            AddItem(new MenuItem(i =>
-            {
                 var outside = InstrumentClusterElectronics.TemperatureOutside == sbyte.MinValue ? "-" : InstrumentClusterElectronics.TemperatureOutside.ToString();
-                return Localization.Current.Outside + ": " + outside + Localization.Current.DegreeCelsius;
+                return Localization.Current.Temp + ": " + coolant + Localization.Current.DegreeCelsius + "/" + outside + Localization.Current.DegreeCelsius;
             }));
+            //AddItem(new MenuItem(i =>
+            //{
+            //    var outside = InstrumentClusterElectronics.TemperatureOutside == sbyte.MinValue ? "-" : InstrumentClusterElectronics.TemperatureOutside.ToString();
+            //    return Localization.Current.Outside + ": " + outside + Localization.Current.DegreeCelsius;
+            //}));
             //AddItem(new MenuItem(i => Localization.Current.Limit + ": " + (InstrumentClusterElectronics.SpeedLimit == 0 ? "-" : InstrumentClusterElectronics.SpeedLimit + Localization.Current.KMH), MenuItemType.Button, MenuItemAction.GoToScreen)
             //{
             //    GoToScreenCallback = () => { return SpeedLimitScreen.Instance; }
@@ -222,11 +230,13 @@ namespace imBMW.Features.Menu.Screens
             this.AddBackButton();
         }
 
-        protected void UpdateVoltage()
+        protected void RequestSomeDiagData()
         {
             needUpdateVoltage = false;
             NavigationModule.UpdateBatteryVoltage();
+            LightControlModule.UpdateThermalOilLevelSensorValues();
         }
+
 
         public static BordcomputerScreen Instance
         {

@@ -185,6 +185,7 @@
     <Compile Include="..\imBMW\Tools\FEZPandaIII.cs">
       <Link>imBMW\Tools\FEZPandaIII.cs</Link>
     </Compile>
+    <Compile Include="DevicesEmulation\LightControlModuleEmulator.cs" />
     <Compile Include="DevicesEmulation\VolumioRestApiPlayerEmulator.cs" />
     <Compile Include="DevicesEmulation\VolumioUartPlayerEmulator.cs" />
     <Compile Include="GHI\IO\SignalGenerator.cs" />

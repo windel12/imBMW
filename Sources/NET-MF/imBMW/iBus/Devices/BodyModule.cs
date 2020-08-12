@@ -24,8 +24,6 @@ namespace imBMW.iBus.Devices.Real
 
     public delegate void RemoteKeyButtonEventHandler(RemoteKeyEventArgs e);
 
-    public delegate void VoltageEventHandler(double voltage);
-
     #endregion
 
     /// <summary>
@@ -265,6 +263,6 @@ namespace imBMW.iBus.Devices.Real
 
         public static event RemoteKeyButtonEventHandler RemoteKeyButtonPressed;
 
-        public static event VoltageEventHandler BatteryVoltageChanged;
+        public static event ActionDouble BatteryVoltageChanged;
     }
 }

@@ -324,5 +324,11 @@ namespace imBMW.Features.Localizations
         {
             get { return "Air Conditioning"; }
         }
+
+        public override string Temperature => "Temperature";
+
+        public override string Temp => "Temp.";
+
+        public override string Oil => "Oil";
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using System.Threading;
+using imBMW.Enums;
 using imBMW.iBus;
 using imBMW.iBus.Devices.Real;
 using imBMW.Tools;
@@ -24,8 +25,8 @@ namespace imBMW.Features.Multimedia
         Stop = 0x01,
         Pause = 0x02,
         Play = 0x03,
-        Next = 0x04,
-        Prev = 0x05
+        Prev = 0x04,
+        Next = 0x05,
     }
 
     public enum SystemCommands
@@ -82,6 +83,18 @@ namespace imBMW.Features.Multimedia
                         CurrentTitle = title;
                         // TODO: it sends "CDC > RAD: 39 02 09 00 00 00 01 01 {Play, CommonPlayback}" second time after first play
                         OnTrackChanged(title);
+
+                        if (Settings.Instance.Delay3 <= 500)
+                        {
+                            Thread.Sleep(Settings.Instance.Delay3);
+                            DigitalSignalProcessingAudioAmplifier.ChangeSource(AudioSource.CD);
+                        }
+
+                        if (Settings.Instance.Delay4 <= 500)
+                        {
+                            Thread.Sleep(Settings.Instance.Delay4);
+                            DigitalSignalProcessingAudioAmplifier.ChangeSource(AudioSource.CD);
+                        }
                     }
                     m.ReceiverDescription = "Play";
                 }
@@ -128,7 +141,10 @@ namespace imBMW.Features.Multimedia
             VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Pause", (byte)VolumioCommands.Playback, (byte)PlaybackState.Pause));
             Thread.Sleep(Settings.Instance.Delay1);
 
-            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Prev", (byte)VolumioCommands.Playback, (byte)PlaybackState.Next));
+            DigitalSignalProcessingAudioAmplifier.ChangeSource(AudioSource.TunerTape);
+            Thread.Sleep(Settings.Instance.Delay2);
+
+            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Prev", (byte)VolumioCommands.Playback, (byte)PlaybackState.Prev));
         }
 
         public override void Next()
@@ -136,7 +152,10 @@ namespace imBMW.Features.Multimedia
             VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Pause", (byte)VolumioCommands.Playback, (byte)PlaybackState.Pause));
             Thread.Sleep(Settings.Instance.Delay1);
 
-            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Next", (byte)VolumioCommands.Playback, (byte)PlaybackState.Prev));
+            DigitalSignalProcessingAudioAmplifier.ChangeSource(AudioSource.TunerTape);
+            Thread.Sleep(Settings.Instance.Delay2);
+
+            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Next", (byte)VolumioCommands.Playback, (byte)PlaybackState.Next));
         }
 
         

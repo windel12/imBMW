@@ -98,7 +98,7 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
 
         public static void StartAnnounce()
         {
-            if (rpmSpeedAnounceTimer != null)
+            if (rpmSpeedAnounceTimer == null)
             {
                 rpmSpeedAnounceTimer = new Timer((state) =>
                     {
@@ -118,7 +118,7 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
                     }, null, 0, rpmSpeedAnounceTimerInterval * 1000);
             }
 
-            if (temperatureAnounceTimer != null)
+            if (temperatureAnounceTimer == null)
             {
                 temperatureAnounceTimer = new Timer((state) =>
                     {

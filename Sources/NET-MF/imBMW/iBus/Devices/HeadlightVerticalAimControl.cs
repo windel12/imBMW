@@ -90,7 +90,7 @@ namespace imBMW.iBus.Devices.Real
             KBusManager.Instance.EnqueueMessage(diagnose_ende);
         }
 
-        public static event VoltageEventHandler FrontSensorVoltageChanged;
-        public static event VoltageEventHandler RearSensorVoltageChanged;
+        public static event ActionDouble FrontSensorVoltageChanged;
+        public static event ActionDouble RearSensorVoltageChanged;
     }
 }
