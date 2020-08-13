@@ -1,41 +1,12 @@
-using System;
 using System.Text;
-using System.Threading;
 using imBMW.Enums;
+using imBMW.Enums.Volumio;
 using imBMW.iBus;
 using imBMW.iBus.Devices.Real;
 using imBMW.Tools;
 
 namespace imBMW.Features.Multimedia
 {
-    public enum VolumioCommands
-    {
-        Common = 0x00,
-        Playback = 0x01,
-        System = 0x02
-    }
-
-    public enum CommonCommands
-    {
-        Init = 0x00
-    }
-
-    public enum PlaybackState
-    {
-        Stop = 0x01,
-        Pause = 0x02,
-        Play = 0x03,
-        Prev = 0x04,
-        Next = 0x05,
-    }
-
-    public enum SystemCommands
-    {
-        Ping = 0x01,
-        Reboot = 0x02,
-        Shutdown = 0x03
-    }
-
     public class VolumioUartPlayer : AudioPlayerBase
     {
         public PlaybackState CurrentPlaybackState { get; set; }
@@ -56,7 +27,6 @@ namespace imBMW.Features.Multimedia
                     var titleBytes = m.Data.Skip(2);
                     string message = new string(Encoding.UTF8.GetChars(titleBytes));
                     InstrumentClusterElectronics.ShowNormalTextWithGong(message, mode: TextMode.WithGong2);
-                    m.ReceiverDescription = "Init";
                 }
             }
 
@@ -65,12 +35,10 @@ namespace imBMW.Features.Multimedia
                 if (m.Data[1] == (byte)PlaybackState.Stop)
                 {
                     CurrentPlaybackState = PlaybackState.Stop;
-                    m.ReceiverDescription = "Stop";
                 }
                 if (m.Data[1] == (byte)PlaybackState.Pause)
                 {
                     CurrentPlaybackState = PlaybackState.Pause;
-                    m.ReceiverDescription = "Pause";
                 }
                 if (m.Data[1] == (byte)PlaybackState.Play)
                 {
@@ -83,20 +51,7 @@ namespace imBMW.Features.Multimedia
                         CurrentTitle = title;
                         // TODO: it sends "CDC > RAD: 39 02 09 00 00 00 01 01 {Play, CommonPlayback}" second time after first play
                         OnTrackChanged(title);
-
-                        if (Settings.Instance.Delay3 <= 500)
-                        {
-                            Thread.Sleep(Settings.Instance.Delay3);
-                            DigitalSignalProcessingAudioAmplifier.ChangeSource(AudioSource.CD);
-                        }
-
-                        if (Settings.Instance.Delay4 <= 500)
-                        {
-                            Thread.Sleep(Settings.Instance.Delay4);
-                            DigitalSignalProcessingAudioAmplifier.ChangeSource(AudioSource.CD);
-                        }
                     }
-                    m.ReceiverDescription = "Play";
                 }
             }
 
@@ -106,9 +61,8 @@ namespace imBMW.Features.Multimedia
                 {
                     var messageBytes = m.Data.Skip(2);
                     string message = new string(Encoding.UTF8.GetChars(messageBytes));
-                    Thread.Sleep(300);
+                    ThreadSleep(300);
                     InstrumentClusterElectronics.ShowNormalTextWithoutGong(message);
-                    m.ReceiverDescription = "Reboot";
                 }
                 if (m.Data[1] == (byte)SystemCommands.Shutdown)
                 {
@@ -119,7 +73,6 @@ namespace imBMW.Features.Multimedia
                         string message = new string(Encoding.UTF8.GetChars(messageBytes));
                         ShuttedDown(message);
                     }
-                    m.ReceiverDescription = "Shutdown";
                 }
             }
         }
@@ -138,28 +91,34 @@ namespace imBMW.Features.Multimedia
 
         public override void Prev()
         {
-            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Pause", (byte)VolumioCommands.Playback, (byte)PlaybackState.Pause));
-            Thread.Sleep(Settings.Instance.Delay1);
-
-            DigitalSignalProcessingAudioAmplifier.ChangeSource(AudioSource.TunerTape);
-            Thread.Sleep(Settings.Instance.Delay2);
+            if (Settings.Instance.Delay1 == 0)
+            {
+                VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Stop", (byte)VolumioCommands.Playback, (byte)PlaybackState.Stop));
+            }
+            else
+            {
+                VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Pause", (byte)VolumioCommands.Playback, (byte)PlaybackState.Pause));
+            }
+            ThreadSleep(Settings.Instance.Delay2);
 
             VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Prev", (byte)VolumioCommands.Playback, (byte)PlaybackState.Prev));
         }
 
         public override void Next()
         {
-            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Pause", (byte)VolumioCommands.Playback, (byte)PlaybackState.Pause));
-            Thread.Sleep(Settings.Instance.Delay1);
-
-            DigitalSignalProcessingAudioAmplifier.ChangeSource(AudioSource.TunerTape);
-            Thread.Sleep(Settings.Instance.Delay2);
+            if (Settings.Instance.Delay1 == 0)
+            {
+                VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Stop", (byte)VolumioCommands.Playback, (byte)PlaybackState.Stop));
+            }
+            else
+            {
+                VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Pause", (byte)VolumioCommands.Playback, (byte)PlaybackState.Pause));
+            }
+            ThreadSleep(Settings.Instance.Delay2);
 
             VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Next", (byte)VolumioCommands.Playback, (byte)PlaybackState.Next));
         }
-
         
-
         public override string ChangeTrackTo(string fileName)
         {
             return "";
@@ -178,6 +137,14 @@ namespace imBMW.Features.Multimedia
         public static void Shutdown()
         {
             VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Shutdown", (byte)VolumioCommands.System, (byte)SystemCommands.Shutdown));
+        }
+
+        private static void ThreadSleep(int millisecondTimeout)
+        {
+            if (millisecondTimeout != 0)
+            {
+                System.Threading.Thread.Sleep(millisecondTimeout);
+            }
         }
 
         public static event ActionString ShuttedDown;

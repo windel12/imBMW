@@ -32,7 +32,11 @@ namespace imBMW.Tools
         {
             if (queue == null)
             {
+#if OnBoardMonitorEmulator
+                queue = new QueueThreadWorker(ProcessItem, "fileLoggerThread", ThreadPriority.Normal, true);
+#else
                 queue = new QueueThreadWorker(ProcessItem, "fileLoggerThread", ThreadPriority.Lowest, true);
+#endif
             }
 
             Logger.Logged += Logger_Logged;

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Text;
 using imBMW.Tools;
 using imBMW.Enums;
+using imBMW.Enums.Volumio;
 
 namespace imBMW.iBus
 {
@@ -287,6 +288,7 @@ namespace imBMW.iBus
             messageDescriptions.Add(DataPollRequest.ToHex(' '), "Poll request");
             messageDescriptions.Add(DataPollResponse.ToHex(' '), "Poll response");
             messageDescriptions.Add(DataAnnounce.ToHex(' '), "Announce");
+
             //messageDescriptions.Add(Radio.DataAMPressed.ToHex(' '), "BMBT AM Pressed");
             //messageDescriptions.Add(Radio.DataAMReleased.ToHex(' '), "BMBT AM Released");
             //messageDescriptions.Add(Radio.DataFMPressed.ToHex(' '), "BMBT FM Pressed");
@@ -308,6 +310,15 @@ namespace imBMW.iBus
             messageDescriptions.Add(new byte[] { 0x36, 0xA0 }.ToHex(' '), "AudioControl Source=CD");
             messageDescriptions.Add(new byte[] { 0x36, 0xA1 }.ToHex(' '), "AudioControl Source=Tuner/Tape");
             messageDescriptions.Add(new byte[] { 0x36, 0xAF }.ToHex(' '), "AudioControl Source=Off");
+
+            messageDescriptions.Add(new byte[] { (byte)VolumioCommands.Common, (byte)CommonCommands.Init }.ToHex(' '), "Init");
+            messageDescriptions.Add(new byte[] { (byte)VolumioCommands.Playback, (byte)PlaybackState.Stop }.ToHex(' '), "Stop");
+            messageDescriptions.Add(new byte[] { (byte)VolumioCommands.Playback, (byte)PlaybackState.Pause }.ToHex(' '), "Pause");
+            messageDescriptions.Add(new byte[] { (byte)VolumioCommands.Playback, (byte)PlaybackState.Play }.ToHex(' '), "Play");
+            messageDescriptions.Add(new byte[] { (byte)VolumioCommands.Playback, (byte)PlaybackState.Prev }.ToHex(' '), "Prev");
+            messageDescriptions.Add(new byte[] { (byte)VolumioCommands.Playback, (byte)PlaybackState.Next }.ToHex(' '), "Next");
+            messageDescriptions.Add(new byte[] { (byte)VolumioCommands.System, (byte)SystemCommands.Reboot }.ToHex(' '), "Reboot");
+            messageDescriptions.Add(new byte[] { (byte)VolumioCommands.System, (byte)SystemCommands.Shutdown }.ToHex(' '), "Shutdown");
 
             //messageDescriptions.Add(new byte[] { 0x38, 0x00, 00 }.ToHex(' '), "CD StatusRequest");
             messageDescriptions.Add(new byte[] { 0x38, 0x01, 00 }.ToHex(' '), "CD Stop");

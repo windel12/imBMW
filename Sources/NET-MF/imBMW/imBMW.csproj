@@ -74,6 +74,10 @@
     <Compile Include="Enums\AuxilaryHeaterStatus.cs" />
     <Compile Include="Enums\FlapPosition.cs" />
     <Compile Include="Enums\TemperatureUnit.cs" />
+    <Compile Include="Enums\Volumio\PlaybackState.cs" />
+    <Compile Include="Enums\Volumio\CommonCommands.cs" />
+    <Compile Include="Enums\Volumio\SystemCommands.cs" />
+    <Compile Include="Enums\Volumio\VolumioCommands.cs" />
     <Compile Include="iBus\DeviceAddress.cs" />
     <Compile Include="iBus\Devices\AuxilaryHeater.cs" />
     <Compile Include="iBus\Devices\BodyModule.cs" />
@@ -148,4 +152,5 @@
       <Name>imBMW.Tools</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
 </Project>

@@ -14,7 +14,8 @@ namespace imBMW.Features
         {
             FullCloseWindows,
             FullOpenWindows,
-            BlinkLamps
+            BlinkLamps,
+            TurnLampsAfterUnlock
         }
         #endregion
 
@@ -36,7 +37,11 @@ namespace imBMW.Features
         static Comfort()
         {
             // uncomment when will use comfort
+#if OnBoardMonitorEmulator
+            commands = new QueueThreadWorker(ProcessCommand, "comfortThread", ThreadPriority.Normal);
+#else
             commands = new QueueThreadWorker(ProcessCommand, "comfortThread", ThreadPriority.Lowest);
+#endif
 
             //InstrumentClusterElectronics.SpeedRPMChanged += (e) =>
             //{
@@ -74,7 +79,7 @@ namespace imBMW.Features
             //};
             BodyModule.RemoteKeyButtonPressed += (e) =>
             {
-                if (e.Button == RemoteKeyButton.Lock)
+                if (e.Button == RemoteKeyButton.Lock && e.Bus == BusType.IBus)
                 {
                     //if (needComfortClose)
                     //{
@@ -92,17 +97,15 @@ namespace imBMW.Features
                     //        BodyModule.FoldMirrors();
                     //    }
                     //}
-
-                    BlinkLamps();
+                    commands.Enqueue(Command.BlinkLamps);
                 }
-                if (e.Button == RemoteKeyButton.Unlock)
+                if (e.Button == RemoteKeyButton.Unlock && e.Bus == BusType.IBus)
                 {
                     //if (AutoUnfoldMirrors)
                     //{
                     //    BodyModule.UnfoldMirrors();
                     //}
-
-                    BlinkLamps();
+                    commands.Enqueue(Command.TurnLampsAfterUnlock);
                 }
             };
         }
@@ -158,12 +161,17 @@ namespace imBMW.Features
                         LightControlModule.TurnOnLamps(Lights.Off);
                     }
                     break;
-            }
-        }
+                case Command.TurnLampsAfterUnlock:
+                    LightControlModule.TurnOnLamps(Lights.FrontLeftFogLamp | Lights.FrontRightFogLamp |
+                                                   Lights.FrontLeftStandingLight | Lights.FrontRightStandingLight |
+                                                   Lights.LeftLowBeam | Lights.RightLowBeam |
 
-        public static void BlinkLamps()
-        {
-            commands.Enqueue(Command.BlinkLamps);
+                                                   Lights.RearLeftInnerStandingLight | Lights.RearRightInnerStandingLight |
+                                                   Lights.RearLeftStandingLight | Lights.RearRightStandingLight |
+                                                   Lights.LeftLicensePlate | Lights.RightLicensePlate |
+                                                   Lights.ThirdBrakeLight);
+                    break;
+            }
         }
 
         /// <summary>

@@ -59,13 +59,13 @@ namespace imBMW.iBus.Devices.Real
                 f12K = f12K < 0 ? f12K : (short)(0x10 - f12K);
 
                 m.ReceiverDescription = "GT Car memory response. Frequencies: "
-                                        + "80: " + f80
-                                        + "; 200: " + f200
-                                        + "; 500: " + f500
-                                        + "; 1K: " + f1K
-                                        + "; 2K: " + f2K
-                                        + "; 5K: " + f5K
-                                        + "; 12K: " + f12K;
+                                        + "80: " +     f80/*.ToString("+#;-#;0")*/
+                                        + "; 200: " + f200/*.ToString("+#;-#;0")*/
+                                        + "; 500: " + f500/*.ToString("+#;-#;0")*/
+                                        + "; 1K: " +   f1K/*.ToString("+#;-#;0")*/
+                                        + "; 2K: " +   f2K/*.ToString("+#;-#;0")*/
+                                        + "; 5K: " +   f5K/*.ToString("+#;-#;0")*/
+                                        + "; 12K: " + f12K/*.ToString("+#;-#;0")*/;
             }
         }
 

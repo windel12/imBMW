@@ -621,6 +621,11 @@ namespace imBMW.Devices.V2
                 Logger.Trace("Going to request ignition status to reset watchdog counter");
                 InstrumentClusterElectronics.RequestIgnitionStatus();
             }
+
+            if (InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Ign)
+            {
+                LightControlModule.UpdateThermalOilLevelSensorValues();
+            }
         }
 
         internal static void IdleMode()
@@ -736,21 +741,38 @@ namespace imBMW.Devices.V2
             return true;
         }
 
+        private static bool IBusMessageLoggingBeforeReceivedPredicate(MessageEventArgs e)
+        {
+            if (e.Message.Data[0] == 0x38) // RAD > CDC: 38 XX XX
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         internal static void Manager_BeforeMessageReceived(MessageEventArgs e)
         {
             idleTime = 0;
+
+            if (IBusMessageLoggingBeforeReceivedPredicate(e))
+            {
+                var logIco = "I < ";
+                if (settings.LogMessageToASCII)
+                {
+                    Logger.Trace(e.Message.ToPrettyString(false, false), logIco);
+                }
+                else
+                {
+                    Logger.Trace(e.Message, logIco);
+                }
+            }
         }
 
         private static void Manager_AfterMessageReceived(MessageEventArgs e)
         {
-            if (IBusLoggerPredicate(e) && IBusReaderPredicate(e))
+            if (IBusLoggerPredicate(e) && IBusReaderPredicate(e) && !IBusMessageLoggingBeforeReceivedPredicate(e))
             {
-                // Show only messages which are described
-                if (e.Message.Describe() == null)
-                {
-                    return;
-                }
-
                 var logIco = "I < ";
                 if (settings.LogMessageToASCII)
                 {

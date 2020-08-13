@@ -205,7 +205,7 @@ namespace imBMW.Features.Menu.Screens
                 + (LightControlModule.HeatingTime > 0 ? LightControlModule.HeatingTime.ToString("F4") : "-")
                 + "/"
                 + (LightControlModule.CoolingTime > 0 ? LightControlModule.CoolingTime.ToString("F4") : "-"), 
-                i => RequestSomeDiagData()));
+                i => LightControlModule.UpdateThermalOilLevelSensorValues()));
 
             AddItem(new MenuItem(i =>
             {
@@ -234,7 +234,7 @@ namespace imBMW.Features.Menu.Screens
         {
             needUpdateVoltage = false;
             NavigationModule.UpdateBatteryVoltage();
-            LightControlModule.UpdateThermalOilLevelSensorValues();
+            //LightControlModule.UpdateThermalOilLevelSensorValues();
         }
 
 

@@ -12,13 +12,21 @@ namespace imBMW.iBus.Devices.Real
         Trunk
     }
 
+    public enum BusType
+    {
+        IBus,
+        KBus
+    }
+
     public class RemoteKeyEventArgs
     {
         public RemoteKeyButton Button { get; private set; }
+        public BusType Bus { get; private set; }
 
-        public RemoteKeyEventArgs(RemoteKeyButton button)
+        public RemoteKeyEventArgs(RemoteKeyButton button, BusType bus)
         {
             Button = button;
+            Bus = bus;
         }
     }
 
@@ -74,7 +82,8 @@ namespace imBMW.iBus.Devices.Real
 
         static BodyModule()
         {
-            KBusManager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.BodyModule, ProcessGMMessage);
+            KBusManager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.BodyModule, message => ProcessGMMessage(message, BusType.KBus));
+            Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.BodyModule, message => ProcessGMMessage(message, BusType.IBus));
             InstrumentClusterElectronics.IgnitionStateChanged += InstrumentClusterElectronics_IgnitionStateChanged;
         }
 
@@ -83,29 +92,29 @@ namespace imBMW.iBus.Devices.Real
         /// </summary>
         public static void Init() { }
 
-        static void ProcessGMMessage(Message m)
+        static void ProcessGMMessage(Message m, BusType bus)
         {
-            if (m.Data.Length == 2 && m.Data[0] == 0x72)
+            if (m.Data.Length == 2 && m.Data[0] == 0x72) // Remote Keys
             {
                 var btn = m.Data[1];
                 if (btn.HasBit(4)) // 0x1_
                 {
-                    OnRemoteKeyButton(m, RemoteKeyButton.Lock);
+                    OnRemoteKeyButton(m, RemoteKeyButton.Lock, bus);
                 }
                 else if (btn.HasBit(5)) // 0x2_
                 {
-                    OnRemoteKeyButton(m, RemoteKeyButton.Unlock);
+                    OnRemoteKeyButton(m, RemoteKeyButton.Unlock, bus);
                 }
                 else if (btn.HasBit(6)) // 0x4_
                 {
-                    OnRemoteKeyButton(m, RemoteKeyButton.Trunk);
+                    OnRemoteKeyButton(m, RemoteKeyButton.Trunk, bus);
                 }
                 else
                 {
                     m.ReceiverDescription = "No button pressed";
                 }
             }
-            else if (m.Data.Length == 3 && m.Data[0] == 0x7A)
+            if (m.Data.Length == 3 && m.Data[0] == 0x7A) // Doors/windows status
             {
                 // Data[1] = 7654 3210. 7 = ??, 6 = light, 5 = lock, 4 = unlock, 5+4 = hard lock,
                 //      doors statuses: 0 = left front (driver), 1 = right front, 2 = left rear, 3 = right rear.
@@ -124,7 +133,7 @@ namespace imBMW.iBus.Devices.Real
                     wasDriverDoorOpened = false;
                 }
             }
-            else if (m.Data.Length > 3 && m.Data[0] == 0xA0)
+            if (m.Data.Length > 3 && m.Data[0] == 0xA0)
             {
                 // TODO filter not analog-values responses
                 var voltage = ((double)m.Data[1]) / 10 + ((double)m.Data[2]) / 1000;
@@ -134,12 +143,12 @@ namespace imBMW.iBus.Devices.Real
             }
         }
 
-        static void OnRemoteKeyButton(Message m, RemoteKeyButton button)
+        static void OnRemoteKeyButton(Message m, RemoteKeyButton button, BusType bus)
         {
             var e = RemoteKeyButtonPressed;
             if (e != null)
             {
-                e(new RemoteKeyEventArgs(button));
+                e(new RemoteKeyEventArgs(button, bus));
             }
             m.ReceiverDescription = "Remote key: '" + button.ToStringValue() + "' was pressed";
         }

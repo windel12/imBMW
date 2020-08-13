@@ -73,16 +73,16 @@ namespace imBMW.iBus.Devices.Real
                 switch (TrunkLidButtonPressedCount)
                 {
                     case 1:
-                        LightControlModule.TurnOnLamps(Lights.FrontLeftStandingLight & Lights.FrontRightStandingLight);
+                        LightControlModule.TurnOnLamps(Lights.FrontLeftStandingLight | Lights.FrontRightStandingLight);
                         break;
                     case 2:
-                        LightControlModule.TurnOnLamps(Lights.FrontLeftStandingLight & Lights.FrontRightStandingLight &
-                                                       Lights.FrontLeftBlinker & Lights.FrontRightBlinker);
+                        LightControlModule.TurnOnLamps(Lights.FrontLeftStandingLight | Lights.FrontRightStandingLight &
+                                                       Lights.FrontLeftBlinker | Lights.FrontRightBlinker);
                         break;
                     case 3:
-                        LightControlModule.TurnOnLamps(Lights.FrontLeftStandingLight & Lights.FrontRightStandingLight &
-                                                       Lights.FrontLeftBlinker & Lights.FrontRightBlinker &
-                                                       Lights.FrontLeftFogLamp & Lights.FrontRightFogLamp);
+                        LightControlModule.TurnOnLamps(Lights.FrontLeftStandingLight | Lights.FrontRightStandingLight &
+                                                       Lights.FrontLeftBlinker | Lights.FrontRightBlinker &
+                                                       Lights.FrontLeftFogLamp | Lights.FrontRightFogLamp);
                         StartAuxilaryHeater();
                         break;
                 }
@@ -121,7 +121,7 @@ namespace imBMW.iBus.Devices.Real
                     // turning on lights, if webasto working
                     if (InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Off)
                     {
-                        LightControlModule.TurnOnLamps(Lights.FrontLeftBlinker & Lights.FrontRightBlinker & Lights.RearLeftStandingLight & Lights.RearRightStandingLight);
+                        LightControlModule.TurnOnLamps(Lights.FrontLeftBlinker | Lights.FrontRightBlinker | Lights.RearLeftStandingLight | Lights.RearRightStandingLight);
                     }
 
                     // skipping first reply

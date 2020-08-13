@@ -15,42 +15,114 @@ namespace imBMW.iBus.Devices.Real
         public bool ErrorFrontRightsLights;
     }
 
+    #region Tool32Table
+    // "STEUER_I_O", "BYTE", "BITWERT"
+    // "Kl30A", "0", "0x01"
+    // "LOESCHAN", "0", "0x02"
+    // "VGLESP", "0", "0x04"
+    // "CARB", "0", "0x10"
+    // "KlR", "0", "0x40"
+    // "Kl30B", "0", "0x80"
+    // "ZSK", "1", "0x01"
+    // "GKFA", "1", "0x02"
+    // "S_LH", "1", "0x04"
+    // "WBL", "1", "0x10"
+    // "KFN", "1", "0x20"
+    // "PANZTUE", "1", "0x40"
+    // "BRFN", "1", "0x80"
+    // "S_BLS", "2", "0x01"
+    // "S_FL", "2", "0x02"
+    // "S_NSW", "2", "0x04"
+    // "S_NSL", "2", "0x10"
+    // "S_SL", "2", "0x20"
+    // "S_BLK_R", "2", "0x40"
+    // "S_BLK_L", "2", "0x80"
+    // "LUFTAN", "3", "0x01"
+    // "ALARM", "3", "0x02"
+    // "WWN", "3", "0x04"
+    // "S2_AL", "3", "0x08"
+    // "S1_AL", "3", "0x10"
+    // "Kl15", "3", "0x20"
+    // "MOTNOT", "3", "0x40"
+    // "REIF_DEF", "3", "0x80"
+    // 
+    // "KZL_L", "4", "0x04"
+    // "BL_L", "4", "0x08"
+    // "BL_R", "4", "0x10"
+    // "FL_R", "4", "0x20"
+    // "FL_L", "4", "0x40"
+    // 
+    // "SL_LV", "5", "0x01"
+    // "SL_LHI", "5", "0x02"
+    // "NSW_L", "5", "0x04"
+    // "RFS_L", "5", "0x08"
+    // "AL_L", "5", "0x10"
+    // "AL_R", "5", "0x20"
+    // "NSW_R", "5", "0x40"
+    // "NSL_R", "5", "0x80"
+    // 
+    // "LWR", "6", "0x02"
+    // "KZL_R", "6", "0x04"
+    // "SL_LH", "6", "0x08"
+    // "BL_M", "6", "0x10"
+    // "SL_RV", "6", "0x20"
+    // "BLK_RV", "6", "0x40"
+    // "BLK_LH", "6", "0x80"
+    // 
+    // "BLK_RH", "7", "0x02"
+    // "NSL_L", "7", "0x04"
+    // "SL_RHI", "7", "0x08"
+    // "SL_RH", "7", "0x10"
+    // "BLK_LV", "7", "0x40"
+    // "RFS_R", "7", "0x80"
+    // 
+    // "NOTAKTIV", "8", "0x01"
+    // "KL58_EIN", "8", "0x02"
+    // "WBLSUCH_EIN", "8", "0x04"
+    // "LSSUCH_EIN", "8", "0x08"
+    // "NSL_AH_EIN", "8", "0x10"
+    // "RFS_AH_EIN", "8", "0x20"
+    // "SLEEPMODE", "8", "0x40"
+    #endregion
+
     [Flags]
-    public enum Lights
+    public enum Lights : uint
     {
         Off = 0x00,
+        // byte #7 in LCM_III.prg -> Table:STEUERN
+        RearRightBlinker = 0x02000000,                  // BLK_RH   - Blinker
+        RearLeftFogLamp =  0x04000000,                  // NSL_L    - Nebelschlussleuchte
+        RearRightInnerStandingLight = 0x08000000,       // SL_RHI   - Stehendes Licht
+        RearRightStandingLight = 0x10000000,            // SL_RH    - Stehendes Licht
+        FrontLeftBlinker = 0x40000000,                  // BLK_LV   - Blinker
+        RightReverseLight = 0x80000000,                 // RFS_R    - Rückfahrscheinwerfer
 
-        RearRightBlinker = 0x02,
-        RearLeftFogLamp =  0x04,
-        RearRightInnerStandingLight = 0x08,
-        RearRightStandingLight = 0x10,
+        // byte #6 in LCM_III.prg -> Table:STEUERN
+        LWR = 0x00020000,
+        RightLicensePlate = 0x00040000,                 // KZL_R    - Kennzeichen
+        RearLeftStandingLight = 0x00080000,             // SL_LH    - Stehendes Licht
+        ThirdBrakeLight = 0x00100000,                   // BL_M     - Blinker Mittel
+        FrontRightStandingLight = 0x00200000,           // SL_RV    - Stehendes Licht
+        FrontRightBlinker = 0x00400000,                 // BLK_RV   - Blinker rechts Vorne
+        RearLeftBlinker = 0x00800000,                   // BLK_LH   - Blinker links Hinten
 
-        FrontLeftBlinker = 0x40,
+        // byte #5 in LCM_III.prg -> Table:STEUERN
+        FrontLeftStandingLight = 0x00000100,            // SL_LV    - Stehendes Licht
+        RearLeftInnerStandingLight = 0x00000200,        // SL_LHI   - Stehendes Licht
+        FrontLeftFogLamp = 0x00000400,                  // NSW_L    - Nebelscheinwerfer
+        LeftReverseLight = 0x00000800,                  // RFS_L    - Rückfahrscheinwerfer
+        LeftLowBeam = 0x00001000,                       // AL_L     - Abblendlicht
+        RightLowBeam = 0x00002000,                      // AL_R     - Abblendlicht
+        FrontRightFogLamp = 0x00004000,                 // NSW_R    - NebelScheinWerfer
+        RearRightFogLamp = 0x00008000,                  // NSL_R    - Nebelschlussleuchte
 
-
-
-        RightLicensePlate = 0x0400,
-        RearLeftStandingLight = 0x0800,
-        ThirdBrakeLight = 0x1000,
-        FrontRightStandingLight = 0x2000,
-        FrontRightBlinker = 0x4000,
-        RearLeftBlinker = 0x8000,
-        FrontLeftStandingLight = 0x010000,
-        RearLeftInnerStandingLight = 0x020000,
-        FrontLeftFogLamp = 0x040000,
-
-        LeftHighBeam = 0x100000,
-        RightHighBeam = 0x200000,
-        FrontRightFogLamp = 0x400000,
-        RearRightFogLamp = 0x800000,
-
-
-        LeftLicensePlate = 0x04000000,
-        LeftBrakeLight = 0x08000000,
-        RightBrakeLight = 0x10000000,
-        RightLowBeam = 0x20000000,
-        LeftLowBeam = 0x40000000,
-    }
+        // byte #4 in LCM_III.prg -> Table:STEUERN
+        LeftLicensePlate = 0x00000004,                  // KZL_L    - Kennzeichen
+        LeftBrakeLight = 0x00000008,                    // BL_L     - Bremslicht
+        RightBrakeLight = 0x00000010,                   // BL_R     - Bremslicht
+        RightHighBeam = 0x00000020,                     // FL_R     - Fernlicht
+        LeftHighBeam = 0x00000040,                      // FL_L     - Fernlicht
+    }   
 
     public delegate void LightStatusEventHandler(Message message, LightStatusEventArgs args);
 
@@ -204,10 +276,10 @@ namespace imBMW.iBus.Devices.Real
             var mask = BitConverter.GetBytes((int)lights);
             byte[] data = new byte[13];
             data[0] = 0x0C;
-            data[5] = mask[3];
-            data[6] = mask[2];
-            data[7] = mask[1];
-            data[8] = mask[0];
+            data[5] = mask[0];
+            data[6] = mask[1];
+            data[7] = mask[2];
+            data[8] = mask[3];
 
             var message = new Message(DeviceAddress.Diagnostic, DeviceAddress.LightControlModule, "Turn lamps", data);
             Manager.Instance.EnqueueMessage(message);

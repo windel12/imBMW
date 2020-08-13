@@ -84,7 +84,7 @@ namespace imBMW.Enums
                 case DeviceAddress.RemoteControlCentralLocking: return "RemoteControlCentralLocking";
                 case DeviceAddress.GraphicsDriverRearScreen: return "GraphicsDriverRearScreen";
                 case DeviceAddress.Immobiliser: return "EWS";
-                case DeviceAddress.CentralInformationDisplay: return "CentralInformationDisplay";
+                case DeviceAddress.CentralInformationDisplay: return "CID";
                 case DeviceAddress.RearMonitor: return "RearMonitor";
                 case DeviceAddress.MultiFunctionSteeringWheel: return "MFL";
                 case DeviceAddress.MirrorMemory: return "MirrorMemory";

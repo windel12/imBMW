@@ -3,6 +3,7 @@ using System.Text;
 using System.Linq;
 using imBMW.Features.Multimedia;
 using imBMW.iBus;
+using imBMW.Enums.Volumio;
 using System.Threading.Tasks;
 using System.Threading;
 

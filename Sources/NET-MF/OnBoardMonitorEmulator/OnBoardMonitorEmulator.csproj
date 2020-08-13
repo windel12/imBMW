@@ -161,6 +161,18 @@
     <Compile Include="..\imBMW\Enums\MassStorageMountState.cs">
       <Link>imBMW\Enums\MassStorageMountState.cs</Link>
     </Compile>
+    <Compile Include="..\imBMW\Enums\Volumio\CommonCommands.cs">
+      <Link>imBMW\Enums\Volumio\CommonCommands.cs</Link>
+    </Compile>
+    <Compile Include="..\imBMW\Enums\Volumio\PlaybackState.cs">
+      <Link>imBMW\Enums\Volumio\PlaybackState.cs</Link>
+    </Compile>
+    <Compile Include="..\imBMW\Enums\Volumio\SystemCommands.cs">
+      <Link>imBMW\Enums\Volumio\SystemCommands.cs</Link>
+    </Compile>
+    <Compile Include="..\imBMW\Enums\Volumio\VolumioCommands.cs">
+      <Link>imBMW\Enums\Volumio\VolumioCommands.cs</Link>
+    </Compile>
     <Compile Include="..\imBMW\iBus\Devices\DigitalSignalProcessingAudioAmplifier.cs">
       <Link>imBMW\iBus\Devices\DigitalSignalProcessingAudioAmplifier.cs</Link>
     </Compile>
@@ -619,6 +631,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

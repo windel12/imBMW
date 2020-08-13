@@ -215,10 +215,13 @@ namespace imBMW.Features.Menu
 
                     // 'AuxilaryHeater/Clock' button
                     case 0x07:
+                        m.ReceiverDescription = "Clock press";
                         break;
                     case 0x47:
+                        m.ReceiverDescription = "Clock hold";
                         break;
                     case 0x87:
+                        m.ReceiverDescription = "Clock release";
                         IntegratedHeatingAndAirConditioning.StartAuxilaryHeater();
                         break;
 
@@ -265,6 +268,16 @@ namespace imBMW.Features.Menu
                         break;
                     case 0x80:
                         m.ReceiverDescription = "Next release";
+                        break;
+
+                    case 0x10:
+                        m.ReceiverDescription = "Prev press";
+                        break;
+                    case 0x50:
+                        m.ReceiverDescription = "Prev hold";
+                        break;
+                    case 0x90:
+                        m.ReceiverDescription = "Prev release";
                         break;
 
                     // 'Mode' button
