@@ -88,7 +88,7 @@ namespace imBMW.iBus.Devices.Real
     [Flags]
     public enum Lights : uint
     {
-        Off = 0x00,
+        Off = 0x00000000,
         // byte #7 in LCM_III.prg -> Table:STEUERN
         RearRightBlinker = 0x02000000,                  // BLK_RH   - Blinker
         RearLeftFogLamp =  0x04000000,                  // NSL_L    - Nebelschlussleuchte

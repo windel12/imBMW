@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using imBMW.Enums;
 using imBMW.Enums.Volumio;
@@ -11,6 +12,7 @@ namespace imBMW.Features.Multimedia
     {
         public PlaybackState CurrentPlaybackState { get; set; }
         public string CurrentTitle { get; set; }
+        public short CurrentTrackDuration { get; set; }
 
         public VolumioUartPlayer()
         {
@@ -42,13 +44,18 @@ namespace imBMW.Features.Multimedia
                 }
                 if (m.Data[1] == (byte)PlaybackState.Play)
                 {
+                    CurrentTrackDuration = (short)((m.Data[m.Data.Length - 2] << 8) + m.Data[m.Data.Length - 1]);
+
                     var prevState = CurrentPlaybackState;
                     CurrentPlaybackState = PlaybackState.Play;
-                    if (CurrentPlaybackState != prevState)
+
+                    var titleBytes = m.Data.SkipAndTake(2, m.Data.Length - 2 - 2);
+                    string title = new string(Encoding.UTF8.GetChars(titleBytes));
+                    var prevTitle = CurrentTitle;
+                    CurrentTitle = title;
+
+                    if (CurrentPlaybackState != prevState || CurrentPlaybackState == PlaybackState.Play && CurrentTitle != prevTitle)
                     {
-                        var titleBytes = m.Data.Skip(2);
-                        string title = new string(Encoding.UTF8.GetChars(titleBytes));
-                        CurrentTitle = title;
                         // TODO: it sends "CDC > RAD: 39 02 09 00 00 00 01 01 {Play, CommonPlayback}" second time after first play
                         OnTrackChanged(title);
                     }
@@ -91,14 +98,7 @@ namespace imBMW.Features.Multimedia
 
         public override void Prev()
         {
-            if (Settings.Instance.Delay1 == 0)
-            {
-                VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Stop", (byte)VolumioCommands.Playback, (byte)PlaybackState.Stop));
-            }
-            else
-            {
-                VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Pause", (byte)VolumioCommands.Playback, (byte)PlaybackState.Pause));
-            }
+            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Pause", (byte)VolumioCommands.Playback, (byte)PlaybackState.Pause));
             ThreadSleep(Settings.Instance.Delay2);
 
             VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Prev", (byte)VolumioCommands.Playback, (byte)PlaybackState.Prev));
@@ -108,15 +108,26 @@ namespace imBMW.Features.Multimedia
         {
             if (Settings.Instance.Delay1 == 0)
             {
-                VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Stop", (byte)VolumioCommands.Playback, (byte)PlaybackState.Stop));
+                VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Pause", (byte) VolumioCommands.Playback, (byte) PlaybackState.Pause));
+                ThreadSleep(Settings.Instance.Delay2);
+
+                VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Next", (byte) VolumioCommands.Playback, (byte) PlaybackState.Next));
             }
             else
             {
-                VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Pause", (byte)VolumioCommands.Playback, (byte)PlaybackState.Pause));
+                byte offset = 0;
+                try
+                {
+                    offset = (byte) (Settings.Instance.Delay4 / 1000);
+                }
+                catch
+                {
+                    offset = 0;
+                }
+                byte position_h = (byte) (CurrentTrackDuration >> 8);
+                byte position_l = (byte) ((CurrentTrackDuration & 0x00FF) - offset);
+                VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Seek", (byte) VolumioCommands.Playback, (byte) PlaybackState.Seek, position_h, position_l));
             }
-            ThreadSleep(Settings.Instance.Delay2);
-
-            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Next", (byte)VolumioCommands.Playback, (byte)PlaybackState.Next));
         }
         
         public override string ChangeTrackTo(string fileName)

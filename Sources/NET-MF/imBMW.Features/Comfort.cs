@@ -15,7 +15,7 @@ namespace imBMW.Features
             FullCloseWindows,
             FullOpenWindows,
             BlinkLamps,
-            TurnLampsAfterUnlock
+            WelcomeLights
         }
         #endregion
 
@@ -24,6 +24,18 @@ namespace imBMW.Features
         static bool needLockDoors = false;
         static bool needUnlockDoors = false;
         static bool needComfortClose = false;
+        static bool welcomeLightsTurnedOn = false;
+
+        static Timer delay;
+
+        static void CancelDelay()
+        {
+            if (delay != null)
+            {
+                delay.Dispose();
+                delay = null;
+            }
+        }
 
         public static void Init()
         {
@@ -59,24 +71,29 @@ namespace imBMW.Features
             //        needLockDoors = true;
             //    }
             //};
-            //InstrumentClusterElectronics.IgnitionStateChanged += (e) =>
-            //{
-            //    if (!needComfortClose 
-            //        && e.CurrentIgnitionState != IgnitionState.Off 
-            //        && e.PreviousIgnitionState == IgnitionState.Off)
-            //    {
-            //        needComfortClose = true;
-            //    }
-            //    if (needUnlockDoors && e.CurrentIgnitionState == IgnitionState.Off)
-            //    {
-            //        if (AutoUnlockDoors)
-            //        {
-            //            BodyModule.UnlockDoors();
-            //        }
-            //        needUnlockDoors = false;
-            //        needLockDoors = true;
-            //    }
-            //};
+            InstrumentClusterElectronics.IgnitionStateChanged += (e) =>
+            {
+                //if (!needComfortClose
+                //    && e.CurrentIgnitionState != IgnitionState.Off
+                //    && e.PreviousIgnitionState == IgnitionState.Off)
+                //{
+                //    needComfortClose = true;
+                //}
+                //if (needUnlockDoors && e.CurrentIgnitionState == IgnitionState.Off)
+                //{
+                //    if (AutoUnlockDoors)
+                //    {
+                //        BodyModule.UnlockDoors();
+                //    }
+                //    needUnlockDoors = false;
+                //    needLockDoors = true;
+                //}
+                if (welcomeLightsTurnedOn && e.PreviousIgnitionState != IgnitionState.Unknown)
+                {
+                    LightControlModule.TurnOnLamps(Lights.Off);
+                    welcomeLightsTurnedOn = false;
+                }
+            };
             BodyModule.RemoteKeyButtonPressed += (e) =>
             {
                 if (e.Button == RemoteKeyButton.Lock && e.Bus == BusType.IBus)
@@ -105,7 +122,7 @@ namespace imBMW.Features
                     //{
                     //    BodyModule.UnfoldMirrors();
                     //}
-                    commands.Enqueue(Command.TurnLampsAfterUnlock);
+                    commands.Enqueue(Command.WelcomeLights);
                 }
             };
         }
@@ -161,7 +178,7 @@ namespace imBMW.Features
                         LightControlModule.TurnOnLamps(Lights.Off);
                     }
                     break;
-                case Command.TurnLampsAfterUnlock:
+                case Command.WelcomeLights:
                     LightControlModule.TurnOnLamps(Lights.FrontLeftFogLamp | Lights.FrontRightFogLamp |
                                                    Lights.FrontLeftStandingLight | Lights.FrontRightStandingLight |
                                                    Lights.LeftLowBeam | Lights.RightLowBeam |
@@ -170,6 +187,12 @@ namespace imBMW.Features
                                                    Lights.RearLeftStandingLight | Lights.RearRightStandingLight |
                                                    Lights.LeftLicensePlate | Lights.RightLicensePlate |
                                                    Lights.ThirdBrakeLight);
+                    welcomeLightsTurnedOn = true;
+                    CancelDelay();
+                    delay = new Timer(delegate{
+                        welcomeLightsTurnedOn = false;
+                        CancelDelay();
+                    }, null, 30000, 0);
                     break;
             }
         }

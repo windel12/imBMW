@@ -7,8 +7,6 @@ namespace imBMW.Features.Menu.Screens
     {
         protected static DelayScreen instance;
 
-        private short _step = 50;
-
         protected DelayScreen()
         {
             FastMenuDrawing = true;
@@ -23,22 +21,22 @@ namespace imBMW.Features.Menu.Screens
         {
             AddItem(new MenuItem(i => "Delay1++: " + Settings.Instance.Delay1, x =>
             {
-                Settings.Instance.Delay1 += _step;
+                Settings.Instance.Delay1 += Settings._step1;
             }, MenuItemType.Button, MenuItemAction.Refresh));
             AddItem(new MenuItem(i => "Delay1--: " + Settings.Instance.Delay1, x =>
             {
-                if (Settings.Instance.Delay1 > 0)
-                    Settings.Instance.Delay1 -= _step;
+                short value = (short) (Settings.Instance.Delay1 - Settings._step1);
+                Settings.Instance.Delay1 = (short)(value >= 0 ? value : 0);
             }, MenuItemType.Button, MenuItemAction.Refresh));
 
             AddItem(new MenuItem(i => "Delay2++: " + Settings.Instance.Delay2, x =>
             {
-                Settings.Instance.Delay2 += _step;
+                Settings.Instance.Delay2 += Settings._step2;
             }, MenuItemType.Button, MenuItemAction.Refresh));
             AddItem(new MenuItem(i => "Delay2--: " + Settings.Instance.Delay2, x =>
             {
-                if (Settings.Instance.Delay2 > 0)
-                    Settings.Instance.Delay2 -= _step;
+                short value = (short)(Settings.Instance.Delay2 - Settings._step2);
+                Settings.Instance.Delay2 = (short) (value >= 0 ? value : 0);
             }, MenuItemType.Button, MenuItemAction.Refresh));
 
             this.AddDummyButton();
@@ -46,22 +44,22 @@ namespace imBMW.Features.Menu.Screens
 
             AddItem(new MenuItem(i => "Delay3++: " + Settings.Instance.Delay3, x =>
             {
-                Settings.Instance.Delay3 += _step;
+                Settings.Instance.Delay3 += Settings._step3;
             }, MenuItemType.Button, MenuItemAction.Refresh));
             AddItem(new MenuItem(i => "Delay3--: " + Settings.Instance.Delay3, x =>
             {
-                if (Settings.Instance.Delay3 > 0)
-                    Settings.Instance.Delay3 -= _step;
+                short value = (short)(Settings.Instance.Delay3 - Settings._step3);
+                Settings.Instance.Delay3 = (short) (value >= 0 ? value : 0);
             }, MenuItemType.Button, MenuItemAction.Refresh));
 
             AddItem(new MenuItem(i => "Delay4++: " + Settings.Instance.Delay4, x =>
             {
-                Settings.Instance.Delay4 += _step;
+                Settings.Instance.Delay4 += Settings._step4;
             }, MenuItemType.Button, MenuItemAction.Refresh));
             AddItem(new MenuItem(i => "Delay4--: " + Settings.Instance.Delay4, x =>
             {
-                if (Settings.Instance.Delay4 > 0)
-                    Settings.Instance.Delay4 -= _step;
+                short value = (short)(Settings.Instance.Delay4 - Settings._step4);
+                Settings.Instance.Delay4 = (short) (value >= 0 ? value : 0);
             }, MenuItemType.Button, MenuItemAction.Refresh));
 
             this.AddBackButton();

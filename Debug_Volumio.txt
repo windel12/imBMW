@@ -1,10 +1,19 @@
 Volumio:
-sudo shutdown -h now
 systemctl stop volumio
 node --inspect=0.0.0.0:2992 /volumio/index.js
 
-cd /data/plugins/user_interface/uart_control
-cd /home/volumio/volumio-plugins/plugins/user_interface/uart_control
+Turn off raspberry:
+sudo shutdown -h now
+
+cd /data/plugins/user_interface/uart_control							- local version
+cd /home/volumio/volumio-plugins/plugins/user_interface/uart_control	- for github commiting
+
+
+To commit:
+git status
+git add index.js
+git commit -m ""
+
 
 
 
@@ -38,3 +47,106 @@ DBUS:
 OBD2:
 as far FTDI ID is overriden for Galleto -> after putting it into USB port -> Do "Update Driver -> Browse My Computer ... -> Let Me Pick ... -> Choose '2.12.28'"
 TO SEND DATA TO OBD2, USE pin#7 to Selaye Logic, AND PUT +12V to pin#16(use YELLOW wire from PC power supply). And use USB ports under the PC
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+BACKUP SOME CODE:
+self.usb = new Serial({
+			portId: "/dev/ttyUSB0",
+			baudRate: 9600,
+			dataBits: 8,
+			stopBits: 1,
+			parity: "even"
+		});
+		self.usb.open(() => {
+			self.logger.info("/dev/ttyUSB0 opened!");
+
+			var admVDF = [0x20, 0x06];
+			var dzmNmit = [0x0F, 0x10];
+			var ldmP_Llin = [0x0F, 0x40];
+			var ldmP_Lsoll = [0x0F, 0x42];
+			var ehmFLDS = [0x0E, 0x81];
+			var zumPQsoll = [0x1F, 0x5E];
+			var zumP_RAIL = [0x1F, 0x5D];
+			var ehmFKDR = [0x0E, 0xE5];
+			var mrmM_EAKT = [0x0F, 0x80];
+			var aroIST_4 = [0x00, 0x10];
+
+			var data = [0xB8, 0x12, 0xF1, 0x16, 0x2C, 0x10]
+			data.push(admVDF[0]);data.push(admVDF[1]);
+			data.push(dzmNmit[0]);data.push(dzmNmit[1]);
+			data.push(ldmP_Llin[0]);data.push(ldmP_Llin[1]);
+			data.push(ldmP_Lsoll[0]);data.push(ldmP_Lsoll[1]);
+			data.push(ehmFLDS[0]);data.push(ehmFLDS[1]);
+			data.push(zumPQsoll[0]);data.push(zumPQsoll[1]);
+			data.push(zumP_RAIL[0]);data.push(zumP_RAIL[1]);
+			data.push(ehmFKDR[0]);data.push(ehmFKDR[1]);
+			data.push(mrmM_EAKT[0]);data.push(mrmM_EAKT[1]);
+			data.push(aroIST_4[0]);data.push(aroIST_4[1]);
+			data.push(0xB2); // xor TODO: implement calculation
+			//B8 12 F1 16  2C 10  20 06  0F 10  0F 40  0F 42  0E 81  1F 5E  1F 5D  0E E5  0F 80  00 10   B2
+
+			setInterval((data) => {
+				sendData(self.usb, data);
+				self.logger.info("Sending data to DDE: ");
+
+				var response = [0xB8, 0xF1, 0x12, 0x16, 0x6C, 0x10];
+				for(var i = 0; i < 20; i++) {
+					response.push(Math.floor(Math.random() * 254) + 1);
+				}
+				var data = response.splice(4);
+				var message = createIBusMessage.apply(null, data);
+				self.serial.write(message);
+				self.logger.info("Sending data to imMBW: ");
+
+			}, 2000, data);
+
+			self.usb.on('data', (data) => {
+				if (data[0] == 0xB8 && data[1] == 0xF1 && data[2] == 0x12)
+				{
+
+
+				}
+			});
+		});
+
+
+
+		/*			setInterval(function(serial){
+				delay(184, serial).then(function(){
+					return delay(18, serial).then(function(){
+						return delay(241, serial).then(function(){
+							return delay(4, serial);
+						})
+					})
+				})
+			}, 500, self.serial);*/

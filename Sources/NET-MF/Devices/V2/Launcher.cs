@@ -355,26 +355,27 @@ namespace imBMW.Devices.V2
                 InterruptPort ldr1_button = new InterruptPort(FEZPandaIII.Gpio.Ldr1, true, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeLow);
                 ldr1_button.OnInterrupt += (uint data1, uint data2, DateTime time) =>
                 {
-                    if (++count == 4)
+                    if (++count == 8)
                     {
                         UnmountMassStorage();
                     }
                     else
                     {
-                        DBusMessage getDataMessage = new DBusMessage(DeviceAddress.OBD, DeviceAddress.DDE,
-                            new byte[] { 0x2C, 0x10 }
-                                .Combine(DigitalDieselElectronics.admVDF)
-                                .Combine(DigitalDieselElectronics.dzmNmit)
-                                .Combine(DigitalDieselElectronics.ldmP_Lsoll)
-                                .Combine(DigitalDieselElectronics.ldmP_Llin)
-                                .Combine(DigitalDieselElectronics.ehmFLDS)
-                                .Combine(DigitalDieselElectronics.zumPQsoll)
-                                .Combine(DigitalDieselElectronics.zumP_RAIL)
-                                .Combine(DigitalDieselElectronics.ehmFKDR)
-                                .Combine(DigitalDieselElectronics.mrmM_EAKT)
-                                .Combine(DigitalDieselElectronics.aroIST_4));
+                        //DBusMessage getDataMessage = new DBusMessage(DeviceAddress.OBD, DeviceAddress.DDE,
+                        //    new byte[] { 0x2C, 0x10 }
+                        //        .Combine(DigitalDieselElectronics.admVDF)
+                        //        .Combine(DigitalDieselElectronics.dzmNmit)
+                        //        .Combine(DigitalDieselElectronics.ldmP_Lsoll)
+                        //        .Combine(DigitalDieselElectronics.ldmP_Llin)
+                        //        .Combine(DigitalDieselElectronics.ehmFLDS)
+                        //        .Combine(DigitalDieselElectronics.zumPQsoll)
+                        //        .Combine(DigitalDieselElectronics.zumP_RAIL)
+                        //        .Combine(DigitalDieselElectronics.ehmFKDR)
+                        //        .Combine(DigitalDieselElectronics.mrmM_EAKT)
+                        //        .Combine(DigitalDieselElectronics.aroIST_4));
 
-                        DBusManager.Instance.EnqueueMessage(getDataMessage);
+                        //DBusManager.Instance.EnqueueMessage(getDataMessage);
+                        Emulator.Player.Next();
                     }
                 };
 

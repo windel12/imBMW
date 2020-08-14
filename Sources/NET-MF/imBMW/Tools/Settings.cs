@@ -5,6 +5,11 @@ namespace imBMW.Tools
 {
     public class Settings
     {
+        public static short _step1 = 50;
+        public static short _step2 = 100;
+        public static short _step3 = 200;
+        public static short _step4 = 1000;
+
         static Settings instance;
 
         protected string settingsPath;
@@ -123,7 +128,7 @@ namespace imBMW.Tools
             }
         }
 
-        private short _delay1 = 200;
+        private short _delay1 = _step1;
         public short Delay1
         {
             get { return _delay1; }
@@ -137,7 +142,7 @@ namespace imBMW.Tools
             }
         }
 
-        private short _delay2 = 100;
+        private short _delay2 = _step2;
         public short Delay2
         {
             get { return _delay2; }
@@ -151,7 +156,7 @@ namespace imBMW.Tools
             }
         }
 
-        private short _delay3 = 100;
+        private short _delay3 = _step3;
         public short Delay3
         {
             get { return _delay3; }
@@ -165,7 +170,7 @@ namespace imBMW.Tools
             }
         }
 
-        private short _delay4 = 100;
+        private short _delay4 = _step4;
         public short Delay4
         {
             get { return _delay4; }

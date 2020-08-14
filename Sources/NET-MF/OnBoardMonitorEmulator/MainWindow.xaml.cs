@@ -414,12 +414,14 @@ namespace OnBoardMonitorEmulator
         {
             var message = new Message(DeviceAddress.BodyModule, DeviceAddress.GlobalBroadcastAddress, 0x72, 0x12);
             KBusManager.Instance.EnqueueMessage(message);
+            Manager.Instance.EnqueueMessage(message);
         }
 
         private void unlockButton_Click(object sender, RoutedEventArgs e)
         {
             var message = new Message(DeviceAddress.BodyModule, DeviceAddress.GlobalBroadcastAddress, 0x72, 0x22);
             KBusManager.Instance.EnqueueMessage(message);
+            Manager.Instance.EnqueueMessage(message);
         }
 
         private void idleButton_Click(object sender, RoutedEventArgs e)
