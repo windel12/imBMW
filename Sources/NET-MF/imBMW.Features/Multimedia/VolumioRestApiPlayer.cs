@@ -193,13 +193,13 @@ namespace imBMW.Features.Multimedia
 
                     if (_failedPingsCount > 10)
                     {
-                        if (Settings.Instance.AutoRestartVolumio && !_volumioFirstInitCompleted)
-                        {
-                            Thread.Sleep(500);
-                            Logger.Warning("Volumio AUTO reboot", "CheckStatus");
-                            Thread.Sleep(500);
-                            Reboot();
-                        }
+                        //if (Settings.Instance.AutoRestartVolumio && !_volumioFirstInitCompleted)
+                        //{
+                        //    Thread.Sleep(500);
+                        //    Logger.Warning("Volumio AUTO reboot", "CheckStatus");
+                        //    Thread.Sleep(500);
+                        //    Reboot();
+                        //}
                     }
                     _failedPingsCount = 0;
                     _volumioFirstInitCompleted = true;

@@ -355,7 +355,8 @@ namespace imBMW.Devices.V2
                 InterruptPort ldr1_button = new InterruptPort(FEZPandaIII.Gpio.Ldr1, true, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeLow);
                 ldr1_button.OnInterrupt += (uint data1, uint data2, DateTime time) =>
                 {
-                    if (++count == 8)
+                    UnmountMassStorage();
+                    /*if (++count == 8)
                     {
                         UnmountMassStorage();
                     }
@@ -375,8 +376,8 @@ namespace imBMW.Devices.V2
                         //        .Combine(DigitalDieselElectronics.aroIST_4));
 
                         //DBusManager.Instance.EnqueueMessage(getDataMessage);
-                        Emulator.Player.Next();
-                    }
+                        //Emulator.Player.Next();
+                    }*/
                 };
 
                 Logger.Debug("Going to Thread.Sleep(Timeout.Infinite)");

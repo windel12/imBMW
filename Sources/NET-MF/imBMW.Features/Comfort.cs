@@ -179,14 +179,19 @@ namespace imBMW.Features
                     }
                     break;
                 case Command.WelcomeLights:
-                    LightControlModule.TurnOnLamps(Lights.FrontLeftFogLamp | Lights.FrontRightFogLamp |
-                                                   Lights.FrontLeftStandingLight | Lights.FrontRightStandingLight |
-                                                   Lights.LeftLowBeam | Lights.RightLowBeam |
+                    var lights = Lights.FrontLeftFogLamp | Lights.FrontRightFogLamp |
+                                 Lights.FrontLeftStandingLight | Lights.FrontRightStandingLight |
+                                 Lights.RearLeftInnerStandingLight | Lights.RearRightInnerStandingLight |
+                                 Lights.RearLeftStandingLight | Lights.RearRightStandingLight |
+                                 Lights.LeftLicensePlate | Lights.RightLicensePlate |
+                                 Lights.ThirdBrakeLight;
+                    if (Settings.Instance.LowBeamInWelcomeLight)
+                    {
+                        lights |= Lights.LeftLowBeam;
+                        lights |= Lights.RightLowBeam;
+                    }
 
-                                                   Lights.RearLeftInnerStandingLight | Lights.RearRightInnerStandingLight |
-                                                   Lights.RearLeftStandingLight | Lights.RearRightStandingLight |
-                                                   Lights.LeftLicensePlate | Lights.RightLicensePlate |
-                                                   Lights.ThirdBrakeLight);
+                    LightControlModule.TurnOnLamps(lights);
                     welcomeLightsTurnedOn = true;
                     CancelDelay();
                     delay = new Timer(delegate{

@@ -114,15 +114,15 @@ namespace imBMW.Tools
             }
         }
 
-        private bool _autoRestartVolumio = false;
-        public bool AutoRestartVolumio
+        private bool _lowBeamInWelcomeLight = false;
+        public bool LowBeamInWelcomeLight
         {
-            get { return _autoRestartVolumio; }
+            get { return _lowBeamInWelcomeLight; }
             set
             {
-                if (_autoRestartVolumio != value)
+                if (_lowBeamInWelcomeLight != value)
                 {
-                    _autoRestartVolumio = value;
+                    _lowBeamInWelcomeLight = value;
                     SettingsChanged();
                 }
             }
@@ -245,7 +245,7 @@ namespace imBMW.Tools
                     sw.WriteLine(nameof(SuspendCDChangerResponseEmulation) + "=" + SuspendCDChangerResponseEmulation);
                     sw.WriteLine(nameof(SuspendAuxilaryHeaterResponseEmulation) + "=" + SuspendAuxilaryHeaterResponseEmulation);
                     sw.WriteLine(nameof(WatchdogResetOnIKEResponse) + "=" + WatchdogResetOnIKEResponse);
-                    sw.WriteLine(nameof(AutoRestartVolumio) + "=" + AutoRestartVolumio);
+                    sw.WriteLine(nameof(LowBeamInWelcomeLight) + "=" + LowBeamInWelcomeLight);
                     sw.WriteLine(nameof(Delay1) + "=" + Delay1);
                     sw.WriteLine(nameof(Delay2) + "=" + Delay2);
                     sw.WriteLine(nameof(Delay3) + "=" + Delay3);
@@ -330,8 +330,8 @@ namespace imBMW.Tools
                     case nameof(WatchdogResetOnIKEResponse):
                         _watchdogResetOnIKEResponse = isTrue;
                         break;
-                    case nameof(AutoRestartVolumio):
-                        _autoRestartVolumio = isTrue;
+                    case nameof(LowBeamInWelcomeLight):
+                        _lowBeamInWelcomeLight = isTrue;
                         break;
                     case nameof(Delay1):
                         _delay1 = short.Parse(value);
@@ -346,7 +346,7 @@ namespace imBMW.Tools
                         _delay4 = short.Parse(value);
                         break;
                     default:
-                        Logger.Warning("Unknown setting");
+                        Logger.Warning("Unknown setting" + name + value);
                         return;
                 }
             }

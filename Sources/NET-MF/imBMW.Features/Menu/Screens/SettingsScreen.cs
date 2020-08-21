@@ -51,9 +51,9 @@ namespace imBMW.Features.Menu.Screens
             {
                 IsChecked = Settings.Instance.WatchdogResetOnIKEResponse
             });
-            AddItem(new MenuItem(i => nameof(Settings.Instance.AutoRestartVolumio), i => Settings.Instance.AutoRestartVolumio = i.IsChecked, MenuItemType.Checkbox)
+            AddItem(new MenuItem(i => nameof(Settings.Instance.LowBeamInWelcomeLight), i => Settings.Instance.LowBeamInWelcomeLight = i.IsChecked, MenuItemType.Checkbox)
             {
-                IsChecked = Settings.Instance.AutoRestartVolumio
+                IsChecked = Settings.Instance.LowBeamInWelcomeLight
             });
             AddItem(new MenuItem(i => "Suspend CDC", i => Settings.Instance.SuspendCDChangerResponseEmulation = i.IsChecked, MenuItemType.Checkbox)
             {
