@@ -98,9 +98,6 @@ namespace imBMW.Features.Multimedia
 
         public override void Prev()
         {
-            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Pause", (byte)VolumioCommands.Playback, (byte)PlaybackState.Pause));
-            ThreadSleep(Settings.Instance.Delay2);
-
             VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Prev", (byte)VolumioCommands.Playback, (byte)PlaybackState.Prev));
         }
 
@@ -108,12 +105,6 @@ namespace imBMW.Features.Multimedia
         {
             if (Settings.Instance.Delay1 == 0)
             {
-                if (Settings.Instance.Delay2 != 0)
-                {
-                    VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Pause", (byte) VolumioCommands.Playback, (byte) PlaybackState.Pause));
-                    ThreadSleep(Settings.Instance.Delay2);
-                }
-
                 VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Next", (byte) VolumioCommands.Playback, (byte) PlaybackState.Next));
             }
             else

@@ -128,7 +128,21 @@ namespace imBMW.Tools
             }
         }
 
-        private short _delay1 = _step1;
+        private bool _oilLevelSensorDisplayTemp = true;
+        public bool OilLevelSensorDisplayTemp
+        {
+            get { return _oilLevelSensorDisplayTemp; }
+            set
+            {
+                if (_oilLevelSensorDisplayTemp != value)
+                {
+                    _oilLevelSensorDisplayTemp = value;
+                    SettingsChanged();
+                }
+            }
+        }
+
+        private short _delay1 = 0;
         public short Delay1
         {
             get { return _delay1; }
@@ -246,6 +260,7 @@ namespace imBMW.Tools
                     sw.WriteLine(nameof(SuspendAuxilaryHeaterResponseEmulation) + "=" + SuspendAuxilaryHeaterResponseEmulation);
                     sw.WriteLine(nameof(WatchdogResetOnIKEResponse) + "=" + WatchdogResetOnIKEResponse);
                     sw.WriteLine(nameof(LowBeamInWelcomeLight) + "=" + LowBeamInWelcomeLight);
+                    sw.WriteLine(nameof(OilLevelSensorDisplayTemp) + "=" + OilLevelSensorDisplayTemp);
                     sw.WriteLine(nameof(Delay1) + "=" + Delay1);
                     sw.WriteLine(nameof(Delay2) + "=" + Delay2);
                     sw.WriteLine(nameof(Delay3) + "=" + Delay3);
@@ -332,6 +347,9 @@ namespace imBMW.Tools
                         break;
                     case nameof(LowBeamInWelcomeLight):
                         _lowBeamInWelcomeLight = isTrue;
+                        break;
+                    case nameof(OilLevelSensorDisplayTemp):
+                        _oilLevelSensorDisplayTemp = isTrue;
                         break;
                     case nameof(Delay1):
                         _delay1 = short.Parse(value);

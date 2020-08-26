@@ -626,6 +626,7 @@ namespace imBMW.Devices.V2
 
             if (InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Ign)
             {
+                Thread.Sleep(1000);
                 LightControlModule.UpdateThermalOilLevelSensorValues();
             }
         }

@@ -201,11 +201,41 @@ namespace imBMW.Features.Menu.Screens
                 + Localization.Current.VoltageShort, 
                 i => RequestSomeDiagData()));
 
-            AddItem(new MenuItem(i => Localization.Current.Oil + ": " 
-                + (LightControlModule.HeatingTime > 0 ? LightControlModule.HeatingTime.ToString("F4") : "-")
-                + "/"
-                + (LightControlModule.CoolingTime > 0 ? LightControlModule.CoolingTime.ToString("F4") : "-"), 
-                i => LightControlModule.UpdateThermalOilLevelSensorValues()));
+            AddItem(new MenuItem(i =>
+                {
+                    if (Settings.Instance.OilLevelSensorDisplayTemp)
+                    {
+                        string oilTemp = "";
+                        if (LightControlModule.HeatingTime > 0)
+                        {
+                            var heatingTime = LightControlModule.HeatingTime * 2000;
+                            oilTemp = heatingTime.ToString("F0");
+                        }
+                        else
+                        {
+                            oilTemp = "-";
+                        }
+
+                        return Localization.Current.Oil + ": " + oilTemp + Localization.Current.DegreeCelsius;
+                    }
+                    else
+                    {
+                        return Localization.Current.Oil + ": "
+                                                        + (LightControlModule.HeatingTime > 0
+                                                            ? LightControlModule.HeatingTime.ToString("F4")
+                                                            : "-")
+                                                        + "/"
+                                                        + (LightControlModule.CoolingTime > 0
+                                                            ? LightControlModule.CoolingTime.ToString("F4")
+                                                            : "-");
+                    }
+                }, 
+                i =>
+                {
+                    LightControlModule.UpdateThermalOilLevelSensorValues();
+                    Settings.Instance.OilLevelSensorDisplayTemp = !Settings.Instance.OilLevelSensorDisplayTemp;
+                    Refresh();
+                }));
 
             AddItem(new MenuItem(i =>
             {
