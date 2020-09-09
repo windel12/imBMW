@@ -87,7 +87,7 @@ namespace imBMW.Features.Multimedia.iBus
 
                 MultiFunctionSteeringWheel.ButtonPressed += button =>
                 {
-                    if (button == MFLButton.VolumeDown || button == MFLButton.VolumeUp)
+                    if (button == MFLButton.VolumeDown/* || button == MFLButton.VolumeUp*/)
                     {
                         skipNextTrackMessage = true;
 
@@ -278,22 +278,24 @@ namespace imBMW.Features.Multimedia.iBus
                     IsEnabled = false;
                 }
 
-                ActionByte randomToggle = (newDiskNumber) =>
+                if (m.Data[1] == 0x51 || m.Data[1] == 0x41 || m.Data[1] == 0x52 || m.Data[1] == 0x42 || m.Data[1] == 0x53 || m.Data[1] == 0x43) // Hold any button
                 {
-                    RandomToggle(newDiskNumber);
-                };
-                if (m.Data[1] == 0x91 && IsEnabled) // 1
-                    randomToggle(1);
-                if (m.Data[1] == 0x81 && IsEnabled) // 2
-                    randomToggle(2);
-                if (m.Data[1] == 0x92 && IsEnabled) // 3
-                    randomToggle(3);
-                if (m.Data[1] == 0x82 && IsEnabled) // 4
-                    randomToggle(4);
-                if (m.Data[1] == 0x93 && IsEnabled) // 5
-                    randomToggle(5);
-                if (m.Data[1] == 0x83 && IsEnabled) // 6
-                    randomToggle(6);
+                    Player.ClearQueue();
+                    Logger.Trace("Player.ClearQueue()");
+                }
+
+                if (m.Data[1] == 0x91) // release 1
+                    Player.AddPlaylistToQueue(1);
+                if (m.Data[1] == 0x81) // release 2
+                    Player.AddPlaylistToQueue(2);
+                if (m.Data[1] == 0x92) // release 3
+                    Player.AddPlaylistToQueue(3);
+                if (m.Data[1] == 0x82) // release 4
+                    Player.AddPlaylistToQueue(4);
+                if (m.Data[1] == 0x93) // release 5
+                    Player.AddPlaylistToQueue(5);
+                if (m.Data[1] == 0x83) // release 6
+                    Player.AddPlaylistToQueue(6);
             }
         }
 

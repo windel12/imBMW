@@ -332,6 +332,11 @@ namespace imBMW.Devices.V2
                     idleOverallTime = 0;
                     Logger.Trace("idleOverallTime = 0");
                 };
+                BodyModule.DoorStatusChanged += (value) =>
+                {
+                    idleOverallTime = 0;
+                    Logger.Trace("idleOverallTime = 0");
+                };
 
                 Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.InstrumentClusterElectronics, m =>
                 {
@@ -355,8 +360,7 @@ namespace imBMW.Devices.V2
                 InterruptPort ldr1_button = new InterruptPort(FEZPandaIII.Gpio.Ldr1, true, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeLow);
                 ldr1_button.OnInterrupt += (uint data1, uint data2, DateTime time) =>
                 {
-                    UnmountMassStorage();
-                    /*if (++count == 8)
+                    if (++count == 4)
                     {
                         UnmountMassStorage();
                     }
@@ -376,8 +380,8 @@ namespace imBMW.Devices.V2
                         //        .Combine(DigitalDieselElectronics.aroIST_4));
 
                         //DBusManager.Instance.EnqueueMessage(getDataMessage);
-                        //Emulator.Player.Next();
-                    }*/
+                        Emulator.Player.Next();
+                    }
                 };
 
                 Logger.Debug("Going to Thread.Sleep(Timeout.Infinite)");
@@ -754,9 +758,27 @@ namespace imBMW.Devices.V2
             return false;
         }
 
+        // sometimes, LCM can send message, to clear idleTime, but body module not reset his counter for idle
+        // see: \traces\2020.09.09\ #53, #7, #13, #16, #25, #30, #39
+        private static bool ShouldClearIdleTime(Message m)
+        {
+            if (m.Data[0] == 0x5C || // Instrument cluster lighting status
+                m.Data[0] == 0xA7 || // TMC status request
+                m.Data[0] == 0xA8) // TMC data
+            {
+                return false; 
+
+            }
+
+            return true;
+        }
+
         internal static void Manager_BeforeMessageReceived(MessageEventArgs e)
         {
-            idleTime = 0;
+            if (ShouldClearIdleTime(e.Message))
+            {
+                idleTime = 0;
+            }
 
             if (IBusMessageLoggingBeforeReceivedPredicate(e))
             {
@@ -834,7 +856,10 @@ namespace imBMW.Devices.V2
 
         private static void KBusManager_AfterMessageReceived(MessageEventArgs e)
         {
-            idleTime = 0;
+            if (ShouldClearIdleTime(e.Message))
+            {
+                idleTime = 0;
+            }
 
             if (KBusLoggerPredicate(e))
             {

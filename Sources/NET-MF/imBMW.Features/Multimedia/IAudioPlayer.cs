@@ -23,7 +23,9 @@ namespace imBMW.Features.Multimedia
 
         bool RandomToggle(byte diskNumber);
 
-        string ChangeTrackTo(string fileName);
+        void ClearQueue();
+
+        void AddPlaylistToQueue(byte number);
 
         bool IsPlaying { get; }
 

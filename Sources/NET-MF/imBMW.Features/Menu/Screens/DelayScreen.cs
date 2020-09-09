@@ -1,3 +1,4 @@
+using imBMW.iBus;
 using imBMW.Tools;
 using imBMW.iBus.Devices.Real;
 
@@ -38,8 +39,10 @@ namespace imBMW.Features.Menu.Screens
                 short value = (short)(Settings.Instance.Delay2 - Settings._step2);
                 Settings.Instance.Delay2 = (short) (value >= 0 ? value : 0);
             }, MenuItemType.Button, MenuItemAction.Refresh));
-
-            this.AddDummyButton();
+            AddItem(new MenuItem(i => "ZKE TrunkLid opened", x =>
+                {
+                    Manager.Instance.EnqueueMessage(new Message(DeviceAddress.BodyModule, DeviceAddress.GlobalBroadcastAddress, 0x7A, 0x10, 0x20));
+                }, MenuItemType.Button, MenuItemAction.Refresh));
 
 
             AddItem(new MenuItem(i => "Delay3++: " + Settings.Instance.Delay3, x =>

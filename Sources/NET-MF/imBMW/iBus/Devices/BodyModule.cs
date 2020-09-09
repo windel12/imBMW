@@ -132,6 +132,27 @@ namespace imBMW.iBus.Devices.Real
                 {
                     wasDriverDoorOpened = false;
                 }
+
+                if (m.Data[1].HasBit(0)) { m.ReceiverDescription += "FrontLeft door opened;";}
+                if (m.Data[1].HasBit(1)) { m.ReceiverDescription += "FrontRight door opened;";}
+                if (m.Data[1].HasBit(2)) { m.ReceiverDescription += "RearLeft door opened;";}
+                if (m.Data[1].HasBit(3)) { m.ReceiverDescription += "RearRight door opened;";}
+                if (m.Data[1].HasBit(4) && !m.Data[1].HasBit(5)) { m.ReceiverDescription += "Car unlocked;";}
+                if (m.Data[1].HasBit(5)) { m.ReceiverDescription += "Car locked;";}
+                if (m.Data[1].HasBit(6)) { m.ReceiverDescription += "Interior lights ON;";}
+
+                if (m.Data[2].HasBit(0)) { m.ReceiverDescription += "FrontLeft window opened;";}
+                if (m.Data[2].HasBit(1)) { m.ReceiverDescription += "FrontRight window opened;";}
+                if (m.Data[2].HasBit(2)) { m.ReceiverDescription += "RearLeft window opened;";}
+                if (m.Data[2].HasBit(3)) { m.ReceiverDescription += "RearRight window opened;";}
+                if (m.Data[2].HasBit(4)) { m.ReceiverDescription += "Sunroof window opened;";}
+                if (m.Data[2].HasBit(5)) { m.ReceiverDescription += "TrunkLid opened;";}
+                if (m.Data[2].HasBit(6)) { m.ReceiverDescription += "Hood opened;";}
+
+                if (DoorStatusChanged != null)
+                {
+                    DoorStatusChanged(m.Data[1]);
+                }
             }
             if (m.Data.Length > 3 && m.Data[0] == 0xA0)
             {
@@ -271,6 +292,7 @@ namespace imBMW.iBus.Devices.Real
         }
 
         public static event RemoteKeyButtonEventHandler RemoteKeyButtonPressed;
+        public static event ActionByte DoorStatusChanged;
 
         public static event ActionDouble BatteryVoltageChanged;
     }

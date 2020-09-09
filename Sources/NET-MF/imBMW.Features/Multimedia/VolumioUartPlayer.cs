@@ -124,9 +124,14 @@ namespace imBMW.Features.Multimedia
             }
         }
         
-        public override string ChangeTrackTo(string fileName)
+        public override void ClearQueue()
         {
-            return "";
+            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Clear queue", (byte) VolumioCommands.ClearQueue));
+        }
+
+        public override void AddPlaylistToQueue(byte number)
+        {
+            VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Select playlist #" + number, (byte)VolumioCommands.AddPlaylistToQueue, number));
         }
 
         public override bool RandomToggle(byte diskNumber)

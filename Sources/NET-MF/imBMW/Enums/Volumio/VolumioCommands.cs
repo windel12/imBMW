@@ -7,6 +7,8 @@ namespace imBMW.Enums.Volumio
     {
         Common = 0x00,
         Playback = 0x01,
-        System = 0x02
+        System = 0x02,
+        ClearQueue = 0x03,
+        AddPlaylistToQueue = 0x04,
     }
 }

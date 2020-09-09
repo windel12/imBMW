@@ -29,7 +29,8 @@ namespace imBMW.iBus.Devices.Real
 
         static Immobiliser()
         {
-            KBusManager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.Immobiliser, ProcessEWSMessage);
+            KBusManager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.Immobiliser, m => ProcessEWSMessage(m, BusType.KBus));
+            Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.Immobiliser, m => ProcessEWSMessage(m, BusType.IBus));
 
             MultiFunctionSteeringWheel.ButtonPressed += button =>
             {
@@ -47,7 +48,7 @@ namespace imBMW.iBus.Devices.Real
         /// </summary>
         public static void Init() { }
 
-        static void ProcessEWSMessage(Message m)
+        static void ProcessEWSMessage(Message m, BusType bus)
         {
             if (m.Data.Length == 3 && m.Data[0] == 0x74)
             {

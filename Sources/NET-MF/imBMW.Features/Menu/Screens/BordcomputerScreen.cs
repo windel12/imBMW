@@ -187,12 +187,14 @@ namespace imBMW.Features.Menu.Screens
                 + (InstrumentClusterElectronics.Consumption1 == 0 ? "-" : InstrumentClusterElectronics.Consumption1.ToString("F1")) 
                 + "/"
                 + (InstrumentClusterElectronics.Consumption2 == 0 ? "-" : InstrumentClusterElectronics.Consumption2.ToString("F1"))
-            /*, i => InstrumentClusterElectronics.ResetConsumption1()*/)
+            , i => InstrumentClusterElectronics.RequestConsumption())
             );
             //AddItem(new MenuItem(i => Localization.Current.Consumption + " 2: " + (InstrumentClusterElectronics.Consumption2 == 0 ? "-" : InstrumentClusterElectronics.Consumption2.ToString("F1"))
-            ///*, i => InstrumentClusterElectronics.ResetConsumption2()*/)
+            //*, i => InstrumentClusterElectronics.ResetConsumption2()*/)
             //);
-            AddItem(new MenuItem(i => Localization.Current.Average + ": " + (InstrumentClusterElectronics.AverageSpeed == 0 ? "-" : InstrumentClusterElectronics.AverageSpeed.ToString("F1") + Localization.Current.KMH)));
+            AddItem(new MenuItem(i => Localization.Current.Average + ": " + (InstrumentClusterElectronics.AverageSpeed == 0 ? "-" : InstrumentClusterElectronics.AverageSpeed.ToString("F1") + Localization.Current.KMH),
+                i => InstrumentClusterElectronics.RequestAverageSpeed()));
+
             AddItem(new MenuItem(i => Localization.Current.Range + ": " + (InstrumentClusterElectronics.Range == 0 ? "-" : InstrumentClusterElectronics.Range.ToString())));
 
             AddItem(new MenuItem(i => Localization.Current.Voltage + ": " 

@@ -5,6 +5,9 @@ node --inspect=0.0.0.0:2992 /volumio/index.js
 Turn off raspberry:
 sudo shutdown -h now
 
+Restart raspberry:
+sudo reboot now
+
 cd /data/plugins/user_interface/uart_control							- local version
 cd /home/volumio/volumio-plugins/plugins/user_interface/uart_control	- for github commiting
 

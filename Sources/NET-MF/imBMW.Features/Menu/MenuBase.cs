@@ -4,6 +4,7 @@ using System.Collections;
 using imBMW.Tools;
 using imBMW.Features.Multimedia;
 using imBMW.Features.Menu.Screens;
+using imBMW.iBus.Devices.Real;
 
 namespace imBMW.Features.Menu
 {
@@ -22,6 +23,7 @@ namespace imBMW.Features.Menu
 
             this.mediaEmulator = mediaEmulator;
             mediaEmulator.IsEnabledChanged += mediaEmulator_IsEnabledChanged;
+            InstrumentClusterElectronics.IgnitionStateChanged += InstrumentClusterElectronics_IgnitionStateChanged;
         }
 
         #region MediaEmulator members
@@ -33,6 +35,14 @@ namespace imBMW.Features.Menu
         void mediaEmulator_IsEnabledChanged(MediaEmulator emulator, bool isEnabled)
         {
             IsEnabled = isEnabled;
+        }
+
+        void InstrumentClusterElectronics_IgnitionStateChanged(IgnitionEventArgs e)
+        {
+            if (e.PreviousIgnitionState == IgnitionState.Acc && e.CurrentIgnitionState == IgnitionState.Ign)
+            {
+                IsEnabled = true;
+            }
         }
 
         #endregion

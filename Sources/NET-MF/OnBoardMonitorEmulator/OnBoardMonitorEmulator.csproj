@@ -140,9 +140,9 @@
     <Compile Include="..\imBMW.Features\Multimedia\Models\HttpRequestCommand.cs">
       <Link>imBMW.Features\Multimedia\Models\HttpRequestCommand.cs</Link>
     </Compile>
-    <Compile Include="..\imBMW.Features\Multimedia\VolumioRestApiPlayer.cs">
+    <None Include="..\imBMW.Features\Multimedia\VolumioRestApiPlayer.cs">
       <Link>imBMW.Features\Multimedia\VolumioRestApiPlayer.cs</Link>
-    </Compile>
+    </None>
     <Compile Include="..\imBMW.Features\Multimedia\VolumioUartPlayer.cs">
       <Link>imBMW.Features\Multimedia\VolumioUartPlayer.cs</Link>
     </Compile>
@@ -273,9 +273,9 @@
     <Compile Include="..\imBMW.Features\Menu\Screens\IntegratedHeatingAndAirConditioningScreen.cs">
       <Link>imBMW.Features\Menu\Screens\IntegratedHeatingAndAirConditioningScreen.cs</Link>
     </Compile>
-    <Compile Include="..\imBMW.Features\Menu\Screens\MusicListScreen.cs">
+    <None Include="..\imBMW.Features\Menu\Screens\MusicListScreen.cs">
       <Link>imBMW.Features\Menu\Screens\MusicListScreen.cs</Link>
-    </Compile>
+    </None>
     <Compile Include="..\imBMW.Features\Menu\Screens\SettingsScreen.cs">
       <Link>imBMW.Features\Menu\Screens\SettingsScreen.cs</Link>
     </Compile>
