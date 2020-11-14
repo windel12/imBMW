@@ -145,7 +145,7 @@ namespace imBMW.iBus.Devices.Real
                 if (m.Data[2].HasBit(1)) { m.ReceiverDescription += "FrontRight window opened;";}
                 if (m.Data[2].HasBit(2)) { m.ReceiverDescription += "RearLeft window opened;";}
                 if (m.Data[2].HasBit(3)) { m.ReceiverDescription += "RearRight window opened;";}
-                if (m.Data[2].HasBit(4)) { m.ReceiverDescription += "Sunroof window opened;";}
+                if (m.Data[2].HasBit(4)) { m.ReceiverDescription += "Sunroof opened;";}
                 if (m.Data[2].HasBit(5)) { m.ReceiverDescription += "TrunkLid opened;";}
                 if (m.Data[2].HasBit(6)) { m.ReceiverDescription += "Hood opened;";}
 
@@ -289,6 +289,16 @@ namespace imBMW.iBus.Devices.Real
             KBusManager.Instance.EnqueueMessage(MessageUnfoldMirrorsE46,
                 MessageUnfoldPassengerMirrorE39,
                 MessageUnfoldDriverMirrorE39);
+        }
+
+        public static void RequestDoorWindowStatus()
+        {
+            KBusManager.Instance.EnqueueMessage(new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.BodyModule, 0x79)); // Doors/windows status request
+        }
+
+        public static void RequestDoorWindowStatusViaIbus()
+        {
+            Manager.Instance.EnqueueMessage(new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.BodyModule, 0x79)); // Doors/windows status request
         }
 
         public static event RemoteKeyButtonEventHandler RemoteKeyButtonPressed;

@@ -94,5 +94,7 @@
     <Content Include="..\..\..\..\Debug_Volumio.txt">
       <Link>Debug_Volumio.txt</Link>
     </Content>
+    <Content Include="config.txt" />
+    <Content Include="RunVolumio_OnUbuntu.txt" />
   </ItemGroup>
 </Project>

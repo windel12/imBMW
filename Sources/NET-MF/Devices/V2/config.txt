@@ -1,0 +1,53 @@
+initramfs volumio.initrd
+gpu_mem=32
+max_usb_current=1
+dtparam=audio=on
+audio_pwm_mode=2
+dtparam=i2c_arm=on
+disable_splash=1
+hdmi_force_hotplug=1
+
+dtparam=spi=on
+
+hdmi_safe=1
+hdmi_force_edid_audio=1
+
+
+#dtoverlay=disable-bt
+dtoverlay=miniuart-bt
+#force_turbo=1
+#core_freq=250
+#enable_uart=1
+
+#hdmi_group=1
+#hdmi_mode=1-100
+
+#hdmi_drive=2
+#config_hdmi_boost=9
+
+
+#If the display is a computer monitor, use hdmi_group=1 and if it is an older TV, try hdmi_group=2.
+#	hdmi_group	result
+#	0			Auto-detect from EDID
+#	1			CEA							TV
+#	2			DMT							Monitor
+
+#The hdmi_drive command allows you to choose between HDMI and DVI output modes.
+#	hdmi_drive	result
+#	1			Normal DVI mode (no sound)
+#	2			Normal HDMI mode (sound will be sent if supported and enabled)
+
+#Setting hdmi_safe to 1 will lead to "safe mode" settings being used to try to boot with maximum HDMI compatibility. 
+#This is the same as setting the following parameters:
+#		hdmi_force_hotplug=1
+#		hdmi_ignore_edid=0xa5000080
+#		config_hdmi_boost=4
+#		hdmi_group=2
+#		hdmi_mode=4
+#		disable_overscan=0
+#		overscan_left=24
+#		overscan_right=24
+#		overscan_top=24
+#		overscan_bottom=24
+
+include userconfig.txt

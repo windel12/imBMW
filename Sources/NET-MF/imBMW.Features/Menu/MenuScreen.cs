@@ -131,10 +131,11 @@ namespace imBMW.Features.Menu
         /// <summary> Top center - 5 symbols field.  </summary>
         public virtual string T5Field
         {
-            get
-            {
-                return "ihka" + IntegratedHeatingAndAirConditioning.AuxilaryHeaterWorkingRequestsCounter;
-            }
+            //get
+            //{
+            //    return "ihka" + IntegratedHeatingAndAirConditioning.AuxilaryHeaterWorkingRequestsCounter;
+            //}
+            get;
         }
 
         protected ArrayList Items { get; private set; }

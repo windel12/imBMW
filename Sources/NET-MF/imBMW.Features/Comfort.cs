@@ -88,7 +88,8 @@ namespace imBMW.Features
                 //    needUnlockDoors = false;
                 //    needLockDoors = true;
                 //}
-                if (welcomeLightsTurnedOn && e.PreviousIgnitionState != IgnitionState.Unknown)
+                if (welcomeLightsTurnedOn && Settings.Instance.
+                        LowBeamInWelcomeLight && e.PreviousIgnitionState != IgnitionState.Unknown)
                 {
                     LightControlModule.TurnOnLamps(Lights.Off);
                     welcomeLightsTurnedOn = false;

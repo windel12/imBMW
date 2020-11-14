@@ -764,7 +764,11 @@ namespace imBMW.Devices.V2
         {
             if (m.Data[0] == 0x5C || // Instrument cluster lighting status
                 m.Data[0] == 0xA7 || // TMC status request
-                m.Data[0] == 0xA8) // TMC data
+                m.Data[0] == 0xA8 || // TMC data
+
+                // [I < ] CCM > GLO: 02 00 [Poll response] (see  "traces\2020.10.04_GarageRacer\traceLog34.log"  and some other in this folder)
+                m.SourceDevice == DeviceAddress.CheckControlModule && m.SourceDevice == DeviceAddress.GlobalBroadcastAddress && m.Data[0] == 0x02
+            ) 
             {
                 return false; 
 
