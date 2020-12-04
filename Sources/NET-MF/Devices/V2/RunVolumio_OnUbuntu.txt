@@ -1,6 +1,9 @@
 Volumio-UI:
  - sudo npm install --unsafe-perm=true --allow-root
+ - npm install -g bower
+ - npm install -g gulp
  - bower install
+ - npm rebuild node-sass
  - gulp build --theme="volumio"
  - copy content of "dist" directory to /volumio/http/www
  - /volumio/http/www/app/local-config.json
@@ -13,8 +16,16 @@ Volumio2:
 
 
 DISABLE PLUGINS:
- - airplay_emulation
- - volumio_command_line_client
+	upnp_browser
+	networkfs
+	updater_comm
+	last_100
+	webradio
+	airplay_emulation
+	volumio_command_line_client
+	
+	
+	
  
 \app\plugins\miscellanea\appearance\index.js#198 - comment capitalize
 
@@ -25,13 +36,16 @@ add audio files to:
 	
 To add plugin:
  - copy plugin to 'data/plugins/catergory/name'
+   or
+     add link:
+       ln -s /volumio-plugins/plugins/user_interface/uart_control /data/plugins/user_interface
  - copy plugin to 'data/configuration/catergory/name'
- - 'data/plugins/category/name' -> 'nmp install'
+ - data/configuration/plugins.json -> add config data
+ - data/plugins/category/name -> 'npm install'
 
  
 Permissions:
- - sudo chown -R alexander /data
- - sudo chown -R alexander /volumio
+sudo chown -R alexander /data
+sudo chown -R alexander /volumio
  
  
-"raspi-serial": "^6.0.0",

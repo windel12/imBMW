@@ -205,8 +205,9 @@ namespace imBMW.Features.Menu
                         break;
                     case 0x48:
                         m.ReceiverDescription = "Phone hold";
-                        VolumioUartPlayer.Reboot();
-                        Logger.Warning("Reboot request sent.");
+                        BodyModule.SleepMode(5);
+                        if (InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Ign || InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Acc)
+                            Logger.Warning("Going to sleep mode in 5 sec");
                         break;
                     case 0x88:
                         IsEnabled = true;
@@ -312,6 +313,8 @@ namespace imBMW.Features.Menu
                         break;
                     case 0x64:
                         m.ReceiverDescription = "Eject hold";
+                        VolumioUartPlayer.Reboot();
+                        Logger.Warning("Reboot request sent.");
                         break;
                     case 0xA4:
                         m.ReceiverDescription = "Eject release";

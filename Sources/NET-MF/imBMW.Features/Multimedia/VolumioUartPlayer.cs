@@ -32,6 +32,18 @@ namespace imBMW.Features.Multimedia
                     // wake up KBus, to be in sync with IBus, because Volumio init message on IKE is waking up IBus(see "traces\2020.10.04_GarageRacer\traceLog42.log")
                     BodyModule.RequestDoorWindowStatusViaIbus(); 
                 }
+                if (m.Data[1] == (byte) CommonCommands.DisplayMessage)
+                {
+                    var titleBytes = m.Data.Skip(2);
+                    string message = new string(Encoding.UTF8.GetChars(titleBytes));
+                    InstrumentClusterElectronics.ShowNormalTextWithoutGong(message);
+                }
+                if (m.Data[1] == (byte)CommonCommands.DisplayMessageWithGong)
+                {
+                    var titleBytes = m.Data.Skip(2);
+                    string message = new string(Encoding.UTF8.GetChars(titleBytes));
+                    InstrumentClusterElectronics.ShowNormalTextWithGong(message, mode: TextMode.WithGong1);
+                }
             }
 
             if (m.Data[0] == (byte) VolumioCommands.Playback)

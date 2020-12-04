@@ -301,6 +301,11 @@ namespace imBMW.iBus.Devices.Real
             Manager.Instance.EnqueueMessage(new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.BodyModule, 0x79)); // Doors/windows status request
         }
 
+        public static void SleepMode(byte timeout)
+        {
+            KBusManager.Instance.EnqueueMessage(new Message(DeviceAddress.Diagnostic, DeviceAddress.BodyModule, "Sleep mode", 0x9D, timeout));
+        }
+
         public static event RemoteKeyButtonEventHandler RemoteKeyButtonPressed;
         public static event ActionByte DoorStatusChanged;
 
