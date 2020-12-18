@@ -37,7 +37,7 @@ namespace imBMW.Features.Multimedia
 
         string Name { get; }
 
-        //TrackInfo CurrentTrack { get; set; }
+        string CurrentTrackTitle { get; set; }
 
         bool Inited { get; set; }
 

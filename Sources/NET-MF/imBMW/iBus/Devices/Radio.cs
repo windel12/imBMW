@@ -83,20 +83,21 @@ namespace imBMW.iBus.Devices.Real
         static void ProcessRadioMessage(Message m)
         {
             var radioOnOffChanged = OnOffChanged;
-            if (radioOnOffChanged != null)
+            if (m.Data.Compare(DataRadioOn))
             {
-                if (m.Data.Compare(DataRadioOn))
+                if (radioOnOffChanged != null)
                 {
                     radioOnOffChanged(true);
-                    m.ReceiverDescription = "Radio On";
-                    return;
                 }
-                if (m.Data.Compare(DataRadioOff))
+                m.ReceiverDescription = "Radio On";
+            }
+            if (m.Data.Compare(DataRadioOff))
+            {
+                if (radioOnOffChanged != null)
                 {
                     radioOnOffChanged(false);
-                    m.ReceiverDescription = "Radio Off";
-                    return;
                 }
+                m.ReceiverDescription = "Radio Off";
             }
 
             if (m.Data[0] == 0x36 && m.Data.Length == 2)

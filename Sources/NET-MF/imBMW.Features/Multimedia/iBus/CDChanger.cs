@@ -116,8 +116,10 @@ namespace imBMW.Features.Multimedia.iBus
                 Player.TrackChanged += (s, e) =>
                 {
                     //Manager.Instance.EnqueueMessage(StatusEndTrack(Player.DiskNumber, Player.TrackNumber));
-                    Manager.Instance.EnqueueMessage(StatusPlaying(Player.DiskNumber, ++Player.TrackNumber));
-                };
+
+                    // do not answer "39 02 09 00 00 00 disk track" to avoid showing label on IKE and GND
+                    //Manager.Instance.EnqueueMessage(StatusPlaying(Player.DiskNumber, ++Player.TrackNumber));
+                    };
 
                 //announceThread = new Thread(announceCallback);
                 //announceThread.Start();

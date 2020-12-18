@@ -12,6 +12,7 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
     public static class VolumioUartPlayerEmulator
     {
         static Timer Timer;
+        private static int trackNumber;
 
         static VolumioUartPlayerEmulator()
         {
@@ -43,14 +44,14 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
                 if (m.Data[1] == (byte) PlaybackState.Stop)
                 {
                     byte[] commands = new byte[2] {(byte) VolumioCommands.Playback, (byte) PlaybackState.Stop};
-                    byte[] message = Encoding.UTF8.GetBytes("STOP!");
+                    byte[] message = Encoding.UTF8.GetBytes("STOP!  ");
                     VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.Volumio, DeviceAddress.imBMW, commands.Concat(message).ToArray()));
                 }
 
                 if (m.Data[1] == (byte) PlaybackState.Pause)
                 {
                     byte[] commands = new byte[2] {(byte) VolumioCommands.Playback, (byte) PlaybackState.Pause};
-                    byte[] message = Encoding.UTF8.GetBytes("PAUSE!");
+                    byte[] message = Encoding.UTF8.GetBytes("PAUSE!  ");
                     VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.Volumio, DeviceAddress.imBMW, commands.Concat(message).ToArray()));
                 }
 
@@ -59,9 +60,23 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
                     for(int i = 0; i < 3; i++)
                     {
                         byte[] commands = new byte[2] { (byte)VolumioCommands.Playback, (byte)PlaybackState.Play };
-                        byte[] message = Encoding.UTF8.GetBytes("PLAY!");
+                        byte[] message = Encoding.UTF8.GetBytes("PLAY!  ");
                         VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.Volumio, DeviceAddress.imBMW, commands.Concat(message).ToArray()));
                     }
+                }
+
+                if (m.Data[1] == (byte)PlaybackState.Prev)
+                {
+                    byte[] commands = new byte[2] { (byte)VolumioCommands.Playback, (byte)PlaybackState.Play };
+                    byte[] message = Encoding.UTF8.GetBytes("Title#" + --trackNumber + "  ");
+                    VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.Volumio, DeviceAddress.imBMW, commands.Concat(message).ToArray()));
+                }
+
+                if (m.Data[1] == (byte) PlaybackState.Next)
+                {
+                    byte[] commands = new byte[2] { (byte)VolumioCommands.Playback, (byte)PlaybackState.Play };
+                    byte[] message = Encoding.UTF8.GetBytes("Title#" + ++trackNumber + "  ");
+                    VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.Volumio, DeviceAddress.imBMW, commands.Concat(message).ToArray()));
                 }
             }
 

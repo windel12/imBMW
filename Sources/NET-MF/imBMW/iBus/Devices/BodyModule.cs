@@ -1,3 +1,4 @@
+using System.Threading;
 using imBMW.Tools;
 using imBMW.Enums;
 
@@ -39,6 +40,7 @@ namespace imBMW.iBus.Devices.Real
     /// </summary>
     public static class BodyModule
     {
+        static Timer timer;
         #region Messages
 
         static Message MessageOpenTrunk = new Message(DeviceAddress.Diagnostic, DeviceAddress.BodyModule, "Open trunk", 0x0C, 0x95, 0x01);
@@ -303,7 +305,17 @@ namespace imBMW.iBus.Devices.Real
 
         public static void SleepMode(byte timeout)
         {
-            KBusManager.Instance.EnqueueMessage(new Message(DeviceAddress.Diagnostic, DeviceAddress.BodyModule, "Sleep mode", 0x9D, timeout));
+            Logger.Trace("Going to execute sleep mode via ZKE with timeout in " + timeout + " seconds.");
+            if (InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Ign || InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Acc)
+            {
+                Logger.Warning("Going to sleep mode.");
+            }
+
+            timer = new Timer(delegate
+            {
+                Logger.Warning("ZKE SLEEP");
+                KBusManager.Instance.EnqueueMessage(new Message(DeviceAddress.Diagnostic, DeviceAddress.BodyModule, "Sleep mode", 0x9D));
+            }, null, timeout * 1000, 0);
         }
 
         public static event RemoteKeyButtonEventHandler RemoteKeyButtonPressed;

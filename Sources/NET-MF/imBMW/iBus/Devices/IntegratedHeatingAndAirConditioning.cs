@@ -95,15 +95,27 @@ namespace imBMW.iBus.Devices.Real
 
         public static void ProcessAuxilaryHeaterMessage(Message m)
         {
-            m.ReceiverDescription = "Coolant Temperature: " + InstrumentClusterElectronics.TemperatureCoolant;
+            m.ReceiverDescription = "Coolant Temperature: " + InstrumentClusterElectronics.TemperatureCoolant + 
+                                    "; Outside: " + InstrumentClusterElectronics.TemperatureOutside +
+                                    "; Ign: " + InstrumentClusterElectronics.CurrentIgnitionState.ToStringValue();
 
             if (Settings.Instance.SuspendAuxilaryHeaterResponseEmulation)
             {
                 /*
+                -- when K-bus waked up
+                01-06 00:00:01.024 [K < ] ZUH > IHKA: 93 00 11 {Coolant Temperature: 30}
+                01-06 00:00:01.042 [K < ] IHKA > ZUH: 92 00 11 (Command for auxilary heater)
+
+                18-11 12:45:02.490 [K < ] IHKA > ZUH: 01 [Poll request]
+                18-11 12:45:02.516 [K < ] ZUH > IHKA: 02 00 {Coolant Temperature: 30}
+                18-11 12:45:04.479 [K < ] IHKA > ZUH: 92 00 11 (Command for auxilary heater)
+                18-11 12:45:04.504 [K < ] ZUH > IHKA: 93 00 11 {Coolant Temperature: 30}
+
                 05-12 19:06:47.727 [DEBUG] Manual start of auxilary heater
                 05-12 19:06:47.729 [DEBUG] Auxilary heater start pending: 92 00 22
                 05-12 19:06:47.739 [K > ] IHKA > ZUH: 92 00 22 (Command for auxilary heater)
                 05-12 19:06:47.743 [I > ] IKE > ANZV: 2A 00 04 (On-Board Computer State Update)
+
                 05-12 19:06:47.781 [K < ] ZUH > IHKA: 93 00 22 {Coolant Temperature: 15}
 
                 05-12 19:06:48.168 [K < ] IHKA > ZUH: 92 00 22 (Command for auxilary heater)
@@ -127,6 +139,7 @@ namespace imBMW.iBus.Devices.Real
                     // skipping first reply
                     if (AuxilaryHeater.Status == AuxilaryHeaterStatus.Starting)
                     {
+                        Logger.Trace("Skipping first reply from ZUH, IHKA will reply instead of imBMW; AuxilaryHeaterStatus: Starting > Started");
                         AuxilaryHeater.Status = AuxilaryHeaterStatus.Started;
                         return;
                     }
@@ -144,6 +157,7 @@ namespace imBMW.iBus.Devices.Real
                     }
                     _auxilaryHeaterWorkingLastResponseTime = DateTime.Now;
                 }
+
                 return;
             }
 
@@ -277,7 +291,7 @@ namespace imBMW.iBus.Devices.Real
         {
             lock (_sync)
             {
-                Logger.Debug("Auxilary heater start pending: 92 00 22");
+                Logger.Debug("Auxilary heater start pending: 92 00 22; AuxilaryHeaterStatus = Starting");
                 KBusManager.Instance.EnqueueMessage(StartAuxilaryHeaterMessage);
                 AuxilaryHeater.Status = AuxilaryHeaterStatus.Starting;
             }

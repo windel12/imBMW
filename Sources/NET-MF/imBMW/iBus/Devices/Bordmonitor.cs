@@ -180,7 +180,7 @@ namespace imBMW.iBus.Devices.Real
         //public static Message MessageDisableRadioMenu = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.Radio, "Disable radio menu", 0x45, 0x02); // Thanks to RichardP (Intravee) for these two messages
         //public static Message MessageEnableRadioMenu = new Message(DeviceAddress.GraphicsNavigationDriver, DeviceAddress.Radio, "Enable radio menu", 0x45, 0x00);
 
-        public static byte[] DataShowTitle =    new byte[] { 0x23, 0x62, 0x10 }; // <68 Length 3B> 23 62 10 <Text in ASCII Hex> <XOR>
+        public static byte[] DataShowTitle =    new byte[] { 0x23, 0x62, 0x30/*0x10*/ }; // <68 Length 3B> 23 62 10 <Text in ASCII Hex> <XOR>
         public static byte[] DataShowHeader =   new byte[] { 0xA5, 0x62, 0x01 };
         public static byte[] DataShowStatus =   new byte[] { 0xA5, 0x62, 0x01, /*In*/0x06/*dex*/ }; // <68 Length 3B> A5 62 01 <Index of the text field> <Text in ASCII Hex> <XOR>
         public static byte[] DataShowT1 =       new byte[] { 0xA5, 0x62, 0x01, /*In*/0x01/*dex*/ };

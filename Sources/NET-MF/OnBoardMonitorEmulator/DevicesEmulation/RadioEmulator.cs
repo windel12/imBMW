@@ -2,6 +2,7 @@
 using imBMW.iBus.Devices.Real;
 using imBMW.Tools;
 using imBMW.Features.Multimedia.iBus;
+using System;
 
 namespace OnBoardMonitorEmulator.DevicesEmulation
 {
@@ -69,7 +70,8 @@ namespace OnBoardMonitorEmulator.DevicesEmulation
             {
                 var diskNumber = m.Data[6];
                 var trackNumber = m.Data[7];
-                Bordmonitor.ShowText("CD " + (diskNumber) + "-" + (trackNumber), BordmonitorFields.Title, send: true);
+                string title = string.Format($"  {Convert.ToChar(7)}     {Convert.ToChar(8)}CD {diskNumber}-{trackNumber.ToString("D2")}  ");
+                Bordmonitor.ShowText(title, BordmonitorFields.Title, send: true);
             }
         }
     }

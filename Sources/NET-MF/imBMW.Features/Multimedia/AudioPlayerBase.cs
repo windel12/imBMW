@@ -11,7 +11,7 @@ namespace imBMW.Features.Multimedia
         private bool isPlaying;
         private bool isReady;
 
-        //TrackInfo nowPlaying;
+        public string CurrentTrackTitle { get; set; }
 
         public byte TrackNumber { get; set; } = 1;
         public byte DiskNumber { get; set; } = 1;

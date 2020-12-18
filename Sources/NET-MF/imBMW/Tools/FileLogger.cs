@@ -81,7 +81,9 @@ namespace imBMW.Tools
                     filesCount++;
                 }
 
+                Logger.Trace("Files in log folder count: " + filesCount);
                 FullPath = logsPath + @"\traceLog" + filesCount + ".log";
+
                 writer = new StreamWriter(FullPath, append:true);
                 errorsWriter = new StreamWriter(errorsPath + @"\" + ERROR_FILE_NAME, append: true);
 

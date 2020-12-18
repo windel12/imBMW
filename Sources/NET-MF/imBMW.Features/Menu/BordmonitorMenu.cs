@@ -58,21 +58,23 @@ namespace imBMW.Features.Menu
             //        InstrumentClusterElectronics.ShowNormalTextWithoutGong(trackInfo.Title);
             //    }
             //};
+
             mediaEmulator.Player.TrackChanged += (audioPlayer, trackName) =>
             {
                 //titleStartIndex = 0;
                 //statusStartIndex = 0;
-                trackName = trackName.Trim('"');
                 InstrumentClusterElectronics.ShowNormalTextWithoutGong(trackName, timeout: 5000);
                 if (IsEnabled)
                 {
-                    Thread.Sleep(200);
+                    Thread.Sleep(Settings.Instance.Delay2);
                     Bordmonitor.ShowText(trackName, BordmonitorFields.Title);
                 }
             };
+
             //mediaEmulator.IsEnabledChanged += mediaEmulator_IsEnabledChanged;
             //Radio.OnOffChanged += Radio_OnOffChanged;
             Manager.Instance.AddMessageReceiverForDestinationDevice(DeviceAddress.Radio, ProcessToRadioMessage);
+            Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.Radio, ProcessRadioMessage);
         }
 
         public static string TrimTextToLength(string text, ref byte startIndex, int length)
@@ -206,8 +208,6 @@ namespace imBMW.Features.Menu
                     case 0x48:
                         m.ReceiverDescription = "Phone hold";
                         BodyModule.SleepMode(5);
-                        if (InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Ign || InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Acc)
-                            Logger.Warning("Going to sleep mode in 5 sec");
                         break;
                     case 0x88:
                         IsEnabled = true;
@@ -377,6 +377,16 @@ namespace imBMW.Features.Menu
                     }
                     return;
                 }
+            }
+        }
+
+        protected void ProcessRadioMessage(Message m)
+        {
+            if (IsEnabled && m.DestinationDevice == DeviceAddress.GraphicsNavigationDriver && !StringHelpers.IsNullOrEmpty(mediaEmulator.Player.CurrentTrackTitle) &&
+                m.Data.StartsWith(new byte[] { 0x23, 0x62, 0x30, 0x20, 0x20, 0x07, 0x20, 0x20, 0x20, 0x20, 0x20, 0x08, 0x43, 0x44 })) // CD X-XX title
+            {
+                Thread.Sleep(Settings.Instance.Delay2);
+                Bordmonitor.ShowText(mediaEmulator.Player.CurrentTrackTitle, BordmonitorFields.Title);
             }
         }
 

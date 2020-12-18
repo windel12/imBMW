@@ -11,7 +11,7 @@ namespace imBMW.Features.Multimedia
     public class VolumioUartPlayer : AudioPlayerBase
     {
         public PlaybackState CurrentPlaybackState { get; set; }
-        public string CurrentTitle { get; set; }
+        //public string CurrentTrackTitle { get; set; }
         public short CurrentTrackDuration { get; set; }
 
         public VolumioUartPlayer()
@@ -42,7 +42,7 @@ namespace imBMW.Features.Multimedia
                 {
                     var titleBytes = m.Data.Skip(2);
                     string message = new string(Encoding.UTF8.GetChars(titleBytes));
-                    InstrumentClusterElectronics.ShowNormalTextWithGong(message, mode: TextMode.WithGong1);
+                    InstrumentClusterElectronics.ShowNormalTextWithGong(message, mode: TextMode.WithGong2);
                 }
             }
 
@@ -65,10 +65,11 @@ namespace imBMW.Features.Multimedia
 
                     var titleBytes = m.Data.SkipAndTake(2, m.Data.Length - 2 - 2);
                     string title = new string(Encoding.UTF8.GetChars(titleBytes));
-                    var prevTitle = CurrentTitle;
-                    CurrentTitle = title;
+                    title = title.Trim('"');
+                    var prevTitle = CurrentTrackTitle;
+                    CurrentTrackTitle = title;
 
-                    if (CurrentPlaybackState != prevState || CurrentPlaybackState == PlaybackState.Play && CurrentTitle != prevTitle)
+                    if (CurrentPlaybackState != prevState || CurrentPlaybackState == PlaybackState.Play && CurrentTrackTitle != prevTitle)
                     {
                         // TODO: it sends "CDC > RAD: 39 02 09 00 00 00 01 01 {Play, CommonPlayback}" second time after first play
                         OnTrackChanged(title);
@@ -117,25 +118,25 @@ namespace imBMW.Features.Multimedia
 
         public override void Next()
         {
-            if (Settings.Instance.Delay1 == 0)
-            {
+            //if (Settings.Instance.Delay1 == 0)
+            //{
                 VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Next", (byte) VolumioCommands.Playback, (byte) PlaybackState.Next));
-            }
-            else
-            {
-                byte offset = 0;
-                try
-                {
-                    offset = (byte) (Settings.Instance.Delay4 / 1000);
-                }
-                catch
-                {
-                    offset = 0;
-                }
-                byte position_h = (byte) (CurrentTrackDuration >> 8);
-                byte position_l = (byte) ((CurrentTrackDuration & 0x00FF) - offset);
-                VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Seek", (byte) VolumioCommands.Playback, (byte) PlaybackState.Seek, position_h, position_l));
-            }
+            //}
+            //else
+            //{
+            //    byte offset = 0;
+            //    try
+            //    {
+            //        offset = (byte) (Settings.Instance.Delay4 / 1000);
+            //    }
+            //    catch
+            //    {
+            //        offset = 0;
+            //    }
+            //    byte position_h = (byte) (CurrentTrackDuration >> 8);
+            //    byte position_l = (byte) ((CurrentTrackDuration & 0x00FF) - offset);
+            //    VolumioManager.Instance.EnqueueMessage(new Message(DeviceAddress.imBMW, DeviceAddress.Volumio, "Seek", (byte) VolumioCommands.Playback, (byte) PlaybackState.Seek, position_h, position_l));
+            //}
         }
         
         public override void ClearQueue()
