@@ -82,10 +82,11 @@ namespace OnBoardMonitorEmulatorTests
 
             FileLogger.Dispose(10000);
 
+            int debugLinesCount = 11;
             var logFiles = Directory.GetFiles(logsPath, "traceLog*").OrderBy(x => x, new NaturalStringComparer()).ToArray();
             var lastLog = logFiles[logFiles.Length - 1];
             var logData = File.ReadLines(lastLog).ToArray();
-            Assert.AreEqual(logData.Length, 5);
+            Assert.AreEqual(logData.Length, 5 + debugLinesCount);
             Assert.IsTrue(logData.Last().Contains("Unknown"));
 
             var errorsFiles = Directory.GetFiles(rootDirectory, "Errors*").OrderBy(x => x, new NaturalStringComparer()).ToArray();

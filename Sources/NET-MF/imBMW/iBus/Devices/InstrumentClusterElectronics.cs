@@ -234,6 +234,8 @@ namespace imBMW.iBus.Devices.Real
             TemperatureCoolant = sbyte.MinValue;
 
             Manager.Instance.AddMessageReceiverForSourceOrDestinationDevice(DeviceAddress.InstrumentClusterElectronics, DeviceAddress.InstrumentClusterElectronics, ProcessIKEMessage);
+
+            Logger.Debug("static InstrumentClusterElectronics()");
         }
 
         /// <summary>

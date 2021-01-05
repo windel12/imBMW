@@ -18,6 +18,8 @@ namespace imBMW.Features.Menu.Screens
             FastMenuDrawing = true;
 
             SetItems();
+
+            Logger.Debug("protected SettingsScreen()");
         }
 
         protected virtual void SetItems()

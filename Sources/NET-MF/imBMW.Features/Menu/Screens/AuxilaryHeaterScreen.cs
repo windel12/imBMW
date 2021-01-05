@@ -21,6 +21,8 @@ namespace imBMW.Features.Menu.Screens
             StatusCallback = s => AuxilaryHeater.Status.ToStringValue();
 
             SetItems();
+
+            Logger.Debug("protected AuxilaryHeaterScreen()");
         }
 
         protected virtual void SetItems()

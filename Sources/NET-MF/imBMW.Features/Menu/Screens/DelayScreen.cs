@@ -16,6 +16,8 @@ namespace imBMW.Features.Menu.Screens
             //StatusCallback = s => AuxilaryHeater.Status.ToStringValue();
 
             AuxilaryHeater.Init();
+
+            Logger.Debug("protected DelayScreen()");
         }
 
         protected virtual void SetItems()

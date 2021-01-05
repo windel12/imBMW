@@ -87,6 +87,8 @@ namespace imBMW.iBus.Devices.Real
             KBusManager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.BodyModule, message => ProcessGMMessage(message, BusType.KBus));
             Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.BodyModule, message => ProcessGMMessage(message, BusType.IBus));
             InstrumentClusterElectronics.IgnitionStateChanged += InstrumentClusterElectronics_IgnitionStateChanged;
+
+            Logger.Debug("static BodyModule()");
         }
 
         /// <summary>
@@ -151,9 +153,9 @@ namespace imBMW.iBus.Devices.Real
                 if (m.Data[2].HasBit(5)) { m.ReceiverDescription += "TrunkLid opened;";}
                 if (m.Data[2].HasBit(6)) { m.ReceiverDescription += "Hood opened;";}
 
-                if (DoorStatusChanged != null)
+                if (DoorWindowStatusChanged != null)
                 {
-                    DoorStatusChanged(m.Data[1]);
+                    DoorWindowStatusChanged(m.Data[1]);
                 }
             }
             if (m.Data.Length > 3 && m.Data[0] == 0xA0)
@@ -319,7 +321,7 @@ namespace imBMW.iBus.Devices.Real
         }
 
         public static event RemoteKeyButtonEventHandler RemoteKeyButtonPressed;
-        public static event ActionByte DoorStatusChanged;
+        public static event ActionByte DoorWindowStatusChanged;
 
         public static event ActionDouble BatteryVoltageChanged;
     }

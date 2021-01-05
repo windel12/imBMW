@@ -25,7 +25,7 @@ namespace imBMW.Features.Menu
         {
             //CurrentScreen = HomeScreen.Instance;
             // TODO: Refactor this!!!
-            BordcomputerScreen.Instance.MediaEmulator = mediaEmulator;
+            //BordcomputerScreen.Instance.MediaEmulator = mediaEmulator;
             //MusicListScreen.GetMediaEmulator = () => mediaEmulator;
 
             CurrentScreen = BordcomputerScreen.Instance;
@@ -507,27 +507,27 @@ namespace imBMW.Features.Menu
             return Bordmonitor.GetItemIndex(CurrentScreen.ItemsCount, index, back);
         }
 
-        public bool IsScreenSwitched
-        {
-            get { return isScreenSwitched; }
-            set
-            {
-                if (isScreenSwitched == value)
-                {
-                    return;
-                }
-                isScreenSwitched = value;
-                if (value)
-                {
-                    ScreenSuspend();
-                }
-                else
-                {
-                    Logger.Debug("Screen switched back to radio", "BM");
-                    ScreenWakeup();
-                }
-            }
-        }
+        //public bool IsScreenSwitched
+        //{
+        //    get { return isScreenSwitched; }
+        //    set
+        //    {
+        //        if (isScreenSwitched == value)
+        //        {
+        //            return;
+        //        }
+        //        isScreenSwitched = value;
+        //        if (value)
+        //        {
+        //            ScreenSuspend();
+        //        }
+        //        else
+        //        {
+        //            Logger.Debug("Screen switched back to radio", "BM");
+        //            ScreenWakeup();
+        //        }
+        //    }
+        //}
 
         #endregion
 

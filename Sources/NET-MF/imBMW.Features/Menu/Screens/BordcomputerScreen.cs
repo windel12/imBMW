@@ -28,7 +28,7 @@ namespace imBMW.Features.Menu.Screens
         //protected Timer refreshTimer;
 
         // TODO: refactor
-        public MediaEmulator MediaEmulator { get; set; }
+        //public MediaEmulator MediaEmulator { get; set; }
 
         protected BordcomputerScreen()
         {
@@ -37,6 +37,8 @@ namespace imBMW.Features.Menu.Screens
 
             InstrumentClusterElectronics.RequestConsumption();
             InstrumentClusterElectronics.RequestAverageSpeed();
+
+            Logger.Debug("protected BordcomputerScreen()");
         }
 
         public override bool OnNavigatedTo(MenuBase menu)
@@ -294,11 +296,11 @@ namespace imBMW.Features.Menu.Screens
         //    get { return "T2" + r.Next(9); }
         //}
 
-        public override string T3Field
-        {
-            get { return MediaEmulator != null ? (MediaEmulator.Player.IsRandom ? "RND" : "") : ""; }
-            //get { return "T3" + r.Next(999); }
-        }
+        //public override string T3Field
+        //{
+        //    get { return MediaEmulator != null ? (MediaEmulator.Player.IsRandom ? "RND" : "") : ""; }
+        //    //get { return "T3" + r.Next(999); }
+        //}
 
         //public override string T4Field
         //{

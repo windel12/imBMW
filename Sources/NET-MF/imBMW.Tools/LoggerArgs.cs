@@ -1,4 +1,5 @@
 using System;
+using Microsoft.SPOT;
 
 namespace imBMW.Tools
 {
@@ -49,7 +50,7 @@ namespace imBMW.Tools
                         break;
                 }
             }
-            LogString = Timestamp.ToString("dd-MM HH:mm:ss.fff") + " [" + PriorityTitle + "] " + message;
+            LogString = Timestamp.ToString("dd-MM HH:mm:ss.fff") + " (Free memory: " + Debug.GC(true) + ") [" + PriorityTitle + "] " + message;
         }
     }
 

@@ -2,6 +2,7 @@ using imBMW.Enums;
 using imBMW.Features.Localizations;
 using imBMW.iBus;
 using imBMW.iBus.Devices.Real;
+using imBMW.Tools;
 
 namespace imBMW.Features.Menu.Screens
 {
@@ -19,6 +20,8 @@ namespace imBMW.Features.Menu.Screens
             //StatusCallback = s => AuxilaryHeater.Status.ToStringValue();
 
             AuxilaryHeater.Init();
+
+            Logger.Debug("protected ActivateScreen()");
         }
 
         protected virtual void SetItems()

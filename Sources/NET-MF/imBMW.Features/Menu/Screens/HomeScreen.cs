@@ -63,6 +63,8 @@ namespace imBMW.Features.Menu.Screens
             };
 
             SetItems();
+
+            Logger.Debug("protected HomeScreen()");
         }
 
         protected virtual void SetItems()

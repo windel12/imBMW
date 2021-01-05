@@ -28,8 +28,8 @@ namespace imBMW.Features.Menu
 
         #region MediaEmulator members
 
-        protected Timer displayStatusDelayTimer;
-        protected const ushort displayStatusDelay = 900; // TODO make abstract
+        //protected Timer displayStatusDelayTimer;
+        //protected const ushort displayStatusDelay = 900; // TODO make abstract
         protected Timer delayTimeout;
 
         void mediaEmulator_IsEnabledChanged(MediaEmulator emulator, bool isEnabled)
@@ -106,18 +106,18 @@ namespace imBMW.Features.Menu
             }, null, delayTime, 0);
         }
 
-        public virtual void UpdateBodyWithDelay(ushort delayTime = 1000)
-        {
-            delayTimeout = new Timer(delegate
-            {
-                UpdateBody();
-                if (delayTimeout != null)
-                {
-                    delayTimeout.Dispose();
-                    delayTimeout = null;
-                }
-            }, null, delayTime, 0);
-        }
+        //public virtual void UpdateBodyWithDelay(ushort delayTime = 1000)
+        //{
+        //    delayTimeout = new Timer(delegate
+        //    {
+        //        UpdateBody();
+        //        if (delayTimeout != null)
+        //        {
+        //            delayTimeout.Dispose();
+        //            delayTimeout = null;
+        //        }
+        //    }, null, delayTime, 0);
+        //}
 
         public virtual void UpdateScreenWitDelay(ushort delayTime = 1000)
         {

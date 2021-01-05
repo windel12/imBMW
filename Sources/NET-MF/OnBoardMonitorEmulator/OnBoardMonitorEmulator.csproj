@@ -134,6 +134,30 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="..\imBMW.Features\CanBus\Adapters\CanAdapter.cs">
+      <Link>imBMW.Features\CanBus\Adapters\CanAdapter.cs</Link>
+    </Compile>
+    <Compile Include="..\imBMW.Features\CanBus\Adapters\CanAdapterSettings.cs">
+      <Link>imBMW.Features\CanBus\Adapters\CanAdapterSettings.cs</Link>
+    </Compile>
+    <Compile Include="..\imBMW.Features\CanBus\Adapters\CanMCP2515Adapter.cs">
+      <Link>imBMW.Features\CanBus\Adapters\CanMCP2515Adapter.cs</Link>
+    </Compile>
+    <Compile Include="..\imBMW.Features\CanBus\Adapters\CanNativeAdapter.cs">
+      <Link>imBMW.Features\CanBus\Adapters\CanNativeAdapter.cs</Link>
+    </Compile>
+    <Compile Include="..\imBMW.Features\CanBus\CanException.cs">
+      <Link>imBMW.Features\CanBus\CanException.cs</Link>
+    </Compile>
+    <Compile Include="..\imBMW.Features\CanBus\CanMessage.cs">
+      <Link>imBMW.Features\CanBus\CanMessage.cs</Link>
+    </Compile>
+    <None Include="..\imBMW.Features\CanBus\Devices\E65Seats.cs">
+      <Link>imBMW.Features\CanBus\Devices\E65Seats.cs</Link>
+    </None>
+    <Compile Include="..\imBMW.Features\CanBus\Devices\IKE.cs">
+      <Link>imBMW.Features\CanBus\IKE.cs</Link>
+    </Compile>
     <Compile Include="..\imBMW.Features\Menu\Screens\DelayScreen.cs">
       <Link>imBMW.Features\Menu\Screens\DelayScreen.cs</Link>
     </Compile>
@@ -200,6 +224,7 @@
     <Compile Include="DevicesEmulation\LightControlModuleEmulator.cs" />
     <Compile Include="DevicesEmulation\VolumioRestApiPlayerEmulator.cs" />
     <Compile Include="DevicesEmulation\VolumioUartPlayerEmulator.cs" />
+    <Compile Include="GHI\IO\ControllerAreaNetwork.cs" />
     <Compile Include="GHI\IO\SignalGenerator.cs" />
     <Compile Include="GHI\Networking\EthernetENC28J60.cs" />
     <Compile Include="ViewModel.cs" />

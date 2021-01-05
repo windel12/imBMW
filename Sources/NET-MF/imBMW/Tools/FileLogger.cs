@@ -13,16 +13,17 @@ namespace imBMW.Tools
     {
         const byte flushLines = 5;
 
-        internal static byte queueLimit = 130;
+        internal static byte queueLimit = 150;
 
         static ushort unflushed = 0;
 
         static StreamWriter writer;
-        static StreamWriter errorsWriter;
+        //static StreamWriter errorsWriter;
         static QueueThreadWorker queue;
         static Action FlushCallback;
 
         public static string FullPath { get; set; }
+        private static string _errorsPath;
 
         public static string ERROR_FILE_NAME = "ERRORS.log";
 
@@ -49,7 +50,7 @@ namespace imBMW.Tools
             queue.Dispose();
 
             writer.Flush();
-            errorsWriter.Flush();
+            //errorsWriter.Flush();
             if (FlushCallback != null)
             {
                 FlushCallback();
@@ -58,7 +59,7 @@ namespace imBMW.Tools
             unflushed = 0;
 
             writer.Dispose();
-            errorsWriter.Dispose();
+            //errorsWriter.Dispose();
 
             Thread.Sleep(1000);
         }
@@ -68,24 +69,33 @@ namespace imBMW.Tools
             try
             {
                 FlushCallback = flushCallback;
-              
+                Logger.Debug("FlushCallback = flushCallback;");
+
                 if (!Directory.Exists(logsPath))
                 {
                     Directory.CreateDirectory(logsPath);
                 }
-                IEnumerable filesEnumerator = Directory.EnumerateFiles(logsPath);
 
-                int filesCount = 0;
-                foreach (object file in filesEnumerator)
-                {
-                    filesCount++;
-                }
+                Logger.Debug("Going to get a list of files in 'logsPath'");
+                string[] filesEnumerator = Directory.GetFiles(logsPath);
+                
+                //int filesCount = 0;
+                //foreach (string file in filesEnumerator)
+                //{
+                //    filesCount++;
+                //}
 
-                Logger.Trace("Files in log folder count: " + filesCount);
-                FullPath = logsPath + @"\traceLog" + filesCount + ".log";
+                Logger.Debug("Files in log folder count: " + filesEnumerator.Length);
+                FullPath = logsPath + @"\traceLog" + filesEnumerator.Length + ".log";
 
+                Logger.Debug("Log file StreamWriter creating");
                 writer = new StreamWriter(FullPath, append:true);
-                errorsWriter = new StreamWriter(errorsPath + @"\" + ERROR_FILE_NAME, append: true);
+                Logger.Debug("Log file StreamWriter created");
+
+                _errorsPath = errorsPath;
+                //Logger.Debug("Error file StreamWriter creating");
+                //errorsWriter = new StreamWriter(errorsPath + @"\" + ERROR_FILE_NAME, append: true);
+                //Logger.Debug("Error file StreamWriter creating");
 
                 queue.Start();
             }
@@ -100,8 +110,15 @@ namespace imBMW.Tools
         {
             if (args.Priority == LogPriority.FatalError)
             {
+                Logger.Debug("Error file StreamWriter creating");
+                var errorsWriter = new StreamWriter(_errorsPath + @"\" + ERROR_FILE_NAME, append: true);
+                Logger.Debug("Error file StreamWriter creating");
+
                 errorsWriter.WriteLine(args.LogString);
                 errorsWriter.Flush();
+                errorsWriter.Dispose();
+
+                Logger.Debug("Error file StreamWriter disposed");
             }
 
             if (queue.Count < queueLimit || args.Priority == LogPriority.Debug || args.Priority == LogPriority.Error || args.Priority == LogPriority.FatalError)
@@ -116,13 +133,13 @@ namespace imBMW.Tools
                 queueLimitExceeded = true;
                 Logger.Debug("Queue is full");
             }
+
             
 #if (NETMF && !RELEASE) || OnBoardMonitorEmulator
             if (System.Diagnostics.Debugger.IsAttached)
             {
                 Debug.Print(args.LogString);
-                //Logger.FreeMemory();
-                
+                Debug.Print("Free memory:" + Debug.GC(true));
             }
 #endif
         }

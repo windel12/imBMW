@@ -22,6 +22,8 @@ using System.IO;
 using imBMW.Features.Multimedia.iBus;
 using GHI.Usb.Host;
 using GHI.IO;
+using imBMW.Features.CanBus.Adapters;
+using imBMW.Features.CanBus;
 
 namespace imBMW.Devices.V2
 {
@@ -160,6 +162,7 @@ namespace imBMW.Devices.V2
                 settings = Settings.Instance;
 
                 FileLogger.Create();
+
                 InitManagers();
 
                 InstrumentClusterElectronics.DateTimeChanged += DateTimeChanged;
@@ -178,6 +181,9 @@ namespace imBMW.Devices.V2
                 //Comfort.AutoCloseSunroof = settings.AutoCloseSunroof;
 
                 #region MassStorage
+
+                Logger.Debug("Controller events attaching");
+
                 Controller.DeviceConnectFailed += (sss, eee) =>
                 {
                     Logger.Error("DeviceConnectFailed!");
@@ -186,6 +192,8 @@ namespace imBMW.Devices.V2
                     MassStorageMountState = MassStorageMountState.DeviceConnectFailed;
                     _removableMediaInsertedSync.Set();
                 };
+                Logger.Debug("Controller.DeviceConnectFailed attached");
+
                 Controller.UnknownDeviceConnected += (ss, ee) =>
                 {
                     Logger.Error("UnknownDeviceConnected!");
@@ -194,6 +202,8 @@ namespace imBMW.Devices.V2
                     MassStorageMountState = MassStorageMountState.UnknownDeviceConnected;
                     _removableMediaInsertedSync.Set();
                 };
+                Logger.Debug("Controller.UnknownDeviceConnected attached");
+
                 Controller.MassStorageConnected += (sender, massStorage) =>
                 {
                     Logger.Debug("Controller MassStorageConnected!");
@@ -205,12 +215,17 @@ namespace imBMW.Devices.V2
                         greenLed.Write(true);
                     }
 
+                    Logger.Debug("Controller massStorage.Mount()");
                     _massStorage = massStorage;
                     massStorage.Mount();
+                    Logger.Debug("Controller massStorage mounted");
                 };
+                Logger.Debug("Controller.MassStorageConnected attached");
 
                 RemovableMedia.Insert += (s, e) =>
                 {
+                    Logger.Debug("RemovableMedia Inserted!");
+
                     LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(orangeLed, 3, 100));
 
                     if (VolumeInfo.GetVolumes()[0].IsFormatted)
@@ -221,9 +236,13 @@ namespace imBMW.Devices.V2
 
                         ErrorExist = CheckIfErrorsExist(rootDirectory);
 
+                        Logger.Debug("Settings initing");
                         settings = Settings.Init(rootDirectory + "\\imBMW.ini");
+                        Logger.Debug("Settings inited");
+
+                        Logger.Debug("FileLogger initing");
                         FileLogger.Init(logsPath, errorsPath, () => VolumeInfo.GetVolumes()[0].FlushAll());
-                        Logger.Debug("Logger initialized.");
+                        Logger.Debug("FileLogger inited");
 
                         MassStorageMountState = MassStorageMountState.Mounted;
                         _removableMediaInsertedSync.Set();
@@ -233,6 +252,7 @@ namespace imBMW.Devices.V2
                         MassStorageMountState = MassStorageMountState.MountedButUnformatted;
                     }
                 };
+                Logger.Debug("RemovableMedia.Insert attached");
 
                 RemovableMedia.Eject += (s, e) =>
                 {
@@ -241,6 +261,7 @@ namespace imBMW.Devices.V2
                     LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(greenLed, 3, 100));
                     MassStorageMountState = MassStorageMountState.Unmounted;
                 };
+                Logger.Debug("RemovableMedia.Eject attached");
                 #endregion
 
                 try
@@ -248,7 +269,9 @@ namespace imBMW.Devices.V2
                     //_massStorage = new SDCard(SDCard.SDInterface.SPI);
                     //_massStorage.Mount();
 #if RELEASE
+                    Logger.Debug("Controller starting");
                     Controller.Start();
+                    Logger.Debug("Controller started");
 #else
 #if NETMF
                     // WARNING! Be aware, without this line you can get 'Controller -> DeviceConnectFailed' each time when you start debugging...
@@ -260,10 +283,13 @@ namespace imBMW.Devices.V2
 #endif
 
                     LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(orangeLed, 1, 200));
+
+                    Logger.Debug("_removableMediaInsertedSync.WaitOne");
 #if OnBoardMonitorEmulator
                     bool isSignalled = _removableMediaInsertedSync.WaitOne(Debugger.IsAttached ? 1000 : 1000, true);
 #else
                     bool isSignalled = _removableMediaInsertedSync.WaitOne(Debugger.IsAttached ? 5000 : 5000, true);
+                    Logger.Debug("_removableMediaInsertedSync.WaitOne: " + isSignalled);
 #endif
                     if (!isSignalled) // No Storage inserted
                     {
@@ -299,8 +325,11 @@ namespace imBMW.Devices.V2
 
                 Init();
 
+                InitCAN();
+
                 Logger.Debug("Started!");
 
+                Logger.Debug("BordmonitorMenu events attaching");
                 BordmonitorMenu.MenuButtonHold += () =>
                 {
                     FrontDisplay.RefreshLEDs(LedType.Empty);
@@ -322,21 +351,29 @@ namespace imBMW.Devices.V2
                         ResetBoard();
                     }
                 };
+                Logger.Debug("BordmonitorMenu.MenuButtonHold attached");
+
                 BordmonitorMenu.SwitchScreenButtonHold += () =>
                 {
                     UnmountMassStorage();
                     Logger.Warning("UNMOUNTED!");
                 };
+                Logger.Debug("BordmonitorMenu.SwitchScreenButtonHold attached");
+
+                Logger.Debug("BodyModule events attaching");
                 BodyModule.RemoteKeyButtonPressed += (e) =>
                 {
                     idleOverallTime = 0;
-                    Logger.Trace("idleOverallTime = 0");
+                    Logger.Trace("Clearing interval, because remote key pressed: idleOverallTime = 0");
                 };
-                BodyModule.DoorStatusChanged += (value) =>
+                Logger.Debug("BodyModule.RemoteKeyButtonPressed attached");
+
+                BodyModule.DoorWindowStatusChanged += (value) =>
                 {
                     idleOverallTime = 0;
-                    Logger.Trace("idleOverallTime = 0");
+                    Logger.Trace("Clearing interval, because door/window status changed: idleOverallTime = 0");
                 };
+                Logger.Debug("BodyModule.DoorWindowStatusChanged attached");
 
                 Manager.Instance.AddMessageReceiverForSourceDevice(DeviceAddress.InstrumentClusterElectronics, m =>
                 {
@@ -419,11 +456,14 @@ namespace imBMW.Devices.V2
                 kBusBusy = Cpu.Pin.GPIO_NONE;
             }
 #if NETMF
+            Logger.Debug("iBusPort creating");
             ISerialPort iBusPort = new SerialPortTH3122(iBusComPort, iBusBusy);
+            Logger.Debug("iBusPort created");
 #endif
 #if OnBoardMonitorEmulator
             ISerialPort iBusPort = new SerialPortTH3122(iBusComPort, iBusBusy, readBufferSize: ushort.MaxValue);
 #endif
+            Logger.Debug("Manager initing");
             Manager.Init(iBusPort);
             Logger.Debug("Manager inited with " + iBusComPort);
 
@@ -431,38 +471,51 @@ namespace imBMW.Devices.V2
             Manager.Instance.AfterMessageReceived += Manager_AfterMessageReceived;
             Manager.Instance.BeforeMessageSent += Manager_BeforeMessageSent;
             Manager.Instance.AfterMessageSent += Manager_AfterMessageSent;
+            Logger.Debug("Manager callbacks attached");
+
 
 #if NETMF || (OnBoardMonitorEmulator && (DEBUG || DebugOnRealDeviceOverFTDI))
+
+            Logger.Debug("kBusPort creating");
             string kBusComPort = Serial.COM2;
             ISerialPort kBusPort = new SerialPortTH3122(kBusComPort, kBusBusy);
+            Logger.Debug("kBusPort created");
+
+            Logger.Debug("KBusManager initing");
             KBusManager.Init(kBusPort, ThreadPriority.Normal);
             Logger.Debug("KBusManager inited with COM2");
 
             KBusManager.Instance.AfterMessageReceived += KBusManager_AfterMessageReceived;
             KBusManager.Instance.AfterMessageSent += KBusManager_AfterMessageSent;
+            Logger.Debug("KBusManager callbacks attached");
 
 
+            Logger.Debug("volumioPort creating");
             string volumioComPort = Serial.COM3;
-            ISerialPort VolumioPort = new SerialPortTH3122(volumioComPort, Cpu.Pin.GPIO_NONE);
-            VolumioManager.Init(VolumioPort, ThreadPriority.Normal);
+            ISerialPort volumioPort = new SerialPortTH3122(volumioComPort, Cpu.Pin.GPIO_NONE);
+            Logger.Debug("volumioPort created");
+
+            Logger.Debug("VolumioManager initing");
+            VolumioManager.Init(volumioPort, ThreadPriority.Normal);
             Logger.Debug("VolumioManager inited with COM3");
 
             VolumioManager.Instance.BeforeMessageReceived += VolumioManager_BeforeMessageReceived;
             VolumioManager.Instance.AfterMessageSent += VolumioManager_AfterMessageSent;
+            Logger.Debug("VolumioManager callbacks attached");
 #endif
 
             //#if NETMF || (OnBoardMonitorEmulator && DEBUG)
-            if (!isDebug)
-            {
-                ISerialPort dBusPort = new SerialPortTH3122("COM4", Cpu.Pin.GPIO_NONE); // d31, d33
-                //dBusPort.AfterWriteDelay = 4;
-                DBusManager.Init(dBusPort, ThreadPriority.Normal);
-                Logger.Debug("DBusManager inited with COM4");
+            //if (!isDebug)
+            //{
+            //    ISerialPort dBusPort = new SerialPortTH3122("COM4", Cpu.Pin.GPIO_NONE); // d31, d33
+            //    //dBusPort.AfterWriteDelay = 4;
+            //    DBusManager.Init(dBusPort, ThreadPriority.Normal);
+            //    Logger.Debug("DBusManager inited with COM4");
 
-                DBusManager.Instance.AfterMessageReceived += DBusManager_AfterMessageReceived;
-                DBusManager.Instance.AfterMessageSent += DBusManager_AfterMessageSent;
-            }
-//#endif
+            //    DBusManager.Instance.AfterMessageReceived += DBusManager_AfterMessageReceived;
+            //    DBusManager.Instance.AfterMessageSent += DBusManager_AfterMessageSent;
+            //}
+            //#endif
 
 
 #if !NETMF && DebugOnRealDeviceOverFTDI
@@ -496,13 +549,13 @@ namespace imBMW.Devices.V2
         {
             //player = new iPodViaHeadset(Cpu.Pin.GPIO_NONE);
             //player = new BluetoothOVC3860(Serial.COM2/*, sd != null ? sd + @"\contacts.vcf" : null*/);
-            Logger.Debug("Creating VolumioRestApiPlayer.");
+            Logger.Debug("VolumioRestApiPlayer creating");
             Cpu.Pin chipSelect_RT = FEZPandaIII.Gpio.D27;
             Cpu.Pin externalInterrupt_WS = FEZPandaIII.Gpio.D24;
             Cpu.Pin reset_BR = FEZPandaIII.Gpio.D26;
             //Player = new VolumioRestApiPlayer(chipSelect_RT, externalInterrupt_WS, reset_BR);
             Player = new VolumioUartPlayer();
-            Logger.Debug("VolumioRestApiPlayer created.");
+            Logger.Debug("VolumioRestApiPlayer created");
             FrontDisplay.RefreshLEDs(LedType.GreenBlinking);
             if (settings.MenuMode != Tools.MenuMode.RadioCDC/* || Manager.FindDevice(DeviceAddress.OnBoardMonitor, 10000)*/)
             {
@@ -512,6 +565,7 @@ namespace imBMW.Devices.V2
                 //}
                 if (settings.MenuMode == MenuMode.BordmonitorCDC)
                 {
+                    Logger.Debug("CDChanger media emulator creating");
                     Emulator = new CDChanger(Player);
                     Logger.Debug("CDChanger media emulator created");
                     if (settings.NaviVersion == NaviVersion.MK2)
@@ -519,8 +573,13 @@ namespace imBMW.Devices.V2
                         Localization.Current = new RadioLocalization();
                         SettingsScreen.Instance.CanChangeLanguage = false;
                     }
+                    Logger.Debug("Bordmonitor static constructor calling");
                     Bordmonitor.NaviVersion = settings.NaviVersion;
+                    Logger.Debug("Bordmonitor class created");
+
                     //BordmonitorMenu.FastMenuDrawing = settings.NaviVersion == NaviVersion.MK4;
+
+                    Logger.Debug("BordmonitorMenu initing");
                     BordmonitorMenu.Init(Emulator);
                     Logger.Debug("BordmonitorMenu inited");
                 }
@@ -569,6 +628,24 @@ namespace imBMW.Devices.V2
             //    }
             //    //UnmountMassStorage();
             //};
+        }
+
+        public static void InitCAN()
+        {
+            Logger.Debug("Going to InitCAN");
+
+            Logger.Debug("CanNativeAdapter creating");
+            var speed = CanAdapterSettings.CanSpeed.Kbps100;
+            CanAdapter.Current = new CanNativeAdapter(ControllerAreaNetwork.Channel.One, speed);
+            Logger.Debug("CanNativeAdapter created");
+
+            CanAdapter.Current.MessageReceived += Can_MessageReceived;
+            CanAdapter.Current.MessageSent += Can_MessageSent;
+            CanAdapter.Current.Error += Can_ErrorReceived;
+
+            Logger.Debug("CanAdapter.Current enabling");
+            CanAdapter.Current.IsEnabled = true;
+            Logger.Debug("CanAdapter.Current enabled");
         }
 
         private static bool watchdogIkeRequestSent = false;
@@ -719,6 +796,24 @@ namespace imBMW.Devices.V2
             return false;
         }
 
+        private static void Can_MessageSent(CanAdapter can, CanMessage message)
+        {
+            Logger.Trace(message.ToString(), "CAN>");
+        }
+
+        private static void Can_ErrorReceived(CanAdapter can, string message)
+        {
+            Logger.Trace(message, "CAN-ERR");
+        }
+
+        private static bool value;
+        private static void Can_MessageReceived(CanAdapter can, CanMessage message)
+        {
+            value = !value;
+            blueLed.Write(value);
+            Logger.Trace(message.ToString(), "CAN<");
+        }
+
         // Log just needed message
         private static bool IBusLoggerPredicate(MessageEventArgs e)
         {
@@ -816,12 +911,12 @@ namespace imBMW.Devices.V2
 
         private static void Manager_BeforeMessageSent(MessageEventArgs e)
         {
-            blueLed.Write(Busy(true, 2));
+            //blueLed.Write(Busy(true, 2));
         }
 
         private static void Manager_AfterMessageSent(MessageEventArgs e)
         {
-            blueLed.Write(Busy(false, 2));
+            //blueLed.Write(Busy(false, 2));
 
             if (IBusLoggerPredicate(e))
             {

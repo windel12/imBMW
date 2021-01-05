@@ -96,6 +96,8 @@ namespace imBMW.Features.Menu.Screens
             AddItem(item9);
             AddItem(item10);
             //this.AddBackButton();
+
+            Logger.Debug("protected DDEScreen()");
         }
 
         private void DigitalDieselElectronics_MessageReceived()

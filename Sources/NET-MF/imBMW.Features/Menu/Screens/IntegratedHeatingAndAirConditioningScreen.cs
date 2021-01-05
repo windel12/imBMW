@@ -22,6 +22,8 @@ namespace imBMW.Features.Menu.Screens
         protected IntegratedHeatingAndAirConditioningScreen()
         {
             TitleCallback = s => Localization.Current.AirConditioning;
+
+            Logger.Debug("protected IntegratedHeatingAndAirConditioningScreen()");
         }
 
         protected virtual void SetItems()
