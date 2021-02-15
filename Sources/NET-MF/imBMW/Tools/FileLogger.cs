@@ -112,7 +112,7 @@ namespace imBMW.Tools
             {
                 Logger.Debug("Error file StreamWriter creating");
                 var errorsWriter = new StreamWriter(_errorsPath + @"\" + ERROR_FILE_NAME, append: true);
-                Logger.Debug("Error file StreamWriter creating");
+                Logger.Debug("Error file StreamWriter created");
 
                 errorsWriter.WriteLine(args.LogString);
                 errorsWriter.Flush();

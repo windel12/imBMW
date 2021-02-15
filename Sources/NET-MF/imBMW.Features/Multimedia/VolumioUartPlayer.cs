@@ -30,8 +30,8 @@ namespace imBMW.Features.Multimedia
                     string message = new string(Encoding.UTF8.GetChars(titleBytes));
                     InstrumentClusterElectronics.ShowNormalTextWithGong(message, mode: TextMode.WithGong2);
 
-                    Logger.Trace("waking up KBus, to be in sync with IBus, because Volumio init message on IKE is waking up IBus"); // // (see "traces\2020.10.04_GarageRacer\traceLog42.log")
-                    BodyModule.RequestDoorWindowStatusViaIbus(); 
+                    //Logger.Trace("waking up KBus, to be in sync with IBus, because Volumio init message on IKE is waking up IBus"); // // (see "traces\2020.10.04_GarageRacer\traceLog42.log")
+                    //BodyModule.RequestDoorWindowStatusViaIbus(); 
                 }
                 if (m.Data[1] == (byte) CommonCommands.DisplayMessage)
                 {

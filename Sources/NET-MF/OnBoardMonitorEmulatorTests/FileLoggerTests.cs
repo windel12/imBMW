@@ -35,6 +35,8 @@ namespace OnBoardMonitorEmulatorTests
         [TestMethod]
         public void Should_StoreLoggedMessages_TillFileLoggerWillBeInited_IncludingDebugMessages()
         {
+            ShouldDisposeManagersAndFileLogger = false;
+
             FileLogger.Create();
 
             for (byte i = 0; i < FileLogger.queueLimit+20; i++)
@@ -50,10 +52,11 @@ namespace OnBoardMonitorEmulatorTests
 
             FileLogger.Dispose(100000);
 
+            int debugLinesCount = 5;
             var files = Directory.GetFiles(logsPath, "traceLog*").OrderBy(x => x, new NaturalStringComparer()).ToArray();
             var lastTraceLog = files[files.Length - 1];
             var logData = File.ReadLines(lastTraceLog).ToArray();
-            Assert.AreEqual(logData.Length, FileLogger.queueLimit + 3);
+            Assert.AreEqual(logData.Length, FileLogger.queueLimit + 3 + debugLinesCount);
             for (int i = 0; i < FileLogger.queueLimit; i++)
             {
                 string testValue = "IKE > GLO: " + i.ToString("X2");
@@ -62,13 +65,13 @@ namespace OnBoardMonitorEmulatorTests
             Assert.IsTrue(logData[FileLogger.queueLimit].Contains("Queue is full"));
             Assert.IsTrue(logData[FileLogger.queueLimit + 1].Contains("test1"));
             Assert.IsTrue(logData[FileLogger.queueLimit + 2].Contains("test2"));
-
-            ShouldDisposeManagersAndFileLogger = false;
         }
 
         [TestMethod]
         public void Should_StoreFatalErrors_InSeparateFile()
         {
+            ShouldDisposeManagersAndFileLogger = false;
+
             FileLogger.Create();
             string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
             var logsPath = Path.Combine(rootDirectory, "logs");
@@ -96,8 +99,6 @@ namespace OnBoardMonitorEmulatorTests
             Assert.IsTrue(errorsData.Length >= 2);
             Assert.IsTrue(errorsData[errorsData.Length - 2].Contains("Sleep mode"));
             Assert.IsTrue(errorsData[errorsData.Length - 1].Contains("Unknown"));
-
-            ShouldDisposeManagersAndFileLogger = false;
         }
     }
 }

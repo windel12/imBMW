@@ -149,6 +149,10 @@ namespace imBMW.iBus.Devices.Real
     {
         static IgnitionState currentIgnitionState = IgnitionState.Unknown;
 
+        public static bool IsMotorRunning = false;
+        public static bool IsVehicleDriving = false;
+        public static bool IsAuxHeatingOn = false;
+
         public static ushort CurrentRPM { get; private set; }
         public static ushort CurrentSpeed { get; private set; }
 
@@ -281,13 +285,13 @@ namespace imBMW.iBus.Devices.Real
                 if (m.Data[1].HasBit(0)) m.ReceiverDescription += "Handbrake;";
                 if (m.Data[1].HasBit(1)) m.ReceiverDescription += "Oil pressure low;";
 
-                if (m.Data[2].HasBit(0)) m.ReceiverDescription += "Motor running;";
-                if (m.Data[2].HasBit(1)) m.ReceiverDescription += "Vehicle driving;";
+                if (m.Data[2].HasBit(0)) m.ReceiverDescription += "Motor running;"; IsMotorRunning = m.Data[2].HasBit(0);
+                if (m.Data[2].HasBit(1)) m.ReceiverDescription += "Vehicle driving;"; IsVehicleDriving = m.Data[2].HasBit(1);
                 if (m.Data[2].HasBit(4)) m.ReceiverDescription += "Gear R;";
 
                 if (m.Data[3].HasBit(1)) m.ReceiverDescription += "Immobiliser ON;";
                 if (m.Data[3].HasBit(0)) m.ReceiverDescription += "Wrong Code;";
-                if (m.Data[3].HasBit(2)) m.ReceiverDescription += "Aux. heat ON;";
+                if (m.Data[3].HasBit(2)) m.ReceiverDescription += "Aux. heat ON;"; IsAuxHeatingOn = m.Data[3].HasBit(2);
                 if (m.Data[3].HasBit(3)) m.ReceiverDescription += "Aux. vent ON;";
                 if (m.Data[3].HasBit(6)) m.ReceiverDescription += "Temp F;";
             }

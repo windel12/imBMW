@@ -97,7 +97,10 @@ namespace imBMW.iBus.Devices.Real
         {
             m.ReceiverDescription = "Coolant Temperature: " + InstrumentClusterElectronics.TemperatureCoolant + 
                                     "; Outside: " + InstrumentClusterElectronics.TemperatureOutside +
-                                    "; Ign: " + InstrumentClusterElectronics.CurrentIgnitionState.ToStringValue();
+                                    "; Ign: " + InstrumentClusterElectronics.CurrentIgnitionState.ToStringValue() +
+                                    (InstrumentClusterElectronics.IsMotorRunning ? "; MotorRunning" : "") +
+                                    (InstrumentClusterElectronics.IsVehicleDriving ? "; VehicleDriving" : "") +
+                                    (InstrumentClusterElectronics.IsAuxHeatingOn ? "; AuxHeatingOn" : "");
 
             if (Settings.Instance.SuspendAuxilaryHeaterResponseEmulation)
             {

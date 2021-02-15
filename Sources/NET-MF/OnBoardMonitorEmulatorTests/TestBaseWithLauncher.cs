@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using imBMW.Devices.V2;
 using imBMW.Features;
 using imBMW.Tools;

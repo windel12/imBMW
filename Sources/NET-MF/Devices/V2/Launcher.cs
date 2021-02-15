@@ -66,14 +66,14 @@ namespace imBMW.Devices.V2
         private static Timer watchdogTimer;
 
         internal static int idleTime;
-        internal static int idleOverallTime;
+        internal static int overallTime;
 
         internal static int requestIgnitionStateTimerPeriod;
 
         // TODO: revert to 30 seconds, instead of 20 minutes
         internal static readonly int idleTimeout;
         internal static readonly int sleepTimeout;
-        internal static readonly int idleOverallTimeout;
+        internal static readonly int overallTimeout;
 
         static bool ErrorExist = false;
 
@@ -136,13 +136,8 @@ namespace imBMW.Devices.V2
             requestIgnitionStateTimerPeriod = watchDogTimeoutInMilliseconds / 3;
 
             idleTimeout = GetTimeoutInMilliseconds(20, 00);
-#if DEBUG
-            sleepTimeout = GetTimeoutInMilliseconds(15, 50);
-            idleOverallTimeout = GetTimeoutInMilliseconds(30, 00);
-#else
-            sleepTimeout = GetTimeoutInMilliseconds(15, 30);
-            idleOverallTimeout = GetTimeoutInMilliseconds(30, 00);
-#endif
+            sleepTimeout = GetTimeoutInMilliseconds(15, 20);
+            overallTimeout = GetTimeoutInMilliseconds(60, 00);
         }
 
         public static void Launch(LaunchMode launchMode = LaunchMode.MicroFramework)
@@ -363,15 +358,15 @@ namespace imBMW.Devices.V2
                 Logger.Debug("BodyModule events attaching");
                 BodyModule.RemoteKeyButtonPressed += (e) =>
                 {
-                    idleOverallTime = 0;
-                    Logger.Trace("Clearing interval, because remote key pressed: idleOverallTime = 0");
+                    idleTime = 0;
+                    Logger.Trace("Clearing interval, because remote key pressed: idleTime = 0");
                 };
                 Logger.Debug("BodyModule.RemoteKeyButtonPressed attached");
 
-                BodyModule.DoorWindowStatusChanged += (value) =>
+                BodyModule.DoorWindowStatusChanged += (byte1, byte2) =>
                 {
-                    idleOverallTime = 0;
-                    Logger.Trace("Clearing interval, because door/window status changed: idleOverallTime = 0");
+                    idleTime = 0;
+                    Logger.Trace("Clearing interval, because door/window status changed: idleTime = 0");
                 };
                 Logger.Debug("BodyModule.DoorWindowStatusChanged attached");
 
@@ -399,6 +394,7 @@ namespace imBMW.Devices.V2
                 {
                     if (++count == 4)
                     {
+                        Logger.Debug("Manually unmounting storage, by pressing LDR1 button four times.");
                         UnmountMassStorage();
                     }
                     else
@@ -540,9 +536,9 @@ namespace imBMW.Devices.V2
             VolumioManager.Instance.AfterMessageSent -= VolumioManager_AfterMessageSent;
             VolumioManager.Instance.Dispose();
 
-            DBusManager.Instance.AfterMessageReceived -= DBusManager_AfterMessageReceived;
-            DBusManager.Instance.AfterMessageSent -= DBusManager_AfterMessageSent;
-            DBusManager.Instance.Dispose();
+            //DBusManager.Instance.AfterMessageReceived -= DBusManager_AfterMessageReceived;
+            //DBusManager.Instance.AfterMessageSent -= DBusManager_AfterMessageSent;
+            //DBusManager.Instance.Dispose();
         }
 
         public static void Init()
@@ -652,7 +648,7 @@ namespace imBMW.Devices.V2
         internal static void WatchdogTimerHandler(object obj)
         {
             Logger.Trace("idleTime: " + GetTimeSpanFromMilliseconds(idleTime));
-            Logger.Trace("idleOverallTime: " + GetTimeSpanFromMilliseconds(idleOverallTime));
+            Logger.Trace("overallTime: " + GetTimeSpanFromMilliseconds(overallTime));
 
             if (idleTime >= idleTimeout)
             {
@@ -665,16 +661,16 @@ namespace imBMW.Devices.V2
                 }
             }
 
-            bool sleepBySleepTimeout = idleTime >= sleepTimeout;
-            bool sleepByIdleOverallTimeout = idleOverallTime >= idleOverallTimeout;
+            bool sleepByTimeout = idleTime >= sleepTimeout;
+            bool sleepByOverallTimeout = overallTime >= overallTimeout;
 
-            if (sleepBySleepTimeout || sleepByIdleOverallTimeout)
+            if (sleepByTimeout || sleepByOverallTimeout)
             {
                 lock (lockObj)
                 {
                     if (State != AppState.Sleep)
                     {
-                        if (sleepByIdleOverallTimeout)
+                        if (sleepByOverallTimeout)
                         {
                             Logger.FatalError(ErrorIdentifier.SleepModeFlowBrokenErrorId);
                         }
@@ -683,14 +679,15 @@ namespace imBMW.Devices.V2
                 }
             }
 
-            idleTime += requestIgnitionStateTimerPeriod;
             if (InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Off)
             {
-                idleOverallTime += requestIgnitionStateTimerPeriod;
+                idleTime += requestIgnitionStateTimerPeriod;
+                overallTime += requestIgnitionStateTimerPeriod;
             }
             else
             {
-                idleOverallTime = 0;
+                idleTime = 0;
+                overallTime = 0;
             }
 
             if ((!Settings.Instance.WatchdogResetOnIKEResponse || InstrumentClusterElectronics.CurrentIgnitionState == IgnitionState.Off) && InstrumentClusterElectronics.CurrentIgnitionState != IgnitionState.Unknown)
@@ -855,29 +852,29 @@ namespace imBMW.Devices.V2
 
         // sometimes, LCM can send message, to clear idleTime, but body module not reset his counter for idle
         // see: \traces\2020.09.09\ #53, #7, #13, #16, #25, #30, #39
-        private static bool ShouldClearIdleTime(Message m)
-        {
-            if (m.Data[0] == 0x5C || // Instrument cluster lighting status
-                m.Data[0] == 0xA7 || // TMC status request
-                m.Data[0] == 0xA8 || // TMC data
+        //private static bool ShouldClearIdleTime(Message m)
+        //{
+        //    if (m.Data[0] == 0x5C || // Instrument cluster lighting status
+        //        m.Data[0] == 0xA7 || // TMC status request
+        //        m.Data[0] == 0xA8 || // TMC data
 
-                // [I < ] CCM > GLO: 02 00 [Poll response] (see  "traces\2020.10.04_GarageRacer\traceLog34.log"  and some other in this folder)
-                m.SourceDevice == DeviceAddress.CheckControlModule && m.SourceDevice == DeviceAddress.GlobalBroadcastAddress && m.Data[0] == 0x02
-            ) 
-            {
-                return false; 
+        //        // [I < ] CCM > GLO: 02 00 [Poll response] (see  "traces\2020.10.04_GarageRacer\traceLog34.log"  and some other in this folder)
+        //        m.SourceDevice == DeviceAddress.CheckControlModule && m.SourceDevice == DeviceAddress.GlobalBroadcastAddress && m.Data[0] == 0x02
+        //    ) 
+        //    {
+        //        return false; 
 
-            }
+        //    }
 
-            return true;
-        }
+        //    return true;
+        //}
 
         internal static void Manager_BeforeMessageReceived(MessageEventArgs e)
         {
-            if (ShouldClearIdleTime(e.Message))
-            {
-                idleTime = 0;
-            }
+            //if (ShouldClearIdleTime(e.Message))
+            //{
+            //    idleTime = 0;
+            //}
 
             if (IBusMessageLoggingBeforeReceivedPredicate(e))
             {
@@ -955,10 +952,10 @@ namespace imBMW.Devices.V2
 
         private static void KBusManager_AfterMessageReceived(MessageEventArgs e)
         {
-            if (ShouldClearIdleTime(e.Message))
-            {
-                idleTime = 0;
-            }
+            //if (ShouldClearIdleTime(e.Message))
+            //{
+            //    idleTime = 0;
+            //}
 
             if (KBusLoggerPredicate(e))
             {

@@ -44,7 +44,11 @@ namespace imBMW.iBus
 
         public void Dispose()
         {
-            messageWriteQueue.Dispose();
+            if (messageWriteQueue != null)
+            {
+                messageWriteQueue.Dispose();
+            }
+
             if (_port != null)
             {
                 _port.DataReceived -= bus_DataReceived;

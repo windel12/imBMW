@@ -5,6 +5,7 @@ using imBMW.iBus.Devices.Real;
 using OnBoardMonitorEmulator.DevicesEmulation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using imBMW.Features.Multimedia.iBus;
+using OnBoardMonitorEmulatorTests.Helpers;
 
 namespace OnBoardMonitorEmulatorTests
 {
@@ -17,14 +18,14 @@ namespace OnBoardMonitorEmulatorTests
             RadioEmulator.Init();
             Launcher.Launch(Launcher.LaunchMode.WPF);
 
-            var radioOnWaitHandle = MessageReceivedWaitHandle(new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, "Press radio on/off", Radio.DataRadioKnobPressed));
-            var CDPlayWaitHandle = MessageReceivedWaitHandle(new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, CDChanger.DataPlay));
-            var CDResponseWaitHandle = MessageReceivedWaitHandle((Launcher.Emulator as CDChanger).StatusPlaying(1, 1));
+            var radioOnWaitHandle = MessageReceivedWaitHandle(new Message(DeviceAddress.OnBoardMonitor, DeviceAddress.Radio, "Press radio on/off", Radio.DataRadioKnobPressed), Manager.Instance);
+            var CDPlayWaitHandle = MessageReceivedWaitHandle(new Message(DeviceAddress.Radio, DeviceAddress.CDChanger, CDChanger.DataPlay), Manager.Instance);
+            var CDResponseWaitHandle = MessageReceivedWaitHandle((Launcher.Emulator as CDChanger).StatusPlaying(1, 1), Manager.Instance);
             Radio.PressOnOffToggle();
 
-            bool result1 = radioOnWaitHandle.WaitOne();
-            bool result2 = CDPlayWaitHandle.WaitOne();
-            bool result3 = CDResponseWaitHandle.WaitOne();
+            bool result1 = radioOnWaitHandle.Wait(5000);
+            bool result2 = CDPlayWaitHandle.Wait(5000);
+            bool result3 = CDResponseWaitHandle.Wait(5000);
 
             Assert.IsTrue(result1);
             Assert.IsTrue(result2);

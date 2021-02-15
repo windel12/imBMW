@@ -38,7 +38,7 @@ namespace OnBoardMonitorEmulatorTests
             var now = DateTime.Now;
             Launcher.Launch(Launcher.LaunchMode.WPF);
 
-            dateTimeChangedWaitHandler.WaitOne(Debugger.IsAttached ? 30000 : 1000);
+            dateTimeChangedWaitHandler.Wait(1000);
 
             Assert.AreEqual(Utility.CurrentDateTime.Year, now.Year);
             Assert.AreEqual(Utility.CurrentDateTime.Month, now.Month);
@@ -98,7 +98,7 @@ namespace OnBoardMonitorEmulatorTests
             var wakeUpBySendingMessageToBus = new Func<bool>(() =>
             {
                 var message = new Message(DeviceAddress.BodyModule, DeviceAddress.GlobalBroadcastAddress, MessageRegistry.DataPollResponse);
-                var messageReceivedWaitHandle = MessageReceivedWaitHandle(message);
+                var messageReceivedWaitHandle = MessageReceivedWaitHandle(message, Manager.Instance);
                 Manager.Instance.EnqueueMessage(message);
                 var messageReceivedWaitHandleResult = messageReceivedWaitHandle.Wait();
                 return messageReceivedWaitHandleResult;
@@ -139,11 +139,11 @@ namespace OnBoardMonitorEmulatorTests
         [TestMethod]
         public void Should_GoToSleep_AndDisposeManagers()
         {
+            ShouldDisposeManagersAndFileLogger = false;
+
             var initializationWaitHandle = InitializationWaitHandle();
             var appStateChangedWaitHandle = AppStateChangedWaitHandle(AppState.Sleep);
 
-            var idleTimeout = typeof(Launcher).GetField("idleTimeout", BindingFlags.Static | BindingFlags.NonPublic);
-            idleTimeout.SetValue(null, Launcher.GetTimeoutInMilliseconds(59, 59));
             Launcher.Launch(Launcher.LaunchMode.WPF);
             InstrumentClusterElectronics.CurrentIgnitionState = IgnitionState.Off;
 
@@ -157,13 +157,74 @@ namespace OnBoardMonitorEmulatorTests
             Assert.IsTrue(waitResult, "0");
             Assert.IsTrue(Launcher._massStorage != null, "1");
             Assert.IsTrue(Launcher._massStorage.Mounted == false, "2");
-
-            ShouldDisposeManagersAndFileLogger = false;
         }
 
         [TestMethod]
-        public void Should_StoreError_ByExceedingIdelOverallTimeout()
+        public void Should_ClearTime_WhenDoorStatusChanged_Or_LockUnlockPressed()
         {
+            ShouldDisposeManagersAndFileLogger = false;
+
+            var initializationWaitHandle = InitializationWaitHandle();
+            Launcher.Launch(Launcher.LaunchMode.WPF);
+
+            bool initializationResult = initializationWaitHandle.Wait();
+            Assert.IsTrue(initializationResult, "initializationResult");
+
+            Launcher.idleTime = 100000;
+            var message = new Message(DeviceAddress.BodyModule, DeviceAddress.GlobalBroadcastAddress, 0x7A, 0x50, 0x10);
+            var waitHandle = MessageReceivedWaitHandle(message, Manager.Instance);
+            KBusManager.Instance.EnqueueMessage(message);
+            Manager.Instance.EnqueueMessage(message);
+            bool result = waitHandle.Wait(5000);
+            Assert.IsTrue(result, "waitHandle");
+            Assert.IsTrue(Launcher.idleTime == 0, "Launcher.idleTime == 0");
+
+            Launcher.idleTime = 20000;
+            var message2 = new Message(DeviceAddress.BodyModule, DeviceAddress.GlobalBroadcastAddress, 0x72, 0x12); // Lock
+            var waitHandle2 = MessageReceivedWaitHandle(message2, Manager.Instance);
+            KBusManager.Instance.EnqueueMessage(message2);
+            Manager.Instance.EnqueueMessage(message2);
+            bool result2 = waitHandle2.Wait(5000);
+            Assert.IsTrue(result2, "waitHandle2");
+            Assert.IsTrue(Launcher.idleTime == 0, "Launcher.idleTime == 0");
+        }
+
+        [TestMethod]
+        public void Should_NotClearTime_WhenDoorWindowStatusMessageReceived_ButNotChanged()
+        {
+            ShouldDisposeManagersAndFileLogger = false;
+
+            var initializationWaitHandle = InitializationWaitHandle();
+            Launcher.Launch(Launcher.LaunchMode.WPF);
+
+            bool initializationResult = initializationWaitHandle.Wait();
+            Assert.IsTrue(initializationResult, "initializationResult");
+
+            Launcher.idleTime = 10000;
+            var message = new Message(DeviceAddress.BodyModule, DeviceAddress.GlobalBroadcastAddress, 0x7A, 0x50, 0x10);
+            var waitHandle = MessageReceivedWaitHandle(message, Manager.Instance);
+            KBusManager.Instance.EnqueueMessage(message);
+            Manager.Instance.EnqueueMessage(message);
+            bool result = waitHandle.Wait(5000);
+            Assert.IsTrue(result, "waitHandle");
+            Assert.IsTrue(Launcher.idleTime == 0, "Launcher.idleTime == 0");
+
+            //InstrumentClusterElectronics.CurrentIgnitionState = IgnitionState.Off;
+            Launcher.idleTime = 10000;
+            var message2 = new Message(DeviceAddress.BodyModule, DeviceAddress.GlobalBroadcastAddress, 0x7A, 0x50, 0x10);
+            var waitHandle2 = MessageReceivedWaitHandle(message2, Manager.Instance);
+            KBusManager.Instance.EnqueueMessage(message2);
+            Manager.Instance.EnqueueMessage(message2);
+            bool result2 = waitHandle2.Wait(5000);
+            Assert.IsTrue(result2, "waitHandle2");
+            Assert.IsTrue(Launcher.idleTime == 10000, "Launcher.idleTime == 0");
+        }
+
+        [TestMethod]
+        public void Should_StoreError_ByExceedingOverallTimeout()
+        {
+            ShouldDisposeManagersAndFileLogger = false;
+
             var errorFilePath = Path.Combine(VolumeInfo.GetVolumes()[0].RootDirectory, FileLogger.ERROR_FILE_NAME);
             var errorsFile = File.Create(errorFilePath);
             errorsFile.Dispose();
@@ -179,7 +240,7 @@ namespace OnBoardMonitorEmulatorTests
 
             // Assert
             // going to sleep by overall timeout
-            Launcher.idleOverallTime = Launcher.idleOverallTimeout + Launcher.GetTimeoutInMilliseconds(0, 59);
+            Launcher.overallTime = Launcher.overallTimeout + Launcher.GetTimeoutInMilliseconds(0, 59);
             bool waitResult = appStateChangedWaitHandle.Wait(Launcher.requestIgnitionStateTimerPeriod * 2);
             Assert.IsTrue(waitResult, "0");
             Assert.IsTrue(Launcher._massStorage != null, "1");
@@ -188,31 +249,29 @@ namespace OnBoardMonitorEmulatorTests
             var errorsData = File.ReadLines(errorFilePath).ToArray();
             Assert.IsTrue(errorsData.Length >= 1);
             Assert.IsTrue(errorsData[errorsData.Length - 1].Contains("[FATAL] Sleep mode flow was broken"));
-
-            ShouldDisposeManagersAndFileLogger = false;
         }
 
         [TestMethod]
         public void Should_ShowIKEMessage_IfErrorLogContainsData()
         {
+            ShouldDisposeManagersAndFileLogger = false;
+
             var errorsFile = File.Open(Path.Combine(VolumeInfo.GetVolumes()[0].RootDirectory, FileLogger.ERROR_FILE_NAME), FileMode.OpenOrCreate);
             errorsFile.WriteByte(ErrorIdentifier.SleepModeFlowBrokenErrorId);
             errorsFile.WriteByte(ErrorIdentifier.UknownError);
             errorsFile.Dispose();
 
             var text = "ERRORS FOUND. CHECK LOG!";
-            var data = new byte[] { 0x1A, 0x37, (byte)TextMode.WithGong1 };
+            var data = new byte[] { 0x1A, 0x37, (byte)TextMode.InfiniteGong1OnIgnOff };
             data = data.PadRight(0x20, InstrumentClusterElectronics.DisplayTextOnIKEMaxLen);
             data.PasteASCII(text.Translit(), 3, InstrumentClusterElectronics.DisplayTextOnIKEMaxLen, TextAlign.Left);
-            var waitHandle = MessageReceivedWaitHandle(new Message(DeviceAddress.CheckControlModule, DeviceAddress.InstrumentClusterElectronics, data));
+            var waitHandle = MessageReceivedWaitHandle(new Message(DeviceAddress.CheckControlModule, DeviceAddress.InstrumentClusterElectronics, data), Manager.Instance);
             Task.Factory.StartNew(() =>
             {
                 Launcher.Launch(Launcher.LaunchMode.WPF);
             });
             bool result = waitHandle.Wait(10000);
             Assert.IsTrue(result);
-
-            ShouldDisposeManagersAndFileLogger = false;
         }
     }
 }

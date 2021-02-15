@@ -11,15 +11,15 @@ namespace OnBoardMonitorEmulatorTests
     {
         protected EventWaitHandle InitializationWaitHandle()
         {
-            return MessageReceivedWaitHandle(new Message(DeviceAddress.Telephone, DeviceAddress.FrontDisplay, "Set LEDs", 0x2B, (byte)LedType.Green), 1);
+            return MessageReceivedWaitHandle(new Message(DeviceAddress.Telephone, DeviceAddress.FrontDisplay, "Set LEDs", 0x2B, (byte)LedType.Green), Manager.Instance, 1);
         }
 
-        protected EventWaitHandle MessageReceivedWaitHandle(Message message, int messagesCount = 1)
+        protected EventWaitHandle MessageReceivedWaitHandle(Message message, ManagerImpl manager, int messagesCount = 1)
         {
             ManualResetEvent waitHandle = new ManualResetEvent(false);
 
             int counter = 0;
-            Manager.Instance.AddMessageReceiverForSourceAndDestinationDevice(message.SourceDevice, message.DestinationDevice, m =>
+            manager.AddMessageReceiverForSourceAndDestinationDevice(message.SourceDevice, message.DestinationDevice, m =>
             {
                 if (m.Data.Compare(message.Data))
                     counter++;

@@ -1,6 +1,7 @@
 using System.Threading;
 using imBMW.Tools;
 using imBMW.Enums;
+using System;
 
 namespace imBMW.iBus.Devices.Real
 {
@@ -78,9 +79,30 @@ namespace imBMW.iBus.Devices.Real
 
         #endregion
 
-        static double batteryVoltage;
-        static bool isCarLocked;
-        static bool wasDriverDoorOpened;
+        private static double batteryVoltage;
+        private static bool isCarLocked;
+        private static bool wasDriverDoorOpened;
+
+        private static short _doorWindowStatus;
+        private static short DoorWindowStatus
+        {
+            get { return _doorWindowStatus; }
+            set
+            {
+                if (_doorWindowStatus != value)
+                {
+                    _doorWindowStatus = value;
+                    byte byte1;
+                    byte byte2;
+                    NumHelpers.FromShort(value, out byte1, out byte2);
+                    var e = DoorWindowStatusChanged;
+                    if (e != null)
+                    {
+                        e(byte1, byte2);
+                    }
+                }
+            }
+        }
 
         static BodyModule()
         {
@@ -120,6 +142,8 @@ namespace imBMW.iBus.Devices.Real
             }
             if (m.Data.Length == 3 && m.Data[0] == 0x7A) // Doors/windows status
             {
+                DoorWindowStatus = NumHelpers.ToShort(m.Data[1], m.Data[2]);
+
                 // Data[1] = 7654 3210. 7 = ??, 6 = light, 5 = lock, 4 = unlock, 5+4 = hard lock,
                 //      doors statuses: 0 = left front (driver), 1 = right front, 2 = left rear, 3 = right rear.
                 // Car could have locked status even after doors are opened!
@@ -152,11 +176,6 @@ namespace imBMW.iBus.Devices.Real
                 if (m.Data[2].HasBit(4)) { m.ReceiverDescription += "Sunroof opened;";}
                 if (m.Data[2].HasBit(5)) { m.ReceiverDescription += "TrunkLid opened;";}
                 if (m.Data[2].HasBit(6)) { m.ReceiverDescription += "Hood opened;";}
-
-                if (DoorWindowStatusChanged != null)
-                {
-                    DoorWindowStatusChanged(m.Data[1]);
-                }
             }
             if (m.Data.Length > 3 && m.Data[0] == 0xA0)
             {
@@ -321,7 +340,7 @@ namespace imBMW.iBus.Devices.Real
         }
 
         public static event RemoteKeyButtonEventHandler RemoteKeyButtonPressed;
-        public static event ActionByte DoorWindowStatusChanged;
+        public static event ActionByteByte DoorWindowStatusChanged;
 
         public static event ActionDouble BatteryVoltageChanged;
     }
