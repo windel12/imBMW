@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Threading;
+using imBMW.Enums;
 
 namespace imBMW.Tools
 {
@@ -9,14 +10,14 @@ namespace imBMW.Tools
         public delegate void ProcessItem(object item);
 
         Thread queueThread;
-        public string threadName;
+        public QueueThreadName threadName;
         ProcessItem processItem;
         object lockObj = new object();
         bool disposed = false;
 
         private ManualResetEvent ewt = new ManualResetEvent(false);
 
-        public QueueThreadWorker(ProcessItem processItem, string threadName = "", ThreadPriority threadPriority = ThreadPriority.AboveNormal, bool postponeStart = false)
+        public QueueThreadWorker(ProcessItem processItem, QueueThreadName threadName, ThreadPriority threadPriority = ThreadPriority.AboveNormal, bool postponeStart = false)
         {
             if (processItem == null)
             {
@@ -27,7 +28,7 @@ namespace imBMW.Tools
             queueThread = new Thread(queueWorker);
             queueThread.Priority = threadPriority;
 #if !NETMF
-            queueThread.Name = threadName;
+            queueThread.Name = threadName.ToStringValue();
 #endif
             if (!postponeStart)
             {
@@ -45,6 +46,10 @@ namespace imBMW.Tools
                     if (Count > 0)
                     {
                         m = Dequeue();
+                        if (Count > 5 && threadName == QueueThreadName.FileLogger)
+                        {
+                            m = m + "  /* queue:" + Count + " */";
+                        }
                     }
                     else
                     {

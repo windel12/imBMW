@@ -1,12 +1,12 @@
 using System;
 using System.IO.Ports;
+using imBMW.Enums;
 using imBMW.Tools;
 
 namespace imBMW.iBus
 {
     public class Manager : ManagerImpl
     {
-        public static string PORT_NAME = "iBus";
         private static Manager _instance;
         public static Manager Instance
         {
@@ -29,7 +29,7 @@ namespace imBMW.iBus
         {
             if (!Instance.Inited)
             {
-                Instance.InitPort(port, PORT_NAME);
+                Instance.InitPort(port, QueueThreadName.iBus);
             }
             else
             {

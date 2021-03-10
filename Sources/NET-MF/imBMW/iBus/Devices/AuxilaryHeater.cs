@@ -17,12 +17,15 @@ namespace imBMW.iBus.Devices.Real
         //public static Message DiagnoseOk_KBus = new Message(DeviceAddress.AuxilaryHeater, DeviceAddress.Diagnostic, 0xA0);
 
 
-        /// <summary> ZUH > IHKA: 93 00 22 ?? </summary>
+        /// <summary> ZUH > IHKA: 93 00 22 </summary>
         public static Message AuxilaryHeaterWorkingResponse = new Message(DeviceAddress.AuxilaryHeater, DeviceAddress.IntegratedHeatingAndAirConditioning, 0x93, 0x00, 0x22);
-        /// <summary> ZUH > IHKA: 93 00 21 ?? </summary>
+        /// <summary> ZUH > IHKA: 93 00 21 </summary>
         public static Message AuxilaryHeaterStopped1 = new Message(DeviceAddress.AuxilaryHeater, DeviceAddress.IntegratedHeatingAndAirConditioning, 0x93, 0x00, 0x21);
-        /// <summary> ZUH > IHKA: 93 00 11 ?? </summary>
+        /// <summary> ZUH > IHKA: 93 00 11 </summary>
         public static Message AuxilaryHeaterStopped2 = new Message(DeviceAddress.AuxilaryHeater, DeviceAddress.IntegratedHeatingAndAirConditioning, 0x93, 0x00, 0x11);
+
+        /// <summary> ZUH > IHKA: 93 01 21 01 </summary>
+        public static Message AuxilaryHeaterError = new Message(DeviceAddress.AuxilaryHeater, DeviceAddress.IntegratedHeatingAndAirConditioning, 0x93, 0x01, 0x21, 0x01);
 
         public static byte[] DataZuheizerStatusRequest = new byte[] { 0x00 };
 

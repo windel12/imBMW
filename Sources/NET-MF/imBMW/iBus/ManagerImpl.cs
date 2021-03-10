@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.IO.Ports;
 using System.Threading;
+using imBMW.Enums;
 using imBMW.Tools;
 
 namespace imBMW.iBus
@@ -30,13 +31,13 @@ namespace imBMW.iBus
         {
         }
 
-        public void InitPort(ISerialPort port, string queueThreadWorkerName = "", ThreadPriority threadPriority = ThreadPriority.AboveNormal)
+        public void InitPort(ISerialPort port, QueueThreadName queueThreadWorkerName, ThreadPriority threadPriority = ThreadPriority.AboveNormal)
         {
             messageWriteQueue = new QueueThreadWorker(SendMessage, queueThreadWorkerName, threadPriority);
             //messageReadQueue = new QueueThreadWorker(ProcessMessage);
 
             _port = port;
-            _portName = queueThreadWorkerName;
+            _portName = queueThreadWorkerName.ToStringValue();
             _port.DataReceived += bus_DataReceived;
 
             Inited = true;

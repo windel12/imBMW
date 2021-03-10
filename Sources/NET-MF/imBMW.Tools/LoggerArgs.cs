@@ -50,7 +50,7 @@ namespace imBMW.Tools
                         break;
                 }
             }
-            LogString = Timestamp.ToString("dd-MM HH:mm:ss.fff") + " (Free memory: " + Debug.GC(true) + ") [" + PriorityTitle + "] " + message;
+            LogString = Timestamp.ToString("dd-MM HH:mm:ss.fff") + " (Free memory: " + Debug.GC(true).ToString("D5") + ") [" + PriorityTitle + "] " + message;
         }
     }
 

@@ -12,7 +12,7 @@ namespace Microsoft.SPOT
 
         public static uint GC(bool force)
         {
-            return 0;
+            return (uint)System.GC.GetTotalMemory(true);
         }
 
         public static void Print(string text)

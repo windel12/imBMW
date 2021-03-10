@@ -131,7 +131,7 @@ namespace imBMW.Devices.V2
             GHI.Processor.Watchdog.Enable(watchDogTimeoutInMilliseconds);
 #endif
 
-            LedBlinkingQueueThreadWorker = new QueueThreadWorker(LedBlinking, "ledBlibking");
+            LedBlinkingQueueThreadWorker = new QueueThreadWorker(LedBlinking, QueueThreadName.LedBlinking);
             _removableMediaInsertedSync = new ManualResetEvent(false);
             requestIgnitionStateTimerPeriod = watchDogTimeoutInMilliseconds / 3;
 
@@ -295,7 +295,7 @@ namespace imBMW.Devices.V2
                     {
                         if (MassStorageMountState == MassStorageMountState.DeviceConnectFailed || MassStorageMountState == MassStorageMountState.UnknownDeviceConnected)
                         {
-                            InstrumentClusterElectronics.ShowNormalTextWithGong(MassStorageMountState.ToStringValue(), mode: TextMode.InfiniteGong1OnIgnOff);
+                            //InstrumentClusterElectronics.ShowNormalTextWithGong(MassStorageMountState.ToStringValue(), mode: TextMode.InfiniteGong1OnIgnOff);
                             FrontDisplay.RefreshLEDs(LedType.RedBlinking, append: true);
                             LedBlinkingQueueThreadWorker.Enqueue(new LedBlinkingItem(redLed, 4, 100));
                             //ResetBoard();
@@ -315,6 +315,10 @@ namespace imBMW.Devices.V2
                             + "; " + (_resetCause == GHI.Processor.Watchdog.ResetCause.Normal ? "Normal" : "Watchdog"), mode: TextMode.WithGong1);
                     }
                 }
+
+                Logger.Debug("wait some time, till items from file logger queue will removed, to release some amount of memory");
+                bool waitResult = FileLogger.WaitTillQueueBeEmpty(1000);
+                Logger.Debug("FileLogger.WaitTillQueueBeEmpty(1000): " + waitResult + " ; FileLogger.QueueCount: " + FileLogger.QueueCount);
 
                 InstrumentClusterElectronics.RequestDateTime();
 

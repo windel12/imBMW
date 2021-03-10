@@ -185,6 +185,9 @@
     <Compile Include="..\imBMW\Enums\MassStorageMountState.cs">
       <Link>imBMW\Enums\MassStorageMountState.cs</Link>
     </Compile>
+    <Compile Include="..\imBMW\Enums\QueueThreadName.cs">
+      <Link>imBMW\Enums\QueueThreadName.cs</Link>
+    </Compile>
     <Compile Include="..\imBMW\Enums\Volumio\CommonCommands.cs">
       <Link>imBMW\Enums\Volumio\CommonCommands.cs</Link>
     </Compile>

@@ -4,6 +4,7 @@ using imBMW.iBus.Devices.Real;
 using System.Threading;
 using imBMW.Tools;
 using imBMW.iBus;
+using imBMW.Enums;
 
 namespace imBMW.Features
 {
@@ -50,9 +51,9 @@ namespace imBMW.Features
         {
             // uncomment when will use comfort
 #if OnBoardMonitorEmulator
-            commands = new QueueThreadWorker(ProcessCommand, "comfortThread", ThreadPriority.Normal);
+            commands = new QueueThreadWorker(ProcessCommand, QueueThreadName.Comfort, ThreadPriority.Normal);
 #else
-            commands = new QueueThreadWorker(ProcessCommand, "comfortThread", ThreadPriority.Lowest);
+            commands = new QueueThreadWorker(ProcessCommand, QueueThreadName.Comfort, ThreadPriority.Lowest);
 #endif
 
             //InstrumentClusterElectronics.SpeedRPMChanged += (e) =>

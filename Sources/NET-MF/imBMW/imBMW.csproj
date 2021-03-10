@@ -73,6 +73,7 @@
     <Compile Include="Enums\AuxilaryHeaterActivationMode.cs" />
     <Compile Include="Enums\AuxilaryHeaterStatus.cs" />
     <Compile Include="Enums\FlapPosition.cs" />
+    <Compile Include="Enums\QueueThreadName.cs" />
     <Compile Include="Enums\TemperatureUnit.cs" />
     <Compile Include="Enums\Volumio\PlaybackState.cs" />
     <Compile Include="Enums\Volumio\CommonCommands.cs" />
@@ -98,11 +99,11 @@
     <Compile Include="iBus\ManagerTools.cs" />
     <None Include="iBus\MessageParser.cs" />
     <Compile Include="iBus\VolumioManager.cs" />
-    <Compile Include="Json\DateTimeExtensions.cs" />
-    <Compile Include="Json\JsonParser.cs" />
-    <Compile Include="Json\JsonSerializer.cs" />
-    <Compile Include="Json\NumberExtensions.cs" />
-    <Compile Include="Json\StringExtensions.cs" />
+    <None Include="Json\DateTimeExtensions.cs" />
+    <None Include="Json\JsonParser.cs" />
+    <None Include="Json\JsonSerializer.cs" />
+    <None Include="Json\NumberExtensions.cs" />
+    <None Include="Json\StringExtensions.cs" />
     <Compile Include="Tools\FEZPandaIII.cs" />
     <Compile Include="IO\ISerialPort.cs" />
     <Compile Include="IO\SerialInterruptPort.cs" />

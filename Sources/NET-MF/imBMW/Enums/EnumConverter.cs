@@ -227,5 +227,20 @@ namespace imBMW.Enums
             }
             return "NotSpecified(" + e.ToString() + ")";
         }
+
+        public static string ToStringValue(this QueueThreadName e)
+        {
+            switch (e)
+            {
+                case QueueThreadName.LedBlinking: return "LedBlinking";
+                case QueueThreadName.FileLogger: return "FileLogger";
+                case QueueThreadName.Comfort: return "Comfort";
+                case QueueThreadName.iBus: return "iBus";
+                case QueueThreadName.kBus: return "kBus";
+                case QueueThreadName.dBus: return "dBus";
+                case QueueThreadName.VolumioUART: return "VolumioUART";
+            }
+            return "NotSpecified(" + e.ToString() + ")";
+        }
     }
 }

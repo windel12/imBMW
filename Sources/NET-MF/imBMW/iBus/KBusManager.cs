@@ -1,13 +1,13 @@
 using System;
 using System.IO.Ports;
 using System.Threading;
+using imBMW.Enums;
 using imBMW.Tools;
 
 namespace imBMW.iBus
 {
     public class KBusManager : ManagerImpl
     {
-        public static string PORT_NAME = "kBus";
         private static KBusManager _instance;
         public static KBusManager Instance
         {
@@ -30,7 +30,7 @@ namespace imBMW.iBus
         {
             if (!Instance.Inited)
             {
-                Instance.InitPort(port, PORT_NAME, threadPriority);
+                Instance.InitPort(port, QueueThreadName.kBus, threadPriority);
             }
             else
             {

@@ -2,13 +2,13 @@ using System;
 using System.IO.Ports;
 using System.Threading;
 using GHI.IO;
+using imBMW.Enums;
 using imBMW.Tools;
 
 namespace imBMW.iBus
 {
     public class DBusManager : ManagerImpl
     {
-        public static string PORT_NAME = "dBus";
         private static DBusManager _instance;
 
         static SignalGenerator sg = new SignalGenerator(FEZPandaIII.Gpio.D29, true);
@@ -34,7 +34,7 @@ namespace imBMW.iBus
         {
             if (!Instance.Inited)
             {
-                Instance.InitPort(port, PORT_NAME, threadPriority);
+                Instance.InitPort(port, QueueThreadName.dBus, threadPriority);
             }
             else
             {

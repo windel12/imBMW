@@ -147,6 +147,9 @@ namespace imBMW.iBus.Devices.Real
                         return;
                     }
 
+                    // 
+                    Manager.Instance.EnqueueMessage(FrontDisplay.AuxHeaterIndicatorBlinkingMessage);
+                    
                     // WORKAROUND: when IHKA replied, but webasto not acquired response, and sending message again, but IHKA isn't replying, because thinking that already replied
                     Logger.Trace("_auxilaryHeaterWorkingLastResponseTime: " + _auxilaryHeaterWorkingLastResponseTime, "WEBASTO");
                     Logger.Trace("DateTime.Now: " + DateTime.Now, "WEBASTO");
@@ -159,6 +162,46 @@ namespace imBMW.iBus.Devices.Real
                         KBusManager.Instance.EnqueueMessage(respondMessage);
                     }
                     _auxilaryHeaterWorkingLastResponseTime = DateTime.Now;
+                }
+
+                // see traces/2021.02.15/traceLog46
+                /*
+                -- was working fine
+                15-02 16:45:12.479  ZUH > IHKA: 93 00 22 {Coolant Temperature: 35; Outside: -3; Ign: Ign; MotorRunning; VehicleDriving}
+                15-02 16:45:12.739  IHKA > ZUH: 92 00 22 (Command for auxilary heater)
+                15-02 16:45:41.271  ZUH > IHKA: 93 00 22 {Coolant Temperature: 38; Outside: -3; Ign: Ign; MotorRunning; VehicleDriving}
+                15-02 16:45:41.528  IHKA > ZUH: 92 00 22 (Command for auxilary heater)
+
+                -- something happens, (01 - maybe an error)
+                15-02 16:46:01.442  ZUH > IHKA: 93 01 21 01 {Coolant Temperature: 40; Outside: -3; Ign: Ign; MotorRunning; VehicleDriving}
+                15-02 16:46:02.408  IHKA > ZUH: 92 01 21 (Command for auxilary heater)
+
+                15-02 16:46:30.928  ZUH > IHKA: 93 01 21 01 {Coolant Temperature: 42; Outside: -3; Ign: Ign; MotorRunning; VehicleDriving}
+                15-02 16:46:31.196  IHKA > ZUH: 92 01 21 (Command for auxilary heater)
+
+                15-02 16:46:59.718  ZUH > IHKA: 93 01 21 01 {Coolant Temperature: 41; Outside: -3; Ign: Ign; MotorRunning; VehicleDriving}
+                15-02 16:46:59.993  IHKA > ZUH: 92 01 21 (Command for auxilary heater)
+
+                15-02 16:47:28.460  ZUH > IHKA: 93 01 21 01 {Coolant Temperature: 42; Outside: -3; Ign: Ign; MotorRunning}
+                15-02 16:47:28.736  IHKA > ZUH: 92 01 21 (Command for auxilary heater)
+
+                15-02 16:47:57.250  ZUH > IHKA: 93 01 21 01 {Coolant Temperature: 42; Outside: -3; Ign: Ign; MotorRunning}
+                15-02 16:47:57.520  IHKA > ZUH: 92 01 21 (Command for auxilary heater)
+
+                -- stopping
+                15-02 16:48:26.063  ZUH > IHKA: 93 00 21 {Coolant Temperature: 43; Outside: -3; Ign: Ign; MotorRunning; VehicleDriving}
+                15-02 16:48:26.343  IHKA > ZUH: 92 00 21 (Command for auxilary heater)
+                15-02 16:48:54.851  ZUH > IHKA: 93 00 21 {Coolant Temperature: 42; Outside: -3; Ign: Ign; MotorRunning; VehicleDriving}
+	            15-02 16:48:55.128  IHKA > ZUH: 92 00 21 (Command for auxilary heater)
+                */
+                if (AuxilaryHeater.Status == AuxilaryHeaterStatus.Started && m.Data.StartsWith(AuxilaryHeater.AuxilaryHeaterError.Data))
+                {
+                    Logger.Error("ERROR! 93 01 21 01");
+                }
+
+                if (m.Data.StartsWith(AuxilaryHeater.AuxilaryHeaterStopped1.Data) || m.Data.StartsWith(AuxilaryHeater.AuxilaryHeaterStopped2.Data))
+                {
+                    Manager.Instance.EnqueueMessage(FrontDisplay.AuxHeaterIndicatorTurnOffMessage);
                 }
 
                 return;
@@ -322,7 +365,7 @@ namespace imBMW.iBus.Devices.Real
         {
             Logger.Debug("Manual stop of auxilary heater request");
             StopAuxilaryHeaterInternal();
-            Manager.Instance.EnqueueMessage(FrontDisplay.AuxHeaterIndicatorTurnOnMessage);
+            Manager.Instance.EnqueueMessage(FrontDisplay.AuxHeaterIndicatorTurnOffMessage);
         }
 
         public static void ReadCodingData()

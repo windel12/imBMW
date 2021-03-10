@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.IO;
 using System.Threading;
+using imBMW.Enums;
 using imBMW.iBus.Devices.Real;
 using Debug = Microsoft.SPOT.Debug;
 
@@ -29,14 +30,16 @@ namespace imBMW.Tools
 
         private static bool queueLimitExceeded;
 
+        public static int QueueCount { get { return queue.Count; } }
+
         public static void Create()
         {
             if (queue == null)
             {
 #if OnBoardMonitorEmulator
-                queue = new QueueThreadWorker(ProcessItem, "fileLoggerThread", ThreadPriority.Normal, true);
+                queue = new QueueThreadWorker(ProcessItem, QueueThreadName.FileLogger, ThreadPriority.Normal, true);
 #else
-                queue = new QueueThreadWorker(ProcessItem, "fileLoggerThread", ThreadPriority.Lowest, true);
+                queue = new QueueThreadWorker(ProcessItem, QueueThreadName.FileLogger, ThreadPriority.Lowest, true);
 #endif
             }
 
@@ -46,7 +49,7 @@ namespace imBMW.Tools
         public static void Dispose(int waitTimeout = 2000)
         {
             Logger.Logged -= Logger_Logged;
-            bool waitResult = queue.WaitTillQueueBeEmpty(waitTimeout);
+            bool waitResult = WaitTillQueueBeEmpty(waitTimeout);
             queue.Dispose();
 
             writer.Flush();
@@ -62,6 +65,11 @@ namespace imBMW.Tools
             //errorsWriter.Dispose();
 
             Thread.Sleep(1000);
+        }
+
+        public static bool WaitTillQueueBeEmpty(int waitTimeout)
+        {
+            return queue.WaitTillQueueBeEmpty(waitTimeout);
         }
 
         public static void Init(string logsPath, string errorsPath, Action flushCallback = null)
